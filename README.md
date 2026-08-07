@@ -1,37 +1,44 @@
 # UNANSWERED
 
-An AI-first interactive exhibition.
+> An AI-first interactive exhibition exploring the questions people never answered.
+
+---
+
+## Overview
+
+UNANSWERED is an immersive digital exhibition where visitors explore unanswered moments through eight interactive spaces.
+
+Rather than evaluating people, AI reconstructs each visitor's journey into a reflective narrative.
+
+---
 
 ## Documentation
 
-PROJECT.md
+| Document | Purpose |
+|-----------|---------|
+| PROJECT.md | Project definition |
+| DESIGN.md | Design language |
+| CLAUDE.md | AI development rules |
+| PROMPTS.md | Prompt library |
+| DECISIONS.md | Architecture Decision Records |
+| CHANGELOG.md | Project history |
 
-DESIGN.md
-
-CLAUDE.md
-
-PROMPTS.md
-
-DECISIONS.md
-
-CHANGELOG.md
+---
 
 ## Tech Stack
 
-React
+- React
+- TypeScript
+- Vite
+- Framer Motion
+- Supabase
+- OpenAI
 
-TypeScript
+---
 
-Vite
+## Development
 
-Framer Motion
-
-Supabase
-
-OpenAI
-
-## Quick Start
-
+```bash
 npm install
-
 npm run dev
+```
