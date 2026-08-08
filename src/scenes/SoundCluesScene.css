@@ -1,0 +1,147 @@
+.sound-clues-scene {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: #050506;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 8vh 8vw;
+}
+
+.sound-clues-scene__hint {
+  font-size: 13px;
+  color: var(--color-text-dim);
+  margin: 0;
+}
+
+.sound-clues-scene__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 560px;
+}
+
+.sound-clues-scene__item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.sound-clues-scene__item--selected {
+  border-color: var(--color-accent);
+}
+
+.sound-clues-scene__item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sound-clues-scene__item-label {
+  font-size: 14px;
+  color: var(--color-text);
+}
+
+.sound-clues-scene__item-desc {
+  font-size: 12px;
+  color: var(--color-text-dim);
+}
+
+.sound-clues-scene__item-track {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sound-clues-scene__item-track-fill {
+  height: 100%;
+  background: var(--color-accent);
+  transition: width 0.1s linear;
+}
+
+.sound-clues-scene__item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.sound-clues-scene__mini-btn {
+  padding: 7px 14px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: var(--color-text-dim);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) ease, color var(--duration-fast) ease;
+}
+
+.sound-clues-scene__mini-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+.sound-clues-scene__keyword-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.sound-clues-scene__sublabel {
+  font-size: 12px;
+  color: var(--color-text-dim);
+  margin: 0;
+}
+
+.sound-clues-scene__keywords {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: 480px;
+}
+
+.sound-clues-scene__keyword {
+  padding: 8px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: transparent;
+  color: var(--color-text-dim);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.sound-clues-scene__keyword--selected {
+  border-color: var(--color-accent);
+  color: var(--color-text);
+  background: rgba(201, 163, 255, 0.08);
+}
+
+.sound-clues-scene__confirm {
+  position: relative;
+  margin-top: 8px;
+  padding: 14px 32px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--color-text);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) ease, background var(--duration-fast) ease;
+}
+
+.sound-clues-scene__confirm:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  background: rgba(201, 163, 255, 0.06);
+}
+
+.sound-clues-scene__confirm:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}

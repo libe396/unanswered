@@ -1,0 +1,20 @@
+:root {
+  --color-bg: #0a0a0d;
+  --color-surface: #131318;
+  --color-surface-raised: #1b1b22;
+  --color-text: #e8e6f0;
+  --color-text-dim: #8b899c;
+  --color-accent: #c9a3ff;
+  --color-border: rgba(255, 255, 255, 0.12);
+
+  --font-base: system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --space-xs: 8px;
+  --space-sm: 16px;
+  --space-md: 32px;
+  --space-lg: 64px;
+
+  --duration-scene: 0.9s;
+  --duration-fast: 0.2s;
+  --ease-scene: cubic-bezier(0.22, 1, 0.36, 1);
+}

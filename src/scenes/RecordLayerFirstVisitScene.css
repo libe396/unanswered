@@ -1,0 +1,53 @@
+.record-layer-first-visit {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: #030304;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  overflow: hidden;
+}
+
+.record-layer-first-visit__glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 460px;
+  height: 460px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(140, 120, 200, 0.14), transparent 72%);
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+.record-layer-first-visit__line {
+  position: relative;
+  z-index: 1;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  color: rgba(232, 230, 240, 0.4);
+  margin: 0;
+}
+
+.record-layer-first-visit__continue {
+  position: relative;
+  z-index: 1;
+  padding: 14px 32px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--color-text-dim);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) ease, color var(--duration-fast) ease;
+}
+
+.record-layer-first-visit__continue:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}

@@ -1,0 +1,234 @@
+.intro-scene {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #030303;
+}
+
+.intro-scene__stage {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+}
+
+.intro-scene__wall {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 22vw;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.015) 0px,
+      rgba(255, 255, 255, 0.015) 1px,
+      transparent 1px,
+      transparent 34px
+    ),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03), transparent 70%);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.intro-scene__wall--left {
+  left: 0;
+}
+
+.intro-scene__wall--right {
+  right: 0;
+  transform: scaleX(-1);
+}
+
+.intro-scene__dust {
+  position: absolute;
+  bottom: -4%;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: rgba(232, 230, 240, 0.5);
+  filter: blur(0.5px);
+  pointer-events: none;
+}
+
+.intro-scene__seam {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(230, 210, 255, 0.5) 20%,
+    rgba(230, 210, 255, 0.75) 50%,
+    rgba(230, 210, 255, 0.5) 80%,
+    transparent 100%
+  );
+  box-shadow: 0 0 40px 6px rgba(201, 163, 255, 0.25);
+  transition: width 1.1s var(--ease-scene), box-shadow 1.1s var(--ease-scene),
+    background 1.1s var(--ease-scene);
+  pointer-events: none;
+}
+
+.intro-scene__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 20%, rgba(0, 0, 0, 0.86) 100%);
+  pointer-events: none;
+}
+
+.intro-scene__led {
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.intro-scene__led-floor {
+  font-family: var(--font-base);
+  font-variant-numeric: tabular-nums;
+  font-size: 22px;
+  letter-spacing: 0.1em;
+  color: rgba(232, 230, 240, 0.75);
+  text-shadow: 0 0 12px rgba(201, 163, 255, 0.4);
+}
+
+.intro-scene__led-floor--flicker {
+  animation: intro-led-flicker 0.4s steps(2, jump-none) 2;
+}
+
+@keyframes intro-led-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.15;
+  }
+}
+
+.intro-scene__led-caption {
+  font-size: 9px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--color-text-dim);
+}
+
+.intro-scene__status {
+  position: absolute;
+  bottom: 17%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 260px;
+}
+
+.intro-scene__status-label {
+  font-size: 10px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.intro-scene__status-line {
+  display: block;
+  font-size: 13px;
+  color: var(--color-text-dim);
+  letter-spacing: 0.03em;
+}
+
+.intro-scene__panel {
+  position: absolute;
+  bottom: 6%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 16px 36px;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--color-text-dim);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  cursor: not-allowed;
+  transition: border-color 0.6s ease, background 0.6s ease, color 0.6s ease, box-shadow 0.6s ease;
+}
+
+.intro-scene__panel--ready {
+  cursor: pointer;
+  border-color: rgba(255, 255, 255, 0.22);
+  color: var(--color-text);
+  box-shadow: inset 0 0 24px rgba(201, 163, 255, 0.08);
+}
+
+.intro-scene__panel--ready:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  background: rgba(201, 163, 255, 0.07);
+  box-shadow: inset 0 0 32px rgba(201, 163, 255, 0.18);
+}
+
+.intro-scene__panel--approving {
+  border-color: var(--color-accent);
+  box-shadow: inset 0 0 40px rgba(201, 163, 255, 0.3);
+}
+
+.intro-scene__panel:disabled {
+  cursor: not-allowed;
+}
+
+.intro-scene__panel:focus-visible {
+  outline: 1px solid var(--color-accent);
+  outline-offset: 5px;
+}
+
+.intro-scene__flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.9),
+    rgba(230, 210, 255, 0.4) 45%,
+    transparent 75%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.9s ease;
+}
+
+.intro-scene--departing .intro-scene__seam {
+  width: 100vw;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 160px 60px rgba(255, 255, 255, 0.5);
+}
+
+.intro-scene--departing .intro-scene__flash {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-scene__seam,
+  .intro-scene__flash {
+    transition-duration: 0.3s;
+  }
+
+  .intro-scene__led-floor--flicker {
+    animation-duration: 0.2s;
+  }
+}
+
+@media (max-width: 640px) {
+  .intro-scene__wall {
+    width: 30vw;
+  }
+
+  .intro-scene__status {
+    min-width: 220px;
+  }
+}

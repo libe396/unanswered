@@ -1,0 +1,107 @@
+.landing-scene {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: #040406;
+}
+
+/* Barely-there floor light. Without it the figure floats in a void that reads
+   as "no background yet" rather than as a dark room. */
+/* Neutral, near-black room. Deliberately almost colourless — any violet here
+   turns the whole screen into a lit set and the figure into something that
+   glows, which is the opposite of what this graphic is. */
+.landing-scene__room {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 72% 58% at 50% 44%,
+    rgb(19, 19, 22) 0%,
+    rgb(10, 10, 12) 48%,
+    rgb(4, 4, 5) 100%
+  );
+  pointer-events: none;
+}
+
+/* Full-bleed flex box rather than a translate-centred box: Framer Motion writes
+   the reveal's `scale` straight into `transform`, which would clobber a
+   translate-based centring. Scaling this box is equivalent, since its centre is
+   the viewport centre. */
+.landing-scene__figure {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  /* Bottom-anchored: the torso runs off the lower edge, so the body is cropped
+     by the room instead of ending in a flat cut mid-air. */
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.landing-scene__wordmark {
+  position: absolute;
+  top: clamp(2rem, 5vw, 4.5rem);
+  left: clamp(2rem, 5vw, 4.5rem);
+  width: clamp(170px, 23vw, 320px);
+  height: auto;
+  opacity: 0.92;
+  user-select: none;
+  pointer-events: none;
+}
+
+.landing-scene__scroll {
+  position: absolute;
+  bottom: clamp(2rem, 5vw, 4.5rem);
+  left: clamp(2rem, 5vw, 4.5rem);
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  line-height: 0;
+  animation: landing-scroll-breathe 4.5s ease-in-out infinite;
+}
+
+.landing-scene__scroll img {
+  width: clamp(58px, 7vw, 84px);
+  height: auto;
+  display: block;
+}
+
+.landing-scene__scroll:hover,
+.landing-scene__scroll:focus-visible {
+  animation-play-state: paused;
+  opacity: 1;
+}
+
+.landing-scene__scroll:focus-visible {
+  outline: 1px solid var(--color-accent);
+  outline-offset: 10px;
+}
+
+/* Slow enough to read as breathing rather than as a blinking prompt. */
+@keyframes landing-scroll-breathe {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-scene__scroll {
+    animation: none;
+    opacity: 0.75;
+  }
+}
+
+@media (max-width: 640px) {
+  .landing-scene__wordmark {
+    width: clamp(140px, 46vw, 220px);
+  }
+
+  .landing-scene__scroll img {
+    width: 54px;
+  }
+}

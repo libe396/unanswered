@@ -1,0 +1,300 @@
+.light-archive-scene {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: #050506;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.light-archive-scene__browse {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  padding: 10vh 6vw;
+  width: 100%;
+}
+
+.light-archive-scene__hint {
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  color: var(--color-text-dim);
+  margin: 0;
+}
+
+.light-archive-scene__grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  max-width: 900px;
+  width: 100%;
+}
+
+.light-archive-scene__cell {
+  position: relative;
+  aspect-ratio: 1;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: none;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.light-archive-scene__cell-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(6px) brightness(0.7);
+  transition: filter 0.4s ease, transform 0.4s ease;
+}
+
+.light-archive-scene__cell:hover .light-archive-scene__cell-img,
+.light-archive-scene__cell--selected .light-archive-scene__cell-img {
+  filter: blur(0px) brightness(0.92);
+  transform: scale(1.03);
+}
+
+.light-archive-scene__cell--selected {
+  border-color: var(--color-accent);
+}
+
+.light-archive-scene__cell-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 6px 8px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.75);
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+}
+
+.light-archive-scene__proceed,
+.light-archive-scene__confirm {
+  position: relative;
+  padding: 14px 32px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--color-text);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) ease, background var(--duration-fast) ease;
+}
+
+.light-archive-scene__proceed:hover:not(:disabled),
+.light-archive-scene__confirm:hover {
+  border-color: var(--color-accent);
+  background: rgba(201, 163, 255, 0.06);
+}
+
+.light-archive-scene__proceed:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.light-archive-scene__confirm {
+  position: absolute;
+  bottom: 40px;
+  right: 40px;
+  z-index: 2;
+}
+
+.light-archive-scene__feeling {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 48px;
+  align-items: center;
+  max-width: 900px;
+  padding: 0 6vw;
+}
+
+.light-archive-scene__feeling-img {
+  width: 320px;
+  height: 320px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  flex-shrink: 0;
+}
+
+.light-archive-scene__feeling-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 380px;
+}
+
+.light-archive-scene__label {
+  font-size: 15px;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.light-archive-scene__sublabel {
+  font-size: 12px;
+  color: var(--color-text-dim);
+  margin: 0;
+}
+
+.light-archive-scene__keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.light-archive-scene__keyword {
+  padding: 8px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: transparent;
+  color: var(--color-text-dim);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) ease, color var(--duration-fast) ease;
+}
+
+.light-archive-scene__keyword--selected {
+  border-color: var(--color-accent);
+  color: var(--color-text);
+  background: rgba(201, 163, 255, 0.08);
+}
+
+.light-archive-scene__reading {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 56px;
+  align-items: center;
+  max-width: 900px;
+  padding: 0 6vw;
+}
+
+.light-archive-scene__reading-visual {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.light-archive-scene__reading-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.light-archive-scene__reading-scan {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(201, 163, 255, 0.16) 48%,
+    transparent 100%
+  );
+  background-size: 100% 240%;
+  animation: light-archive-scan 2.6s linear infinite;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .light-archive-scene__reading-scan {
+    animation: none;
+  }
+}
+
+@keyframes light-archive-scan {
+  0% {
+    background-position: 0 -140%;
+  }
+  100% {
+    background-position: 0 100%;
+  }
+}
+
+.light-archive-scene__rules {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 320px;
+}
+
+.light-archive-scene__rules-heading {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin: 0 0 6px;
+}
+
+.light-archive-scene__rule {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 4px 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.light-archive-scene__rule-code {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: rgba(232, 230, 240, 0.4);
+}
+
+.light-archive-scene__rule-name {
+  grid-column: 2;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--color-text-dim);
+}
+
+.light-archive-scene__rule--matched .light-archive-scene__rule-name {
+  color: var(--color-text);
+}
+
+.light-archive-scene__rule-value {
+  grid-column: 2;
+  font-size: 12px;
+  color: rgba(232, 230, 240, 0.35);
+  letter-spacing: 0.02em;
+}
+
+.light-archive-scene__rule--matched .light-archive-scene__rule-value {
+  color: var(--color-accent);
+}
+
+.light-archive-scene__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.2s ease;
+}
+
+.light-archive-scene__canvas--visible {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .light-archive-scene__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .light-archive-scene__feeling,
+  .light-archive-scene__reading {
+    flex-direction: column;
+  }
+
+  .light-archive-scene__rules {
+    width: 100%;
+  }
+}

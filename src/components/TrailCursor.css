@@ -1,0 +1,35 @@
+.trail-cursor {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+}
+
+.trail-cursor__layer {
+  position: absolute;
+  inset: 0;
+}
+
+.trail-cursor__dot {
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  opacity: 0.9;
+  will-change: transform;
+}
+
+.trail-cursor__node {
+  position: absolute;
+  top: -2.5px;
+  left: -2.5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  opacity: 0.5;
+  transition: opacity 1.4s linear;
+}

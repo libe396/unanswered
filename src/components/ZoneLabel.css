@@ -1,0 +1,48 @@
+.zone-label {
+  position: fixed;
+  top: 28px;
+  right: 28px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  text-align: right;
+  pointer-events: none;
+}
+
+.zone-label__zone {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  opacity: 0.75;
+}
+
+.zone-label__name {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-dim);
+  opacity: 0.55;
+}
+
+@media print {
+  .zone-label {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .zone-label {
+    top: 18px;
+    right: 18px;
+  }
+
+  .zone-label__zone,
+  .zone-label__name {
+    font-size: 9px;
+  }
+}

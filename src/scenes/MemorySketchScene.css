@@ -1,0 +1,154 @@
+.memory-sketch-scene {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: #050506;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 6vh 6vw;
+}
+
+.memory-sketch-scene__backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(28px) brightness(0.4) saturate(0.7);
+  opacity: 0.6;
+}
+
+.memory-sketch-scene__backdrop-veil {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.75) 100%);
+}
+
+.memory-sketch-scene__hint {
+  position: relative;
+  z-index: 1;
+  font-size: 13px;
+  color: var(--color-text-dim);
+  margin: 0;
+}
+
+.memory-sketch-scene__canvas {
+  position: relative;
+  z-index: 1;
+  width: min(900px, 88vw);
+  aspect-ratio: 1200 / 800;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.1);
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.memory-sketch-scene__controls {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.memory-sketch-scene__colors {
+  display: flex;
+  gap: 10px;
+}
+
+.memory-sketch-scene__color {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+
+.memory-sketch-scene__color--active {
+  border-color: var(--color-text);
+}
+
+.memory-sketch-scene__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.memory-sketch-scene__mini-btn {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: var(--color-text-dim);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) ease, color var(--duration-fast) ease;
+}
+
+.memory-sketch-scene__mini-btn:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+.memory-sketch-scene__mini-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.memory-sketch-scene__confirm {
+  position: relative;
+  z-index: 1;
+  margin-top: 4px;
+  padding: 14px 32px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--color-text);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) ease, background var(--duration-fast) ease;
+}
+
+.memory-sketch-scene__confirm:hover {
+  border-color: var(--color-accent);
+  background: rgba(201, 163, 255, 0.06);
+}
+
+.memory-sketch-scene__modal-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.memory-sketch-scene__modal {
+  position: relative;
+  width: min(360px, 84vw);
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: #0a0a0d;
+}
+
+.memory-sketch-scene__modal-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.memory-sketch-scene__modal-actions {
+  display: flex;
+  gap: 10px;
+}
