@@ -1,0 +1,96 @@
+.memory-field {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/*
+  The mass is the only control on the Landing scene, so the canvas itself takes
+  the click. There is no button, and there should never be one.
+
+  `pointer-events: auto` is load-bearing and must not be removed: Landing wraps
+  this in a full-bleed layer that is `pointer-events: none` so it cannot swallow
+  input meant for anything behind it, and that value cascades down to here. A
+  descendant re-enabling it is the only reason the field is clickable at all.
+*/
+.memory-field__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+}
+
+.memory-field--hovered {
+  cursor: pointer;
+}
+
+/*
+  Ambient halo behind the field, in the same signal colour the particles carry.
+  The particles are additive and individually dim, so without a floor of light
+  the mass reads as noise on black rather than as something lit standing in a
+  room. Elongated to match the field's slightly vertical silhouette.
+
+  Hover lifts it along with the field's own light, so the mass responds as one
+  body rather than as a canvas with a cursor over it.
+*/
+.memory-field::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* Lavender at the core, falling to near-colourless at the edge — the glow
+     should read as white light with a violet centre, never as a purple wash. */
+  background: radial-gradient(
+    ellipse 30% 40% at 50% 50%,
+    rgba(var(--color-lavender-rgb), 0.075) 0%,
+    rgba(var(--color-lavender-rgb), 0.022) 34%,
+    rgba(255, 255, 255, 0.012) 56%,
+    transparent 76%
+  );
+  opacity: 1;
+  transition: opacity 1.1s var(--ease-scene), transform 1.4s var(--ease-scene);
+  pointer-events: none;
+}
+
+.memory-field--hovered::before {
+  opacity: 1.4;
+  transform: scale(1.07);
+}
+
+/*
+  Shown only when WebGL2 or float render targets are unavailable. Not a
+  reconstruction of the field — just enough light in the centre that the cover
+  reads as an intentionally empty room instead of a failed page.
+*/
+.memory-field__fallback {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle 28% at 50% 50%, rgba(232, 230, 240, 0.06) 0%, transparent 70%),
+    radial-gradient(circle 14% at 50% 50%, rgba(232, 230, 240, 0.05) 0%, transparent 68%);
+  animation: memory-field-breathe 11s ease-in-out infinite;
+}
+
+@keyframes memory-field-breathe {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .memory-field__fallback {
+    animation: none;
+    opacity: 0.85;
+  }
+
+  .memory-field::before,
+  .memory-field--hovered::before {
+    transition-duration: 0.2s;
+    transform: none;
+  }
+}

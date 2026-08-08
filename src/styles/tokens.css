@@ -7,6 +7,18 @@
   --color-accent: #c9a3ff;
   --color-border: rgba(255, 255, 255, 0.12);
 
+  /* The light inside the Memory Field. It is compressed into the vertical line
+     when the visitor enters, leaks from the elevator door seam, and then lights
+     the car interior — one light source carried across the two Scenes, which is
+     what makes the entry read as a single shot rather than a scene change. */
+  --color-signal: #9fb2f2;
+  --color-signal-rgb: 159, 178, 242;
+
+  /* The Memory Field's own colour: a soft lavender, low saturation. Distinct
+     from --color-signal, which is the cooler blue the field converges on as it
+     is compressed and which the elevator is then lit in. */
+  --color-lavender-rgb: 186, 168, 236;
+
   --font-base: system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   --space-xs: 8px;

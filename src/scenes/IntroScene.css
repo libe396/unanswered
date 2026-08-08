@@ -6,6 +6,48 @@
   background: #030303;
 }
 
+/*
+  Camera. A slow push forward that starts the moment the doors part, so the
+  visitor is carried into the car rather than cut to it. Scale up only — the
+  push must never start below 1, or the room's edges pull away from the frame.
+*/
+.intro-scene__camera {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  transform: scale(1);
+  transition: transform 2.8s var(--ease-scene);
+}
+
+.intro-scene--open .intro-scene__camera {
+  transform: scale(1.08);
+}
+
+/*
+  The car's own light, in the colour the Memory Field was carrying. This is the
+  payoff of the whole entry: the light that was compressed into the line is the
+  light that is now inside the room.
+*/
+.intro-scene__camera::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: radial-gradient(
+    ellipse 62% 56% at 50% 44%,
+    rgba(var(--color-signal-rgb), 0.15) 0%,
+    rgba(var(--color-signal-rgb), 0.05) 45%,
+    transparent 72%
+  );
+  opacity: 0;
+  transition: opacity 2.4s var(--ease-scene);
+  pointer-events: none;
+}
+
+.intro-scene--open .intro-scene__camera::before {
+  opacity: 1;
+}
+
 .intro-scene__stage {
   position: relative;
   width: 100%;
@@ -212,10 +254,128 @@
   opacity: 1;
 }
 
+/* ── Arrival ──────────────────────────────────────────────────────────────
+   The first thing on screen in this Scene is not the elevator. It is the line
+   of light that the Memory Field was compressed into, still in exactly the
+   place the previous Scene left it. The doors are closed behind it.          */
+
+.intro-scene__arrival {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.intro-scene__door {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  /* Fractionally over half, so no subpixel seam of interior shows through
+     before the light is meant to. */
+  width: 50.15%;
+  background:
+    linear-gradient(180deg, #0b0b10 0%, #06060a 52%, #030305 100%);
+  transition: transform 1.15s cubic-bezier(0.66, 0, 0.24, 1);
+  will-change: transform;
+}
+
+.intro-scene__door--left {
+  left: 0;
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.055);
+}
+
+.intro-scene__door--right {
+  right: 0;
+  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.055);
+}
+
+.intro-scene--open .intro-scene__door--left {
+  transform: translateX(-100%);
+}
+
+.intro-scene--open .intro-scene__door--right {
+  transform: translateX(100%);
+}
+
+/*
+  Starts at the height the compressed line ends at — roughly a third of the
+  viewport — then runs out to full height. That extension is the moment the
+  particle light becomes architecture.
+*/
+.intro-scene__arrival-seam {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  /* Measured against the compressed line the Memory Field actually ends on at
+     the moment of the cut: 27vh for the bright core. The cut only disappears if
+     these two are the same length, so this number is a measurement and not a
+     preference — re-measure if the collapse timing, FIELD_SCALE, FIELD_LIMIT or
+     LINE_HALF_LENGTH changes. */
+  height: 28vh;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    var(--color-signal) 16%,
+    #f2f4ff 50%,
+    var(--color-signal) 84%,
+    transparent 100%
+  );
+  box-shadow: 0 0 34px 5px rgba(var(--color-signal-rgb), 0.55);
+  transition: height 0.45s var(--ease-scene), opacity 0.9s var(--ease-scene),
+    box-shadow 1.2s var(--ease-scene);
+}
+
+.intro-scene--seam-extended .intro-scene__arrival-seam {
+  height: 100vh;
+}
+
+.intro-scene--open .intro-scene__arrival-seam {
+  opacity: 0;
+  box-shadow: 0 0 110px 26px rgba(var(--color-signal-rgb), 0.3);
+}
+
+/* Light spilling from the gap, widening as the doors draw it apart. */
+.intro-scene__arrival-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 16% 68% at 50% 50%,
+    rgba(var(--color-signal-rgb), 0.55) 0%,
+    rgba(var(--color-signal-rgb), 0.13) 42%,
+    transparent 74%
+  );
+  opacity: 0;
+  transform: scaleX(1);
+  transition: opacity 1.3s var(--ease-scene), transform 1.7s var(--ease-scene);
+}
+
+.intro-scene--seam-extended .intro-scene__arrival-glow {
+  opacity: 0.6;
+}
+
+.intro-scene--open .intro-scene__arrival-glow {
+  opacity: 0;
+  transform: scaleX(3.4);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .intro-scene__seam,
   .intro-scene__flash {
     transition-duration: 0.3s;
+  }
+
+  .intro-scene__camera,
+  .intro-scene__camera::before,
+  .intro-scene__door,
+  .intro-scene__arrival-seam,
+  .intro-scene__arrival-glow {
+    transition-duration: 0.3s;
+  }
+
+  .intro-scene--open .intro-scene__camera {
+    transform: none;
   }
 
   .intro-scene__led-floor--flicker {

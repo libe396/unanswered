@@ -31,69 +31,44 @@
   position: absolute;
   inset: 0;
   display: flex;
-  /* Bottom-anchored: the torso runs off the lower edge, so the body is cropped
-     by the room instead of ending in a flat cut mid-air. */
-  align-items: flex-end;
+  /* Centred: the field is a volume suspended in the room, not a bust standing
+     on its floor. It has no bottom edge to hide, and hanging it off-centre
+     would give the composition a subject-and-ground reading it should not have. */
+  align-items: center;
   justify-content: center;
   pointer-events: none;
 }
 
-.landing-scene__wordmark {
+/* Title and subcopy travel together as one block, so the line of the wordmark's
+   left edge is the only alignment in the room. */
+.landing-scene__mark {
   position: absolute;
   top: clamp(2rem, 5vw, 4.5rem);
   left: clamp(2rem, 5vw, 4.5rem);
+  pointer-events: none;
+}
+
+.landing-scene__wordmark {
+  display: block;
   width: clamp(170px, 23vw, 320px);
   height: auto;
   opacity: 0.92;
   user-select: none;
-  pointer-events: none;
 }
 
-.landing-scene__scroll {
-  position: absolute;
-  bottom: clamp(2rem, 5vw, 4.5rem);
-  left: clamp(2rem, 5vw, 4.5rem);
-  padding: 0;
-  border: none;
-  background: none;
-  cursor: pointer;
-  line-height: 0;
-  animation: landing-scroll-breathe 4.5s ease-in-out infinite;
-}
-
-.landing-scene__scroll img {
-  width: clamp(58px, 7vw, 84px);
-  height: auto;
-  display: block;
-}
-
-.landing-scene__scroll:hover,
-.landing-scene__scroll:focus-visible {
-  animation-play-state: paused;
-  opacity: 1;
-}
-
-.landing-scene__scroll:focus-visible {
-  outline: 1px solid var(--color-accent);
-  outline-offset: 10px;
-}
-
-/* Slow enough to read as breathing rather than as a blinking prompt. */
-@keyframes landing-scroll-breathe {
-  0%,
-  100% {
-    opacity: 0.5;
-  }
-  50% {
-    opacity: 0.85;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .landing-scene__scroll {
-    animation: none;
-    opacity: 0.75;
-  }
+/*
+  Far below the wordmark in weight. It is a caption on a wall label, not a
+  tagline: wide tracking, low contrast, and small enough that it is read second
+  or not at all. Anything heavier turns the cover into a marketing hero.
+*/
+.landing-scene__subcopy {
+  margin: clamp(0.85rem, 1.4vw, 1.3rem) 0 0;
+  font-size: clamp(9px, 0.78vw, 11px);
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--color-text-dim);
+  opacity: 0.62;
+  user-select: none;
 }
 
 @media (max-width: 640px) {
@@ -101,7 +76,8 @@
     width: clamp(140px, 46vw, 220px);
   }
 
-  .landing-scene__scroll img {
-    width: 54px;
+  .landing-scene__subcopy {
+    font-size: 9px;
+    letter-spacing: 0.26em;
   }
 }

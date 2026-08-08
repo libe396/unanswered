@@ -42,15 +42,41 @@ const reducedVariants: Variants = {
   exit: { opacity: 0 },
 };
 
+/** A true cut: no fade in, no fade out, no blur, no scale. */
+const cutVariants: Variants = {
+  initial: { opacity: 1 },
+  animate: { opacity: 1 },
+  exit: { opacity: 1 },
+};
+
+/**
+ * Landing and Elevator Entry are joined by a match cut, so both are listed.
+ *
+ * Landing ends on a vertical line of light and Elevator Entry opens on the same
+ * line in the same place, which only works as one continuous shot if nothing at
+ * all happens between the two frames.
+ *
+ * Both ends have to be listed, not just the incoming one. AnimatePresence keeps
+ * an exiting child rendered with the props it last had, so listing only 'intro'
+ * left Landing exiting on the default 0.9s blur-and-scale — and because the mode
+ * is "wait", the elevator did not mount until that finished. Measured: the store
+ * changed at 1312ms and IntroScene mounted at 2228ms, with a blurred gap in
+ * between where the cut was supposed to be.
+ */
+const MATCH_CUT_SCENES: ReadonlySet<SceneId> = new Set<SceneId>(['landing', 'intro']);
+
 export function SceneController() {
   const currentScene = useExperienceStore((s) => s.currentScene);
   const prefersReducedMotion = useReducedMotion();
   const ActiveScene = SCENE_COMPONENTS[currentScene];
+  const isMatchCut = MATCH_CUT_SCENES.has(currentScene);
 
-  const variants = prefersReducedMotion ? reducedVariants : motionVariants;
-  const transition = prefersReducedMotion
-    ? { duration: 0.15 }
-    : { duration: 0.9, ease: [0.22, 1, 0.36, 1] as const };
+  const variants = isMatchCut ? cutVariants : prefersReducedMotion ? reducedVariants : motionVariants;
+  const transition = isMatchCut
+    ? { duration: 0 }
+    : prefersReducedMotion
+      ? { duration: 0.15 }
+      : { duration: 0.9, ease: [0.22, 1, 0.36, 1] as const };
 
   return (
     <>

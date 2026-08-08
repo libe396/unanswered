@@ -15,11 +15,23 @@ const DUST_PARTICLES = [
   { left: '90%', delay: 10, duration: 20 },
 ];
 
+/**
+ * Arrival timings. This Scene does not open on the elevator — it opens on the
+ * line of light the Memory Field was compressed into, which is still on screen
+ * from the previous Scene. The seam runs out to full height, the doors part
+ * around it, and only then is there an elevator. Landing's collapse plus these
+ * two beats is the whole entry, and it has to stay under three seconds.
+ */
+const SEAM_EXTEND_MS = 450;
+const DOOR_OPEN_MS = 1150;
+
 export function IntroScene() {
   const completeScene = useExperienceStore((s) => s.completeScene);
   const prefersReducedMotion = useReducedMotion();
   const timeScale = prefersReducedMotion ? 0.4 : 1;
 
+  const [seamExtended, setSeamExtended] = useState(false);
+  const [doorsOpen, setDoorsOpen] = useState(false);
   const [statusIndex, setStatusIndex] = useState(0);
   const [panelReady, setPanelReady] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
@@ -34,9 +46,22 @@ export function IntroScene() {
   }
 
   useEffect(() => {
-    schedule(() => setStatusIndex(1), 3300 * timeScale);
-    schedule(() => setStatusIndex(2), 4600 * timeScale);
-    schedule(() => setPanelReady(true), 6400 * timeScale);
+    const seamAt = SEAM_EXTEND_MS * timeScale;
+    const openAt = seamAt + DOOR_OPEN_MS * timeScale;
+    // Everything the car does waits for the doors — the status readout must not
+    // already be running behind a closed door.
+    const interior = openAt * 0.75;
+
+    if (import.meta.env.DEV) console.info('[entry] elevator-mounted');
+
+    schedule(() => setSeamExtended(true), 40);
+    schedule(() => {
+      if (import.meta.env.DEV) console.info('[entry] door-open-start');
+      setDoorsOpen(true);
+    }, seamAt);
+    schedule(() => setStatusIndex(1), interior + 3300 * timeScale);
+    schedule(() => setStatusIndex(2), interior + 4600 * timeScale);
+    schedule(() => setPanelReady(true), interior + 6400 * timeScale);
 
     return () => {
       timeoutsRef.current.forEach((id) => window.clearTimeout(id));
@@ -73,8 +98,20 @@ export function IntroScene() {
       ? { duration: 0.5, repeat: 2, ease: 'easeInOut' as const }
       : { duration: 2.4, repeat: Infinity, ease: 'easeInOut' as const };
 
+  const sceneClass = [
+    'intro-scene',
+    seamExtended ? 'intro-scene--seam-extended' : '',
+    doorsOpen ? 'intro-scene--open' : '',
+    departing ? 'intro-scene--departing' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <div className={`intro-scene${departing ? ' intro-scene--departing' : ''}`}>
+    <div className={sceneClass}>
+      {/* Separate from the stage because Framer owns the stage's transform for
+          the car's vibration — the camera push needs its own element. */}
+      <div className="intro-scene__camera">
       <motion.div
         className="intro-scene__stage"
         animate={vibrationAnimate}
@@ -174,6 +211,20 @@ export function IntroScene() {
           </span>
         </motion.button>
       </motion.div>
+      </div>
+
+      {/*
+        The doors sit in front of everything and are the first thing on screen.
+        The arrival seam between them is the same line of light the Memory Field
+        was compressed into one frame earlier — same position, same colour — so
+        the Scene change lands as a match cut rather than as a transition.
+      */}
+      <div className="intro-scene__arrival" aria-hidden="true">
+        <div className="intro-scene__door intro-scene__door--left" />
+        <div className="intro-scene__door intro-scene__door--right" />
+        <div className="intro-scene__arrival-glow" />
+        <div className="intro-scene__arrival-seam" />
+      </div>
 
       <div className="intro-scene__flash" />
     </div>
