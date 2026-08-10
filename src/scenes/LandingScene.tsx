@@ -130,6 +130,15 @@ export function LandingScene() {
           What remains unanswered?
         </motion.p>
       </div>
+
+      <motion.p
+        className="landing-scene__start-hint"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: entryArmed ? 1 : 0 }}
+        transition={{ duration: d(1.2), ease: [0.22, 1, 0.36, 1] }}
+      >
+        CLICK TO START
+      </motion.p>
     </div>
   );
 }

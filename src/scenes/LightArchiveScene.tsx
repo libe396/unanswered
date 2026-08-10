@@ -170,8 +170,8 @@ export function LightArchiveScene() {
     return (
       <ZoneIntroCard
         zone="ZONE 03"
-        title="빛의 흔적을 조사한다."
-        subtitle="빛은 말보다 먼저 감정을 남긴다."
+        title="빛의 흔적"
+        subtitle="빛은 그 사람의 흔적을 가장 잘 담고 있다."
         ctaLabel="조사 시작"
         onContinue={() => setPhase('browse')}
       />

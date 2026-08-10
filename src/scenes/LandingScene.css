@@ -71,6 +71,21 @@
   user-select: none;
 }
 
+.landing-scene__start-hint {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(2rem, 6vh, 4rem);
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--color-text-dim);
+  opacity: 0.58;
+  pointer-events: none;
+  user-select: none;
+}
+
 @media (max-width: 640px) {
   .landing-scene__wordmark {
     width: clamp(140px, 46vw, 220px);
@@ -79,5 +94,11 @@
   .landing-scene__subcopy {
     font-size: 9px;
     letter-spacing: 0.26em;
+  }
+
+  .landing-scene__start-hint {
+    bottom: 2rem;
+    font-size: 9px;
+    letter-spacing: 0.24em;
   }
 }
