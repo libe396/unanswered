@@ -182,7 +182,7 @@ export function LightArchiveScene() {
     <div className="light-archive-scene">
       {phase === 'browse' ? (
         <div className="light-archive-scene__browse">
-          <p className="light-archive-scene__hint">단서처럼 느껴지는 이미지를 선택하세요</p>
+          <p className="light-archive-scene__hint">그 사람이 남긴 흔적의 이미지를 선택하세요</p>
           <div className="light-archive-scene__grid">
             {archiveImages.map((img, idx) => (
               <button
@@ -214,7 +214,7 @@ export function LightArchiveScene() {
         <div className="light-archive-scene__feeling">
           <img src={selectedImage.src} alt="" className="light-archive-scene__feeling-img" />
           <div className="light-archive-scene__feeling-panel">
-            <p className="light-archive-scene__label">이 이미지에서 어떤 감각이 느껴지나요</p>
+            <p className="light-archive-scene__label">이 이미지에서 어떤 것이 느껴지나요?</p>
             <p className="light-archive-scene__sublabel">최대 {MAX_EMOTION_KEYWORDS}개 선택</p>
             <div className="light-archive-scene__keywords">
               {EMOTION_KEYWORDS.map((kw) => (
@@ -235,7 +235,7 @@ export function LightArchiveScene() {
               disabled={selectedKeywords.length === 0}
             >
               <TerminalCorners />
-              빛을 읽기 시작한다
+              다음으로
             </button>
           </div>
         </div>
@@ -257,7 +257,7 @@ export function LightArchiveScene() {
 
           <div className="light-archive-scene__rules">
             <p className="light-archive-scene__rules-heading">
-              {phase === 'reconstructing' ? '빛 그래픽을 재구성하는 중' : 'LIGHT RULE MATCHING'}
+              {phase === 'reconstructing' ? '그 사람의 빛을 찾았어요' : 'LIGHT RULE MATCHING'}
             </p>
             {RULE_STAGES.map((stage, index) => {
               const isRevealed = index < revealedCount || phase === 'reconstructing';

@@ -151,19 +151,23 @@ export const useExperienceStore = create<ExperienceState>()(
     }),
     {
       name: 'unanswered-experience-v2',
+      partialize: (state) => ({
+        landing: state.landing,
+        investigator: state.investigator,
+        lightArchive: state.lightArchive,
+        recordLayerFirstVisit: state.recordLayerFirstVisit,
+        soundClues: state.soundClues,
+        memorySketch: state.memorySketch,
+        sentenceClues: state.sentenceClues,
+        finalReport: state.finalReport,
+      }),
       onRehydrateStorage: () => (state) => {
         if (!state) return;
-        // Landing is the exhibition's cover, not one of the numbered Scenes
-        // (ADR-011), so its completion is never carried across a reload: every
-        // visit enters through it and then resumes at the furthest Scene the
-        // audience actually reached. Dropping it here rather than at write time
-        // also repairs sessions already stored as "landing completed", which
-        // would otherwise skip the cover permanently in that browser.
-        state.completedScenes = state.completedScenes.filter((id) => id !== 'landing');
-        const allowed = getFurthestAllowedScene(state.completedScenes);
-        if (SCENE_ORDER.indexOf(state.currentScene) > SCENE_ORDER.indexOf(allowed)) {
-          state.currentScene = allowed;
-        }
+        // A browser visit always starts at the exhibition entrance. Persisted
+        // answers remain available, but navigation state is intentionally
+        // session-local so reloads never resume into a later Zone.
+        state.currentScene = 'landing';
+        state.completedScenes = [];
       },
     },
   ),

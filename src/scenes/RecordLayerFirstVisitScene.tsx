@@ -38,7 +38,7 @@ export function RecordLayerFirstVisitScene() {
         transition={{ duration: 1, delay: prefersReducedMotion ? 0.6 : 2.1 }}
       >
         <TerminalCorners />
-        지나간다
+        다음으로
       </motion.button>
     </div>
   );

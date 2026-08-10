@@ -102,8 +102,8 @@ export function SentenceCluesScene() {
     return (
       <ZoneIntroCard
         zone="ZONE 08"
-        title="문장의 흔적을 조사한다."
-        subtitle="사람은 결국 말로 남는다."
+        title="문장의 흔적"
+        subtitle="사람의 기억은, 결국 글자로 남는 법."
         ctaLabel="조사 시작"
         onContinue={() => setShowIntro(false)}
       />
@@ -151,7 +151,7 @@ export function SentenceCluesScene() {
 
       <button className="sentence-clues-scene__confirm" onClick={handleConfirm} disabled={!canConfirm}>
         <TerminalCorners />
-        선택 확정
+        다음으로
       </button>
     </div>
   );

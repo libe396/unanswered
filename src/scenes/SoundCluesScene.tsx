@@ -163,7 +163,7 @@ export function SoundCluesScene() {
 
   return (
     <div className="sound-clues-scene">
-      <p className="sound-clues-scene__hint">오래 머물고 싶은 소리를 찾아보세요.</p>
+      <p className="sound-clues-scene__hint">그 사람의 기억에선 어떤 소리가 존재했을까요?</p>
 
       <div className="sound-clues-scene__list">
         {SOUND_CLUES.map((clue) => {
@@ -202,7 +202,7 @@ export function SoundCluesScene() {
       </div>
 
       <div className="sound-clues-scene__keyword-block">
-        <p className="sound-clues-scene__sublabel">이 소리에 어울리는 감각 단어를 고르세요</p>
+        <p className="sound-clues-scene__sublabel">이 소리를 들었을 때, 그 사람이 느꼈을 것 같은 감정은 무엇일까요?</p>
         <div className="sound-clues-scene__keywords">
           {SENSORY_WORDS.map((word) => (
             <button
@@ -224,7 +224,7 @@ export function SoundCluesScene() {
         disabled={!selectedSoundId || !selectedKeyword}
       >
         <TerminalCorners />
-        선택 확정
+        다음으로
       </button>
     </div>
   );
