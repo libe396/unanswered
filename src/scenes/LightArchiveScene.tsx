@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { analyzeImage } from '../lib/imageAnalysis.js';
 import { renderLightGraphic } from '../lib/lightRenderer.js';
 import { ARCHIVE_META } from '../archiveMeta.js';
 import { EMOTION_KEYWORDS, MAX_EMOTION_KEYWORDS } from '../data/content';
 import { useExperienceStore } from '../store/experienceStore';
+import { logSceneTracking, useSceneTracking } from '../hooks/useSceneTracking';
+import { playClueRecordedSignature } from '../lib/postElevatorAudio';
 import { TerminalCorners } from '../components/TerminalCorners';
 import { ZoneIntroCard } from '../components/ZoneIntroCard';
 import type { LightAnalysisRules } from '../types';
@@ -39,6 +41,10 @@ function originLabel(origin: { x: number; y: number }): string {
   const horizontal = origin.x < 0.4 ? '좌측' : origin.x > 0.6 ? '우측' : '';
   const label = `${vertical} ${horizontal}`.trim();
   return label || '중앙';
+}
+
+function stageClassName(name: string): string {
+  return name.toLowerCase().replace(/\s+/g, '-');
 }
 
 interface RuleStage {
@@ -85,17 +91,27 @@ const RULE_STAGES: RuleStage[] = [
   },
 ];
 
-const RULE_REVEAL_INTERVAL_MS = 850;
+const RULE_REVEAL_INTERVAL_MS = 520;
 const RULE_HOLD_MS = 900;
 const RECONSTRUCT_MS = 1400;
 
-type Phase = 'zoneIntro' | 'browse' | 'feeling' | 'reading' | 'reconstructing' | 'projecting';
+type Phase = 'zoneIntro' | 'browse' | 'feeling' | 'reading' | 'complete' | 'reconstructing' | 'projecting';
+
+/*
+  The two questions this Zone asks, and how each one answers.
+
+  Naming them is the whole of what tracking needs from a scene: the image grid
+  holds one choice at a time, the feeling row holds several. Everything the
+  report reads later is derived from events filed under these two names.
+*/
+const TRACKING_GROUPS = { image: 'single', emotion: 'multi' } as const;
 
 export function LightArchiveScene() {
   const archiveImages = useMemo(buildArchiveImages, []);
   const setLightArchive = useExperienceStore((s) => s.setLightArchive);
   const completeScene = useExperienceStore((s) => s.completeScene);
   const prefersReducedMotion = useReducedMotion();
+  const tracking = useSceneTracking('lightArchive', TRACKING_GROUPS);
 
   const [phase, setPhase] = useState<Phase>('zoneIntro');
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
@@ -108,19 +124,33 @@ export function LightArchiveScene() {
   const timersRef = useRef<number[]>([]);
 
   const selectedImage = selectedIdx !== null ? archiveImages[selectedIdx] : null;
+  const isAnalysisPhase = phase === 'reading' || phase === 'complete' || phase === 'reconstructing';
+
+  function nextKeywords(prev: string[], ko: string): string[] {
+    if (prev.includes(ko)) return prev.filter((k) => k !== ko);
+    if (prev.length >= MAX_EMOTION_KEYWORDS) return [...prev.slice(1), ko];
+    return [...prev, ko];
+  }
 
   function toggleKeyword(ko: string) {
-    setSelectedKeywords((prev) => {
-      if (prev.includes(ko)) return prev.filter((k) => k !== ko);
-      if (prev.length >= MAX_EMOTION_KEYWORDS) return [...prev.slice(1), ko];
-      return [...prev, ko];
-    });
+    /*
+      Computed from the rendered value rather than inside a functional updater.
+      The rule is unchanged — same eviction, same order — but React invokes
+      updaters twice under StrictMode, and a tracker called from in there would
+      record every feeling the visitor picked twice over.
+    */
+    const next = nextKeywords(selectedKeywords, ko);
+    setSelectedKeywords(next);
+    tracking.setSelection('emotion', next);
   }
 
   useEffect(() => () => timersRef.current.forEach((timer) => window.clearTimeout(timer)), []);
 
   async function startAnalysis() {
     if (!selectedImage) return;
+    timersRef.current.forEach((timer) => window.clearTimeout(timer));
+    timersRef.current = [];
+    tracking.commit('emotion');
     setPhase('reading');
     setRevealedCount(0);
     setRules(null);
@@ -138,21 +168,30 @@ export function LightArchiveScene() {
     });
 
     const closingTimer = window.setTimeout(
-      () => setPhase('reconstructing'),
+      () => setPhase('complete'),
       RULE_STAGES.length * interval + (prefersReducedMotion ? RULE_HOLD_MS * 0.3 : RULE_HOLD_MS),
     );
     timersRef.current.push(closingTimer);
   }
 
   useEffect(() => {
-    if (phase !== 'reconstructing' || !rules || !canvasRef.current) return;
+    if (!rules || !canvasRef.current) return;
     renderLightGraphic(canvasRef.current, rules, 1);
+  }, [rules]);
+
+  useEffect(() => {
+    if (phase !== 'reconstructing') return;
     const timer = window.setTimeout(
       () => setPhase('projecting'),
       prefersReducedMotion ? RECONSTRUCT_MS * 0.3 : RECONSTRUCT_MS,
     );
     return () => window.clearTimeout(timer);
-  }, [phase, rules, prefersReducedMotion]);
+  }, [phase, prefersReducedMotion]);
+
+  function handleRevealLight() {
+    if (phase !== 'complete') return;
+    setPhase('reconstructing');
+  }
 
   function handleConfirm() {
     if (!selectedImage || !rules) return;
@@ -163,7 +202,96 @@ export function LightArchiveScene() {
       variation: 1,
       selectDwellMs: Date.now() - enteredAtRef.current,
     });
+    tracking.save();
+    logSceneTracking('lightArchive', tracking);
+    playClueRecordedSignature();
     completeScene('lightArchive');
+  }
+
+  function renderRuleValue(stage: RuleStage, currentRules: LightAnalysisRules): ReactNode {
+    if (stage.name === 'LIGHT ORIGIN') {
+      return (
+        <span className="light-archive-scene__result-stack">
+          <strong>
+            x {Math.round(currentRules.lightOrigin.x * 100)} · y {Math.round(currentRules.lightOrigin.y * 100)}
+          </strong>
+          <small>{originLabel(currentRules.lightOrigin)}</small>
+        </span>
+      );
+    }
+
+    if (stage.name === 'DIRECTION') {
+      return (
+        <span className="light-archive-scene__result-stack">
+          <strong>{Math.round(currentRules.motionDirection.angle)}°</strong>
+          <small>{currentRules.motionDirection.label}</small>
+        </span>
+      );
+    }
+
+    if (stage.name === 'BRIGHTNESS') {
+      const percent = Math.round(currentRules.averageBrightness * 100);
+      return (
+        <span className="light-archive-scene__result-stack">
+          <strong>{percent}%</strong>
+          <span className="light-archive-scene__brightness-meter" aria-hidden="true">
+            <span style={{ width: `${percent}%` }} />
+          </span>
+        </span>
+      );
+    }
+
+    if (stage.name === 'HIGHLIGHTS') {
+      const region = currentRules.brightRegions[0];
+      const color = region?.color ?? currentRules.palette[0] ?? '#c9a3ff';
+      return (
+        <span className="light-archive-scene__highlight-value">
+          <span className="light-archive-scene__color-swatch" style={{ backgroundColor: color }} />
+          <span className="light-archive-scene__result-stack">
+            <strong>{currentRules.brightRegions.length} BRIGHT REGIONS</strong>
+            <small>{color}</small>
+          </span>
+        </span>
+      );
+    }
+
+    if (stage.name === 'STRUCTURE MATCH') {
+      const tokens = [
+        currentRules.structure.compositionType,
+        currentRules.structure.dominantAxis,
+        currentRules.structure.shapeEnergy,
+        currentRules.structure.spatialWeight,
+      ].filter(Boolean);
+      return (
+        <span className="light-archive-scene__structure-tokens">
+          {tokens.map((token, index) => (
+            <span key={`${token}-${index}`} style={{ transitionDelay: `${index * 90}ms` }}>
+              {token}
+            </span>
+          ))}
+        </span>
+      );
+    }
+
+    if (stage.name === 'PALETTE') {
+      return (
+        <span className="light-archive-scene__palette">
+          {currentRules.palette.slice(0, 4).map((color, index) => (
+            <span
+              key={`${color}-${index}`}
+              className="light-archive-scene__palette-item"
+              style={{ transitionDelay: `${index * 110}ms` }}
+              title={color}
+            >
+              <span className="light-archive-scene__palette-swatch" style={{ backgroundColor: color }} />
+              <small>{color}</small>
+            </span>
+          ))}
+        </span>
+      );
+    }
+
+    return <span>{stage.describe(currentRules)}</span>;
   }
 
   if (phase === 'zoneIntro') {
@@ -173,7 +301,10 @@ export function LightArchiveScene() {
         title="빛의 흔적"
         subtitle="빛은 그 사람의 흔적을 가장 잘 담고 있다."
         ctaLabel="조사 시작"
-        onContinue={() => setPhase('browse')}
+        onContinue={() => {
+          tracking.openGroup('image');
+          setPhase('browse');
+        }}
       />
     );
   }
@@ -190,7 +321,21 @@ export function LightArchiveScene() {
                 className={`light-archive-scene__cell${
                   selectedIdx === idx ? ' light-archive-scene__cell--selected' : ''
                 }`}
-                onClick={() => setSelectedIdx(idx)}
+                /*
+                  Looking and choosing are separate acts, and the grid shows
+                  every image at once — so what counts as "viewing an image" has
+                  to be the pointer resting on it, not the image being on
+                  screen. Focus is bound as well so a keyboard visitor is
+                  recorded on the same terms as a pointer one.
+                */
+                onPointerEnter={() => tracking.viewStart('image', img.id)}
+                onPointerLeave={() => tracking.viewEnd('image', img.id)}
+                onFocus={() => tracking.viewStart('image', img.id)}
+                onBlur={() => tracking.viewEnd('image', img.id)}
+                onClick={() => {
+                  setSelectedIdx(idx);
+                  tracking.select('image', img.id);
+                }}
               >
                 <img src={img.src} alt={img.label} className="light-archive-scene__cell-img" />
                 {img.label ? (
@@ -201,7 +346,11 @@ export function LightArchiveScene() {
           </div>
           <button
             className="light-archive-scene__proceed"
-            onClick={() => setPhase('feeling')}
+            onClick={() => {
+              tracking.commit('image');
+              tracking.openGroup('emotion');
+              setPhase('feeling');
+            }}
             disabled={selectedIdx === null}
           >
             <TerminalCorners />
@@ -241,44 +390,102 @@ export function LightArchiveScene() {
         </div>
       ) : null}
 
-      {(phase === 'reading' || phase === 'reconstructing') && selectedImage ? (
-        <div className="light-archive-scene__reading">
+      {isAnalysisPhase ? (
+        <div
+          className={`light-archive-scene__analysis-overlay${
+            phase === 'reconstructing' ? ' light-archive-scene__analysis-overlay--reveal' : ''
+          }`}
+        />
+      ) : null}
+
+      {isAnalysisPhase && selectedImage ? (
+        <div
+          className={`light-archive-scene__reading${
+            phase === 'reconstructing' ? ' light-archive-scene__reading--leaving' : ''
+          }`}
+        >
           <div className="light-archive-scene__reading-visual">
             <motion.img
               src={selectedImage.src}
               alt=""
               className="light-archive-scene__reading-img"
-              initial={{ filter: 'grayscale(0) contrast(1) brightness(1)' }}
-              animate={{ filter: 'grayscale(1) contrast(1.3) brightness(0.55)' }}
-              transition={{ duration: prefersReducedMotion ? 0.4 : 1.8, ease: 'easeInOut' }}
             />
+            {rules && revealedCount >= 1 ? (
+              <motion.span
+                className="light-archive-scene__origin-marker"
+                style={{
+                  left: `${rules.lightOrigin.x * 100}%`,
+                  top: `${rules.lightOrigin.y * 100}%`,
+                }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: prefersReducedMotion ? 0.15 : 0.42, ease: [0.22, 1, 0.36, 1] }}
+              />
+            ) : null}
+            {rules && revealedCount >= 2 ? (
+              <motion.span
+                className="light-archive-scene__direction-line"
+                style={{
+                  left: `${rules.lightOrigin.x * 100}%`,
+                  top: `${rules.lightOrigin.y * 100}%`,
+                  rotate: `${rules.motionDirection.angle}deg`,
+                }}
+                initial={{ opacity: 0, scaleX: 0 }}
+                animate={{ opacity: 1, scaleX: 1 }}
+                transition={{ duration: prefersReducedMotion ? 0.15 : 0.55, ease: [0.22, 1, 0.36, 1] }}
+              />
+            ) : null}
             <div className="light-archive-scene__reading-scan" aria-hidden="true" />
           </div>
 
           <div className="light-archive-scene__rules">
-            <p className="light-archive-scene__rules-heading">
-              {phase === 'reconstructing' ? '그 사람의 빛을 찾았어요' : 'LIGHT RULE MATCHING'}
-            </p>
-            {RULE_STAGES.map((stage, index) => {
-              const isRevealed = index < revealedCount || phase === 'reconstructing';
-              return (
-                <motion.div
-                  key={stage.code}
-                  className={`light-archive-scene__rule${
-                    isRevealed ? ' light-archive-scene__rule--matched' : ''
-                  }`}
-                  initial={{ opacity: 0.25 }}
-                  animate={{ opacity: isRevealed ? 1 : 0.25 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <span className="light-archive-scene__rule-code">{stage.code}</span>
-                  <span className="light-archive-scene__rule-name">{stage.name}</span>
-                  <span className="light-archive-scene__rule-value">
-                    {isRevealed && rules ? stage.describe(rules) : 'MATCHING…'}
-                  </span>
-                </motion.div>
-              );
-            })}
+            <div className="light-archive-scene__rules-header">
+              <p className="light-archive-scene__rules-heading">
+                {phase === 'complete' || phase === 'reconstructing'
+                  ? 'ANALYSIS COMPLETE'
+                  : 'ANALYSIS IN PROGRESS'}
+              </p>
+              <span className="light-archive-scene__rules-progress">
+                {String(Math.min(revealedCount, RULE_STAGES.length)).padStart(2, '0')} /{' '}
+                {String(RULE_STAGES.length).padStart(2, '0')}
+              </span>
+            </div>
+
+            <div className="light-archive-scene__rules-grid">
+              {RULE_STAGES.map((stage, index) => {
+                const isRevealed = Boolean(rules) && index < revealedCount;
+                return (
+                  <motion.div
+                    key={stage.code}
+                    className={`light-archive-scene__rule light-archive-scene__rule--${stageClassName(
+                      stage.name,
+                    )}${isRevealed ? ' light-archive-scene__rule--matched' : ''}`}
+                    initial={{ opacity: 0, y: 7 }}
+                    animate={{ opacity: isRevealed ? 1 : 0, y: isRevealed ? 0 : 7 }}
+                    transition={{ duration: prefersReducedMotion ? 0.15 : 0.46, ease: [0.22, 1, 0.36, 1] }}
+                    aria-hidden={!isRevealed}
+                  >
+                    <span className="light-archive-scene__rule-code">{stage.code}</span>
+                    <span className="light-archive-scene__rule-name">{stage.name}</span>
+                    <span className="light-archive-scene__rule-value">
+                      {isRevealed && rules ? renderRuleValue(stage, rules) : null}
+                    </span>
+                  </motion.div>
+                );
+              })}
+            </div>
+
+            <motion.div
+              className="light-archive-scene__analysis-complete"
+              initial={{ opacity: 0.32 }}
+              animate={{ opacity: phase === 'complete' ? 1 : 0.32 }}
+              transition={{ duration: prefersReducedMotion ? 0.15 : 0.42, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <button type="button" onClick={handleRevealLight} disabled={phase !== 'complete'}>
+                <span>VIEW DETECTED LIGHT</span>
+                <span aria-hidden="true">→</span>
+              </button>
+            </motion.div>
           </div>
         </div>
       ) : null}
@@ -288,9 +495,11 @@ export function LightArchiveScene() {
         width={1000}
         height={1000}
         className={`light-archive-scene__canvas${
-          phase === 'reconstructing' || phase === 'projecting'
+          isAnalysisPhase || phase === 'projecting'
             ? ' light-archive-scene__canvas--visible'
             : ''
+        }${
+          isAnalysisPhase ? ' light-archive-scene__canvas--analysis' : ''
         }`}
       />
 

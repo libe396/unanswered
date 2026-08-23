@@ -1,0 +1,91 @@
+.report-stage-06__eyebrow {
+  opacity: 0.4;
+  font-size: 9px;
+}
+
+.report-stage-06__frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: clamp(240px, 38vh, 400px);
+  width: min(760px, 88vw);
+}
+
+.report-stage-06__line {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  width: max-content;
+  max-width: min(680px, 88vw);
+  font-size: clamp(18px, 2.35vw, 25px);
+  line-height: 1.82;
+  color: rgba(232, 230, 240, 0.92);
+  text-align: center;
+  white-space: pre-line;
+}
+
+.report-stage-06__line--reveal {
+  font-size: clamp(34px, 6vw, 72px);
+  line-height: 1.28;
+  color: var(--color-text);
+}
+
+.report-stage-06__line--detail {
+  font-size: clamp(17px, 2vw, 22px);
+  line-height: 1.9;
+  color: rgba(232, 230, 240, 0.84);
+}
+
+.report-stage-06__line--reframe {
+  font-size: clamp(18px, 2.4vw, 26px);
+  line-height: 1.78;
+  color: var(--color-text);
+}
+
+.report-stage-06__line--closure {
+  font-size: clamp(23px, 3.4vw, 36px);
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.report-stage-06__line--final {
+  font-size: clamp(25px, 3.6vw, 40px);
+  line-height: 1.58;
+  color: var(--color-accent);
+}
+
+.report-stage-06__blank {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 1px;
+  height: 1px;
+}
+
+@media (max-width: 640px) {
+  .report-stage-06__frame {
+    min-height: 380px;
+  }
+
+  .report-stage-06__line {
+    font-size: 18px;
+    max-width: 88vw;
+  }
+
+  .report-stage-06__line--reveal {
+    font-size: 38px;
+  }
+
+  .report-stage-06__line--closure {
+    font-size: 25px;
+  }
+
+  .report-stage-06__line--final {
+    font-size: 26px;
+  }
+}

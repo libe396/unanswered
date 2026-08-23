@@ -1,0 +1,149 @@
+/* Hidden on screen — this is the print/export artifact, not a viewed
+   screen. src/scenes/FinalReportScene.css's report-stage sequence is what
+   visitors see; this becomes visible only under @media print below. */
+.saved-report-document {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  visibility: hidden;
+  pointer-events: none;
+  width: 100%;
+  min-height: 100vh;
+  background: #050506;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 6vh 6vw;
+}
+
+.saved-report-document__paper {
+  width: 100%;
+  max-width: 520px;
+  padding: 36px 32px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.015);
+  text-align: left;
+}
+
+.saved-report-document__eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  font-size: 11px;
+  color: var(--color-accent);
+  margin: 0 0 20px;
+}
+
+.saved-report-document__visuals {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  margin-bottom: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #000;
+}
+
+.saved-report-document__light-canvas,
+.saved-report-document__sketch-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.saved-report-document__light-canvas {
+  opacity: 0.85;
+}
+
+.saved-report-document__sketch-canvas {
+  opacity: 0.4;
+  mix-blend-mode: screen;
+}
+
+.saved-report-document__source-img {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.saved-report-document__lines {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 0 20px;
+}
+
+.saved-report-document__line {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.saved-report-document__line dt {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-text-dim);
+}
+
+.saved-report-document__line dd {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text);
+}
+
+.saved-report-document__observation {
+  font-size: 14px;
+  line-height: 1.8;
+  color: rgba(232, 230, 240, 0.75);
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 0 0 16px;
+}
+
+.saved-report-document__reveal {
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.saved-report-document__reveal-line {
+  margin: 0 0 4px;
+  font-size: 15px;
+  color: var(--color-accent);
+  letter-spacing: 0.02em;
+}
+
+@media print {
+  .saved-report-document {
+    position: static;
+    z-index: auto;
+    visibility: visible;
+    pointer-events: auto;
+    min-height: auto;
+    padding: 0;
+    background: #fff;
+  }
+
+  .saved-report-document__paper {
+    border: none;
+    background: #fff;
+  }
+
+  .saved-report-document__paper * {
+    color: #000 !important;
+  }
+
+  /* Belt-and-suspenders: only the document prints, whatever stage of the
+     cinematic sequence happens to be mounted underneath it. */
+  .report-stage,
+  .final-record-layer,
+  .final-report-scene__save {
+    display: none !important;
+  }
+}

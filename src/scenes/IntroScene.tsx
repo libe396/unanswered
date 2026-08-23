@@ -46,12 +46,42 @@ export function IntroScene() {
   const [departing, setDeparting] = useState(false);
 
   const timeoutsRef = useRef<number[]>([]);
+  const elevatorAudioRef = useRef<HTMLAudioElement | null>(null);
 
   function schedule(fn: () => void, ms: number) {
     timeoutsRef.current.push(window.setTimeout(fn, ms));
   }
 
+  function setElevatorVolume(volume: number) {
+    const audio = elevatorAudioRef.current;
+    if (!audio) return;
+    audio.volume = Math.max(0, Math.min(volume, 0.14));
+  }
+
+  function playElevatorSound(volume: number) {
+    const audio = elevatorAudioRef.current;
+    if (!audio) return;
+    audio.currentTime = 0;
+    setElevatorVolume(volume);
+    void audio.play().catch(() => {
+      // Audio is atmospheric only; browser autoplay policy must never block the Scene.
+    });
+  }
+
+  function stopElevatorSound() {
+    const audio = elevatorAudioRef.current;
+    if (!audio) return;
+    audio.pause();
+    audio.currentTime = 0;
+  }
+
   useEffect(() => {
+    const elevatorAudio = new Audio(`${import.meta.env.BASE_URL}audio/elevator-open.wav`);
+    elevatorAudio.preload = 'auto';
+    elevatorAudio.loop = false;
+    elevatorAudio.volume = 0;
+    elevatorAudioRef.current = elevatorAudio;
+
     const seamAt = SEAM_EXTEND_MS * timeScale;
     const openAt = seamAt + DOOR_OPEN_MS * timeScale;
     // Everything the car does waits for the doors — the status readout must not
@@ -64,7 +94,9 @@ export function IntroScene() {
     schedule(() => {
       if (import.meta.env.DEV) console.info('[entry] door-open-start');
       setDoorsOpen(true);
+      playElevatorSound(0.09);
     }, seamAt);
+    schedule(() => setElevatorVolume(0.055), openAt + 600 * timeScale);
     schedule(() => setStatusIndex(1), interior + 3300 * timeScale);
     schedule(() => setStatusIndex(2), interior + 4600 * timeScale);
     schedule(() => {
@@ -75,6 +107,8 @@ export function IntroScene() {
     return () => {
       timeoutsRef.current.forEach((id) => window.clearTimeout(id));
       timeoutsRef.current = [];
+      stopElevatorSound();
+      elevatorAudioRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -91,9 +125,16 @@ export function IntroScene() {
     schedule(() => {
       setFloorFlicker(true);
       setFloor('B1');
+      setElevatorVolume(0.035);
     }, stillness);
-    schedule(() => setDeparting(true), doorAt);
-    schedule(() => completeScene('intro'), leaveAt);
+    schedule(() => {
+      setDeparting(true);
+      setElevatorVolume(0.012);
+    }, doorAt);
+    schedule(() => {
+      stopElevatorSound();
+      completeScene('intro');
+    }, leaveAt);
   }
 
   const vibrationAnimate = prefersReducedMotion
@@ -111,6 +152,8 @@ export function IntroScene() {
     'intro-scene',
     seamExtended ? 'intro-scene--seam-extended' : '',
     doorsOpen ? 'intro-scene--open' : '',
+    isApproving ? 'intro-scene--moving' : '',
+    floorFlicker ? 'intro-scene--arrived' : '',
     departing ? 'intro-scene--departing' : '',
   ]
     .filter(Boolean)
@@ -178,7 +221,7 @@ export function IntroScene() {
           >
             {floor}
           </span>
-          <span className="intro-scene__led-caption">목적지 미확인</span>
+          <span className="intro-scene__led-caption">도착지 확인 중</span>
         </motion.div>
 
         <motion.div
@@ -277,7 +320,10 @@ export function IntroScene() {
                   </div>
 
                   <button type="button" className="intro-scene__letter-start" onClick={handleApprove}>
-                    조사를 시작한다 →
+                    <span>조사를 시작한다</span>
+                    <span className="intro-scene__letter-start-arrow" aria-hidden="true">
+                      →
+                    </span>
                   </button>
                 </section>
               </div>

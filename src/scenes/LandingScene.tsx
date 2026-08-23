@@ -18,6 +18,8 @@ export function LandingScene() {
   const d = (full: number) => (prefersReducedMotion ? full * 0.3 : full);
 
   const [entryArmed, setEntryArmed] = useState(false);
+  const [fieldActive, setFieldActive] = useState(false);
+  const [entering, setEntering] = useState(false);
   const figureWrapRef = useRef<HTMLDivElement>(null);
   const mountedAtRef = useRef(0);
   const dwellRef = useRef(0);
@@ -90,14 +92,34 @@ export function LandingScene() {
       cursorTravelPx: Math.round(travelRef.current),
       bounced: false,
     });
-    completeScene('landing');
-    if (import.meta.env.DEV) {
-      console.info(`[entry] scene-change:${useExperienceStore.getState().currentScene}`);
-    }
+    const advance = () => {
+      completeScene('landing');
+      if (import.meta.env.DEV) {
+        console.info(`[entry] scene-change:${useExperienceStore.getState().currentScene}`);
+      }
+    };
+    advance();
   }
 
+  function handleCollapseStart() {
+    setFieldActive(false);
+    setEntering(true);
+  }
+
+  function handleFieldHoverChange(hovered: boolean) {
+    setFieldActive(hovered);
+  }
+
+  const sceneClass = [
+    'landing-scene',
+    fieldActive ? 'landing-scene--field-active' : '',
+    entering ? 'landing-scene--entering' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <div className="landing-scene">
+    <div className={sceneClass}>
       <div className="landing-scene__room" />
 
       {/* The mass arrives first and alone — the space introduces its subject
@@ -109,7 +131,12 @@ export function LandingScene() {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: d(2.6), ease: [0.22, 1, 0.36, 1] }}
       >
-        <MemoryField onEnter={handleEnter} interactive={entryArmed} />
+        <MemoryField
+          onEnter={handleEnter}
+          onCollapseStart={handleCollapseStart}
+          onHoverChange={handleFieldHoverChange}
+          interactive={entryArmed}
+        />
       </motion.div>
 
       <div className="landing-scene__mark">
@@ -134,7 +161,7 @@ export function LandingScene() {
       <motion.p
         className="landing-scene__start-hint"
         initial={{ opacity: 0 }}
-        animate={{ opacity: entryArmed ? 1 : 0 }}
+        animate={{ opacity: entryArmed && !entering ? 1 : 0 }}
         transition={{ duration: d(1.2), ease: [0.22, 1, 0.36, 1] }}
       >
         CLICK TO START

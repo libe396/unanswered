@@ -1,4 +1,4 @@
-import { SENTENCE_OPTIONS, SOUND_CLUES } from '../data/content';
+import { SENTENCE_RECONSTRUCTION_FRAGMENTS, SOUND_CLUES } from '../data/content';
 import type { RecordLayerDerived, ReportData } from '../types';
 
 function buildObservationText(record: RecordLayerDerived): string {
@@ -10,7 +10,21 @@ function buildObservationText(record: RecordLayerDerived): string {
     ? `'${repeated}'라는 단어가 반복해서 나타났다.`
     : '뚜렷하게 반복되는 단어는 나타나지 않았다.';
 
-  return `이 기록의 대상은 ${dominantKeyword}에 오래 머물렀고, ${structureType} 구조의 빛에 반응했다. ${repeatedLine} 그러나 이 모든 단서는 하나의 문장으로 정리되지 않는다.`;
+  /*
+    Gated per the Data / Finding Audit: this line used to close every
+    observation unconditionally, regardless of whether the session's data
+    actually failed to resolve to anything. `structureType` is the one
+    already-computed signal available here (LIGHT's own deterministic
+    composition read — src/lib/imageAnalysis.js's compositionTypeLabel) that
+    means roughly the same thing: the image itself did not resolve to one
+    clear subject. Everywhere else this line would need behavioural data
+    (e.g. SENTENCE's viewedButUnusedFragments) that this function, reading
+    only the final answers in `record`, does not have.
+  */
+  const unresolvedLine =
+    structureType === 'abstract / unclear' ? ' 그러나 이 모든 단서는 하나의 문장으로 정리되지 않는다.' : '';
+
+  return `이 기록의 대상은 ${dominantKeyword}에 오래 머물렀고, ${structureType} 구조의 빛에 반응했다. ${repeatedLine}${unresolvedLine}`;
 }
 
 function buildSoundPattern(record: RecordLayerDerived): string {
@@ -33,7 +47,7 @@ function buildDwellSummary(record: RecordLayerDerived): string {
   const dwellEntries = Object.entries(record.sentenceClues.dwellTimes);
   if (dwellEntries.length === 0) return '머문 시간이 기록되지 않았다.';
   const [longestId, longestMs] = dwellEntries.sort((a, b) => b[1] - a[1])[0];
-  const sentence = SENTENCE_OPTIONS.find((o) => o.id === longestId)?.text;
+  const sentence = SENTENCE_RECONSTRUCTION_FRAGMENTS.find((f) => f.id === longestId)?.text;
   const seconds = (longestMs / 1000).toFixed(1);
   return sentence ? `'${sentence}' 앞에서 가장 오래 머물렀다 (${seconds}초).` : '머문 시간이 기록되지 않았다.';
 }

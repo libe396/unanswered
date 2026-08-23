@@ -1,0 +1,129 @@
+.report-stage-05__label {
+  letter-spacing: 0.28em;
+  color: var(--color-text-dim);
+}
+
+.report-stage-05__composition {
+  position: absolute;
+  inset: clamp(78px, 13vh, 124px) clamp(20px, 5vw, 72px) clamp(118px, 17vh, 160px);
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.report-stage-05__trace {
+  position: absolute;
+  transform-origin: center;
+}
+
+.report-stage-05__trace .report-evidence-visual__label {
+  opacity: 0.7;
+}
+
+.report-stage-05__trace .report-evidence-visual__frame {
+  opacity: 0.78;
+}
+
+.report-stage-05__record-core {
+  position: relative;
+  width: clamp(120px, 16vw, 190px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(232, 230, 240, 0.22);
+  background: rgba(5, 5, 6, 0.7);
+  box-shadow: 0 0 70px rgba(201, 163, 255, 0.09);
+}
+
+.report-stage-05__record-core span {
+  position: absolute;
+  border: 1px solid rgba(201, 163, 255, 0.24);
+}
+
+.report-stage-05__record-core span:nth-child(1) {
+  inset: 18%;
+}
+
+.report-stage-05__record-core span:nth-child(2) {
+  inset: 31% 16%;
+  transform: rotate(34deg);
+}
+
+.report-stage-05__record-core span:nth-child(3) {
+  inset: 16% 34%;
+  transform: rotate(-28deg);
+}
+
+.report-stage-05__marker {
+  position: absolute;
+  padding: 4px 6px;
+  border: 1px solid rgba(232, 230, 240, 0.16);
+  background: rgba(5, 5, 6, 0.82);
+  font-size: 9px;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  color: rgba(232, 230, 240, 0.58);
+}
+
+.report-stage-05__marker--return {
+  left: -28px;
+  top: 28%;
+}
+
+.report-stage-05__marker--hold {
+  right: -20px;
+  bottom: 24%;
+}
+
+.report-stage-05__copy-frame {
+  position: relative;
+  z-index: 2;
+  width: min(680px, 86vw);
+  min-height: clamp(160px, 24dvh, 230px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.report-stage-05__line,
+.report-stage-05__question {
+  position: absolute;
+  margin: 0;
+  max-width: min(620px, 86vw);
+  white-space: pre-line;
+}
+
+.report-stage-05__line {
+  font-size: clamp(18px, 2.35vw, 25px);
+  line-height: 1.72;
+  color: rgba(242, 240, 247, 0.92);
+}
+
+.report-stage-05__question {
+  font-size: clamp(24px, 3.8vw, 42px);
+  line-height: 1.55;
+  color: var(--color-accent);
+}
+
+@media (max-width: 640px) {
+  .report-stage-05__composition {
+    inset: 92px 18px 138px;
+  }
+
+  .report-stage-05__trace {
+    transform: scale(0.8);
+  }
+
+  .report-stage-05__record-core {
+    width: 118px;
+  }
+
+  .report-stage-05__copy-frame {
+    min-height: 190px;
+  }
+
+  .report-stage-05__question {
+    font-size: 25px;
+  }
+}

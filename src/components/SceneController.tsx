@@ -1,6 +1,7 @@
 import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer-motion';
 import type { ComponentType } from 'react';
 import { useExperienceStore } from '../store/experienceStore';
+import { useCrossSceneDebug } from '../hooks/useCrossSceneDebug';
 import { LandingScene } from '../scenes/LandingScene';
 import { IntroScene } from '../scenes/IntroScene';
 import { RegistrationScene } from '../scenes/RegistrationScene';
@@ -14,6 +15,7 @@ import { RecordLayerSecondVisitScene } from '../scenes/RecordLayerSecondVisitSce
 import { FinalReportScene } from '../scenes/FinalReportScene';
 import type { SceneId } from '../types';
 import { DevSceneNav } from './DevSceneNav';
+import { PostElevatorSoundManager } from './PostElevatorSoundManager';
 import { ZoneLabel } from './ZoneLabel';
 
 const SCENE_COMPONENTS: Record<SceneId, ComponentType> = {
@@ -68,6 +70,7 @@ const MATCH_CUT_SCENES: ReadonlySet<SceneId> = new Set<SceneId>(['landing', 'int
 export function SceneController() {
   const currentScene = useExperienceStore((s) => s.currentScene);
   const prefersReducedMotion = useReducedMotion();
+  useCrossSceneDebug();
   const ActiveScene = SCENE_COMPONENTS[currentScene];
   const isMatchCut = MATCH_CUT_SCENES.has(currentScene);
 
@@ -80,6 +83,7 @@ export function SceneController() {
 
   return (
     <>
+      <PostElevatorSoundManager currentScene={currentScene} />
       <AnimatePresence mode="wait">
         <motion.div
           key={currentScene}

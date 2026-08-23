@@ -1,13 +1,15 @@
 .sound-clues-scene {
   position: relative;
   width: 100%;
-  min-height: 100vh;
+  min-height: 100dvh;
   background: #050506;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
-  padding: 8vh 8vw;
+  justify-content: center;
+  gap: clamp(14px, 2.4vh, 22px);
+  padding: clamp(24px, 5vh, 42px) 8vw;
+  box-sizing: border-box;
 }
 
 .sound-clues-scene__hint {
@@ -19,16 +21,23 @@
 .sound-clues-scene__list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: clamp(7px, 1.2vh, 10px);
   width: 100%;
   max-width: 560px;
+}
+
+/* The chosen sound, carried onto the positioning step. Narrowed to sit over
+   the field rather than over the list it came from — same row, same styling,
+   just no longer one of seven. */
+.sound-clues-scene__list--single {
+  max-width: min(340px, 72vw);
 }
 
 .sound-clues-scene__item {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 14px 18px;
+  gap: clamp(7px, 1.1vh, 10px);
+  padding: clamp(11px, 1.8vh, 14px) 18px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.015);
 }
@@ -85,11 +94,20 @@
   color: var(--color-text);
 }
 
-.sound-clues-scene__keyword-block {
+/* ── Memory field ───────────────────────────────────────────────────────────
+   Where the chosen sound is placed, rather than named.
+
+   Kept to the Zone's own vocabulary — hairline borders, dim small type, the
+   one accent colour — and deliberately short of anything that would read as a
+   chart. There are no ticks, no scale, no numbers anywhere in the markup, and
+   the two centre lines are drawn at barely above the background so the field
+   reads as a space with edges rather than as a graph with quadrants. */
+
+.sound-clues-scene__field-block {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   margin-top: 8px;
 }
 
@@ -99,32 +117,127 @@
   margin: 0;
 }
 
-.sound-clues-scene__keywords {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-  max-width: 480px;
+/* Holds the field and the four words around it, so the words sit outside the
+   frame and never crowd the place the point is put. */
+.sound-clues-scene__field-frame {
+  position: relative;
+  padding: 22px 0;
+  width: min(340px, 72vw);
 }
 
-.sound-clues-scene__keyword {
-  padding: 8px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: transparent;
+.sound-clues-scene__axis {
+  position: absolute;
+  font-size: 10px;
+  letter-spacing: 0.12em;
   color: var(--color-text-dim);
-  font-size: 13px;
-  cursor: pointer;
+  opacity: 0.65;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
-.sound-clues-scene__keyword--selected {
+.sound-clues-scene__axis--top {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.sound-clues-scene__axis--bottom {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* The side words are rotated to run along the edges they belong to, which
+   keeps them out of the field without needing width for them. */
+.sound-clues-scene__axis--left {
+  left: 0;
+  top: 50%;
+  transform: translate(calc(-50% - 10px), -50%) rotate(-90deg);
+}
+
+.sound-clues-scene__axis--right {
+  right: 0;
+  top: 50%;
+  transform: translate(calc(50% + 10px), -50%) rotate(90deg);
+}
+
+.sound-clues-scene__field {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    radial-gradient(ellipse at center, rgba(201, 163, 255, 0.045) 0%, transparent 68%),
+    rgba(255, 255, 255, 0.012);
+  cursor: crosshair;
+  touch-action: none;
+  transition: border-color var(--duration-fast) ease;
+}
+
+.sound-clues-scene__field:hover,
+.sound-clues-scene__field--placed {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.sound-clues-scene__field:focus-visible {
+  outline: none;
   border-color: var(--color-accent);
-  color: var(--color-text);
-  background: rgba(201, 163, 255, 0.08);
+}
+
+/* Centre lines. Faint enough to orient without dividing the field into cells —
+   the point is a place in a space, not a reading off a grid. */
+.sound-clues-scene__field-hair {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.05);
+  pointer-events: none;
+}
+
+.sound-clues-scene__field-hair--v {
+  left: 50%;
+  top: 12%;
+  bottom: 12%;
+  width: 1px;
+}
+
+.sound-clues-scene__field-hair--h {
+  top: 50%;
+  left: 12%;
+  right: 12%;
+  height: 1px;
+}
+
+/* The mark. A small point with a soft halo, the same accent the rest of the
+   Zone uses for a chosen thing. */
+.sound-clues-scene__mark {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.sound-clues-scene__mark-dot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow:
+    0 0 0 3px rgba(201, 163, 255, 0.14),
+    0 0 14px 3px rgba(201, 163, 255, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sound-clues-scene__field {
+    transition: none;
+  }
 }
 
 .sound-clues-scene__confirm {
   position: relative;
-  margin-top: 8px;
+  margin-top: 2px;
   padding: 14px 32px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.18);

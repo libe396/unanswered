@@ -1,0 +1,68 @@
+.report-stage-04 {
+  gap: clamp(16px, 3vh, 28px);
+}
+
+.report-stage-04__room {
+  position: relative;
+  height: min(360px, 42dvh);
+  width: auto;
+  max-width: 78vw;
+  aspect-ratio: 1536 / 1024;
+  margin-top: clamp(12px, 2vh, 24px);
+}
+
+.report-stage-04 .memory-room {
+  width: 100%;
+}
+
+.report-stage-04__canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  mix-blend-mode: screen;
+  opacity: 0.82;
+  pointer-events: none;
+}
+
+.report-stage-04__copy-frame {
+  position: relative;
+  width: min(620px, 84vw);
+  min-height: clamp(90px, 16dvh, 140px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.report-stage-04__line {
+  position: absolute;
+  margin: 0;
+  max-width: min(560px, 84vw);
+  text-align: center;
+  font-size: clamp(17px, 2.2vw, 23px);
+  line-height: 1.7;
+  color: rgba(232, 230, 240, 0.9);
+  white-space: pre-line;
+}
+
+.report-stage-04__line--final {
+  font-size: clamp(20px, 2.8vw, 29px);
+  color: var(--color-accent);
+}
+
+@media (max-width: 640px) {
+  .report-stage-04__room {
+    height: min(250px, 34dvh);
+    max-width: 88vw;
+  }
+
+  .report-stage-04__copy-frame {
+    min-height: 120px;
+  }
+
+  .report-stage-04__line--final {
+    font-size: 20px;
+  }
+}

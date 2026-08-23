@@ -1,7 +1,7 @@
 .intro-scene {
   position: relative;
   width: 100%;
-  min-height: 100vh;
+  min-height: 100dvh;
   overflow: hidden;
   background: #030303;
 }
@@ -14,7 +14,7 @@
 .intro-scene__camera {
   position: relative;
   width: 100%;
-  height: 100vh;
+  height: 100dvh;
   transform: scale(1);
   transition: transform 2.8s var(--ease-scene);
 }
@@ -48,10 +48,70 @@
   opacity: 1;
 }
 
+.intro-scene--moving .intro-scene__camera::before {
+  opacity: 0.82;
+}
+
+.intro-scene--arrived .intro-scene__camera::before {
+  opacity: 1;
+}
+
 .intro-scene__stage {
   position: relative;
   width: 100%;
-  height: 100vh;
+  height: 100dvh;
+}
+
+.intro-scene__stage::before,
+.intro-scene__stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.intro-scene__stage::before {
+  z-index: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(var(--color-signal-rgb), 0.09) 0%,
+      transparent 21%,
+      transparent 79%,
+      rgba(var(--color-signal-rgb), 0.075) 100%
+    ),
+    radial-gradient(
+      ellipse 34% 68% at 50% 50%,
+      rgba(var(--color-signal-rgb), 0.13) 0%,
+      rgba(var(--color-signal-rgb), 0.045) 44%,
+      transparent 76%
+    );
+  opacity: 0;
+  transition: opacity 1.5s var(--ease-scene), transform 1.8s var(--ease-scene);
+}
+
+.intro-scene__stage::after {
+  z-index: 1;
+  background: radial-gradient(ellipse at center, transparent 28%, rgba(0, 0, 0, 0.38) 100%);
+  opacity: 0.76;
+  transition: opacity 1.3s var(--ease-scene);
+}
+
+.intro-scene--open .intro-scene__stage::before {
+  opacity: 0.72;
+  transform: scaleX(1.08);
+}
+
+.intro-scene--moving .intro-scene__stage::before {
+  opacity: 0.55;
+}
+
+.intro-scene--arrived .intro-scene__stage::before {
+  opacity: 0.82;
+}
+
+.intro-scene--arrived .intro-scene__stage::after {
+  opacity: 0.62;
 }
 
 .intro-scene__wall {
@@ -59,6 +119,7 @@
   top: 0;
   bottom: 0;
   width: 22vw;
+  z-index: 2;
   background:
     repeating-linear-gradient(
       90deg,
@@ -70,6 +131,7 @@
     linear-gradient(90deg, rgba(255, 255, 255, 0.03), transparent 70%);
   opacity: 0.6;
   pointer-events: none;
+  transition: filter 1.4s var(--ease-scene);
 }
 
 .intro-scene__wall--left {
@@ -81,9 +143,22 @@
   transform: scaleX(-1);
 }
 
+.intro-scene--open .intro-scene__wall {
+  filter: brightness(1.15);
+}
+
+.intro-scene--moving .intro-scene__wall {
+  filter: brightness(0.92);
+}
+
+.intro-scene--arrived .intro-scene__wall {
+  filter: brightness(1.08);
+}
+
 .intro-scene__dust {
   position: absolute;
   bottom: -4%;
+  z-index: 2;
   width: 2px;
   height: 2px;
   border-radius: 50%;
@@ -97,6 +172,7 @@
   top: 0;
   bottom: 0;
   left: 50%;
+  z-index: 3;
   width: 2px;
   transform: translateX(-50%);
   background: linear-gradient(
@@ -113,9 +189,22 @@
   pointer-events: none;
 }
 
+.intro-scene--open .intro-scene__seam {
+  box-shadow: 0 0 58px 9px rgba(201, 163, 255, 0.22);
+}
+
+.intro-scene--moving .intro-scene__seam {
+  box-shadow: 0 0 35px 5px rgba(201, 163, 255, 0.18);
+}
+
+.intro-scene--arrived .intro-scene__seam {
+  box-shadow: 0 0 70px 10px rgba(232, 230, 240, 0.24);
+}
+
 .intro-scene__vignette {
   position: absolute;
   inset: 0;
+  z-index: 4;
   background: radial-gradient(ellipse at center, transparent 20%, rgba(0, 0, 0, 0.86) 100%);
   pointer-events: none;
 }
@@ -124,6 +213,7 @@
   position: absolute;
   top: 8%;
   left: 50%;
+  z-index: 5;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
@@ -142,6 +232,11 @@
 
 .intro-scene__led-floor--flicker {
   animation: intro-led-flicker 0.4s steps(2, jump-none) 2;
+}
+
+.intro-scene--arrived .intro-scene__led-floor {
+  color: rgba(245, 244, 250, 0.84);
+  text-shadow: 0 0 16px rgba(232, 230, 240, 0.44);
 }
 
 @keyframes intro-led-flicker {
@@ -165,6 +260,7 @@
   position: absolute;
   bottom: 17%;
   left: 50%;
+  z-index: 5;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
@@ -197,34 +293,49 @@
   flex-direction: column;
   align-items: center;
   gap: 7px;
-  min-width: 270px;
-  padding: 18px 34px 17px;
-  background: rgba(255, 255, 255, 0.015);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-sizing: border-box;
+  min-width: 258px;
+  padding: 13px 22px 12px;
+  border: 0;
+  outline: 1px solid rgba(var(--color-signal-rgb), 0.12);
+  outline-offset: 0;
+  background: transparent;
   color: var(--color-text-dim);
   cursor: not-allowed;
-  transition: border-color 0.6s ease, background 0.6s ease, color 0.6s ease, box-shadow 0.6s ease;
-  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.52);
+  transition: color 180ms ease, opacity 180ms ease, outline-color 180ms ease, translate 180ms ease;
 }
 
 .intro-scene__document-arrival--ready {
   cursor: pointer;
-  border-color: rgba(255, 255, 255, 0.22);
+  outline-color: rgba(var(--color-signal-rgb), 0.18);
   color: var(--color-text);
-  box-shadow: inset 0 0 24px rgba(201, 163, 255, 0.08);
 }
 
 .intro-scene__document-arrival--ready:hover:not(:disabled) {
-  border-color: var(--color-accent);
-  background: rgba(201, 163, 255, 0.07);
-  box-shadow: inset 0 0 32px rgba(201, 163, 255, 0.18), 0 24px 80px rgba(0, 0, 0, 0.58);
+  translate: -50% calc(-50% - 1px);
+  outline-color: rgba(var(--color-signal-rgb), 0.34);
+  color: rgba(245, 244, 250, 0.96);
 }
 
 .intro-scene__document-arrival:disabled {
   cursor: not-allowed;
 }
 
-.intro-scene__document-arrival:focus-visible,
+.intro-scene__document-arrival .terminal-corner {
+  display: none;
+}
+
+.intro-scene__document-arrival:focus-visible {
+  outline: 1px solid rgba(var(--color-signal-rgb), 0.46);
+  outline-offset: 5px;
+}
+
+.intro-scene__document-arrival:focus-visible .intro-scene__document-arrival-kicker {
+  text-decoration: underline;
+  text-underline-offset: 5px;
+  text-decoration-thickness: 1px;
+}
+
 .intro-scene__letter-start:focus-visible {
   outline: 1px solid var(--color-accent);
   outline-offset: 5px;
@@ -235,6 +346,8 @@
   letter-spacing: 0.34em;
   text-transform: uppercase;
   color: var(--color-accent);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.72), 0 0 10px rgba(0, 0, 0, 0.34);
+  transition: color 180ms ease, opacity 180ms ease, text-shadow 180ms ease;
 }
 
 .intro-scene__document-arrival-title {
@@ -242,6 +355,17 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--color-text-dim);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.68), 0 0 9px rgba(0, 0, 0, 0.3);
+  transition: color 180ms ease, opacity 180ms ease, text-shadow 180ms ease;
+}
+
+.intro-scene__document-arrival--ready:hover:not(:disabled) .intro-scene__document-arrival-kicker {
+  color: rgba(224, 207, 255, 0.98);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.74), 0 0 12px rgba(0, 0, 0, 0.38);
+}
+
+.intro-scene__document-arrival--ready:hover:not(:disabled) .intro-scene__document-arrival-title {
+  color: rgba(232, 230, 240, 0.72);
 }
 
 .intro-scene__document-layer {
@@ -402,20 +526,47 @@
 .intro-scene__letter-start {
   position: relative;
   z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
   align-self: flex-start;
   margin-top: 2px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: rgba(24, 18, 15, 0.86);
+  padding: 7px 12px 8px;
+  border: 1px solid rgba(35, 27, 20, 0.34);
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(14, 10, 7, 0.9);
   font-family: var(--font-base);
   font-size: 12px;
+  line-height: 1.2;
   letter-spacing: 0.04em;
   cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease, color 180ms ease, opacity 180ms ease,
+    transform 180ms ease;
 }
 
 .intro-scene__letter-start:hover {
-  color: #000;
+  border-color: rgba(18, 13, 9, 0.58);
+  background: rgba(38, 28, 20, 0.08);
+  color: #050403;
+}
+
+.intro-scene__letter-start:active {
+  opacity: 0.84;
+  transform: translateY(1px);
+}
+
+.intro-scene__letter-start:focus-visible {
+  outline: 1px solid rgba(16, 11, 8, 0.76);
+  outline-offset: 3px;
+}
+
+.intro-scene__letter-start-arrow {
+  display: inline-block;
+  transition: transform 180ms ease;
+}
+
+.intro-scene__letter-start:hover .intro-scene__letter-start-arrow {
+  transform: translateX(3px);
 }
 
 .intro-scene__flash {
@@ -516,7 +667,7 @@
 }
 
 .intro-scene--seam-extended .intro-scene__arrival-seam {
-  height: 100vh;
+  height: 100dvh;
 }
 
 .intro-scene--open .intro-scene__arrival-seam {

@@ -1,0 +1,116 @@
+.memory-room {
+  position: relative;
+  width: min(1000px, 90vw);
+  aspect-ratio: 1536 / 1024;
+}
+
+/* ── Layer 1 — the illustration itself. Locked to the room's own aspect
+   ratio via .memory-room above, so `object-fit: fill` never distorts it —
+   width/height always match the ratio the image was measured against. ──── */
+
+.memory-room__illustration {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── Layer 2 — glow. A soft, blurred radial gradient per object
+   (OBJECT_GLOW_BOXES), invisible until that object is hovered or selected.
+   No hard edge anywhere: the gradient itself fades to fully transparent
+   well inside its own box, and `blur` softens what's left of that edge
+   further — the box's actual boundary is never what a visitor sees, only
+   where the color is centered. Never intercepts pointer events; only
+   Layer 3 does. ─────────────────────────────────────────────────────────── */
+
+.memory-room__glow-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* Blending the whole rendered layer against the illustration beneath it
+     (rather than each glow individually) is what keeps the pen line art
+     reading as the foreground — color sits into the paper rather than
+     covering it. */
+  mix-blend-mode: multiply;
+}
+
+.memory-room__glow {
+  position: absolute;
+  /* Four stops rather than a single fade to transparent: a solid core out
+     to 25%, a mid-tone handoff around 55% (color-mix keeps this tied to
+     the same --memory-room-glow rather than a hand-picked rgba), then
+     nothing by 100% — softer and less "disc-shaped" once blurred than a
+     two-stop gradient's more even taper. */
+  background: radial-gradient(
+    ellipse at center,
+    var(--memory-room-glow, var(--color-accent)) 0%,
+    var(--memory-room-glow, var(--color-accent)) 25%,
+    color-mix(in srgb, var(--memory-room-glow, var(--color-accent)) 45%, transparent) 55%,
+    transparent 100%
+  );
+  filter: blur(var(--memory-room-glow-blur, 6px));
+  opacity: 0;
+  transition: opacity 420ms ease;
+}
+
+.memory-room__glow--hover {
+  opacity: calc(0.12 * var(--memory-room-glow-opacity-mult, 1));
+  transition-duration: var(--duration-fast, 0.2s);
+}
+
+.memory-room__glow--selected {
+  opacity: calc(0.36 * var(--memory-room-glow-opacity-mult, 1));
+}
+
+.memory-room__glow--selected.memory-room__glow--hover {
+  opacity: calc(0.44 * var(--memory-room-glow-opacity-mult, 1));
+}
+
+.memory-room--interactive .memory-room__glow:not(.memory-room__glow--selected) {
+  animation: memory-room-entry-hint 1800ms ease-out 480ms both;
+}
+
+@keyframes memory-room-entry-hint {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  38% {
+    opacity: calc(0.1 * var(--memory-room-glow-opacity-mult, 1));
+  }
+}
+
+/* ── Layer 3 — interaction hit-areas. Fully transparent; nothing here is
+   ever meant to look like a control. The only visible feedback a visitor
+   gets comes from Layer 2's glow and, on keyboard focus, the outline
+   below. ─────────────────────────────────────────────────────────────── */
+
+.memory-room__interaction-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.memory-room__hitarea {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.memory-room__hitarea:focus-visible {
+  outline: 1px solid var(--color-accent);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .memory-room__glow {
+    transition-duration: 0.15s;
+    animation: none;
+  }
+}

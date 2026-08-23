@@ -4,9 +4,11 @@ import type {
   Investigator,
   LandingData,
   LightArchiveData,
+  MemoryPosition,
   MemorySketchData,
   RecordLayerDerived,
   RecordLayerFirstVisitData,
+  SceneBehaviorRecord,
   SceneId,
   SentenceCluesData,
   SoundCluesData,
@@ -46,15 +48,24 @@ interface ExperienceState {
   memorySketch: MemorySketchData;
   sentenceClues: SentenceCluesData;
   finalReport: { generatedAt: number } | null;
+  /*
+    Behavioural records, one per Zone that has been instrumented.
+
+    Keyed by scene and kept beside the answers rather than inside them, so a
+    Zone's answer shape stays exactly what it was and adding tracking to the
+    next Zone is a new key, not a migration.
+  */
+  behavior: Partial<Record<SceneId, SceneBehaviorRecord>>;
 
   updateLanding: (data: Partial<LandingData>) => void;
   setInvestigator: (name: string) => void;
   setLightArchive: (data: LightArchiveData) => void;
   markRecordLayerFirstVisit: () => void;
   recordSoundEvent: (event: SoundPlayEvent) => void;
-  setSoundSelection: (soundId: string, keyword: string) => void;
+  setSoundSelection: (soundId: string, memoryPosition: MemoryPosition) => void;
   setMemorySketch: (data: MemorySketchData) => void;
   setSentenceClues: (data: SentenceCluesData) => void;
+  setSceneBehavior: (record: SceneBehaviorRecord) => void;
   markFinalReportGenerated: () => void;
   completeScene: (id: SceneId) => void;
   /** Dev-only direct scene jump. Never expose in user-facing UI. */
@@ -78,12 +89,18 @@ const initialState = {
   soundClues: {
     events: [] as SoundPlayEvent[],
     selectedSoundId: null,
+    memoryPosition: null,
+    // Retired — the Zone no longer asks for a word. See SoundCluesData.
     selectedKeyword: null,
   } as SoundCluesData,
   memorySketch: {
     strokes: [],
     emptyAreaRatio: 1,
     lastInputAt: 0,
+    roomVariant: 'default',
+    selectedObjects: [],
+    drawingUsed: false,
+    selectedColors: [],
   } as MemorySketchData,
   sentenceClues: {
     selectedSentenceIds: [],
@@ -94,6 +111,7 @@ const initialState = {
     repeatedKeywords: [],
   } as SentenceCluesData,
   finalReport: null as { generatedAt: number } | null,
+  behavior: {} as Partial<Record<SceneId, SceneBehaviorRecord>>,
 };
 
 export const useExperienceStore = create<ExperienceState>()(
@@ -123,14 +141,17 @@ export const useExperienceStore = create<ExperienceState>()(
           return { soundClues: { ...state.soundClues, events: [...events, event] } };
         }),
 
-      setSoundSelection: (soundId, keyword) =>
+      setSoundSelection: (soundId, memoryPosition) =>
         set((state) => ({
-          soundClues: { ...state.soundClues, selectedSoundId: soundId, selectedKeyword: keyword },
+          soundClues: { ...state.soundClues, selectedSoundId: soundId, memoryPosition },
         })),
 
       setMemorySketch: (data) => set({ memorySketch: data }),
 
       setSentenceClues: (data) => set({ sentenceClues: data }),
+
+      setSceneBehavior: (record) =>
+        set((state) => ({ behavior: { ...state.behavior, [record.sceneId]: record } })),
 
       markFinalReportGenerated: () => set({ finalReport: { generatedAt: Date.now() } }),
 
@@ -160,6 +181,7 @@ export const useExperienceStore = create<ExperienceState>()(
         memorySketch: state.memorySketch,
         sentenceClues: state.sentenceClues,
         finalReport: state.finalReport,
+        behavior: state.behavior,
       }),
       onRehydrateStorage: () => (state) => {
         if (!state) return;
@@ -168,6 +190,26 @@ export const useExperienceStore = create<ExperienceState>()(
         // session-local so reloads never resume into a later Zone.
         state.currentScene = 'landing';
         state.completedScenes = [];
+        // Storage written before behavioural tracking existed has no such key,
+        // and the merge leaves it undefined rather than falling back.
+        if (!state.behavior) state.behavior = {};
+        // Likewise for storage written while SOUND still asked for a feeling
+        // word: it holds a keyword and no position at all.
+        if (state.soundClues && state.soundClues.memoryPosition === undefined) {
+          state.soundClues.memoryPosition = null;
+        }
+        // Storage written before MEMORY had a Room has strokes and nothing
+        // else — Free Drawing was the whole Zone then, so a visit that made
+        // any mark at all is read as having used it. `roomVariant` reads
+        // 'default' rather than nothing, matching every visit made since,
+        // since no visit before the Room existed had one to record.
+        if (state.memorySketch && (state.memorySketch as { roomVariant?: string }).roomVariant === undefined) {
+          const strokes = state.memorySketch.strokes ?? [];
+          state.memorySketch.roomVariant = 'default';
+          state.memorySketch.selectedObjects = [];
+          state.memorySketch.drawingUsed = strokes.length > 0;
+          state.memorySketch.selectedColors = [...new Set(strokes.map((s) => s.color))];
+        }
       },
     },
   ),

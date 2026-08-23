@@ -51,9 +51,36 @@
   pointer-events: none;
 }
 
+.memory-field::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(42vmin, 430px);
+  height: min(52vmin, 520px);
+  transform: translate(-50%, -50%);
+  opacity: 0.22;
+  background:
+    linear-gradient(90deg, rgba(232, 230, 240, 0.28), rgba(232, 230, 240, 0.28)) 0 0 / 34% 1px no-repeat,
+    linear-gradient(90deg, rgba(232, 230, 240, 0.2), rgba(232, 230, 240, 0.2)) 100% 0 / 22% 1px no-repeat,
+    linear-gradient(90deg, rgba(232, 230, 240, 0.18), rgba(232, 230, 240, 0.18)) 0 100% / 24% 1px no-repeat,
+    linear-gradient(90deg, rgba(232, 230, 240, 0.24), rgba(232, 230, 240, 0.24)) 100% 100% / 38% 1px no-repeat,
+    linear-gradient(180deg, rgba(232, 230, 240, 0.22), rgba(232, 230, 240, 0.22)) 0 0 / 1px 31% no-repeat,
+    linear-gradient(180deg, rgba(232, 230, 240, 0.16), rgba(232, 230, 240, 0.16)) 100% 18% / 1px 24% no-repeat,
+    linear-gradient(180deg, rgba(232, 230, 240, 0.18), rgba(232, 230, 240, 0.18)) 0 72% / 1px 28% no-repeat,
+    linear-gradient(180deg, rgba(232, 230, 240, 0.24), rgba(232, 230, 240, 0.24)) 100% 68% / 1px 32% no-repeat;
+  transition: opacity 1.1s var(--ease-scene), transform 1.4s var(--ease-scene);
+  pointer-events: none;
+}
+
 .memory-field--hovered::before {
   opacity: 1.4;
   transform: scale(1.07);
+}
+
+.memory-field--hovered::after {
+  opacity: 0.3;
+  transform: translate(-50%, -50%) scale(1.025);
 }
 
 /*
@@ -89,8 +116,15 @@
   }
 
   .memory-field::before,
-  .memory-field--hovered::before {
+  .memory-field::after,
+  .memory-field--hovered::before,
+  .memory-field--hovered::after {
     transition-duration: 0.2s;
     transform: none;
+  }
+
+  .memory-field::after,
+  .memory-field--hovered::after {
+    transform: translate(-50%, -50%);
   }
 }

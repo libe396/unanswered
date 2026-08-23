@@ -1,31 +1,53 @@
 .memory-sketch-scene {
   position: relative;
   width: 100%;
-  min-height: 100vh;
+  min-height: 100dvh;
   background: #050506;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 20px;
-  padding: 6vh 6vw;
+  gap: clamp(14px, 2.5vh, 20px);
+  padding: clamp(22px, 5vh, 38px) 6vw;
+  box-sizing: border-box;
 }
 
-.memory-sketch-scene__backdrop {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: blur(28px) brightness(0.4) saturate(0.7);
-  opacity: 0.6;
+.memory-sketch-scene > .memory-room {
+  width: min(900px, 88vw, calc((100dvh - 168px) * 1.5));
 }
 
-.memory-sketch-scene__backdrop-veil {
+/*
+  STEP 3's backdrop: the same Room, with the same objects still washed in
+  the colors chosen for them, now standing still behind the drawing-or-skip
+  choice and the canvas. Dimmed and blurred rather than removed — the
+  traces already found are still there while a visitor decides whether to
+  add to them, not swapped out for a blank page.
+*/
+.memory-sketch-scene__room-backdrop {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.75) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: blur(3px) brightness(0.55) saturate(0.85);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.memory-sketch-scene__choice {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(18px, 3.2vh, 28px);
+}
+
+.memory-sketch-scene__choice-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .memory-sketch-scene__hint {
@@ -39,7 +61,7 @@
 .memory-sketch-scene__canvas {
   position: relative;
   z-index: 1;
-  width: min(900px, 88vw);
+  width: min(860px, 88vw, calc((100dvh - 186px) * 1.5));
   aspect-ratio: 1200 / 800;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(0, 0, 0, 0.1);
@@ -52,7 +74,7 @@
   z-index: 1;
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: clamp(14px, 2.8vw, 24px);
 }
 
 .memory-sketch-scene__colors {
@@ -113,9 +135,20 @@
   transition: border-color var(--duration-fast) ease, background var(--duration-fast) ease;
 }
 
-.memory-sketch-scene__confirm:hover {
+.memory-sketch-scene__confirm:hover:not(:disabled) {
   border-color: var(--color-accent);
   background: rgba(201, 163, 255, 0.06);
+}
+
+/*
+  Previously missing entirely — a disabled NEXT looked pixel-identical to an
+  enabled one, so a visitor under MEMORY_MIN_OBJECT_SELECTION had no way to
+  tell a click was ever going to do nothing. This is the same treatment
+  .memory-sketch-scene__mini-btn:disabled already uses.
+*/
+.memory-sketch-scene__confirm:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 
 .memory-sketch-scene__modal-veil {

@@ -1,156 +1,64 @@
 .final-report-scene {
   position: relative;
   width: 100%;
-  min-height: 100vh;
-  background: #050506;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-  padding: 6vh 6vw;
-}
-
-.final-report-scene__paper {
-  width: 100%;
-  max-width: 520px;
-  padding: 36px 32px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.015);
-  text-align: left;
-}
-
-.final-report-scene__eyebrow {
-  text-transform: uppercase;
-  letter-spacing: 0.3em;
-  font-size: 11px;
-  color: var(--color-accent);
-  margin: 0 0 20px;
-}
-
-.final-report-scene__visuals {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  margin-bottom: 24px;
+  height: 100dvh;
+  max-height: 100dvh;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: #000;
+  background: #050506;
 }
 
-.final-report-scene__light-canvas,
-.final-report-scene__sketch-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.final-report-scene__light-canvas {
-  opacity: 0.85;
-}
-
-.final-report-scene__sketch-canvas {
-  opacity: 0.4;
-  mix-blend-mode: screen;
-}
-
-.final-report-scene__source-img {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  width: 64px;
-  height: 64px;
-  object-fit: cover;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.final-report-scene__lines {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin: 0 0 20px;
-}
-
-.final-report-scene__line {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.final-report-scene__line dt {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--color-text-dim);
-}
-
-.final-report-scene__line dd {
+.final-report-scene__save-title {
   margin: 0;
-  font-size: 14px;
+  font-size: clamp(18px, 2.3vw, 23px);
   color: var(--color-text);
 }
 
-.final-report-scene__observation {
-  font-size: 14px;
-  line-height: 1.8;
-  color: rgba(232, 230, 240, 0.75);
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  margin: 0 0 16px;
-}
-
-.final-report-scene__reveal {
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.final-report-scene__reveal-line {
-  margin: 0 0 4px;
-  font-size: 15px;
-  color: var(--color-accent);
-  letter-spacing: 0.02em;
-}
-
-.final-report-scene__actions {
+.final-report-scene__save-actions {
   display: flex;
-  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: clamp(20px, 4vh, 36px);
 }
 
-.final-report-scene__btn {
-  padding: 12px 28px;
+.final-report-scene__save-btn {
+  padding: 13px 30px;
   background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   color: var(--color-text);
   font-size: 11px;
-  letter-spacing: 0.25em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   cursor: pointer;
   transition: border-color var(--duration-fast) ease, background var(--duration-fast) ease;
 }
 
-.final-report-scene__btn:hover {
+.final-report-scene__save-btn:hover {
   border-color: var(--color-accent);
   background: rgba(201, 163, 255, 0.06);
 }
 
+.final-report-scene__save-btn--ghost {
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--color-text-dim);
+}
+
+.final-report-scene__save-btn--ghost:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: var(--color-text);
+  background: transparent;
+}
+
+/* Printing is handled by src/scenes/SavedReportDocument.css: it hides every
+   `.report-stage`/`.final-record-layer` (including this Scene's own save
+   screen, which carries `.report-stage`) and reveals only the document
+   artifact nested inside the save screen — `.final-report-scene` itself is
+   left alone so that nested document stays in the render tree. */
 @media print {
-  .final-report-scene__actions {
-    display: none;
-  }
-
   .final-report-scene {
-    min-height: auto;
-    padding: 0;
+    height: auto;
+    overflow: visible;
     background: #fff;
-  }
-
-  .final-report-scene__paper {
-    border: none;
-    background: #fff;
-  }
-
-  .final-report-scene__paper * {
-    color: #000 !important;
   }
 }

@@ -1,0 +1,66 @@
+.report-stage-03__body {
+  min-height: min(470px, 60dvh);
+}
+
+.report-stage-03__opening,
+.report-stage-03__variant {
+  margin: 0;
+  max-width: min(560px, 84vw);
+  white-space: pre-line;
+}
+
+.report-stage-03__opening {
+  font-size: clamp(19px, 2.5vw, 27px);
+  line-height: 1.7;
+  color: rgba(242, 240, 247, 0.92);
+}
+
+.report-stage-03__hold-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(16px, 3vh, 28px);
+}
+
+.report-stage-03 .report-evidence-visual {
+  width: min(360px, 78vw);
+}
+
+.report-stage-03__time-label {
+  position: absolute;
+  top: clamp(36px, 7vh, 58px);
+  right: clamp(-8px, -1vw, 0px);
+  padding: 5px 8px;
+  border: 1px solid rgba(201, 163, 255, 0.34);
+  background: rgba(5, 5, 6, 0.76);
+  color: rgba(232, 230, 240, 0.72);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  font-variant-numeric: tabular-nums;
+}
+
+.report-stage-03__variant {
+  font-size: clamp(17px, 2.1vw, 22px);
+  line-height: 1.7;
+  color: var(--color-text);
+}
+
+.report-stage-03__closing {
+  margin: 0;
+  max-width: min(620px, 84vw);
+  font-size: clamp(22px, 3.2vw, 34px);
+  line-height: 1.62;
+  color: var(--color-accent);
+  white-space: pre-line;
+}
+
+@media (max-width: 640px) {
+  .report-stage-03__closing {
+    font-size: 22px;
+  }
+
+  .report-stage-03__time-label {
+    right: 6px;
+  }
+}

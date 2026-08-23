@@ -64,6 +64,10 @@ function easeInOutCubic(t: number): number {
 interface MemoryFieldProps {
   /** Fires once the mass has finished compressing into the line. */
   onEnter?: () => void;
+  /** Fires when the entry collapse begins, while the click still has user activation. */
+  onCollapseStart?: () => void;
+  /** Lets Landing dim the room around the mass without owning the renderer. */
+  onHoverChange?: (hovered: boolean) => void;
   /** While false the field is inert: no hover, no click, no pointer cursor. */
   interactive?: boolean;
 }
@@ -81,7 +85,12 @@ interface MemoryFieldProps {
  * The simulation lives in lib/memoryField.ts. This component owns the
  * lifecycle — sizing, pointer and hover state, the entry timing, and teardown.
  */
-export function MemoryField({ onEnter, interactive = true }: MemoryFieldProps) {
+export function MemoryField({
+  onEnter,
+  onCollapseStart,
+  onHoverChange,
+  interactive = true,
+}: MemoryFieldProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const prefersReducedMotion = useReducedMotion();
@@ -92,6 +101,10 @@ export function MemoryField({ onEnter, interactive = true }: MemoryFieldProps) {
   // time the parent re-renders or the callback identity changes.
   const onEnterRef = useRef(onEnter);
   onEnterRef.current = onEnter;
+  const onCollapseStartRef = useRef(onCollapseStart);
+  onCollapseStartRef.current = onCollapseStart;
+  const onHoverChangeRef = useRef(onHoverChange);
+  onHoverChangeRef.current = onHoverChange;
   const interactiveRef = useRef(interactive);
   interactiveRef.current = interactive;
 
@@ -156,6 +169,7 @@ export function MemoryField({ onEnter, interactive = true }: MemoryFieldProps) {
       if (next !== isOver) {
         isOver = next;
         setHovered(next);
+        onHoverChangeRef.current?.(next);
       }
       renderer.setHover(isOver);
     }
@@ -172,6 +186,7 @@ export function MemoryField({ onEnter, interactive = true }: MemoryFieldProps) {
       lastPointerMoveAt = -Infinity;
       isOver = false;
       setHovered(false);
+      onHoverChangeRef.current?.(false);
       renderer.setHover(false);
     }
 
@@ -189,7 +204,9 @@ export function MemoryField({ onEnter, interactive = true }: MemoryFieldProps) {
       collapseStartedAt = performance.now();
       isOver = false;
       setHovered(false);
+      onHoverChangeRef.current?.(false);
       renderer.setHover(false);
+      onCollapseStartRef.current?.();
       trace('collapse-start');
     }
 
@@ -213,6 +230,8 @@ export function MemoryField({ onEnter, interactive = true }: MemoryFieldProps) {
         if (!interactiveRef.current || entered) return;
         if (!isOverMass(event.clientX - rect.left, event.clientY - rect.top)) return;
         entered = true;
+        onHoverChangeRef.current?.(false);
+        onCollapseStartRef.current?.();
         trace('collapse-start');
         renderer.setCollapse(1);
         renderer.settle(90);
