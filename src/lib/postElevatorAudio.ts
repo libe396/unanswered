@@ -1,4 +1,4 @@
-export const ARCHIVE_AMBIENCE_VOLUME = 0.18;
+export const ARCHIVE_AMBIENCE_VOLUME = 0.24;
 export const ARCHIVE_AMBIENCE_DUCK_VOLUME = 0.02;
 export const FINAL_REPORT_BGM_VOLUME = 0.2;
 export const CLUE_SIGNATURE_VOLUME = 0.42;

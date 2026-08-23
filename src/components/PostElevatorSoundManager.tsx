@@ -67,12 +67,16 @@ export function PostElevatorSoundManager({ currentScene }: PostElevatorSoundMana
     window.addEventListener(ARCHIVE_AMBIENCE_DUCK_EVENT, handleDuck);
     window.addEventListener(CLUE_SIGNATURE_EVENT, handleSignature);
     window.addEventListener('pointerdown', handleUserGesture, true);
+    window.addEventListener('click', handleUserGesture, true);
+    window.addEventListener('touchstart', handleUserGesture, true);
     window.addEventListener('keydown', handleUserGesture, true);
 
     return () => {
       window.removeEventListener(ARCHIVE_AMBIENCE_DUCK_EVENT, handleDuck);
       window.removeEventListener(CLUE_SIGNATURE_EVENT, handleSignature);
       window.removeEventListener('pointerdown', handleUserGesture, true);
+      window.removeEventListener('click', handleUserGesture, true);
+      window.removeEventListener('touchstart', handleUserGesture, true);
       window.removeEventListener('keydown', handleUserGesture, true);
     };
   }, []);
@@ -105,12 +109,12 @@ export function PostElevatorSoundManager({ currentScene }: PostElevatorSoundMana
       fadeAmbienceTo(0, ARCHIVE_FINAL_FADE_MS, () => {
         ambienceRef.current?.pause();
       });
-      if (userGestureSeenRef.current) playFinalReportBgm();
+      playFinalReportBgm();
       fadeFinalReportBgmTo(FINAL_REPORT_BGM_VOLUME, FINAL_REPORT_BGM_FADE_IN_MS);
       return;
     }
 
-    if (userGestureSeenRef.current) playAmbience();
+    playAmbience();
 
     fadeAmbienceTo(
       ducked ? ARCHIVE_AMBIENCE_DUCK_VOLUME : ARCHIVE_AMBIENCE_VOLUME,
