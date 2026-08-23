@@ -103,7 +103,7 @@ export function ReportStage02BehaviorTrace({ finding, record, report, index, tot
               key="closing"
               className="report-stage-02__line report-stage-02__line--closing"
               initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: prefersReducedMotion ? 0.15 : 0.9 }}
             >

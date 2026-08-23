@@ -42,12 +42,15 @@ export function PostElevatorSoundManager({ currentScene }: PostElevatorSoundMana
   const finalReportVolumeFrameRef = useRef<number | null>(null);
   const lastSignaturePlayedAtRef = useRef(0);
   const previousSceneRef = useRef(currentScene);
+  const userGestureSeenRef = useRef(false);
   const unlockArmedRef = useRef(false);
   const finalReportActiveRef = useRef(false);
   const currentSceneRef = useRef(currentScene);
+  const duckedRef = useRef(false);
   const [ducked, setDucked] = useState(false);
 
   currentSceneRef.current = currentScene;
+  duckedRef.current = ducked;
 
   useEffect(() => {
     const handleDuck = (event: Event) => {
@@ -56,19 +59,21 @@ export function PostElevatorSoundManager({ currentScene }: PostElevatorSoundMana
     };
 
     const handleSignature = () => playSignature();
-    const handleDocumentClick = (event: MouseEvent) => {
-      if (!isButtonLikeClick(event)) return;
-      playSignature();
+    const handleUserGesture = () => {
+      userGestureSeenRef.current = true;
+      playCurrentSceneBed();
     };
 
     window.addEventListener(ARCHIVE_AMBIENCE_DUCK_EVENT, handleDuck);
     window.addEventListener(CLUE_SIGNATURE_EVENT, handleSignature);
-    document.addEventListener('click', handleDocumentClick, true);
+    window.addEventListener('pointerdown', handleUserGesture, true);
+    window.addEventListener('keydown', handleUserGesture, true);
 
     return () => {
       window.removeEventListener(ARCHIVE_AMBIENCE_DUCK_EVENT, handleDuck);
       window.removeEventListener(CLUE_SIGNATURE_EVENT, handleSignature);
-      document.removeEventListener('click', handleDocumentClick, true);
+      window.removeEventListener('pointerdown', handleUserGesture, true);
+      window.removeEventListener('keydown', handleUserGesture, true);
     };
   }, []);
 
@@ -100,12 +105,12 @@ export function PostElevatorSoundManager({ currentScene }: PostElevatorSoundMana
       fadeAmbienceTo(0, ARCHIVE_FINAL_FADE_MS, () => {
         ambienceRef.current?.pause();
       });
-      playFinalReportBgm();
+      if (userGestureSeenRef.current) playFinalReportBgm();
       fadeFinalReportBgmTo(FINAL_REPORT_BGM_VOLUME, FINAL_REPORT_BGM_FADE_IN_MS);
       return;
     }
 
-    playAmbience();
+    if (userGestureSeenRef.current) playAmbience();
 
     fadeAmbienceTo(
       ducked ? ARCHIVE_AMBIENCE_DUCK_VOLUME : ARCHIVE_AMBIENCE_VOLUME,
@@ -166,19 +171,6 @@ export function PostElevatorSoundManager({ currentScene }: PostElevatorSoundMana
     void audio.play().catch(() => {});
   }
 
-  function isButtonLikeClick(event: MouseEvent) {
-    if (event.defaultPrevented) return false;
-    const target = event.target;
-    if (!(target instanceof Element)) return false;
-
-    const interactive = target.closest('button, a, [role="button"], input[type="button"], input[type="submit"]');
-    if (!interactive) return false;
-    if (interactive instanceof HTMLButtonElement && interactive.disabled) return false;
-    if (interactive instanceof HTMLInputElement && interactive.disabled) return false;
-    if (interactive.getAttribute('aria-disabled') === 'true') return false;
-    return true;
-  }
-
   function playAmbience() {
     const audio = getAmbienceAudio();
     if (!audio || !audio.paused) return;
@@ -205,6 +197,23 @@ export function PostElevatorSoundManager({ currentScene }: PostElevatorSoundMana
     audio.currentTime = 0;
   }
 
+  function playCurrentSceneBed() {
+    const latestScene = currentSceneRef.current;
+    if (latestScene === 'finalReport') {
+      playFinalReportBgm();
+      fadeFinalReportBgmTo(FINAL_REPORT_BGM_VOLUME, FINAL_REPORT_BGM_FADE_IN_MS);
+      return;
+    }
+
+    if (NON_FINAL_AMBIENCE_SCENES.has(latestScene)) {
+      playAmbience();
+      fadeAmbienceTo(
+        duckedRef.current ? ARCHIVE_AMBIENCE_DUCK_VOLUME : ARCHIVE_AMBIENCE_VOLUME,
+        duckedRef.current ? ARCHIVE_DUCK_FADE_MS : ARCHIVE_RESTORE_FADE_MS,
+      );
+    }
+  }
+
   function armAudioUnlock() {
     if (unlockArmedRef.current) return;
     unlockArmedRef.current = true;
@@ -213,13 +222,8 @@ export function PostElevatorSoundManager({ currentScene }: PostElevatorSoundMana
       unlockArmedRef.current = false;
       window.removeEventListener('pointerdown', unlock);
       window.removeEventListener('keydown', unlock);
-      const latestScene = currentSceneRef.current;
-      if (latestScene === 'finalReport') {
-        playFinalReportBgm();
-        fadeFinalReportBgmTo(FINAL_REPORT_BGM_VOLUME, FINAL_REPORT_BGM_FADE_IN_MS);
-        return;
-      }
-      if (NON_FINAL_AMBIENCE_SCENES.has(latestScene)) playAmbience();
+      userGestureSeenRef.current = true;
+      playCurrentSceneBed();
     };
 
     window.addEventListener('pointerdown', unlock, { once: true });

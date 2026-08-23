@@ -17,6 +17,11 @@
   padding: clamp(8px, 1.5vh, 16px) 0;
 }
 
+.report-stage-01__trace-map--hidden {
+  position: absolute;
+  pointer-events: none;
+}
+
 .report-stage-01__route {
   position: absolute;
   left: clamp(84px, 17vw, 138px);

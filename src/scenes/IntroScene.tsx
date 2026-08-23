@@ -46,10 +46,15 @@ export function IntroScene() {
   const [departing, setDeparting] = useState(false);
 
   const timeoutsRef = useRef<number[]>([]);
+  const animationFramesRef = useRef<number[]>([]);
   const elevatorAudioRef = useRef<HTMLAudioElement | null>(null);
 
   function schedule(fn: () => void, ms: number) {
     timeoutsRef.current.push(window.setTimeout(fn, ms));
+  }
+
+  function scheduleNextFrame(fn: () => void) {
+    animationFramesRef.current.push(window.requestAnimationFrame(fn));
   }
 
   function setElevatorVolume(volume: number) {
@@ -94,7 +99,7 @@ export function IntroScene() {
     schedule(() => {
       if (import.meta.env.DEV) console.info('[entry] door-open-start');
       setDoorsOpen(true);
-      playElevatorSound(0.09);
+      scheduleNextFrame(() => playElevatorSound(0.09));
     }, seamAt);
     schedule(() => setElevatorVolume(0.055), openAt + 600 * timeScale);
     schedule(() => setStatusIndex(1), interior + 3300 * timeScale);
@@ -106,7 +111,9 @@ export function IntroScene() {
 
     return () => {
       timeoutsRef.current.forEach((id) => window.clearTimeout(id));
+      animationFramesRef.current.forEach((id) => window.cancelAnimationFrame(id));
       timeoutsRef.current = [];
+      animationFramesRef.current = [];
       stopElevatorSound();
       elevatorAudioRef.current = null;
     };

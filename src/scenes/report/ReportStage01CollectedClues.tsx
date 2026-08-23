@@ -106,7 +106,9 @@ export function ReportStage01CollectedClues({ record, report, index, total, lock
       </AnimatePresence>
 
       <motion.div
-        className="report-stage-01__trace-map"
+        className={`report-stage-01__trace-map${
+          mapVisible ? ' report-stage-01__trace-map--visible' : ' report-stage-01__trace-map--hidden'
+        }`}
         initial="hidden"
         animate={mapVisible ? 'visible' : 'hidden'}
         variants={{
