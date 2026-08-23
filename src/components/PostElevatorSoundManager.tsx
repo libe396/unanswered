@@ -28,6 +28,8 @@ const NON_FINAL_AMBIENCE_SCENES = new Set<SceneId>([
   'recordLayerSecondVisit',
 ]);
 
+const SIGNATURE_RETRIGGER_GUARD_MS = 90;
+
 interface PostElevatorSoundManagerProps {
   currentScene: SceneId;
 }
@@ -38,6 +40,8 @@ export function PostElevatorSoundManager({ currentScene }: PostElevatorSoundMana
   const signatureRef = useRef<HTMLAudioElement | null>(null);
   const ambienceVolumeFrameRef = useRef<number | null>(null);
   const finalReportVolumeFrameRef = useRef<number | null>(null);
+  const lastSignaturePlayedAtRef = useRef(0);
+  const previousSceneRef = useRef(currentScene);
   const unlockArmedRef = useRef(false);
   const finalReportActiveRef = useRef(false);
   const currentSceneRef = useRef(currentScene);
@@ -51,26 +55,29 @@ export function PostElevatorSoundManager({ currentScene }: PostElevatorSoundMana
       setDucked(Boolean(detail?.ducked));
     };
 
-    const handleSignature = () => {
-      const audio = getSignatureAudio();
-      if (!audio) return;
-      if (!audio.paused && !audio.ended) return;
-
-      audio.volume = CLUE_SIGNATURE_VOLUME;
-      audio.currentTime = 0;
-      void audio.play().catch(() => {});
+    const handleSignature = () => playSignature();
+    const handleDocumentClick = (event: MouseEvent) => {
+      if (!isButtonLikeClick(event)) return;
+      playSignature();
     };
 
     window.addEventListener(ARCHIVE_AMBIENCE_DUCK_EVENT, handleDuck);
     window.addEventListener(CLUE_SIGNATURE_EVENT, handleSignature);
+    document.addEventListener('click', handleDocumentClick, true);
 
     return () => {
       window.removeEventListener(ARCHIVE_AMBIENCE_DUCK_EVENT, handleDuck);
       window.removeEventListener(CLUE_SIGNATURE_EVENT, handleSignature);
+      document.removeEventListener('click', handleDocumentClick, true);
     };
   }, []);
 
   useEffect(() => {
+    if (previousSceneRef.current !== currentScene) {
+      playSignature();
+      previousSceneRef.current = currentScene;
+    }
+
     const shouldPlayAmbience = NON_FINAL_AMBIENCE_SCENES.has(currentScene);
     const isFinalReport = currentScene === 'finalReport';
     const wasFinalReport = finalReportActiveRef.current;
@@ -144,6 +151,32 @@ export function PostElevatorSoundManager({ currentScene }: PostElevatorSoundMana
     audio.volume = CLUE_SIGNATURE_VOLUME;
     signatureRef.current = audio;
     return audio;
+  }
+
+  function playSignature() {
+    const now = performance.now();
+    if (now - lastSignaturePlayedAtRef.current < SIGNATURE_RETRIGGER_GUARD_MS) return;
+
+    const audio = getSignatureAudio();
+    if (!audio) return;
+
+    lastSignaturePlayedAtRef.current = now;
+    audio.volume = CLUE_SIGNATURE_VOLUME;
+    audio.currentTime = 0;
+    void audio.play().catch(() => {});
+  }
+
+  function isButtonLikeClick(event: MouseEvent) {
+    if (event.defaultPrevented) return false;
+    const target = event.target;
+    if (!(target instanceof Element)) return false;
+
+    const interactive = target.closest('button, a, [role="button"], input[type="button"], input[type="submit"]');
+    if (!interactive) return false;
+    if (interactive instanceof HTMLButtonElement && interactive.disabled) return false;
+    if (interactive instanceof HTMLInputElement && interactive.disabled) return false;
+    if (interactive.getAttribute('aria-disabled') === 'true') return false;
+    return true;
   }
 
   function playAmbience() {

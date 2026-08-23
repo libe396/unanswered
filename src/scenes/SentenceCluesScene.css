@@ -13,7 +13,7 @@
 }
 
 .sentence-clues-scene__hint {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--color-text-dim);
   margin: 0;
   text-align: center;
@@ -33,7 +33,7 @@
 
 .sentence-clues-scene__kicker {
   margin: 0;
-  font-size: 11px;
+  font-size: 14px;
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--color-text-dim);
@@ -112,7 +112,7 @@
 .sentence-clues-scene__instruction {
   margin: -6px 0 0;
   text-align: center;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.6;
   color: var(--color-text-dim);
 }
@@ -139,7 +139,7 @@
 
 .sentence-clues-scene__panel-label {
   margin: 0;
-  font-size: 10px;
+  font-size: 14px;
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--color-text-dim);
@@ -175,7 +175,7 @@
 .sentence-clues-scene__slot-index {
   flex: none;
   margin-top: 9px;
-  font-size: 10px;
+  font-size: 14px;
   letter-spacing: 0.2em;
   color: var(--color-text-dim);
   opacity: 0.6;
@@ -201,7 +201,7 @@
   border: 1px solid var(--color-accent);
   background: rgba(201, 163, 255, 0.07);
   color: var(--color-text);
-  font-size: clamp(13px, 1.15vw, 15px);
+  font-size: clamp(14px, 1.15vw, 15px);
   line-height: 1.5;
 }
 
@@ -212,7 +212,7 @@
 .sentence-clues-scene__slot-chip-mark {
   flex: none;
   margin-top: 2px;
-  font-size: 10px;
+  font-size: 14px;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.04em;
   color: var(--color-accent);
@@ -260,7 +260,7 @@
 
 .sentence-clues-scene__slot-label {
   margin: 0;
-  font-size: 11px;
+  font-size: 14px;
   letter-spacing: 0.12em;
   color: var(--color-text-dim);
   opacity: 0.7;
@@ -288,7 +288,7 @@
   border-left: 2px solid rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.012);
   color: var(--color-text-dim);
-  font-size: clamp(12px, 1.05vw, 13px);
+  font-size: 14px;
   line-height: 1.38;
   text-align: left;
   cursor: pointer;
@@ -299,7 +299,7 @@
 .sentence-clues-scene__fragment-mark {
   flex: none;
   margin-top: 2px;
-  font-size: 10px;
+  font-size: 14px;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.05em;
   color: var(--color-text-dim);
@@ -314,7 +314,7 @@
 .sentence-clues-scene__fragment-status {
   flex: none;
   margin-top: 2px;
-  font-size: 10px;
+  font-size: 14px;
   letter-spacing: 0.08em;
   color: var(--color-accent);
 }
@@ -363,7 +363,7 @@
 
 .sentence-clues-scene__submit-note {
   color: var(--color-text-dim);
-  font-size: 11px;
+  font-size: 14px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   opacity: 0.7;
@@ -377,7 +377,7 @@
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.18);
   color: var(--color-text);
-  font-size: 11px;
+  font-size: 14px;
   letter-spacing: 0.3em;
   text-transform: uppercase;
   cursor: pointer;

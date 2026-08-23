@@ -57,16 +57,16 @@
 }
 
 .memory-room__glow--hover {
-  opacity: calc(0.12 * var(--memory-room-glow-opacity-mult, 1));
+  opacity: calc(0.28 * var(--memory-room-glow-opacity-mult, 1));
   transition-duration: var(--duration-fast, 0.2s);
 }
 
 .memory-room__glow--selected {
-  opacity: calc(0.36 * var(--memory-room-glow-opacity-mult, 1));
+  opacity: calc(0.4 * var(--memory-room-glow-opacity-mult, 1));
 }
 
 .memory-room__glow--selected.memory-room__glow--hover {
-  opacity: calc(0.44 * var(--memory-room-glow-opacity-mult, 1));
+  opacity: calc(0.54 * var(--memory-room-glow-opacity-mult, 1));
 }
 
 .memory-room--interactive .memory-room__glow:not(.memory-room__glow--selected) {

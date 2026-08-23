@@ -37,6 +37,8 @@ function emptyRuntime(): SoundRuntime {
 /** Which of the Zone's two questions is in front of the visitor. */
 type Phase = 'browse' | 'positioning';
 
+const SOUND_CLUE_VOLUME = 0.5;
+
 /**
  * How the Zone reads its own record back, in development.
  *
@@ -147,6 +149,7 @@ export function SoundCluesScene() {
 
     const audio = new Audio(clue.src);
     audio.preload = 'metadata';
+    audio.volume = SOUND_CLUE_VOLUME;
 
     audio.addEventListener('timeupdate', () => {
       if (activeIdRef.current !== soundId) return;
