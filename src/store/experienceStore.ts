@@ -16,12 +16,17 @@ import type {
 } from '../types';
 import { generateReportId } from '../utils/id';
 
+// 'recordLayerFirstVisit' ("기록이 저장되었습니다.") is deliberately absent —
+// removed from the flow. LightArchiveScene still calls completeScene
+// ('lightArchive'), which now lands directly on 'zone03Intro'; the scene's
+// own file, type, and store field are untouched (see markRecordLayerFirstVisit
+// and RecordLayerFirstVisitData below) so nothing downstream that still
+// references the id breaks — it is simply never visited.
 export const SCENE_ORDER: SceneId[] = [
   'landing',
   'intro',
   'registration',
   'lightArchive',
-  'recordLayerFirstVisit',
   'zone03Intro',
   'soundClues',
   'memorySketch',
@@ -109,6 +114,17 @@ const initialState = {
     dwellTimes: {},
     selectionOrder: [],
     repeatedKeywords: [],
+    questionTargetFragmentId: null,
+    questionOpenSlot: null,
+    generatedQuestion: '',
+    questionSource: null,
+    responseText: '',
+    responseSkipped: false,
+    noQuestionAvailable: false,
+    responseEditCount: 0,
+    responseDeleteCount: 0,
+    behavioralTrace: null,
+    sceneDurationMs: 0,
   } as SentenceCluesData,
   finalReport: null as { generatedAt: number } | null,
   behavior: {} as Partial<Record<SceneId, SceneBehaviorRecord>>,
@@ -209,6 +225,45 @@ export const useExperienceStore = create<ExperienceState>()(
           state.memorySketch.selectedObjects = [];
           state.memorySketch.drawingUsed = strokes.length > 0;
           state.memorySketch.selectedColors = [...new Set(strokes.map((s) => s.color))];
+        }
+        // Three earlier answer shapes are possible in storage, older to
+        // newest: (1) pre-Archive-v2 — the fragment selection/order fields
+        // only; (2) Archive v2, which added an auto-picked `gapIndex` and a
+        // question/response; (3) v2.x, which replaced `gapIndex` with a
+        // visitor-chosen `connectedSentenceIds` pair. None of them carry
+        // `questionTargetFragmentId`, so its absence is the one guard this
+        // needs — every field below is backfilled to Narrative System
+        // v3.0's empty state regardless of which of the three left it
+        // missing. Fields orphaned by this — `gapIndex`, `connectedSentenceIds`,
+        // `connectionChangeCount`, if present — are simply never read again;
+        // nothing here deletes them, and nothing needs to.
+        if (
+          state.sentenceClues &&
+          (state.sentenceClues as { questionTargetFragmentId?: string | null }).questionTargetFragmentId ===
+            undefined
+        ) {
+          state.sentenceClues.questionTargetFragmentId = null;
+          state.sentenceClues.questionOpenSlot = null;
+          state.sentenceClues.generatedQuestion = '';
+          state.sentenceClues.questionSource = null;
+          state.sentenceClues.responseText = '';
+          state.sentenceClues.responseSkipped = false;
+          state.sentenceClues.responseEditCount = 0;
+          state.sentenceClues.responseDeleteCount = 0;
+          state.sentenceClues.behavioralTrace = null;
+          state.sentenceClues.sceneDurationMs = 0;
+        }
+        // A separate, independent guard: `noQuestionAvailable` was added in
+        // the Final Logic Patch, after `questionTargetFragmentId` above —
+        // so a record saved by the v3.0 build that introduced that field
+        // already has it and skips the block above entirely, yet still
+        // predates this one. Checked on its own absence rather than folded
+        // into the block above, which is why.
+        if (
+          state.sentenceClues &&
+          (state.sentenceClues as { noQuestionAvailable?: boolean }).noQuestionAvailable === undefined
+        ) {
+          state.sentenceClues.noQuestionAvailable = false;
         }
       },
     },

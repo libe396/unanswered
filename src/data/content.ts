@@ -37,100 +37,157 @@ export const SENTENCE_OPTIONS: SentenceOption[] = [
 export const MAX_SENTENCE_SELECTION = 3;
 
 /**
- * SENTENCE v2 — reconstructing what happened after the record breaks off.
+ * SENTENCE — the Archive. Narrative System v3.0.
  *
- * The Zone no longer offers one flat archive of interchangeable scraps. LIGHT,
- * SOUND and MEMORY have already left the visitor a short, deterministic
+ * LIGHT, SOUND and MEMORY have already left the visitor a short, deterministic
  * Recovered Context (see src/lib/sentenceNarrative.ts) that ends at a named
- * gap — the record simply stops. What is assembled here is the visitor's own
- * account of what might have followed that gap, built from exactly three
- * roles: a direction the moment took, a trace it left in the room, and how
- * the case record itself concludes. Each role is called a `slot`, numbered
- * 1–3 in the order a restored record reads.
+ * gap — the record simply stops. What is listed here is the archive the
+ * visitor goes on to search: twenty fragments, shown as one wall of cards in
+ * `explore` (see SentenceCluesScene.tsx), of which the visitor draws three to
+ * five and reads as one possible account of what happened to CASE 017 after
+ * the record breaks off.
  *
- * The four candidates within a slot are not four ways of saying the same
- * thing. Each is its own narrative branch: slot 1 asks
- * whether the person waited, left deliberately, left and came back, or tried
- * to leave and couldn't; slot 2 asks whether the room stayed as it was, some
- * of it moved, one thing was left behind, or something new appeared; slot 3
- * asks whether the person's trail ends, the room's trail ends, a later visit
- * was found, or the record picks up again somewhere else. Any one candidate
- * from each of the three groups combines with any other without asserting a
- * fact the other two contradict — the three groups describe three different
- * moments in the same short timeline (the choice, what it left, how the file
- * closes), not three opinions about one moment, so they never have to agree
- * with each other on a single detail to stay coherent together.
+ * A fragment is not a self-portrait the visitor picks because it resembles
+ * them. It is a possible piece of that account, never a statement about
+ * whoever is standing in front of the screen. Every fragment keeps `그 사람`
+ * (never `나`) as its subject, matching how LIGHT and MEMORY's own on-screen
+ * copy already refers to whoever is being investigated ("그 사람이 남긴
+ * 흔적", "그 사람의 기억에선…"). No fragment fixes the case to one kind of
+ * story (romance, loss, death, …) — different visitors drawing different
+ * cards should be able to arrive at genuinely different, equally plausible
+ * continuations.
  *
- * `그 사람` (never `나`) is the subject throughout, matching how LIGHT and
- * MEMORY's own on-screen copy already refers to whoever is being
- * investigated ("그 사람이 남긴 흔적", "그 사람의 기억에선…") — SENTENCE is
- * the first Zone to let that person appear as the subject of a full
- * sentence, but it is the same person the rest of the exhibition has been
- * describing all along.
+ * `narrativeRole` groups the twenty by what part of "afterward" they answer
+ * — never shown on screen; it exists so the wall can eventually be read (by
+ * this file, by whoever tunes it next) as five kinds of continuation rather
+ * than twenty unrelated lines:
  *
- * Every candidate stays in the same register the rest of the exhibition
- * holds to: an observation or a possibility, never a diagnosis. None of them
- * name what actually happened — nothing here does — and none of them
- * contradict what LIGHT, SOUND or MEMORY already left behind. They are fixed
- * rather than chosen per-visit from those clues: a candidate list that changed
- * shape depending on which sound or which objects a visitor picked would be a
- * second combinatorial surface on top of the Recovered Context's own, and
- * this Zone already has one narrative layer — it does not need two.
+ *   - `aftermath`  (01–04) — did they leave, or stay?
+ *   - `remains`    (05–08) — what did the room keep?
+ *   - `unresolved` (09–12) — what never got finished?
+ *   - `after`      (13–16) — what happened once time passed?
+ *   - `ending`     (17–20) — where the case record itself stops. Gated in
+ *      the UI — see SENTENCE_MIN_NON_ENDING_BEFORE_ENDING below — and always
+ *      drawn last in a restored record regardless of when it was drawn.
  *
- * The ids are stable and readable for the same reason the old fragment ids
- * were: they are what every fragmentAdd/fragmentRemove/fragmentReorder event
- * names, and what anyone reading a record has to recognise at a glance.
+ * `openSlots` names the one piece of each fragment that is *explicitly*
+ * unnamed — an object, a message, a decision, a person — if the fragment
+ * has one at all. This is what src/lib/sentenceQuestionService.ts reads to
+ * decide which of the visitor's drawn fragments has something left to ask
+ * about; roughly half the twenty have none, on purpose — not every
+ * fragment is a question waiting to happen, and forcing one onto a
+ * fragment that does not name anything missing (see every `ending`
+ * fragment, or 13/14/16) would mean inventing a gap that was never there.
+ * See that file's module doc for the full reasoning and the one open slot
+ * type (`purpose`) that names an implied target rather than an unnamed noun.
+ *
+ * `semanticTags` is internal scoring metadata only — never rendered, never
+ * read outside src/lib/sentenceQuestionService.ts. When more than one drawn
+ * fragment carries an open slot, the question service scores candidates
+ * partly on whether their tags echo another drawn fragment's (see that
+ * file's module doc), and this is the raw material for that: a short,
+ * deliberately sparse set of shared-theme words (`object`, `waiting`,
+ * `absence`, …), added only to fragments where a real thematic echo exists
+ * — most fragments carry none at all.
+ *
+ * Every fragment stays in the same register the rest of the exhibition
+ * holds to: an observation or a possibility, never a diagnosis.
  */
-export type SentenceSlot = 1 | 2 | 3;
+export type SentenceNarrativeRole = 'aftermath' | 'remains' | 'unresolved' | 'after' | 'ending';
 
 export interface SentenceReconstructionFragment {
   id: string;
-  slot: SentenceSlot;
   text: string;
+  narrativeRole: SentenceNarrativeRole;
+  /** The one unnamed thing this fragment could be asked about, if any — see
+   *  the module doc above. At most one entry in practice; a list rather
+   *  than a single field only so a fragment could carry more than one
+   *  without a shape change if a future revision ever needs it. */
+  openSlots: readonly string[];
+  /** Internal scoring metadata only — see the module doc above. Empty for
+   *  most fragments. */
+  semanticTags: readonly string[];
 }
 
-/** Short, internal-facing names for the three slots — shown in the UI as a
- *  quiet section marker, never as a "correct category" to fill in. */
-export const SENTENCE_SLOT_LABELS: Record<SentenceSlot, string> = {
-  1: '그날의 선택',
-  2: '남겨진 흔적',
-  3: '기록의 끝',
-};
-
-export const SENTENCE_SLOTS: readonly SentenceSlot[] = [1, 2, 3];
+/** How many non-`ending` fragments must already be drawn before an `ending`
+ *  card can be drawn at all — the case cannot be declared closed before
+ *  there is anything else on record. See SentenceCluesScene.tsx's
+ *  `isEndingLocked`. */
+export const SENTENCE_MIN_NON_ENDING_BEFORE_ENDING = 2;
 
 export const SENTENCE_RECONSTRUCTION_FRAGMENTS: SentenceReconstructionFragment[] = [
-  // 1 — 그날의 선택: the direction the moment took, just before the record breaks off.
-  { id: 'RECON_A_WAITED', slot: 1, text: '그 사람은 누군가를 기다리듯, 그 자리에 머물러 있었던 것으로 보인다.' },
-  { id: 'RECON_A_LEFT_CALM', slot: 1, text: '그 사람은 필요한 것만 챙겨 방을 나선 듯하다.' },
-  { id: 'RECON_A_RETURNED_FOR', slot: 1, text: '한번 떠났다가, 두고 간 것을 찾으러 다시 돌아온 듯하다.' },
-  { id: 'RECON_A_HESITATED', slot: 1, text: '떠나려 했지만, 한동안 방을 벗어나지 못했을 가능성이 있다.' },
+  // ── A. 떠났는가, 남았는가 — aftermath ─────────────────────────────────────
+  { id: 'RECON_A_LEFT_CALM', narrativeRole: 'aftermath', openSlots: [], semanticTags: [],
+    text: '그 사람은 필요한 것만 챙겨 방을 나선 듯하다.' },
+  { id: 'RECON_A_HESITATED', narrativeRole: 'aftermath', openSlots: [], semanticTags: [],
+    text: '떠나려 했지만, 한동안 방을 벗어나지 못했을 가능성이 있다.' },
+  { id: 'RECON_A_RETURNED_FOR', narrativeRole: 'aftermath', openSlots: ['purpose'], semanticTags: [],
+    text: '한번 떠났다가, 두고 간 것을 확인하기 위해 다시 돌아온 듯하다.' },
+  { id: 'RECON_A_WAITED', narrativeRole: 'aftermath', openSlots: ['person'], semanticTags: ['waiting'],
+    text: '그 사람은 누군가를 기다리듯 그 자리에 머물러 있었던 것으로 보인다.' },
 
-  // 2 — 남겨진 흔적: what changed, or didn't, in the room because of it.
-  { id: 'RECON_B_UNTOUCHED', slot: 2, text: '남아 있는 것들은 대부분 원래 자리를 지키고 있는 것 같다.' },
-  { id: 'RECON_B_DISPLACED', slot: 2, text: '몇몇 물건은 원래 있던 자리에서 벗어난 흔적이 있다.' },
-  { id: 'RECON_B_LEFT_BEHIND', slot: 2, text: '미처 챙기지 못한 물건 하나가 그 자리에 남아 있는 듯하다.' },
-  { id: 'RECON_B_NEW_TRACE', slot: 2, text: '전에는 없던 작은 흔적이 새로 생겨난 것으로 추정된다.' },
+  // ── B. 무엇을 남겼는가 — remains ──────────────────────────────────────────
+  { id: 'RECON_B_LEFT_BEHIND', narrativeRole: 'remains', openSlots: ['object'], semanticTags: ['object'],
+    text: '미처 챙기지 못한 물건 하나가 그 자리에 남아 있는 듯하다.' },
+  { id: 'RECON_B_PUT_DOWN_AGAIN', narrativeRole: 'remains', openSlots: ['object'], semanticTags: ['object'],
+    text: '몇 번이고 챙겼다가 다시 내려놓은 물건이 있었던 것으로 보인다.' },
+  { id: 'RECON_B_LEFT_ON_PURPOSE', narrativeRole: 'remains', openSlots: ['object'], semanticTags: ['object'],
+    text: '가져갈 수 있었지만 일부러 남겨둔 것으로 보이는 물건이 있다.' },
+  // openSlots added in the Final Logic Patch: "몇몇 물건" already names a
+  // plural of unnamed objects, so 'object' only makes explicit what the
+  // sentence already implies — see src/lib/sentenceQuestionService.ts's
+  // FRAGMENT_QUESTIONS for the fallback this unlocks.
+  { id: 'RECON_B_DISPLACED', narrativeRole: 'remains', openSlots: ['object'], semanticTags: ['object'],
+    text: '몇몇 물건은 이전과 다른 자리에 놓여 있었던 것으로 보인다.' },
 
-  // 3 — 기록의 끝: how the case record itself concludes.
-  { id: 'RECON_C_PERSON_ENDS', slot: 3, text: '그 사람에 대한 더 이상의 기록은 확인되지 않았다.' },
-  { id: 'RECON_C_SPACE_ENDS', slot: 3, text: '그날 이후, 이 공간에 대한 기록은 이어지지 않았다.' },
-  { id: 'RECON_C_LATER_VISIT', slot: 3, text: '얼마 뒤, 누군가 다시 이곳을 다녀간 흔적이 남아 있다.' },
-  { id: 'RECON_C_CONTINUES_ELSEWHERE', slot: 3, text: '다음 기록은 이곳이 아닌, 다른 곳에서 다시 시작될 가능성이 있다.' },
+  // ── C. 무엇을 하지 못했는가 — unresolved ──────────────────────────────────
+  { id: 'RECON_C_UNSPOKEN', narrativeRole: 'unresolved', openSlots: ['message'], semanticTags: [],
+    text: '그 사람이 끝내 전하지 못한 말이 있었던 것으로 보인다.' },
+  { id: 'RECON_C_UNDONE_ACTION', narrativeRole: 'unresolved', openSlots: ['action'], semanticTags: [],
+    text: '하려다 그만둔 행동이 있었을 가능성이 있다.' },
+  { id: 'RECON_C_UNWRITTEN_RECORD', narrativeRole: 'unresolved', openSlots: ['record'], semanticTags: [],
+    text: '누군가에게 남기려다 끝내 남기지 않은 기록이 있었던 것으로 보인다.' },
+  { id: 'RECON_C_UNDECIDED', narrativeRole: 'unresolved', openSlots: ['decision'], semanticTags: [],
+    text: '마지막까지 결정하지 못한 일이 하나 있었던 듯하다.' },
+
+  // ── D. 그 이후에는 — after ────────────────────────────────────────────────
+  { id: 'RECON_D_REVISITED', narrativeRole: 'after', openSlots: [], semanticTags: [],
+    text: '그 사람은 그날 이후에도 몇 차례 이곳을 다시 찾은 듯하다.' },
+  { id: 'RECON_D_UNCHANGED', narrativeRole: 'after', openSlots: [], semanticTags: [],
+    text: '한동안 이 공간에는 별다른 변화가 없었던 것으로 보인다.' },
+  { id: 'RECON_D_VANISHED_LATER', narrativeRole: 'after', openSlots: ['object'], semanticTags: ['object'],
+    text: '시간이 지난 뒤, 남겨져 있던 물건 하나가 사라졌다.' },
+  { id: 'RECON_D_DOOR_LEFT_OPEN', narrativeRole: 'after', openSlots: [], semanticTags: [],
+    text: '열린 채 남아 있던 문은 한동안 그대로였던 것으로 보인다.' },
+
+  // ── E. 마지막 기록 — ending (gated; always drawn last in a restored record) ─
+  // 'absence' — never a candidate itself (no openSlots), but its tag can
+  // still lend a linked-tag bonus to another drawn fragment's score (e.g.
+  // RECON_A_WAITED's 'waiting') — see sentenceQuestionService.ts's
+  // SEMANTIC_LINKS. No new fact is ever asserted by this: a shared theme
+  // nudges *which* open slot gets asked about, never what the answer is.
+  { id: 'RECON_E_NEVER_RETURNED', narrativeRole: 'ending', openSlots: [], semanticTags: ['absence'],
+    text: '그 사람은 결국 이곳으로 다시 돌아오지 않은 것으로 보인다.' },
+  { id: 'RECON_E_RECORD_ENDS', narrativeRole: 'ending', openSlots: [], semanticTags: ['absence'],
+    text: '이후 그 사람에 대한 기록은 더 이상 확인되지 않는다.' },
+  { id: 'RECON_E_CONTINUES_ELSEWHERE', narrativeRole: 'ending', openSlots: [], semanticTags: ['absence'],
+    text: '다음 기록은 이곳이 아닌 다른 장소에서 이어졌을 가능성이 있다.' },
+  { id: 'RECON_E_LAST_RECORD_HERE', narrativeRole: 'ending', openSlots: [], semanticTags: ['absence'],
+    text: '그날 이후 이 공간에서 확인되는 기록은 여기까지다.' },
 ];
 
 /**
- * How many fragments a reconstruction must hold before it can be recorded,
- * and how many it can hold at all.
+ * How many fragments a collected record must hold before the Zone can move
+ * on, and how many it can hold at all.
  *
- * Product rules rather than heuristics, so they live here with the content
- * and not in the threshold file. Exactly one candidate per slot, three slots:
- * the lower bound is what "the record can be submitted" means, the upper
- * bound is what "every slot is filled" means, and both are enforced by the
- * scene rather than inferred.
+ * A product rule rather than a heuristic, so it lives here with the content
+ * and not in the threshold file — this is what "enough to move on" and "no
+ * more room" mean to the Zone, decided by the Zone rather than inferred from
+ * behaviour. Three is a short account rather than a single answer; five is
+ * a full hand of fragments without turning the archive into a checklist.
  */
 export const SENTENCE_MIN_FRAGMENTS = 3;
-export const SENTENCE_MAX_FRAGMENTS = 3;
+export const SENTENCE_MAX_FRAGMENTS = 5;
 
 /*
   The Zone's seven recordings.

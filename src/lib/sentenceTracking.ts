@@ -19,15 +19,35 @@
  */
 import { summarizeScene } from './behaviorTracking';
 import type { GroupSummary } from './behaviorTracking';
+import { SENTENCE_THRESHOLDS } from './sentenceThresholds';
 import { SENTENCE_MIN_FRAGMENTS } from '../data/content';
-import type { BehaviorSelectionMode, SceneBehaviorRecord, SceneId } from '../types';
+import type {
+  BehaviorSelectionMode,
+  SceneBehaviorRecord,
+  SceneId,
+  SentenceBehavioralTrace,
+} from '../types';
 
 /**
  * The one question this Zone asks.
  *
- * `multi` because the answer is a set of fragments — though nothing here uses
- * the select/deselect machinery that mode normally implies, since a selection
- * has no position and position is most of what is being decided.
+ * `multi` because the answer is a set of fragments — though nothing below
+ * uses the select/deselect machinery that mode normally implies, since a
+ * selection has no position and position is most of what is being decided
+ * (see summarizeSentence, which replays fragmentAdd/fragmentRemove instead).
+ *
+ * A `connection` group briefly existed here, for a revision where the
+ * visitor chose two of their own collected fragments as "connected" before
+ * a question was asked. Narrative System v3.0 removed that step — the
+ * question now points at whichever drawn fragment names something
+ * unresolved (see src/lib/sentenceQuestionService.ts's `findQuestionTarget`),
+ * which needs no second question of its own — so the group is gone from
+ * here too. A record captured while it existed still carries its own
+ * `connection`-group events and its own historical `groupModes` inside
+ * `SceneBehaviorRecord`; neither this file nor anything downstream reads
+ * them, but nothing needs to strip them out for that visit's record to
+ * replay safely — see experienceStore.ts's rehydrate guard for the
+ * *answer*-shape side of that same compatibility.
  */
 export const SENTENCE_TRACKING_GROUPS: Record<string, BehaviorSelectionMode> = {
   sentence: 'multi',
@@ -358,4 +378,120 @@ export function summarizeSentence(record: SceneBehaviorRecord): SentenceBehavior
     lastEditAt: lastOp?.at ?? null,
     eventCount: record.events.length,
   };
+}
+
+/* ── Behavioral Trace ─────────────────────────────────────────────────────
+   Not "the story the visitor made" — this Zone already shows that once, in
+   Restored Record. This is the one thing worth showing about *how* it was
+   made: what was looked at and left, what was drawn and put back, what was
+   checked again. A single ranked observation, derived here rather than
+   stored, on the same terms as everything else in this file — a different
+   definition of "notable" re-reads a visit that already happened instead of
+   only applying to the next one.
+
+   The three kinds of fact behind it are never merged into one number:
+   Explicit Choice (`finalFragments` — what actually ended up drawn),
+   Implicit Attention (dwell/view data on fragments never drawn at all), and
+   Revision (`addedButDroppedFragments`, `returnedFragments` — drawn and
+   undone, one way or the other) stay exactly the separate figures
+   `summarizeSentence` above already computes them as. A fragment hovered
+   at length is never promoted to "selected" because of it — see priority 1
+   below, which is built from fragments explicitly excluded from having
+   ever been drawn at all. */
+
+/**
+ * One ranked observation from a finished visit, or null if the visit left
+ * nothing to observe at all (no view data — a touchscreen visit with no
+ * pointer to rest — and every drawn fragment shows zero dwell).
+ *
+ * Priority, checked in order, first match wins:
+ *   1. A fragment never drawn, dwelt on past SENTENCE_THRESHOLDS'
+ *      view-selection-gap floor — the same bar VIEW_SELECTION_GAP already
+ *      reads a fragment by, reused rather than re-guessed at.
+ *   2. A fragment drawn at some point and never drawn again
+ *      (`addedButDroppedFragments`).
+ *   3. A fragment drawn, put back, and drawn again (`returnedFragments`).
+ *   4. Any fragment looked at three times or more, drawn or not
+ *      (`revisitCountByFragment`, same floor as (1)).
+ *   5. Whichever *drawn* fragment was dwelt on longest — the quiet
+ *      fallback: nothing unusual happened, but something was still looked
+ *      at more than the rest.
+ */
+export function deriveSentenceBehavioralTrace(
+  summary: SentenceBehaviorSummary,
+): SentenceBehavioralTrace | null {
+  const droppedIds = new Set(summary.addedButDroppedFragments);
+
+  const longUnselected = summary.viewedButUnusedFragments
+    // Excludes anything ever drawn — a fragment drawn and later dropped is
+    // priority 2's story, not "attention that was never acted on at all".
+    .filter((id) => !droppedIds.has(id))
+    .map((id) => ({
+      id,
+      dwellMs: summary.dwellMsByFragment[id] ?? 0,
+      revisitCount: summary.revisitCountByFragment[id] ?? 0,
+    }))
+    .filter((f) => f.dwellMs >= SENTENCE_THRESHOLDS.viewSelectionGapMinDwellMs)
+    .sort((a, b) => b.dwellMs - a.dwellMs)[0];
+  if (longUnselected) {
+    return {
+      type: 'long_unselected_dwell',
+      fragmentId: longUnselected.id,
+      dwellMs: Math.round(longUnselected.dwellMs),
+      revisitCount: longUnselected.revisitCount,
+    };
+  }
+
+  const droppedId = summary.addedButDroppedFragments[0];
+  if (droppedId) {
+    return {
+      type: 'selected_then_removed',
+      fragmentId: droppedId,
+      dwellMs: Math.round(summary.dwellMsByFragment[droppedId] ?? 0),
+      revisitCount: summary.revisitCountByFragment[droppedId] ?? 0,
+    };
+  }
+
+  const returnedId = summary.returnedFragments[0];
+  if (returnedId) {
+    return {
+      type: 'removed_then_reselected',
+      fragmentId: returnedId,
+      dwellMs: Math.round(summary.dwellMsByFragment[returnedId] ?? 0),
+      revisitCount: summary.revisitCountByFragment[returnedId] ?? 0,
+    };
+  }
+
+  const repeatHover = Object.entries(summary.revisitCountByFragment)
+    .filter(([, count]) => count >= SENTENCE_THRESHOLDS.viewSelectionGapMinViews - 1)
+    .sort((a, b) => b[1] - a[1])[0];
+  if (repeatHover) {
+    const [id, revisitCount] = repeatHover;
+    return {
+      type: 'repeat_hover',
+      fragmentId: id,
+      dwellMs: Math.round(summary.dwellMsByFragment[id] ?? 0),
+      revisitCount,
+    };
+  }
+
+  let longestId: string | null = null;
+  let longestMs = -1;
+  for (const id of summary.finalFragments) {
+    const ms = summary.dwellMsByFragment[id] ?? 0;
+    if (ms > longestMs) {
+      longestMs = ms;
+      longestId = id;
+    }
+  }
+  if (longestId && longestMs > 0) {
+    return {
+      type: 'long_selected_dwell',
+      fragmentId: longestId,
+      dwellMs: Math.round(longestMs),
+      revisitCount: summary.revisitCountByFragment[longestId] ?? 0,
+    };
+  }
+
+  return null;
 }

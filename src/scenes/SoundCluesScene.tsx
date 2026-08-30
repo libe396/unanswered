@@ -28,10 +28,74 @@ interface SoundRuntime {
   isPlaying: boolean;
   progress: number;
   heardToEnd: boolean;
+  /** Live playhead / clip length, in seconds — only so the player strip
+   *  can show a time readout. Still not a tally: every measured figure comes
+   *  from the event log via summarizeSound. */
+  currentSec: number;
+  durationSec: number;
 }
 
 function emptyRuntime(): SoundRuntime {
-  return { isPlaying: false, progress: 0, heardToEnd: false };
+  return { isPlaying: false, progress: 0, heardToEnd: false, currentSec: 0, durationSec: 0 };
+}
+
+/** mm:ss for the player readout. */
+function formatClock(seconds: number): string {
+  const safe = Number.isFinite(seconds) && seconds > 0 ? seconds : 0;
+  const m = Math.floor(safe / 60);
+  const s = Math.floor(safe % 60);
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+/**
+ * One abstract line glyph per glass dome.
+ *
+ * Deliberately not pictures of rain, a cup, a pencil. The Zone's whole premise
+ * (see the note over SOUND_CLUES in content.ts) is that a sound named is a
+ * sound answered — so each specimen gets a neutral mark, not an illustration
+ * of what it might be. They differ only enough to tell the domes apart.
+ */
+const SPECIMEN_GLYPHS: string[] = [
+  'M3 15 Q7 9 11 15 T19 15 M3 9 Q7 4 11 9 T19 9',
+  'M11 3 A8 8 0 1 0 11 19 M11 7 A4 4 0 1 1 11 15',
+  'M4 18 A14 14 0 0 1 18 4 M4 13 A9 9 0 0 1 13 4 M4 8 A4 4 0 0 1 8 4',
+  'M4 18 L16 6 M15 5 L18 8 M6 16 L4 18 L6 16',
+  'M7 3 L7 11 M7 15 L7 19 M14 5 L14 13 M14 17 L14 21',
+  'M6 4 L16 4 L16 18 L6 18 Z M6 11 L16 11 M11 4 L11 18',
+  'M11 3 C5 11 5 15 11 19 C17 15 17 11 11 3 Z',
+];
+
+const WAVEFORM_BARS = [
+  0.18, 0.34, 0.24, 0.52, 0.38, 0.68, 0.3, 0.46, 0.22, 0.62, 0.36, 0.78,
+  0.42, 0.58, 0.28, 0.7, 0.32, 0.5, 0.2, 0.44, 0.66, 0.36, 0.82, 0.48,
+  0.26, 0.54, 0.72, 0.4, 0.24, 0.6, 0.34, 0.5,
+];
+
+function SpecimenGlyph({ index }: { index: number }) {
+  const d = SPECIMEN_GLYPHS[index % SPECIMEN_GLYPHS.length];
+  return (
+    <svg viewBox="0 0 22 22" aria-hidden="true" focusable="false">
+      <path d={d} fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function PlayerWaveform({ active, progress }: { active: boolean; progress: number }) {
+  return (
+    <div
+      className={`sound-clues-scene__player-wave${active ? ' sound-clues-scene__player-wave--active' : ''}`}
+      aria-hidden="true"
+    >
+      <span className="sound-clues-scene__player-wave-progress" style={{ width: `${progress * 100}%` }} />
+      {WAVEFORM_BARS.map((height, index) => (
+        <span
+          key={`${height}-${index}`}
+          className="sound-clues-scene__player-wave-bar"
+          style={{ height: `${Math.round(height * 100)}%`, animationDelay: `${index * 46}ms` }}
+        />
+      ))}
+    </div>
+  );
 }
 
 /** Which of the Zone's two questions is in front of the visitor. */
@@ -119,6 +183,14 @@ export function SoundCluesScene() {
   const [phase, setPhase] = useState<Phase>('browse');
   const [runtime, setRuntime] = useState<Record<string, SoundRuntime>>({});
   const [selectedSoundId, setSelectedSoundId] = useState<string | null>(null);
+  // Every dome that has been played at least once — drives the "N / 7 단서 청취"
+  // readout and the small "heard" mark on a dome. Presentation only; kept
+  // separate from selection, which is still a single deliberate choice.
+  const [listenedIds, setListenedIds] = useState<Set<string>>(() => new Set());
+  // The dome the player strip is currently describing: the last one the
+  // visitor opened. Not the same as the selected one — you can listen back
+  // through the shelf without changing your answer.
+  const [focusedSoundId, setFocusedSoundId] = useState<string | null>(null);
   // Null until the visitor puts the point down. Deliberately not seeded at the
   // centre: an empty field asks a question, and a point already sitting in the
   // middle answers it before they arrive.
@@ -156,7 +228,28 @@ export function SoundCluesScene() {
       const duration = audio.duration;
       if (!Number.isFinite(duration) || duration <= 0) return;
       const progress = Math.min(1, audio.currentTime / duration);
-      setRuntime((prev) => ({ ...prev, [soundId]: { ...(prev[soundId] ?? emptyRuntime()), progress } }));
+      setRuntime((prev) => ({
+        ...prev,
+        [soundId]: {
+          ...(prev[soundId] ?? emptyRuntime()),
+          progress,
+          currentSec: audio.currentTime,
+          durationSec: duration,
+        },
+      }));
+    });
+
+    audio.addEventListener('loadedmetadata', () => {
+      const duration = audio.duration;
+      if (!Number.isFinite(duration) || duration <= 0) return;
+      setRuntime((prev) => ({
+        ...prev,
+        [soundId]: {
+          ...(prev[soundId] ?? emptyRuntime()),
+          currentSec: audio.currentTime,
+          durationSec: duration,
+        },
+      }));
     });
 
     audio.addEventListener('ended', () => finalizeRef.current('ended'));
@@ -223,8 +316,11 @@ export function SoundCluesScene() {
       return {
         ...prev,
         [soundId]: {
+          ...current,
           isPlaying: false,
           progress: reason === 'ended' ? 1 : current.progress,
+          currentSec: reason === 'ended' && current.durationSec > 0 ? current.durationSec : audio.currentTime,
+          durationSec: current.durationSec || (durationMs > 0 ? durationMs / 1000 : 0),
           heardToEnd: current.heardToEnd || reason === 'ended',
         },
       };
@@ -254,6 +350,7 @@ export function SoundCluesScene() {
     activeIdRef.current = soundId;
     startedAtMsRef.current = positionMs;
     tracking.playStart(SOUND_GROUP, soundId, positionMs);
+    setListenedIds((prev) => (prev.has(soundId) ? prev : new Set(prev).add(soundId)));
 
     setRuntime((prev) => {
       const current = prev[soundId] ?? emptyRuntime();
@@ -263,6 +360,8 @@ export function SoundCluesScene() {
           ...current,
           isPlaying: true,
           progress: positionMs > 0 && audio.duration > 0 ? current.progress : 0,
+          currentSec: audio.currentTime,
+          durationSec: Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : current.durationSec,
         },
       };
     });
@@ -289,6 +388,21 @@ export function SoundCluesScene() {
     if (selectedSoundId === soundId) return;
     setSelectedSoundId(soundId);
     tracking.select(SOUND_GROUP, soundId);
+  }
+
+  /**
+   * Opening a glass dome: bring it into the player strip and play what is
+   * kept inside. Clicking the dome that is already sounding closes it. Playback
+   * is toggle-only here — choosing the sound as the answer is a separate act,
+   * made from the player, so listening back through the shelf never disturbs it.
+   */
+  function handleClocheClick(soundId: string) {
+    setFocusedSoundId(soundId);
+    if (getRuntime(soundId).isPlaying) {
+      stop(soundId);
+    } else {
+      play(soundId);
+    }
   }
 
   /* ── The memory field ───────────────────────────────────────────────────── */
@@ -409,6 +523,7 @@ export function SoundCluesScene() {
     // The sound question is finished here, the same way LIGHT commits its
     // image question on leaving the grid.
     tracking.commit(SOUND_GROUP);
+    setFocusedSoundId(selectedSoundId);
     setPhase('positioning');
   }
 
@@ -462,48 +577,109 @@ export function SoundCluesScene() {
   }
 
   /**
-   * One sound, drawn the same way on both steps.
+   * One glass dome on the shelf.
    *
-   * Shared rather than written twice so the row on the positioning step cannot
-   * drift from the ones in the list — it is meant to be recognisably the same
-   * object, carried forward. `selectable` is the only difference: on the second
-   * step there is nothing left to choose, only something left to hear again.
+   * The specimen silhouette — handle, dome, base, the glow under it — is the
+   * thing that has to read first. Everything else (the number, the glyph, the
+   * waveform while it plays) sits quietly inside or below it.
    */
-  function renderSoundRow(clue: (typeof SOUND_CLUES)[number], selectable: boolean) {
+  function renderCloche(clue: (typeof SOUND_CLUES)[number], index: number) {
     const r = getRuntime(clue.id);
+    const number = clue.label.replace(/[^0-9]/g, '') || String(index + 1).padStart(2, '0');
+    const listened = listenedIds.has(clue.id);
+    const state = [
+      r.isPlaying ? 'sound-clues-scene__cloche--playing' : '',
+      listened ? 'sound-clues-scene__cloche--listened' : '',
+      selectedSoundId === clue.id ? 'sound-clues-scene__cloche--selected' : '',
+      focusedSoundId === clue.id ? 'sound-clues-scene__cloche--focused' : '',
+    ]
+      .filter(Boolean)
+      .join(' ');
+
     return (
-      <div
+      <button
         key={clue.id}
-        className={`sound-clues-scene__item${
-          selectedSoundId === clue.id ? ' sound-clues-scene__item--selected' : ''
-        }`}
+        type="button"
+        className={`sound-clues-scene__cloche ${state}`}
+        aria-pressed={r.isPlaying}
+        aria-label={`${clue.label}${listened ? ', 청취함' : ''}${r.isPlaying ? ', 재생 중' : ''}`}
+        onClick={() => handleClocheClick(clue.id)}
       >
-        <div className="sound-clues-scene__item-text">
-          <span className="sound-clues-scene__item-label">{clue.label}</span>
+        <span className="sound-clues-scene__cloche-stage">
+          <span className="sound-clues-scene__cloche-handle" aria-hidden="true" />
+          <span className="sound-clues-scene__cloche-dome">
+            <span className="sound-clues-scene__cloche-glass" aria-hidden="true" />
+            <span className="sound-clues-scene__cloche-fill" aria-hidden="true" />
+            <span className="sound-clues-scene__cloche-glyph">
+              <SpecimenGlyph index={index} />
+            </span>
+            <span className="sound-clues-scene__cloche-inner-label" aria-hidden="true">
+              <span className="sound-clues-scene__cloche-inner-word">SOUND</span>
+              <span className="sound-clues-scene__cloche-inner-num">{number}</span>
+            </span>
+            <span className="sound-clues-scene__cloche-wave" aria-hidden="true">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <span key={i} style={{ animationDelay: `${i * 0.12}s` }} />
+              ))}
+            </span>
+          </span>
+          <span className="sound-clues-scene__cloche-base" aria-hidden="true" />
+          <span className="sound-clues-scene__cloche-glow" aria-hidden="true" />
+        </span>
+        <span className="sound-clues-scene__cloche-caption">
+          <span className="sound-clues-scene__cloche-caption-num">{number}</span>
+          <span className="sound-clues-scene__cloche-caption-label">
+            {clue.label}
+            {listened ? (
+              <span className="sound-clues-scene__cloche-heard" aria-hidden="true" />
+            ) : null}
+          </span>
+        </span>
+      </button>
+    );
+  }
+
+  function renderPlayer(clue: (typeof SOUND_CLUES)[number] | null, runtimeForClue: SoundRuntime | null) {
+    if (!clue || !runtimeForClue) {
+      return (
+        <div className="sound-clues-scene__player sound-clues-scene__player--empty">
+          <span className="sound-clues-scene__player-empty">소리 단서를 선택해 주세요</span>
         </div>
-        <div className="sound-clues-scene__item-track">
-          <div
-            className="sound-clues-scene__item-track-fill"
-            style={{ width: `${r.progress * 100}%` }}
-          />
-        </div>
-        <div className="sound-clues-scene__item-actions">
-          <button
-            className="sound-clues-scene__mini-btn"
-            onClick={() => (r.isPlaying ? stop(clue.id) : play(clue.id))}
-          >
-            {r.isPlaying ? '멈춤' : r.heardToEnd ? '다시 듣기' : '재생'}
-          </button>
-          {selectable ? (
-            <button className="sound-clues-scene__mini-btn" onClick={() => selectSound(clue.id)}>
-              이 소리 선택
+      );
+    }
+
+    return (
+      <div className={`sound-clues-scene__player${runtimeForClue.isPlaying ? ' sound-clues-scene__player--active' : ''}`}>
+        <span className="sound-clues-scene__player-title">{clue.label}</span>
+        <PlayerWaveform active={runtimeForClue.isPlaying} progress={runtimeForClue.progress} />
+        <div className="sound-clues-scene__player-controls">
+          <span className="sound-clues-scene__player-time">
+            {formatClock(runtimeForClue.currentSec)} / {formatClock(runtimeForClue.durationSec)}
+          </span>
+          <div className="sound-clues-scene__player-actions">
+            <button
+              type="button"
+              className="sound-clues-scene__mini-btn"
+              onClick={() => handleClocheClick(clue.id)}
+            >
+              {runtimeForClue.isPlaying ? '일시정지' : runtimeForClue.heardToEnd ? '다시 듣기' : '재생'}
             </button>
-          ) : null}
+            <button
+              type="button"
+              className="sound-clues-scene__mini-btn sound-clues-scene__mini-btn--mark"
+              onClick={() => selectSound(clue.id)}
+              disabled={selectedSoundId === clue.id}
+            >
+              {selectedSoundId === clue.id ? '표시됨' : '이 소리로 표시'}
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
+  const focusedClue = SOUND_CLUES.find((clue) => clue.id === focusedSoundId) ?? null;
+  const focusedRuntime = focusedSoundId ? getRuntime(focusedSoundId) : null;
   const selectedClue = SOUND_CLUES.find((clue) => clue.id === selectedSoundId) ?? null;
 
   if (phase === 'browse') {
@@ -511,9 +687,20 @@ export function SoundCluesScene() {
       <div className="sound-clues-scene">
         <p className="sound-clues-scene__hint">그 사람의 기억에선 어떤 소리가 존재했을까요?</p>
 
-        <div className="sound-clues-scene__list">
-          {SOUND_CLUES.map((clue) => renderSoundRow(clue, true))}
+        <div className="sound-clues-scene__shelf-scroll">
+          <div className="sound-clues-scene__shelf">
+            <div className="sound-clues-scene__shelf-row">
+              {SOUND_CLUES.map((clue, index) => renderCloche(clue, index))}
+            </div>
+            <div className="sound-clues-scene__shelf-surface" aria-hidden="true" />
+          </div>
         </div>
+
+        {renderPlayer(focusedClue, focusedRuntime)}
+
+        <p className="sound-clues-scene__progress">
+          {listenedIds.size} / {SOUND_CLUES.length} 단서 청취
+        </p>
 
         <button
           className="sound-clues-scene__confirm"
@@ -531,11 +718,7 @@ export function SoundCluesScene() {
     <div className="sound-clues-scene">
       <p className="sound-clues-scene__hint">이 소리가 기억 속 어디쯤 남아 있는지 표시하세요.</p>
 
-      {selectedClue ? (
-        <div className="sound-clues-scene__list sound-clues-scene__list--single">
-          {renderSoundRow(selectedClue, false)}
-        </div>
-      ) : null}
+      {renderPlayer(selectedClue, selectedSoundId ? getRuntime(selectedSoundId) : null)}
 
       <div className="sound-clues-scene__field-block">
         <div className="sound-clues-scene__field-frame">

@@ -1,26 +1,34 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   SENTENCE_MAX_FRAGMENTS,
   SENTENCE_MIN_FRAGMENTS,
+  SENTENCE_MIN_NON_ENDING_BEFORE_ENDING,
   SENTENCE_RECONSTRUCTION_FRAGMENTS,
-  SENTENCE_SLOTS,
-  SENTENCE_SLOT_LABELS,
 } from '../data/content';
-import type { SentenceReconstructionFragment, SentenceSlot } from '../data/content';
+import type { SentenceReconstructionFragment } from '../data/content';
 import { useExperienceStore } from '../store/experienceStore';
 import { logSceneTracking, useSceneTracking } from '../hooks/useSceneTracking';
 import { detectSentencePatterns } from '../lib/sentencePatterns';
-import { playClueRecordedSignature } from '../lib/postElevatorAudio';
+import { playClueRecordedSignature, startFinalReportBgmLayer } from '../lib/postElevatorAudio';
 import {
   SENTENCE_GROUP,
   SENTENCE_TRACKING_GROUPS,
+  deriveSentenceBehavioralTrace,
   summarizeSentence,
 } from '../lib/sentenceTracking';
 import { SENTENCE_THRESHOLDS } from '../lib/sentenceThresholds';
 import { buildSentenceNarrativeContext } from '../lib/sentenceNarrative';
+import {
+  NO_TARGET_MESSAGE,
+  findQuestionTarget,
+  generateFragmentQuestion,
+  synthesizeRestoredLine,
+  type SentenceQuestionResult,
+} from '../lib/sentenceQuestionService';
 import { TerminalCorners } from '../components/TerminalCorners';
 import { ZoneIntroCard } from '../components/ZoneIntroCard';
-import type { SceneBehaviorRecord } from '../types';
+import type { SceneBehaviorRecord, SentenceBehavioralTrace } from '../types';
 import './SentenceCluesScene.css';
 
 const STOPWORDS = new Set([
@@ -61,25 +69,48 @@ function extractRepeatedKeywords(texts: string[]): string[] {
 
 const FRAGMENT_BY_ID = new Map(SENTENCE_RECONSTRUCTION_FRAGMENTS.map((f) => [f.id, f]));
 const textOf = (id: string) => FRAGMENT_BY_ID.get(id)?.text ?? '';
-const slotOf = (id: string) => FRAGMENT_BY_ID.get(id)?.slot;
-const candidatesForSlot = (slot: SentenceSlot) =>
-  SENTENCE_RECONSTRUCTION_FRAGMENTS.filter((f) => f.slot === slot);
+const roleOf = (id: string) => FRAGMENT_BY_ID.get(id)?.narrativeRole;
 
-/**
- * A short archive-style code for a candidate — "A-1", "B-3" — on the same
- * visual footing as this exhibition's other catalogue marks (LIGHT's "RULE
- * 01", SOUND's "SOUND 01"). Purely presentational: it exists so a candidate
- * reads as one numbered line pulled from a record rather than an option in a
- * form, and nothing downstream (tracking, the store) ever sees it — the
- * fragment's real id is still what every event and every saved answer names.
- */
-const SLOT_LETTER: Record<SentenceSlot, string> = { 1: 'A', 2: 'B', 3: 'C' };
+/** A short archive-style code — "01".."20" — on the same visual footing as
+ *  this exhibition's other catalogue marks (LIGHT's "RULE 01", SOUND's
+ *  "SOUND 01"). Purely presentational: nothing downstream (tracking, the
+ *  store) ever sees it. */
+function archiveCodeOf(fragmentId: string): string {
+  const index = SENTENCE_RECONSTRUCTION_FRAGMENTS.findIndex((f) => f.id === fragmentId);
+  return String(index + 1).padStart(2, '0');
+}
 
-function codeOf(id: string): string {
-  const fragment = FRAGMENT_BY_ID.get(id);
-  if (!fragment) return '';
-  const index = candidatesForSlot(fragment.slot).findIndex((f) => f.id === id);
-  return `${SLOT_LETTER[fragment.slot]}-${index + 1}`;
+/** Non-`ending` fragments first, in draw order, `ending` fragments last, in
+ *  their own draw order — the one reordering this Zone still does, applied
+ *  only where the visitor actually reads the account (Reconstruction,
+ *  Restored Record), never to the live tray while still drawing. */
+function orderedForReading(drawnIds: readonly string[]): string[] {
+  const nonEnding = drawnIds.filter((id) => roleOf(id) !== 'ending');
+  const ending = drawnIds.filter((id) => roleOf(id) === 'ending');
+  return [...nonEnding, ...ending];
+}
+
+const RESPONSE_MAX_LENGTH = 100;
+const DISCOVERING_MIN_MS = 900;
+const DEFAULT_DISCOVERING_TEXT = '아직 확인되지 않은 부분이 있습니다.';
+
+function traceMessage(trace: SentenceBehavioralTrace): string {
+  switch (trace.type) {
+    case 'long_unselected_dwell': {
+      const seconds = (trace.dwellMs / 1000).toFixed(1);
+      return `선택하지 않은 기록 하나에 ${seconds}초 동안 머물렀습니다.`;
+    }
+    case 'selected_then_removed':
+      return '한 번 꺼낸 기록을 다시 돌려놓았습니다.';
+    case 'removed_then_reselected':
+      return '한 번 돌려놓은 기록을 다시 꺼냈습니다.';
+    case 'repeat_hover':
+      return `같은 기록을 ${trace.revisitCount + 1}번 다시 확인했습니다.`;
+    case 'long_selected_dwell':
+      return '이 기록 앞에서 조금 더 오래 머물렀습니다.';
+    default:
+      return '';
+  }
 }
 
 /**
@@ -87,10 +118,7 @@ function codeOf(id: string): string {
  *
  * Named values rather than raw events, as in the other three Zones. Fragment
  * ids are shown as they are recorded rather than as words: what is being
- * checked is the log, and the log speaks in ids. `finalSentence` here reads
- * in *insertion* order — the log's own order — which is not necessarily the
- * slot order (01 · 변화 → 02 · 흔적 → 03 · 결과) the stored answer uses; see
- * handleConfirm, which reorders by slot before writing to the store.
+ * checked is the log, and the log speaks in ids.
  */
 function readSentenceTracking(record: SceneBehaviorRecord) {
   const summary = summarizeSentence(record);
@@ -111,16 +139,15 @@ function readSentenceTracking(record: SceneBehaviorRecord) {
     finalSentence: summary.finalFragments.map(textOf).join(' '),
     addPath: summary.addPath,
     removePath: summary.removePath,
-    reorders: summary.operations.filter((op) => op.kind === 'reorder'),
     addCount: summary.addCount,
     removeCount: summary.removeCount,
-    reorderCount: summary.reorderCount,
     rewriteCount: summary.rewriteCount,
     constructionChangeCount: summary.constructionChangeCount,
 
     returnedFragments: summary.returnedFragments,
     removedThenReturnedFragments: summary.removedThenReturnedFragments,
     fragmentReturnCount: summary.fragmentReturnCount,
+    addedButDroppedFragments: summary.addedButDroppedFragments,
 
     msToFirstFragment: summary.msToFirstFragment,
     msToFirstAdd: summary.msToFirstAdd,
@@ -132,13 +159,23 @@ function readSentenceTracking(record: SceneBehaviorRecord) {
     editsAfterFirstValidSentence: summary.editsAfterFirstValidSentence,
     becameValidCount: summary.becameValidCount,
 
+    behavioralTrace: deriveSentenceBehavioralTrace(summary),
+
     patterns: detectSentencePatterns(summary),
     thresholds: SENTENCE_THRESHOLDS,
     summary,
   };
 }
 
-type Phase = 'zoneIntro' | 'context' | 'reconstruct';
+type Phase =
+  | 'zoneIntro'
+  | 'context'
+  | 'explore'
+  | 'reconstruction'
+  | 'discovering'
+  | 'question'
+  | 'restoredRecord'
+  | 'behavioralTrace';
 
 export function SentenceCluesScene() {
   const lightArchive = useExperienceStore((s) => s.lightArchive);
@@ -153,9 +190,7 @@ export function SentenceCluesScene() {
   /*
     LIGHT/SOUND/MEMORY's final answers only — never a raw event or a Scene
     Summary. See src/lib/sentenceNarrative.ts's module doc for why that
-    boundary is load-bearing here, not just tidy: Cross-Scene reads this
-    Zone's *behaviour* through summarizeSentence/detectSentencePatterns
-    exactly as before, entirely unaware this content layer exists.
+    boundary is load-bearing here, not just tidy.
   */
   const narrative = useMemo(
     () => buildSentenceNarrativeContext(lightArchive, soundClues, memorySketch),
@@ -163,38 +198,57 @@ export function SentenceCluesScene() {
   );
 
   const [phase, setPhase] = useState<Phase>('zoneIntro');
-  /** The reconstruction, as fragment ids in whatever order they were chosen —
-   *  not necessarily slot order. See handleConfirm for where that matters. */
+  const enteredAtRef = useRef(Date.now());
+
+  /** The visitor's drawn cards, in draw order — this *is* the account's
+   *  order now, `ending` fragments aside (see `orderedForReading`). */
   const [fragments, setFragments] = useState<string[]>([]);
   /*
-    Held where it can be read back the instant it changes — see the original
-    note this preserves: a functional updater would double-record under
-    StrictMode, and the rendered value lags a tick behind two operations run
-    in the same handler (swapping a slot's choice is exactly that: a remove
-    immediately followed by an add).
+    Held where it can be read back the instant it changes — a functional
+    updater would double-record under StrictMode, and the rendered value lags
+    a tick behind an operation and whatever reads it in the same handler.
   */
   const fragmentsRef = useRef<string[]>([]);
 
-  function setSentence(next: string[]) {
+  function setDrawn(next: string[]) {
     fragmentsRef.current = next;
     setFragments(next);
   }
 
   const isValid = fragments.length >= SENTENCE_MIN_FRAGMENTS;
+  const isFull = fragments.length >= SENTENCE_MAX_FRAGMENTS;
+  const nonEndingDrawnCount = fragments.filter((id) => roleOf(id) !== 'ending').length;
+
+  function isEndingLocked(fragment: SentenceReconstructionFragment): boolean {
+    return fragment.narrativeRole === 'ending' && nonEndingDrawnCount < SENTENCE_MIN_NON_ENDING_BEFORE_ENDING;
+  }
+
+  /* ── The question and the response ──────────────────────────────────────── */
+  const [questionResult, setQuestionResult] = useState<SentenceQuestionResult | null>(null);
+  const [responseText, setResponseText] = useState('');
+  const [responseSkipped, setResponseSkipped] = useState(false);
+  // Set only when findQuestionTarget found no candidate at all — a separate
+  // fact from responseSkipped, which means the *visitor* declined to answer
+  // a real question. See SentenceCluesData.noQuestionAvailable's doc.
+  const [noQuestionAvailable, setNoQuestionAvailable] = useState(false);
+  const [discoveringMessage, setDiscoveringMessage] = useState(DEFAULT_DISCOVERING_TEXT);
+  const responseEditCountRef = useRef(0);
+  const responseDeleteCountRef = useRef(0);
+  const responseLengthRef = useRef(0);
+  const [behavioralTrace, setBehavioralTrace] = useState<SentenceBehavioralTrace | null>(null);
 
   useEffect(() => {
-    // Recovered Context is a reading step and records nothing — see the
-    // module doc on tracking boundaries. The group opens only once the
-    // Reconstruction step itself is in front of the visitor, exactly the
+    // Recovered Context is a reading step and records nothing. The group
+    // opens once Explore itself is in front of the visitor, exactly the
     // moment `msToFirstFragment` and friends are supposed to measure from.
-    if (phase !== 'reconstruct') return;
+    if (phase !== 'explore') return;
     tracking.openGroup(SENTENCE_GROUP);
   }, [phase, tracking]);
 
-  // Recorded the first time the record could be submitted. What the wait before
-  // submitting is measured from — without it, a visitor who spent a minute on a
-  // two-fragment sentence would read as having hesitated over a decision the
-  // Zone had not yet let them make.
+  // Recorded the first time the collection could move on. What the wait
+  // before submitting is measured from — without it, a visitor who spent a
+  // minute on a two-fragment collection would read as having hesitated over
+  // a decision the Zone had not yet let them make.
   useEffect(() => {
     if (isValid) tracking.advanceReady();
   }, [isValid, tracking]);
@@ -206,67 +260,115 @@ export function SentenceCluesScene() {
     [tracking],
   );
 
-  /* ── Building the reconstruction ────────────────────────────────────────── */
+  /* ── Explore: drawing cards from the archive ────────────────────────────── */
 
-  function addFragment(fragmentId: string) {
+  function drawFragment(fragmentId: string) {
     const current = fragmentsRef.current;
-    // One scrap, one piece: a fragment already chosen cannot be added again.
     if (current.includes(fragmentId)) return;
     if (current.length >= SENTENCE_MAX_FRAGMENTS) return;
     const index = current.length;
-    setSentence([...current, fragmentId]);
+    setDrawn([...current, fragmentId]);
     tracking.fragmentAdd(SENTENCE_GROUP, fragmentId, index);
   }
 
-  function removeFragment(fragmentId: string) {
+  function returnFragment(fragmentId: string) {
     const current = fragmentsRef.current;
     const index = current.indexOf(fragmentId);
     if (index === -1) return;
-    setSentence(current.filter((id) => id !== fragmentId));
+    setDrawn(current.filter((id) => id !== fragmentId));
     tracking.fragmentRemove(SENTENCE_GROUP, fragmentId, index);
   }
 
-  /**
-   * Choosing a candidate for a slot.
-   *
-   * A slot holds one fragment at a time, so picking a second candidate for a
-   * slot that already has one is a swap: the fragment there is removed, then
-   * the new one is added. Both are ordinary fragmentRemove/fragmentAdd
-   * operations, in the same log every other Zone-pattern already reads — a
-   * swap is simply a remove immediately followed by an add, which is exactly
-   * what REPEATED_REWRITE and FRAGMENT_RETURN already know how to see.
-   */
-  function selectCandidate(fragment: SentenceReconstructionFragment) {
-    const current = fragmentsRef.current;
-    if (current.includes(fragment.id)) return;
-    const occupied = current.find((id) => slotOf(id) === fragment.slot);
-    if (occupied) removeFragment(occupied);
-    addFragment(fragment.id);
+  /** A card in the archive is a plain toggle — drawn, or returned. */
+  function toggleFragment(fragment: SentenceReconstructionFragment) {
+    if (fragmentsRef.current.includes(fragment.id)) {
+      returnFragment(fragment.id);
+    } else {
+      drawFragment(fragment.id);
+    }
   }
 
-  /* ── Leaving ────────────────────────────────────────────────────────────── */
-
-  function handleConfirm() {
+  function handleExploreNext() {
     if (!isValid) return;
+    // Collecting ends here — every fragmentAdd/fragmentRemove up to this
+    // moment is one closed question, and everything POST_SENTENCE_HESITATION
+    // and msFromLastEditToCommit read is measured against this commit. No
+    // step after this one changes which fragments were drawn.
     tracking.commit(SENTENCE_GROUP);
+    startFinalReportBgmLayer();
+    setPhase('reconstruction');
+  }
 
-    const summary = summarizeSentence(tracking.snapshot());
-    // Slot order (01 → 02 → 03), not the order the fragments happened to be
-    // chosen in — a candidate picked for slot 3 before slot 1 must still
-    // read as slot 1's line first. The tracked operation log keeps pick
-    // order, exactly as it always has; only the stored, readable sentence is
-    // reordered here.
-    const orderedIds = SENTENCE_SLOTS.map((slot) =>
-      fragments.find((id) => slotOf(id) === slot),
-    ).filter((id): id is string => Boolean(id));
+  /* ── Discovering: finding the one thing left to ask about ───────────────── */
+
+  useEffect(() => {
+    if (phase !== 'discovering') return;
+    let cancelled = false;
+    setDiscoveringMessage(DEFAULT_DISCOVERING_TEXT);
+    const target = findQuestionTarget(fragmentsRef.current, FRAGMENT_BY_ID);
+    const minDelay = new Promise<void>((resolve) => {
+      window.setTimeout(resolve, DISCOVERING_MIN_MS);
+    });
+
+    if (!target) {
+      // Shown in place of the default line for the same minimum stretch —
+      // never an abrupt cut straight to Restored Record. Not the visitor's
+      // skip: `responseSkipped` stays exactly what it already was.
+      setDiscoveringMessage(NO_TARGET_MESSAGE);
+      minDelay.then(() => {
+        if (cancelled) return;
+        setQuestionResult({ fragmentId: null, openSlot: null, question: NO_TARGET_MESSAGE, source: null });
+        setNoQuestionAvailable(true);
+        setPhase('restoredRecord');
+      });
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    Promise.all([generateFragmentQuestion(target), minDelay]).then(([result]) => {
+      if (cancelled) return;
+      setQuestionResult(result);
+      setPhase('question');
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [phase]);
+
+  /* ── Question: a short response, or none ────────────────────────────────── */
+
+  function handleResponseChange(value: string) {
+    const prevLength = responseLengthRef.current;
+    if (value.length > prevLength) responseEditCountRef.current += 1;
+    else if (value.length < prevLength) responseDeleteCountRef.current += 1;
+    responseLengthRef.current = value.length;
+    setResponseText(value);
+  }
+
+  function proceedFromQuestion(skip: boolean) {
+    const trimmed = responseText.trim();
+    const skipped = skip || trimmed.length === 0;
+    setResponseSkipped(skipped);
+    if (skipped) setResponseText('');
+    else setResponseText(trimmed);
+    setPhase('restoredRecord');
+  }
+
+  /* ── Restored Record → Behavioral Trace ─────────────────────────────────── */
+
+  function handleRestoredRecordNext() {
+    const trace = deriveSentenceBehavioralTrace(summarizeSentence(tracking.snapshot()));
+    setBehavioralTrace(trace);
+    setPhase('behavioralTrace');
+  }
+
+  function handleComplete() {
+    const record = tracking.snapshot();
+    const summary = summarizeSentence(record);
+    const orderedIds = fragmentsRef.current;
     const fragmentTexts = orderedIds.map(textOf);
-    /*
-      The older shape the Final Report reads, filled from what the Zone now
-      asks. The assembled sentence goes in as the visitor's own sentence, which
-      is what it is; the fragment texts go in as its parts. Both are derived
-      here rather than accumulated as the visitor went, so the answer and the
-      behavioural record come from one source.
-    */
+
     setSentenceClues({
       selectedSentenceIds: orderedIds,
       selectedSentences: fragmentTexts,
@@ -274,12 +376,25 @@ export function SentenceCluesScene() {
       dwellTimes: summary.dwellMsByFragment,
       selectionOrder: orderedIds,
       repeatedKeywords: extractRepeatedKeywords(fragmentTexts),
+      questionTargetFragmentId: questionResult?.fragmentId ?? null,
+      questionOpenSlot: questionResult?.openSlot ?? null,
+      generatedQuestion: questionResult?.fragmentId ? questionResult.question : '',
+      questionSource: questionResult?.source ?? null,
+      responseText: responseSkipped ? '' : responseText,
+      responseSkipped,
+      noQuestionAvailable,
+      responseEditCount: responseEditCountRef.current,
+      responseDeleteCount: responseDeleteCountRef.current,
+      behavioralTrace,
+      sceneDurationMs: Date.now() - enteredAtRef.current,
     });
     tracking.save();
     logSceneTracking('sentenceClues', tracking, readSentenceTracking);
     playClueRecordedSignature();
     completeScene('sentenceClues');
   }
+
+  /* ── zoneIntro / context ─────────────────────────────────────────────────── */
 
   if (phase === 'zoneIntro') {
     return (
@@ -317,118 +432,246 @@ export function SentenceCluesScene() {
         <p className="sentence-clues-scene__prompt">{narrative.promptText}</p>
         <p className="sentence-clues-scene__instruction">{narrative.instructionText}</p>
 
-        <button
-          className="sentence-clues-scene__confirm"
-          onClick={() => setPhase('reconstruct')}
-        >
+        <button className="sentence-clues-scene__confirm" onClick={() => setPhase('explore')}>
           <TerminalCorners />
-          복원 시작
+          탐색 시작
         </button>
       </div>
     );
   }
 
+  /* ── explore: the archive wall ───────────────────────────────────────────── */
+
+  if (phase === 'explore') {
+    return (
+      <div className="sentence-clues-scene sentence-clues-scene--explore">
+        <p className="sentence-clues-scene__hint">그 사람에게 이후 어떤 일이 있었을까요?</p>
+        <p className="sentence-clues-scene__subhint">가능하다고 생각되는 기록을 하나씩 꺼내 주세요.</p>
+        <p className="sentence-clues-scene__count" aria-live="polite">
+          {String(fragments.length).padStart(2, '0')} / {String(SENTENCE_MAX_FRAGMENTS).padStart(2, '0')}
+        </p>
+
+        <div className="sentence-clues-scene__wall">
+          {SENTENCE_RECONSTRUCTION_FRAGMENTS.map((fragment) => {
+            const drawn = fragments.includes(fragment.id);
+            const locked = !drawn && isEndingLocked(fragment);
+            return (
+              <button
+                key={fragment.id}
+                type="button"
+                className={`sentence-clues-scene__card${drawn ? ' sentence-clues-scene__card--drawn' : ''}`}
+                onPointerEnter={() => tracking.viewStart(SENTENCE_GROUP, fragment.id)}
+                onPointerLeave={() => tracking.viewEnd(SENTENCE_GROUP, fragment.id)}
+                onFocus={() => tracking.viewStart(SENTENCE_GROUP, fragment.id)}
+                onBlur={() => tracking.viewEnd(SENTENCE_GROUP, fragment.id)}
+                onClick={() => toggleFragment(fragment)}
+                disabled={!drawn && (isFull || locked)}
+                aria-pressed={drawn}
+                title={locked ? '조금 더 많은 기록이 필요합니다.' : undefined}
+              >
+                <span className="sentence-clues-scene__card-code" aria-hidden="true">
+                  {archiveCodeOf(fragment.id)}
+                </span>
+                <span className="sentence-clues-scene__card-text">{fragment.text}</span>
+                {locked ? (
+                  <span className="sentence-clues-scene__card-hint">조금 더 많은 기록이 필요합니다.</span>
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="sentence-clues-scene__tray" role="list" aria-label="수집한 기록">
+          {Array.from({ length: SENTENCE_MAX_FRAGMENTS }).map((_, slotIndex) => {
+            const fragmentId = fragments[slotIndex];
+            return (
+              <div key={slotIndex} className="sentence-clues-scene__tray-slot">
+                <AnimatePresence>
+                  {fragmentId ? (
+                    <motion.button
+                      key={fragmentId}
+                      type="button"
+                      role="listitem"
+                      className="sentence-clues-scene__tray-card"
+                      initial={{ opacity: 0, y: 14, scale: 0.92 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.94 }}
+                      transition={{ duration: 0.4, ease: 'easeOut' }}
+                      onClick={() => returnFragment(fragmentId)}
+                      aria-label={`${textOf(fragmentId)} · 되돌리기`}
+                    >
+                      <span className="sentence-clues-scene__tray-index">
+                        {String(slotIndex + 1).padStart(2, '0')}
+                      </span>
+                      <span className="sentence-clues-scene__tray-text">{textOf(fragmentId)}</span>
+                    </motion.button>
+                  ) : (
+                    <span className="sentence-clues-scene__tray-placeholder" aria-hidden="true">
+                      {String(slotIndex + 1).padStart(2, '0')}
+                    </span>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="sentence-clues-scene__submit">
+          <span className="sentence-clues-scene__submit-note">
+            {isValid ? '다음으로 이동할 수 있습니다.' : '세 개 이상의 기록을 꺼내주세요.'}
+          </span>
+          <button
+            className="sentence-clues-scene__confirm"
+            onClick={handleExploreNext}
+            disabled={!isValid}
+          >
+            <TerminalCorners />
+            다음으로
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── reconstruction: what was drawn, read as one account ─────────────────── */
+
+  if (phase === 'reconstruction') {
+    const ordered = orderedForReading(fragments);
+    return (
+      <div className="sentence-clues-scene">
+        <p className="sentence-clues-scene__hint">선택한 기록으로 이후의 기록이 구성되었습니다.</p>
+
+        <div className="sentence-clues-scene__account">
+          {ordered.map((id, index) => (
+            <p key={id} className="sentence-clues-scene__account-line">
+              <span className="sentence-clues-scene__account-index">{String(index + 1).padStart(2, '0')}</span>
+              {textOf(id)}
+            </p>
+          ))}
+        </div>
+
+        <button className="sentence-clues-scene__confirm" onClick={() => setPhase('discovering')}>
+          <TerminalCorners />
+          다음으로
+        </button>
+      </div>
+    );
+  }
+
+  /* ── discovering ──────────────────────────────────────────────────────────── */
+
+  if (phase === 'discovering') {
+    return (
+      <div className="sentence-clues-scene sentence-clues-scene--discovering">
+        <p className="sentence-clues-scene__discovering-text" key={discoveringMessage}>
+          {discoveringMessage}
+        </p>
+      </div>
+    );
+  }
+
+  /* ── question: the one fragment with something left to ask ─────────────── */
+
+  if (phase === 'question' && questionResult?.fragmentId) {
+    const targetFragment = FRAGMENT_BY_ID.get(questionResult.fragmentId);
+    return (
+      <div className="sentence-clues-scene sentence-clues-scene--question">
+        {targetFragment ? (
+          <p className="sentence-clues-scene__target-card">{targetFragment.text}</p>
+        ) : null}
+        <p className="sentence-clues-scene__question">{questionResult.question}</p>
+
+        <div className="sentence-clues-scene__response-field">
+          <input
+            type="text"
+            className="sentence-clues-scene__response-input"
+            value={responseText}
+            maxLength={RESPONSE_MAX_LENGTH}
+            placeholder="짧게 남겨도 괜찮습니다."
+            onChange={(event) => handleResponseChange(event.target.value)}
+            aria-label={questionResult.question}
+          />
+          <span className="sentence-clues-scene__response-count">
+            {responseText.length} / {RESPONSE_MAX_LENGTH}
+          </span>
+        </div>
+
+        <div className="sentence-clues-scene__submit">
+          <button
+            type="button"
+            className="sentence-clues-scene__edit"
+            onClick={() => proceedFromQuestion(true)}
+          >
+            기록하지 않는다
+          </button>
+          <button className="sentence-clues-scene__confirm" onClick={() => proceedFromQuestion(false)}>
+            <TerminalCorners />
+            다음으로
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── restoredRecord ───────────────────────────────────────────────────────── */
+
+  if (phase === 'restoredRecord') {
+    const ordered = orderedForReading(fragments);
+    const targetId = questionResult?.fragmentId ?? null;
+    return (
+      <div className="sentence-clues-scene">
+        <p className="sentence-clues-scene__hint">복원된 기록입니다.</p>
+
+        <div className="sentence-clues-scene__account sentence-clues-scene__account--final">
+          {ordered.map((id, index) => {
+            const targetFragment = id === targetId ? FRAGMENT_BY_ID.get(id) : undefined;
+            const line =
+              targetFragment && !responseSkipped && responseText.trim()
+                ? synthesizeRestoredLine(targetFragment, responseText)
+                : textOf(id);
+            return (
+              <p key={id} className="sentence-clues-scene__account-line">
+                <span className="sentence-clues-scene__account-index">{String(index + 1).padStart(2, '0')}</span>
+                {line}
+                {id === targetId && responseSkipped ? (
+                  <span className="sentence-clues-scene__unanswered-mark">· 미응답</span>
+                ) : null}
+              </p>
+            );
+          })}
+        </div>
+
+        <button className="sentence-clues-scene__confirm" onClick={handleRestoredRecordNext}>
+          <TerminalCorners />
+          다음으로
+        </button>
+      </div>
+    );
+  }
+
+  /* ── behavioralTrace ──────────────────────────────────────────────────────── */
+
   return (
     <div className="sentence-clues-scene">
-      <p className="sentence-clues-scene__hint">
-        기록이 끊긴 이후를, 세 개의 조각으로 복원하세요.
-      </p>
+      <p className="sentence-clues-scene__hint">기록을 남기는 동안, 이런 흔적이 남았습니다.</p>
 
-      <div className="sentence-clues-scene__workspace">
-        <section className="sentence-clues-scene__panel sentence-clues-scene__panel--result">
-          <p className="sentence-clues-scene__panel-label">복원 중인 기록</p>
-          <div className="sentence-clues-scene__restore" role="list" aria-label="복원 중인 기록">
-            {SENTENCE_SLOTS.map((slot) => {
-              const chosenId = fragments.find((id) => slotOf(id) === slot);
-              return (
-                <div key={slot} className="sentence-clues-scene__slot-line" role="listitem">
-                  <span className="sentence-clues-scene__slot-index">{String(slot).padStart(2, '0')}</span>
-                  {chosenId ? (
-                    <span className="sentence-clues-scene__slot-chip">
-                      <span className="sentence-clues-scene__slot-chip-mark" aria-hidden="true">
-                        {codeOf(chosenId)}
-                      </span>
-                      <span className="sentence-clues-scene__slot-chip-text">{textOf(chosenId)}</span>
-                      <button
-                        type="button"
-                        className="sentence-clues-scene__chip-drop"
-                        aria-label={`${textOf(chosenId)} 제거`}
-                        onClick={() => removeFragment(chosenId)}
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ) : (
-                    <span className="sentence-clues-scene__slot-placeholder" aria-hidden="true" />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className="sentence-clues-scene__panel sentence-clues-scene__panel--fragments">
-          <p className="sentence-clues-scene__panel-label">선택 가능한 조각</p>
-          <div className="sentence-clues-scene__slots">
-            {SENTENCE_SLOTS.map((slot) => (
-              <div key={slot} className="sentence-clues-scene__slot-group">
-                <p className="sentence-clues-scene__slot-label">
-                  {String(slot).padStart(2, '0')} · {SENTENCE_SLOT_LABELS[slot]}
-                </p>
-                <div className="sentence-clues-scene__archive">
-                  {candidatesForSlot(slot).map((fragment) => {
-                    const used = fragments.includes(fragment.id);
-                    return (
-                      <button
-                        key={fragment.id}
-                        type="button"
-                        className={`sentence-clues-scene__fragment${
-                          used ? ' sentence-clues-scene__fragment--used' : ''
-                        }`}
-                        /*
-                          Looking and taking are separate acts, and every candidate
-                          in a slot is on screen at once — so what counts as reading
-                          one is the pointer resting on it, never it being visible.
-                          Focus is bound the same way so a keyboard visitor is
-                          recorded on the same terms as a pointer one.
-                        */
-                        onPointerEnter={() => tracking.viewStart(SENTENCE_GROUP, fragment.id)}
-                        onPointerLeave={() => tracking.viewEnd(SENTENCE_GROUP, fragment.id)}
-                        onFocus={() => tracking.viewStart(SENTENCE_GROUP, fragment.id)}
-                        onBlur={() => tracking.viewEnd(SENTENCE_GROUP, fragment.id)}
-                        onClick={() => selectCandidate(fragment)}
-                        disabled={used}
-                      >
-                        <span className="sentence-clues-scene__fragment-mark" aria-hidden="true">
-                          {codeOf(fragment.id)}
-                        </span>
-                        <span className="sentence-clues-scene__fragment-text">{fragment.text}</span>
-                        {used ? (
-                          <span className="sentence-clues-scene__fragment-status">채택됨</span>
-                        ) : null}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      </div>
-
-      <div className="sentence-clues-scene__submit">
-        {isValid ? (
+      <div className="sentence-clues-scene__trace">
+        {behavioralTrace ? (
           <>
-            <span className="sentence-clues-scene__submit-note">문장이 완성되었습니다.</span>
-            <button className="sentence-clues-scene__confirm" onClick={handleConfirm}>
-              <TerminalCorners />
-              기록 확정
-            </button>
+            <p className="sentence-clues-scene__trace-message">{traceMessage(behavioralTrace)}</p>
+            <p className="sentence-clues-scene__trace-fragment">{textOf(behavioralTrace.fragmentId)}</p>
           </>
         ) : (
-          <span className="sentence-clues-scene__submit-note">세 개의 조각을 선택하세요.</span>
+          <p className="sentence-clues-scene__trace-message">
+            이번 기록에서는 특별히 남은 행동 흔적이 없습니다.
+          </p>
         )}
       </div>
+
+      <button className="sentence-clues-scene__confirm" onClick={handleComplete}>
+        <TerminalCorners />
+        기록 확정
+      </button>
     </div>
   );
 }
