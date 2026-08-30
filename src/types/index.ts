@@ -402,13 +402,101 @@ export interface MemorySketchData {
   selectedColors: string[];
 }
 
+/** Mirrors src/lib/sentenceTracking.ts's `deriveSentenceBehavioralTrace` —
+ *  defined here, not there, so this file (which every `lib/*.ts` already
+ *  imports from) stays the leaf and `sentenceTracking.ts` imports the type
+ *  rather than the reverse. See that function's doc for what each variant
+ *  means and the priority it is chosen under. */
+export type SentenceBehavioralTraceType =
+  | 'long_unselected_dwell'
+  | 'selected_then_removed'
+  | 'removed_then_reselected'
+  | 'repeat_hover'
+  | 'long_selected_dwell';
+
+export interface SentenceBehavioralTrace {
+  type: SentenceBehavioralTraceType;
+  fragmentId: string;
+  dwellMs: number;
+  revisitCount: number;
+}
+
+/**
+ * SENTENCE's answer — Narrative System v3.0.
+ *
+ * `selectedSentenceIds` / `selectedSentences` / `customSentence` /
+ * `dwellTimes` / `selectionOrder` / `repeatedKeywords` are unchanged since
+ * Archive v2 and read the same way by src/utils/report.ts and the Final
+ * Report stages: `selectionOrder` (kept identical to `selectedSentenceIds`)
+ * is the visitor's draw order, `customSentence` is those fragment texts
+ * joined in that order — both still describe the *drawn* fragments exactly
+ * as before; v3.0 changed nothing about how a visitor collects them, only
+ * what happens once they do. `connectedSentenceIds` / `connectionChangeCount`
+ * — v2.x's now-removed "pick two connected fragments" step — are gone from
+ * this shape; a visit recorded while that step existed still has them in
+ * storage, simply unread from here on (see experienceStore.ts's rehydrate
+ * guard). Everything below `repeatedKeywords` is v3.0: which single drawn
+ * fragment the question pointed at, what the visitor did with it, and the
+ * one behavioral observation the visit left behind.
+ */
 export interface SentenceCluesData {
+  /** The visitor's collected fragments, in draw order — card 1 drawn is
+   *  index 0. No reordering step exists: the order a visitor drew the cards
+   *  in *is* the order their account reads in, `ending`-role fragments
+   *  aside — those are always read last regardless of when they were drawn
+   *  (see SentenceCluesScene.tsx's restored-record ordering). */
   selectedSentenceIds: string[];
   selectedSentences: string[];
   customSentence: string;
   dwellTimes: Record<string, number>;
   selectionOrder: string[];
   repeatedKeywords: string[];
+
+  /** Which of the drawn fragments the question was about — the first drawn
+   *  fragment with a non-empty `openSlots` (see
+   *  src/lib/sentenceQuestionService.ts's `findQuestionTarget`). Null when
+   *  nothing drawn had anything left to ask about, which is a real, valid
+   *  outcome and not an error — see that file's `NO_TARGET_MESSAGE`. */
+  questionTargetFragmentId: string | null;
+  /** The named gap on that fragment the question pointed at — e.g.
+   *  `"object"`, `"message"` — mirroring the target fragment's own
+   *  `openSlots[0]`. Null on the same terms as `questionTargetFragmentId`. */
+  questionOpenSlot: string | null;
+  /** The one short question the Zone found — never invented after the fact
+   *  from `responseText`. Empty string if no target fragment existed. */
+  generatedQuestion: string;
+  /** Whether `generatedQuestion` came from a configured remote service or the
+   *  local, deterministic fallback. Never shown to the visitor — see
+   *  src/lib/sentenceQuestionService.ts's module doc — kept only so the
+   *  record itself can be read back honestly. */
+  questionSource: 'ai' | 'fallback' | null;
+  /** The visitor's own short answer, exactly as left. Empty when skipped or
+   *  when there was no question to answer. */
+  responseText: string;
+  /** True only when the visitor themself moved on without answering a real
+   *  question — never forced true just because there was no question to
+   *  answer at all; see `noQuestionAvailable` for that case. */
+  responseSkipped: boolean;
+  /** True when nothing the visitor drew had anything left to ask about —
+   *  `findQuestionTarget` found no candidate at all. A real, valid outcome
+   *  (see src/lib/sentenceQuestionService.ts's `NO_TARGET_MESSAGE`), and
+   *  deliberately a separate fact from `responseSkipped`: one is the system
+   *  finding no gap, the other is the visitor declining to fill one. */
+  noQuestionAvailable: boolean;
+  /** Keystrokes that grew the response, and ones that shrank it — the same
+   *  "how it was arrived at, not just what it says" principle every other
+   *  Zone's tracking already holds to, kept here as plain counters rather
+   *  than a new raw event type: a free-text field has no target id for
+   *  `select`/`deselect` to name. */
+  responseEditCount: number;
+  responseDeleteCount: number;
+  /** The one ranked behavioral observation this visit left — see
+   *  src/lib/sentenceTracking.ts's `deriveSentenceBehavioralTrace`. Null
+   *  when the visit left nothing to observe (no view data at all, and every
+   *  drawn fragment shows zero dwell). */
+  behavioralTrace: SentenceBehavioralTrace | null;
+  /** Scene entry → commit, for the ~40s–1min pacing this revision targets. */
+  sceneDurationMs: number;
 }
 
 export interface FinalReportMeta {

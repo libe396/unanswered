@@ -1,19 +1,21 @@
 .sound-clues-scene {
   position: relative;
   width: 100%;
-  min-height: 100dvh;
+  height: 100dvh;
   background: #050506;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(14px, 2.4vh, 22px);
-  padding: clamp(24px, 5vh, 42px) 8vw;
+  gap: clamp(8px, 1.7vh, 16px);
+  padding: clamp(14px, 3.2vh, 30px) clamp(14px, 4vw, 56px);
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .sound-clues-scene__hint {
-  font-size: 13px;
+  flex: 0 0 auto;
+  font-size: clamp(11px, 1.5vh, 13px);
   color: var(--color-text-dim);
   margin: 0;
 }
@@ -79,7 +81,7 @@
 }
 
 .sound-clues-scene__mini-btn {
-  padding: 7px 14px;
+  padding: 6px 12px;
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.16);
   color: var(--color-text-dim);
@@ -94,6 +96,541 @@
   color: var(--color-text);
 }
 
+.sound-clues-scene__mini-btn:disabled {
+  cursor: default;
+  opacity: 0.72;
+}
+
+.sound-clues-scene__mini-btn--mark:disabled {
+  border-color: rgba(201, 163, 255, 0.38);
+  color: var(--color-accent);
+}
+
+/* ── Glass domes ────────────────────────────────────────────────────────────
+   The "browse" step: the sound clues shown as preserved specimens under glass,
+   set out along one black shelf with a faint violet light beneath. Every class
+   here is under .sound-clues-scene, so nothing leaks to other Scenes. The
+   silhouette (handle → dome → base → glow) is what should register first; the
+   number, glyph and waveform stay quiet inside it. */
+
+.sound-clues-scene__shelf-scroll {
+  flex: 0 1 auto;
+  width: 100%;
+  max-width: min(1120px, 96vw);
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+.sound-clues-scene__shelf {
+  position: relative;
+  display: block;
+  min-width: 100%;
+  padding: clamp(8px, 1.5vh, 16px) clamp(7px, 1.4vw, 18px) 0;
+  box-sizing: border-box;
+}
+
+.sound-clues-scene__shelf-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: clamp(3px, 1.3vw, 18px);
+}
+
+/* The shelf itself: a flat black plate the domes stand on, with the violet
+   light bleeding out from under its front edge. */
+.sound-clues-scene__shelf-surface {
+  position: relative;
+  z-index: 0;
+  margin-top: clamp(-10px, -1.4vh, -6px);
+  height: clamp(16px, 2.6vh, 24px);
+  border-radius: 2px;
+  background: linear-gradient(180deg, #0c0c10 0%, #050506 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 -1px 0 rgba(201, 163, 255, 0.05),
+    0 18px 40px -12px rgba(201, 163, 255, 0.16),
+    0 2px 0 rgba(0, 0, 0, 0.6);
+}
+
+.sound-clues-scene__cloche {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0 1px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(5px, 1vh, 10px);
+  cursor: pointer;
+  color: var(--color-text-dim);
+  font: inherit;
+}
+
+.sound-clues-scene__cloche-stage {
+  position: relative;
+  width: clamp(40px, 8.4vw, 96px);
+  height: clamp(70px, 12.5vw, 132px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  transition: transform var(--duration-fast) var(--ease-scene);
+}
+
+.sound-clues-scene__cloche:hover .sound-clues-scene__cloche-stage {
+  transform: translateY(-4px);
+}
+
+.sound-clues-scene__cloche--playing .sound-clues-scene__cloche-stage {
+  transform: translateY(-3px);
+}
+
+.sound-clues-scene__cloche:focus-visible {
+  outline: none;
+}
+
+.sound-clues-scene__cloche:focus-visible .sound-clues-scene__cloche-dome {
+  border-color: var(--color-accent);
+}
+
+/* Small rounded knob at the very top of the dome. */
+.sound-clues-scene__cloche-handle {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  border: 1px solid rgba(230, 224, 255, 0.22);
+  background: radial-gradient(circle at 35% 30%, rgba(230, 224, 255, 0.18), rgba(201, 163, 255, 0.04) 70%);
+  transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
+}
+
+.sound-clues-scene__cloche-dome {
+  position: relative;
+  width: 100%;
+  height: calc(100% - 12px);
+  margin-top: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(216, 206, 245, 0.16);
+  border-radius: 46% 46% 10px 10px / 58% 58% 10px 10px;
+  background:
+    linear-gradient(180deg, rgba(201, 163, 255, 0.05) 0%, rgba(255, 255, 255, 0.012) 40%, rgba(255, 255, 255, 0.02) 100%);
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 8px 0 14px -10px rgba(255, 255, 255, 0.14);
+  transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease, opacity var(--duration-fast) ease;
+  opacity: 0.5;
+}
+
+/* Curved highlight running down one side of the glass. */
+.sound-clues-scene__cloche-glass {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, 0.14) 0%, transparent 22%),
+    radial-gradient(120% 60% at 50% 0%, rgba(201, 163, 255, 0.1), transparent 70%);
+  pointer-events: none;
+}
+
+/* The light that rises inside the dome while its sound plays. */
+.sound-clues-scene__cloche-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 70%;
+  background: linear-gradient(180deg, transparent 0%, rgba(201, 163, 255, 0.16) 60%, rgba(201, 163, 255, 0.28) 100%);
+  opacity: 0;
+  transition: opacity var(--duration-scene) ease;
+  pointer-events: none;
+}
+
+.sound-clues-scene__cloche-glyph {
+  position: absolute;
+  top: 34%;
+  left: 50%;
+  width: 34%;
+  transform: translate(-50%, -50%);
+  color: rgba(216, 206, 245, 0.55);
+  opacity: 0.35;
+  transition: opacity var(--duration-fast) ease, color var(--duration-fast) ease;
+}
+
+.sound-clues-scene__cloche-glyph svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.sound-clues-scene__cloche-inner-label {
+  position: absolute;
+  bottom: 16%;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  color: rgba(216, 206, 245, 0.5);
+  opacity: 0.4;
+  transition: opacity var(--duration-fast) ease;
+}
+
+.sound-clues-scene__cloche-inner-word {
+  font-size: clamp(5px, 0.7vw, 8px);
+  letter-spacing: 0.32em;
+  text-indent: 0.32em;
+}
+
+.sound-clues-scene__cloche-inner-num {
+  font-size: clamp(9px, 1.1vw, 13px);
+  letter-spacing: 0.12em;
+  color: rgba(232, 230, 240, 0.7);
+}
+
+/* Waveform along the base of the dome — only while playing. */
+.sound-clues-scene__cloche-wave {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3px;
+  height: 14px;
+  opacity: 0;
+  transition: opacity var(--duration-fast) ease;
+  pointer-events: none;
+}
+
+.sound-clues-scene__cloche-wave span {
+  width: 2px;
+  height: 40%;
+  background: var(--color-accent);
+  border-radius: 1px;
+}
+
+/* Oval base the dome sits in. */
+.sound-clues-scene__cloche-base {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 96%;
+  height: 16px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, #17151d 0%, #0a090d 70%);
+  border: 1px solid rgba(216, 206, 245, 0.12);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* Violet light rising from under the base. */
+.sound-clues-scene__cloche-glow {
+  position: absolute;
+  bottom: -18px;
+  left: 50%;
+  width: 150%;
+  height: 60px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(201, 163, 255, 0.28) 0%, rgba(201, 163, 255, 0.05) 45%, transparent 72%);
+  opacity: 0.28;
+  transition: opacity var(--duration-fast) ease;
+  pointer-events: none;
+}
+
+.sound-clues-scene__cloche-caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.sound-clues-scene__cloche-caption-num {
+  font-size: clamp(9px, 1.2vh, 11px);
+  letter-spacing: 0.14em;
+  color: var(--color-text-dim);
+  transition: color var(--duration-fast) ease;
+}
+
+.sound-clues-scene__cloche-caption-label {
+  position: relative;
+  font-size: clamp(7px, 1vh, 10px);
+  letter-spacing: 0.12em;
+  text-indent: 0.12em;
+  color: rgba(139, 137, 156, 0.7);
+  transition: color var(--duration-fast) ease;
+}
+
+/* The "heard" mark: a small dot after the label, like a curator's tick — not a
+   checkbox. */
+.sound-clues-scene__cloche-heard {
+  position: absolute;
+  top: 50%;
+  right: -10px;
+  width: 3px;
+  height: 3px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: var(--color-accent);
+  opacity: 0.75;
+}
+
+/* ── Dome states ──────────────────────────────────────────────────────────── */
+
+/* Hover — the whole specimen leans toward being lit, without arriving there. */
+.sound-clues-scene__cloche:hover .sound-clues-scene__cloche-dome {
+  opacity: 0.72;
+  border-color: rgba(216, 206, 245, 0.32);
+}
+
+.sound-clues-scene__cloche:hover .sound-clues-scene__cloche-glyph {
+  opacity: 0.6;
+}
+
+.sound-clues-scene__cloche:hover .sound-clues-scene__cloche-glow {
+  opacity: 0.5;
+}
+
+.sound-clues-scene__cloche:hover .sound-clues-scene__cloche-handle {
+  border-color: rgba(230, 224, 255, 0.4);
+}
+
+/* Already listened — a touch clearer than untouched, permanently. */
+.sound-clues-scene__cloche--listened .sound-clues-scene__cloche-dome {
+  opacity: 0.62;
+}
+
+.sound-clues-scene__cloche--listened .sound-clues-scene__cloche-glyph {
+  opacity: 0.5;
+}
+
+.sound-clues-scene__cloche--listened .sound-clues-scene__cloche-caption-num,
+.sound-clues-scene__cloche--listened .sound-clues-scene__cloche-caption-label {
+  color: var(--color-text);
+}
+
+/* Focused — the dome the Now Playing panel is describing, even when paused. */
+.sound-clues-scene__cloche--focused .sound-clues-scene__cloche-dome {
+  opacity: 0.82;
+  border-color: rgba(216, 206, 245, 0.36);
+}
+
+.sound-clues-scene__cloche--focused .sound-clues-scene__cloche-glow {
+  opacity: 0.55;
+}
+
+/* Playing — the specimen is lit: brighter glass, filled light, sharp glyph,
+   moving waveform, strong glow. */
+.sound-clues-scene__cloche--playing .sound-clues-scene__cloche-dome {
+  opacity: 1;
+  border-color: rgba(216, 206, 245, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -20px 30px -18px rgba(201, 163, 255, 0.5),
+    0 0 22px -6px rgba(201, 163, 255, 0.35);
+}
+
+.sound-clues-scene__cloche--playing .sound-clues-scene__cloche-fill {
+  opacity: 1;
+}
+
+.sound-clues-scene__cloche--playing .sound-clues-scene__cloche-glyph {
+  opacity: 0.95;
+  color: rgba(238, 232, 255, 0.95);
+}
+
+.sound-clues-scene__cloche--playing .sound-clues-scene__cloche-inner-label {
+  opacity: 0.8;
+}
+
+.sound-clues-scene__cloche--playing .sound-clues-scene__cloche-glow {
+  opacity: 0.85;
+}
+
+.sound-clues-scene__cloche--playing .sound-clues-scene__cloche-handle {
+  border-color: rgba(230, 224, 255, 0.6);
+  box-shadow: 0 0 10px rgba(201, 163, 255, 0.5);
+}
+
+.sound-clues-scene__cloche--playing .sound-clues-scene__cloche-wave {
+  opacity: 0.9;
+}
+
+.sound-clues-scene__cloche--playing .sound-clues-scene__cloche-wave span {
+  animation: sound-clues-scene__wave 0.9s ease-in-out infinite;
+}
+
+@keyframes sound-clues-scene__wave {
+  0%, 100% { height: 25%; }
+  50% { height: 95%; }
+}
+
+/* Selected as the answer — a quiet, permanent underline on the caption. */
+.sound-clues-scene__cloche--selected .sound-clues-scene__cloche-caption-label {
+  color: var(--color-accent);
+  box-shadow: 0 3px 0 -2px var(--color-accent);
+}
+
+.sound-clues-scene__cloche--selected .sound-clues-scene__cloche-caption-num {
+  color: var(--color-accent);
+}
+
+/* ── Player strip ───────────────────────────────────────────────────────────
+   No card shell: the currently opened dome simply leaves a thin trace under
+   the shelf, with controls tucked beneath the waveform. */
+
+.sound-clues-scene__player {
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: min(520px, 90vw);
+  min-height: clamp(58px, 10vh, 76px);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 7px;
+}
+
+.sound-clues-scene__player--empty {
+  align-items: center;
+  justify-content: center;
+}
+
+.sound-clues-scene__player-empty {
+  font-size: 12px;
+  color: var(--color-text-dim);
+  opacity: 0.62;
+}
+
+.sound-clues-scene__player-title {
+  align-self: center;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-indent: 0.18em;
+  color: var(--color-text);
+}
+
+.sound-clues-scene__player-wave {
+  position: relative;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.sound-clues-scene__player-wave::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  transform: translateY(-50%);
+  background: rgba(232, 230, 240, 0.12);
+}
+
+.sound-clues-scene__player-wave-progress {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 1px;
+  transform: translateY(-50%);
+  background: rgba(201, 163, 255, 0.62);
+  transition: width 0.1s linear;
+}
+
+.sound-clues-scene__player-wave-bar {
+  position: relative;
+  z-index: 1;
+  width: 1px;
+  min-height: 3px;
+  background: rgba(216, 206, 245, 0.5);
+  transform-origin: 50% 50%;
+}
+
+.sound-clues-scene__player-wave--active .sound-clues-scene__player-wave-bar {
+  background: rgba(216, 206, 245, 0.82);
+  animation: sound-clues-scene__player-wave 1.25s ease-in-out infinite;
+}
+
+@keyframes sound-clues-scene__player-wave {
+  0%,
+  100% {
+    transform: scaleY(0.42);
+    opacity: 0.46;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 0.94;
+  }
+}
+
+.sound-clues-scene__player-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sound-clues-scene__player-time {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--color-text-dim);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.sound-clues-scene__player-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.sound-clues-scene__progress {
+  flex: 0 0 auto;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--color-text-dim);
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sound-clues-scene__cloche-stage,
+  .sound-clues-scene__cloche-dome,
+  .sound-clues-scene__cloche-glyph,
+  .sound-clues-scene__cloche-glow,
+  .sound-clues-scene__cloche-fill {
+    transition: none;
+  }
+
+  .sound-clues-scene__cloche:hover .sound-clues-scene__cloche-stage,
+  .sound-clues-scene__cloche--playing .sound-clues-scene__cloche-stage {
+    transform: none;
+  }
+
+  .sound-clues-scene__cloche--playing .sound-clues-scene__cloche-wave span,
+  .sound-clues-scene__player-wave--active .sound-clues-scene__player-wave-bar {
+    animation: none;
+  }
+
+  .sound-clues-scene__cloche--playing .sound-clues-scene__cloche-wave span {
+    height: 50%;
+  }
+}
+
 /* ── Memory field ───────────────────────────────────────────────────────────
    Where the chosen sound is placed, rather than named.
 
@@ -104,11 +641,14 @@
    reads as a space with edges rather than as a graph with quadrants. */
 
 .sound-clues-scene__field-block {
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  margin-top: 8px;
+  justify-content: center;
+  gap: clamp(8px, 1.4vh, 14px);
+  min-height: 0;
+  margin-top: 0;
 }
 
 .sound-clues-scene__sublabel {
@@ -121,8 +661,8 @@
    frame and never crowd the place the point is put. */
 .sound-clues-scene__field-frame {
   position: relative;
-  padding: 22px 0;
-  width: min(340px, 72vw);
+  padding: 20px 0;
+  width: min(320px, 72vw, 48vh);
 }
 
 .sound-clues-scene__axis {
@@ -236,9 +776,10 @@
 }
 
 .sound-clues-scene__confirm {
+  flex: 0 0 auto;
   position: relative;
-  margin-top: 2px;
-  padding: 14px 32px;
+  margin-top: 0;
+  padding: 12px 28px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.18);
   color: var(--color-text);
@@ -257,4 +798,31 @@
 .sound-clues-scene__confirm:disabled {
   opacity: 0.3;
   cursor: not-allowed;
+}
+
+@media (max-height: 720px) {
+  .sound-clues-scene {
+    gap: 7px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .sound-clues-scene__cloche-stage {
+    width: clamp(42px, 7.6vw, 78px);
+    height: clamp(62px, 10.8vw, 104px);
+  }
+
+  .sound-clues-scene__player {
+    min-height: 52px;
+    gap: 5px;
+  }
+
+  .sound-clues-scene__player-wave {
+    height: 18px;
+  }
+
+  .sound-clues-scene__confirm {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
 }

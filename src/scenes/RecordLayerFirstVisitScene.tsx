@@ -1,55 +1,48 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useExperienceStore } from '../store/experienceStore';
-import { TerminalCorners } from '../components/TerminalCorners';
-import { TraceLedger } from '../components/TraceLedger';
 import './RecordLayerFirstVisitScene.css';
+
+const AUTO_ADVANCE_MS = 900;
+const AUTO_ADVANCE_REDUCED_MS = 360;
 
 export function RecordLayerFirstVisitScene() {
   const markRecordLayerFirstVisit = useExperienceStore((s) => s.markRecordLayerFirstVisit);
   const completeScene = useExperienceStore((s) => s.completeScene);
   const prefersReducedMotion = useReducedMotion();
-  const [canContinue, setCanContinue] = useState(false);
 
   useEffect(() => {
     markRecordLayerFirstVisit();
-  }, [markRecordLayerFirstVisit]);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => setCanContinue(true), prefersReducedMotion ? 700 : 1500);
+    const timer = window.setTimeout(
+      () => completeScene('recordLayerFirstVisit'),
+      prefersReducedMotion ? AUTO_ADVANCE_REDUCED_MS : AUTO_ADVANCE_MS,
+    );
     return () => window.clearTimeout(timer);
-  }, [prefersReducedMotion]);
+  }, [completeScene, markRecordLayerFirstVisit, prefersReducedMotion]);
 
   return (
     <div className="record-layer-first-visit">
       <motion.div
-        className={`record-layer-first-visit__glow${
-          canContinue ? ' record-layer-first-visit__glow--stored' : ''
-        }`}
-        animate={prefersReducedMotion ? {} : { opacity: canContinue ? [0.26, 0.34, 0.26] : [0.16, 0.22, 0.16] }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+        className="record-layer-first-visit__glow record-layer-first-visit__glow--stored"
+        animate={prefersReducedMotion ? {} : { opacity: [0.22, 0.32, 0.22] }}
+        transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
       />
       <motion.p
         className="record-layer-first-visit__line"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 1.4 }}
+        transition={{ duration: prefersReducedMotion ? 0.12 : 0.42 }}
       >
-        기록이 쌓이는 공간이다.
+        기록이 저장되었습니다.
       </motion.p>
-      <TraceLedger />
-      <motion.button
-        className="record-layer-first-visit__continue"
-        onClick={() => completeScene('recordLayerFirstVisit')}
-        disabled={!canContinue}
+      <motion.span
+        className="record-layer-first-visit__passing"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.7, delay: prefersReducedMotion ? 0.45 : 1.25 }}
+        animate={{ opacity: 0.62 }}
+        transition={{ duration: prefersReducedMotion ? 0.12 : 0.38, delay: prefersReducedMotion ? 0 : 0.18 }}
       >
-        <TerminalCorners />
-        <span>다음 기록 조사</span>
-        <span aria-hidden="true">→</span>
-      </motion.button>
+        다음 조사 구역으로 이동 중
+      </motion.span>
     </div>
   );
 }

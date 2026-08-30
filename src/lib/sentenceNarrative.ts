@@ -204,9 +204,13 @@ function buildBridgeLine(memory: MemorySketchData): string {
 
 /* ── Fixed lines — no clue determines these; they hold the Zone's own voice ── */
 
-const MISSING_SEGMENT_TEXT = '그러나 기록은 여기서 끝난다.';
+// Narrative System v3.0: reads as "what happened after the record breaks
+// off is still open," not "one last record waiting to be assembled." The
+// difference is the whole point of this revision — see this file's own
+// module doc and content.ts's module doc on SENTENCE_RECONSTRUCTION_FRAGMENTS.
+const MISSING_SEGMENT_TEXT = '이후의 기록은 남아 있지 않습니다.';
 const PROMPT_TEXT = '그날, 이 방에서는 무슨 일이 있었을까.';
-const INSTRUCTION_TEXT = '남아 있는 단서를 바탕으로, 마지막 기록을 복원해 주세요.';
+const INSTRUCTION_TEXT = '남아 있는 문장 조각을 통해 이후의 기록을 복원해 주세요.';
 
 /**
  * Builds SENTENCE's Recovered Context from LIGHT/SOUND/MEMORY's final
