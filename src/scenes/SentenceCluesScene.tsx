@@ -28,6 +28,7 @@ import {
 } from '../lib/sentenceQuestionService';
 import { TerminalCorners } from '../components/TerminalCorners';
 import { ZoneIntroCard } from '../components/ZoneIntroCard';
+import { ZONE_INFO } from '../data/zones';
 import type { SceneBehaviorRecord, SentenceBehavioralTrace } from '../types';
 import './SentenceCluesScene.css';
 
@@ -181,6 +182,7 @@ export function SentenceCluesScene() {
   const lightArchive = useExperienceStore((s) => s.lightArchive);
   const soundClues = useExperienceStore((s) => s.soundClues);
   const memorySketch = useExperienceStore((s) => s.memorySketch);
+  const storedSentenceClues = useExperienceStore((s) => s.sentenceClues);
   const setSentenceClues = useExperienceStore((s) => s.setSentenceClues);
   const completeScene = useExperienceStore((s) => s.completeScene);
   const tracking = useSceneTracking('sentenceClues', SENTENCE_TRACKING_GROUPS, {
@@ -201,14 +203,19 @@ export function SentenceCluesScene() {
   const enteredAtRef = useRef(Date.now());
 
   /** The visitor's drawn cards, in draw order — this *is* the account's
-   *  order now, `ending` fragments aside (see `orderedForReading`). */
-  const [fragments, setFragments] = useState<string[]>([]);
+   *  order now, `ending` fragments aside (see `orderedForReading`). Seeded
+   *  from any answer this visit already saved — handleComplete() below
+   *  always writes whatever this holds, so without this, Back navigation
+   *  and forward again would silently overwrite a real earlier answer with
+   *  an empty one. A first-ever visit has no prior `sentenceClues`, so this
+   *  falls back to empty exactly as before. */
+  const [fragments, setFragments] = useState<string[]>(() => storedSentenceClues.selectedSentenceIds);
   /*
     Held where it can be read back the instant it changes — a functional
     updater would double-record under StrictMode, and the rendered value lags
     a tick behind an operation and whatever reads it in the same handler.
   */
-  const fragmentsRef = useRef<string[]>([]);
+  const fragmentsRef = useRef<string[]>(storedSentenceClues.selectedSentenceIds);
 
   function setDrawn(next: string[]) {
     fragmentsRef.current = next;
@@ -225,12 +232,12 @@ export function SentenceCluesScene() {
 
   /* ── The question and the response ──────────────────────────────────────── */
   const [questionResult, setQuestionResult] = useState<SentenceQuestionResult | null>(null);
-  const [responseText, setResponseText] = useState('');
-  const [responseSkipped, setResponseSkipped] = useState(false);
+  const [responseText, setResponseText] = useState(() => storedSentenceClues.responseText);
+  const [responseSkipped, setResponseSkipped] = useState(() => storedSentenceClues.responseSkipped);
   // Set only when findQuestionTarget found no candidate at all — a separate
   // fact from responseSkipped, which means the *visitor* declined to answer
   // a real question. See SentenceCluesData.noQuestionAvailable's doc.
-  const [noQuestionAvailable, setNoQuestionAvailable] = useState(false);
+  const [noQuestionAvailable, setNoQuestionAvailable] = useState(() => storedSentenceClues.noQuestionAvailable);
   const [discoveringMessage, setDiscoveringMessage] = useState(DEFAULT_DISCOVERING_TEXT);
   const responseEditCountRef = useRef(0);
   const responseDeleteCountRef = useRef(0);
@@ -399,7 +406,7 @@ export function SentenceCluesScene() {
   if (phase === 'zoneIntro') {
     return (
       <ZoneIntroCard
-        zone="ZONE 08"
+        zone={ZONE_INFO.sentenceClues.zone}
         title="문장의 흔적"
         subtitle="사람의 기억은, 결국 글자로 남는 법."
         ctaLabel="조사 시작"

@@ -1,6 +1,8 @@
 export type SceneId =
   | 'landing'
   | 'intro'
+  | 'introFilm'
+  | 'investigationStart'
   | 'registration'
   | 'lightArchive'
   | 'recordLayerFirstVisit'

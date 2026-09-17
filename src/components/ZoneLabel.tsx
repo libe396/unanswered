@@ -17,7 +17,9 @@ export function ZoneLabel() {
   const prefersReducedMotion = useReducedMotion();
   const info = ZONE_INFO[currentScene];
 
-  if (currentScene === 'landing') return null;
+  if (currentScene === 'landing' || currentScene === 'introFilm' || currentScene === 'investigationStart') {
+    return null;
+  }
 
   return (
     <div className="zone-label">

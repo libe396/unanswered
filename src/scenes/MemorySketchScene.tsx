@@ -15,6 +15,7 @@ import {
 import { MEMORY_THRESHOLDS } from '../lib/memoryThresholds';
 import { TerminalCorners } from '../components/TerminalCorners';
 import { ZoneIntroCard } from '../components/ZoneIntroCard';
+import { ZONE_INFO } from '../data/zones';
 import { MemoryRoom } from '../components/MemoryRoom';
 import type { SceneBehaviorRecord, Stroke, StrokePoint } from '../types';
 import './MemorySketchScene.css';
@@ -109,6 +110,7 @@ function readMemoryTracking(record: SceneBehaviorRecord) {
 }
 
 export function MemorySketchScene() {
+  const storedMemorySketch = useExperienceStore((s) => s.memorySketch);
   const setMemorySketch = useExperienceStore((s) => s.setMemorySketch);
   const completeScene = useExperienceStore((s) => s.completeScene);
   const tracking = useSceneTracking('memorySketch', MEMORY_TRACKING_GROUPS, {
@@ -116,10 +118,15 @@ export function MemorySketchScene() {
   });
 
   const [phase, setPhase] = useState<Phase>('intro');
-  const [selectedObjects, setSelectedObjects] = useState<string[]>([]);
+  // Seeded from any answer this visit already saved — finishMemory() below
+  // always writes whatever these hold, so without this, Back navigation
+  // followed by skipping (or finishing without redrawing) would silently
+  // overwrite a real earlier answer with an empty one. A first-ever visit has
+  // no prior `memorySketch`, so these fall back to empty exactly as before.
+  const [selectedObjects, setSelectedObjects] = useState<string[]>(() => storedMemorySketch.selectedObjects);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [strokes, setStrokes] = useState<Stroke[]>([]);
+  const [strokes, setStrokes] = useState<Stroke[]>(() => storedMemorySketch.strokes);
   const [activeColor, setActiveColor] = useState(SKETCH_COLORS[0]);
   const [showEmptyConfirm, setShowEmptyConfirm] = useState(false);
   const drawingRef = useRef<Stroke | null>(null);
@@ -333,7 +340,7 @@ export function MemorySketchScene() {
   if (phase === 'intro') {
     return (
       <ZoneIntroCard
-        zone="ZONE 07"
+        zone={ZONE_INFO.memorySketch.zone}
         title="복원된 기억의 방."
         subtitle="수집된 단서를 바탕으로 공간의 일부가 복원되었습니다."
         ctaLabel="공간으로 들어가기"

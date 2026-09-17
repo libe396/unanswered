@@ -4,6 +4,8 @@ import { useExperienceStore } from '../store/experienceStore';
 import { useCrossSceneDebug } from '../hooks/useCrossSceneDebug';
 import { LandingScene } from '../scenes/LandingScene';
 import { IntroScene } from '../scenes/IntroScene';
+import { IntroFilmScene } from '../scenes/IntroFilmScene';
+import { InvestigationStartScene } from '../scenes/InvestigationStartScene';
 import { RegistrationScene } from '../scenes/RegistrationScene';
 import { LightArchiveScene } from '../scenes/LightArchiveScene';
 import { RecordLayerFirstVisitScene } from '../scenes/RecordLayerFirstVisitScene';
@@ -15,12 +17,16 @@ import { RecordLayerSecondVisitScene } from '../scenes/RecordLayerSecondVisitSce
 import { FinalReportScene } from '../scenes/FinalReportScene';
 import type { SceneId } from '../types';
 import { DevSceneNav } from './DevSceneNav';
+import { DevSceneNavigator } from './DevSceneNavigator';
 import { PostElevatorSoundManager } from './PostElevatorSoundManager';
 import { ZoneLabel } from './ZoneLabel';
+import { BackButton } from './BackButton';
 
 const SCENE_COMPONENTS: Record<SceneId, ComponentType> = {
   landing: LandingScene,
   intro: IntroScene,
+  introFilm: IntroFilmScene,
+  investigationStart: InvestigationStartScene,
   registration: RegistrationScene,
   lightArchive: LightArchiveScene,
   recordLayerFirstVisit: RecordLayerFirstVisitScene,
@@ -97,7 +103,9 @@ export function SceneController() {
         </motion.div>
       </AnimatePresence>
       <ZoneLabel />
+      <BackButton />
       <DevSceneNav />
+      <DevSceneNavigator />
     </>
   );
 }

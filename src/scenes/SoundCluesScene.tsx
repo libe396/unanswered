@@ -163,6 +163,7 @@ function readSoundTracking(record: SceneBehaviorRecord) {
 }
 
 export function SoundCluesScene() {
+  const storedSoundClues = useExperienceStore((s) => s.soundClues);
   const recordSoundEvent = useExperienceStore((s) => s.recordSoundEvent);
   const setSoundSelection = useExperienceStore((s) => s.setSoundSelection);
   const completeScene = useExperienceStore((s) => s.completeScene);
@@ -182,19 +183,30 @@ export function SoundCluesScene() {
   */
   const [phase, setPhase] = useState<Phase>('browse');
   const [runtime, setRuntime] = useState<Record<string, SoundRuntime>>({});
-  const [selectedSoundId, setSelectedSoundId] = useState<string | null>(null);
+  // Seeded from an answer this visit already saved (e.g. Back navigation and
+  // forward again) so a re-confirm without changes re-saves the same choice
+  // rather than forcing it to be redone from nothing. A first-ever visit has
+  // no prior selection, so this is null exactly as before.
+  const [selectedSoundId, setSelectedSoundId] = useState<string | null>(
+    () => storedSoundClues.selectedSoundId,
+  );
   // Every dome that has been played at least once — drives the "N / 7 단서 청취"
   // readout and the small "heard" mark on a dome. Presentation only; kept
   // separate from selection, which is still a single deliberate choice.
-  const [listenedIds, setListenedIds] = useState<Set<string>>(() => new Set());
+  // Seeded from any dome this visit already recorded a listen for.
+  const [listenedIds, setListenedIds] = useState<Set<string>>(
+    () => new Set(storedSoundClues.events.filter((e) => e.totalPlayedMs > 0).map((e) => e.soundId)),
+  );
   // The dome the player strip is currently describing: the last one the
   // visitor opened. Not the same as the selected one — you can listen back
   // through the shelf without changing your answer.
   const [focusedSoundId, setFocusedSoundId] = useState<string | null>(null);
   // Null until the visitor puts the point down. Deliberately not seeded at the
   // centre: an empty field asks a question, and a point already sitting in the
-  // middle answers it before they arrive.
-  const [position, setPosition] = useState<MemoryPosition | null>(null);
+  // middle answers it before they arrive. A field that already holds a real
+  // prior answer (Back navigation, forward again) is a different case —
+  // restoring it, not pre-answering for a first-time visitor.
+  const [position, setPosition] = useState<MemoryPosition | null>(() => storedSoundClues.memoryPosition);
 
   const fieldRef = useRef<HTMLDivElement | null>(null);
   const draggingRef = useRef(false);

@@ -7,6 +7,21 @@
   background: #050506;
 }
 
+/* The cinematic stages (01–06) are deliberately no-scroll, one viewport per
+   idea — see this file's module doc. The archive/Summary Receipt stage is
+   the one exception: its content can run taller than the viewport (a long
+   observation, a tall clue list), and clipping it there would hide real
+   content rather than an intentional off-screen beat. Applied only while
+   that stage is active (see FinalReportScene.tsx's `activeKey` check), so
+   every other stage keeps the fixed-viewport behavior unchanged. */
+.final-report-scene--scrollable {
+  height: auto;
+  min-height: 100dvh;
+  max-height: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 .final-report-scene__save-title {
   margin: 0;
   font-size: clamp(18px, 2.3vw, 23px);
@@ -50,11 +65,11 @@
   background: transparent;
 }
 
-/* Printing is handled by src/scenes/SavedReportDocument.css: it hides every
-   `.report-stage`/`.final-record-layer` (including this Scene's own save
-   screen, which carries `.report-stage`) and reveals only the document
-   artifact nested inside the save screen — `.final-report-scene` itself is
-   left alone so that nested document stays in the render tree. */
+/* Printing is handled by src/scenes/report/PrintableFullReport.css: it hides
+   every `.report-stage`/`.final-record-layer` (including this Scene's own
+   save screen, which carries `.final-record-layer`) and reveals only the
+   document artifact nested inside it — `.final-report-scene` itself is left
+   alone so that nested document stays in the render tree. */
 @media print {
   .final-report-scene {
     height: auto;

@@ -1,0 +1,372 @@
+/* Hidden on screen — this is the print artifact, not a viewed screen. The
+   cinematic Report stages (src/scenes/report/ReportStage*.css) and the
+   Summary Receipt (FinalReportSummaryReceipt.css) are what visitors see;
+   this becomes visible only under @media print below. */
+.printable-full-report {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+@media screen {
+  .printable-full-report {
+    display: none;
+  }
+}
+
+.printable-full-report__page {
+  --pfr-ink: #17161a;
+  --pfr-ink-dim: #57545e;
+  --pfr-line: rgba(23, 22, 26, 0.18);
+  --pfr-accent: #6a4fc4;
+
+  width: 100%;
+  color: var(--pfr-ink);
+  background: #fff;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+
+.pfr-header__eyebrow {
+  margin: 0 0 6px;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--pfr-ink-dim);
+}
+
+.pfr-header__title {
+  margin: 0 0 6px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--pfr-ink);
+}
+
+.pfr-header__subtitle {
+  margin: 0 0 14px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--pfr-accent);
+}
+
+/* ── Meta row ────────────────────────────────────────────────────────────── */
+
+.pfr-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 14px 0;
+  margin-bottom: 18px;
+  border-top: 1px solid var(--pfr-line);
+  border-bottom: 1px solid var(--pfr-line);
+}
+
+.pfr-meta__item dt {
+  margin: 0 0 3px;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pfr-ink-dim);
+}
+
+.pfr-meta__item dd {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pfr-meta__status {
+  color: var(--pfr-accent);
+}
+
+/* ── Sections ────────────────────────────────────────────────────────────── */
+
+.pfr-section {
+  margin-bottom: 22px;
+}
+
+.pfr-section--avoid-break {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pfr-section__label {
+  margin: 0 0 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--pfr-accent);
+}
+
+.pfr-section__body {
+  margin: 0 0 6px;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.pfr-section__body--dim {
+  color: var(--pfr-ink-dim);
+}
+
+/* ── 01 COLOR ────────────────────────────────────────────────────────────── */
+
+.pfr-color__visual {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 6;
+  overflow: hidden;
+  border: 1px solid var(--pfr-line);
+  margin-bottom: 12px;
+}
+
+.pfr-color__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pfr-color__source-image {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 46px;
+  height: 46px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+.pfr-color__palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.pfr-color__swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.pfr-color__swatch-chip {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--pfr-line);
+}
+
+.pfr-color__swatch-hex {
+  font-size: 8px;
+  letter-spacing: 0.04em;
+  color: var(--pfr-ink-dim);
+}
+
+.pfr-color__facts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.pfr-color__facts dt {
+  margin: 0 0 2px;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pfr-ink-dim);
+}
+
+.pfr-color__facts dd {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ── 02 SOUND ────────────────────────────────────────────────────────────── */
+
+.pfr-sound__waveform {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 44px;
+  margin-bottom: 10px;
+  padding: 0 2px;
+}
+
+.pfr-sound__bar {
+  flex: 1;
+  min-width: 1px;
+  background: var(--pfr-accent);
+  opacity: 0.55;
+  border-radius: 1px;
+}
+
+.pfr-sound__cursor {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 2px;
+  background: var(--pfr-ink);
+  transform: translateX(-1px);
+}
+
+/* ── 03 SENTENCE ─────────────────────────────────────────────────────────── */
+
+.pfr-sentence__capsules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.pfr-sentence__capsule {
+  padding: 7px 14px;
+  border: 1px solid var(--pfr-ink);
+  border-radius: 999px;
+  font-size: 11px;
+}
+
+/* ── 04 MEMORY ───────────────────────────────────────────────────────────── */
+
+.pfr-memory__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.pfr-memory__bar-row {
+  display: grid;
+  grid-template-columns: 90px 1fr 90px;
+  align-items: center;
+  gap: 10px;
+}
+
+.pfr-memory__bar-row dt {
+  margin: 0;
+  font-size: 10px;
+  color: var(--pfr-ink-dim);
+}
+
+.pfr-memory__bar-row dd {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.pfr-memory__bar-track {
+  height: 6px;
+  background: rgba(23, 22, 26, 0.08);
+  overflow: hidden;
+}
+
+.pfr-memory__bar-fill {
+  height: 100%;
+  background: var(--pfr-accent);
+}
+
+.pfr-memory__visual {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border: 1px solid var(--pfr-line);
+  margin-bottom: 10px;
+}
+
+.pfr-memory__sketch {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  mix-blend-mode: multiply;
+}
+
+/* ── 05 AI OBSERVATION ───────────────────────────────────────────────────── */
+
+.pfr-observation {
+  padding: 14px 16px;
+  border-left: 2px solid var(--pfr-accent);
+  background: rgba(106, 79, 196, 0.04);
+}
+
+.pfr-observation__text {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.75;
+  white-space: pre-line;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+
+.pfr-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-top: 14px;
+  margin-top: 8px;
+  border-top: 1px solid var(--pfr-line);
+}
+
+.pfr-footer__label {
+  margin: 0 0 4px;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pfr-ink-dim);
+}
+
+.pfr-footer__owner {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--pfr-accent);
+}
+
+.pfr-footer__report-id {
+  margin: 0;
+  font-size: 10px;
+  color: var(--pfr-ink-dim);
+}
+
+/* ── Print ───────────────────────────────────────────────────────────────── */
+
+@media print {
+  .printable-full-report {
+    position: static;
+    z-index: auto;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .printable-full-report__page {
+    padding: 0;
+  }
+
+  /* Belt-and-suspenders: only the document prints, whatever stage of the
+     cinematic sequence happens to be mounted underneath it. */
+  .report-stage,
+  .final-record-layer,
+  .final-report-scene__save {
+    display: none !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+}

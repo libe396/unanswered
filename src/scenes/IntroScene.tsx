@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { TerminalCorners } from '../components/TerminalCorners';
 import { useExperienceStore } from '../store/experienceStore';
 import './IntroScene.css';
 
 const STATUS_LINES = [
   '조사 대상의 기록이 확인되었습니다.',
   '남겨진 흔적이 각 구역에 분산되어 있습니다.',
-  '조사 의뢰서가 도착했습니다.',
+  '목적지 확인이 완료되었습니다.',
 ];
 
 const DUST_PARTICLES = [
@@ -37,9 +36,7 @@ export function IntroScene() {
   const [seamExtended, setSeamExtended] = useState(false);
   const [doorsOpen, setDoorsOpen] = useState(false);
   const [statusIndex, setStatusIndex] = useState(0);
-  const [panelReady, setPanelReady] = useState(false);
-  const [documentNoticeVisible, setDocumentNoticeVisible] = useState(false);
-  const [documentOpen, setDocumentOpen] = useState(false);
+  const [departureReady, setDepartureReady] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
   const [floor, setFloor] = useState('3');
   const [floorFlicker, setFloorFlicker] = useState(false);
@@ -102,12 +99,15 @@ export function IntroScene() {
       scheduleNextFrame(() => playElevatorSound(0.09));
     }, seamAt);
     schedule(() => setElevatorVolume(0.055), openAt + 600 * timeScale);
-    schedule(() => setStatusIndex(1), interior + 3300 * timeScale);
-    schedule(() => setStatusIndex(2), interior + 4600 * timeScale);
-    schedule(() => {
-      setDocumentNoticeVisible(true);
-      setPanelReady(true);
-    }, interior + 6200 * timeScale);
+    // Trimmed ~1.5s off this readout-to-departure stretch (was +3300/+4600/
+    // +6200) — real playtesting read the original hold as dead air rather
+    // than atmosphere. The status-line cross-fade itself (below) was also
+    // shortened to match, so each line still gets a real, un-rushed dwell.
+    schedule(() => setStatusIndex(1), interior + 2700 * timeScale);
+    schedule(() => setStatusIndex(2), interior + 3700 * timeScale);
+    // The departure interaction only appears once the destination readout
+    // above has settled — never on entry, and never mid-animation.
+    schedule(() => setDepartureReady(true), interior + 4700 * timeScale);
 
     return () => {
       timeoutsRef.current.forEach((id) => window.clearTimeout(id));
@@ -122,7 +122,7 @@ export function IntroScene() {
 
   function handleApprove() {
     // Guards against double-input while the departure sequence is already running.
-    if (!panelReady || isApproving) return;
+    if (!departureReady || isApproving) return;
     setIsApproving(true);
 
     const stillness = 400 * timeScale;
@@ -246,95 +246,34 @@ export function IntroScene() {
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.35 }}
             >
               {STATUS_LINES[statusIndex]}
             </motion.span>
           </AnimatePresence>
         </motion.div>
 
+        {/* The one interaction this Scene needs: departs the elevator via the
+            same handleApprove sequence (floor flicker, doors, blackout,
+            completeScene) that a case-file "start" button used to trigger.
+            Intro Film carries the narrative now, so this says nothing about
+            why — only that the car is ready to move. */}
         <AnimatePresence>
-          {documentNoticeVisible && !documentOpen && !isApproving ? (
+          {departureReady && !isApproving ? (
             <motion.button
               type="button"
-              className={`intro-scene__document-arrival${
-                panelReady ? ' intro-scene__document-arrival--ready' : ''
-              }`}
-              onClick={() => setDocumentOpen(true)}
-              disabled={!panelReady}
-              initial={{ opacity: 0, y: 12, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -6, scale: 0.98 }}
-              transition={{ duration: 0.75 * timeScale, ease: [0.22, 1, 0.36, 1] }}
+              className="intro-scene__depart"
+              onClick={handleApprove}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.9 * timeScale, ease: [0.22, 1, 0.36, 1] }}
             >
-              <TerminalCorners />
-              <span className="intro-scene__document-arrival-kicker">INCOMING DOCUMENT</span>
-              <span className="intro-scene__document-arrival-title">
-                INVITATION TO THE INVESTIGATION
+              <span>이동하기</span>
+              <span className="intro-scene__depart-arrow" aria-hidden="true">
+                →
               </span>
             </motion.button>
-          ) : null}
-        </AnimatePresence>
-
-        <AnimatePresence>
-          {documentOpen && !isApproving ? (
-            <motion.div
-              className="intro-scene__document-layer"
-              initial={{ opacity: 0, y: 18, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8, scale: 0.98 }}
-              transition={{ duration: 0.8 * timeScale, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <div className="intro-scene__case-file" role="dialog" aria-label="조사 의뢰서">
-                <div className="intro-scene__envelope" aria-hidden="true">
-                  <div className="intro-scene__envelope-flap" />
-                  <div className="intro-scene__envelope-string intro-scene__envelope-string--top" />
-                  <div className="intro-scene__envelope-string intro-scene__envelope-string--bottom" />
-                  <span className="intro-scene__envelope-stamp">UNANSWERED</span>
-                  <div className="intro-scene__envelope-title">
-                    <span>조사 의뢰서</span>
-                    <small>INVITATION TO THE INVESTIGATION</small>
-                  </div>
-                </div>
-
-                <section className="intro-scene__letter">
-                  <div className="intro-scene__letter-content">
-                    <p>안녕하세요.</p>
-                    <p>
-                      당신은 한 사람의 기록을 조사하기 위해
-                      <br />
-                      이곳에 초대되었습니다.
-                    </p>
-                    <p>
-                      우리는 오랫동안 자신을 설명하지 못한 채
-                      <br />
-                      남겨진 흔적들을 수집해왔습니다.
-                    </p>
-                    <p>
-                      그 사람은 어떤 색에 오래 머물렀고,
-                      <br />
-                      어떤 문장 앞에서 멈추었으며,
-                      <br />
-                      어떤 기억을 끝내 설명하지 못했습니다.
-                    </p>
-                    <p>
-                      당신의 임무는
-                      <br />
-                      그 사람이 누구인지 알아내는 것입니다.
-                    </p>
-                    <p>조사를 시작해주세요.</p>
-                    <p className="intro-scene__letter-signature">미응답 프로젝트 팀 드림</p>
-                  </div>
-
-                  <button type="button" className="intro-scene__letter-start" onClick={handleApprove}>
-                    <span>조사를 시작한다</span>
-                    <span className="intro-scene__letter-start-arrow" aria-hidden="true">
-                      →
-                    </span>
-                  </button>
-                </section>
-              </div>
-            </motion.div>
           ) : null}
         </AnimatePresence>
       </motion.div>
@@ -353,7 +292,10 @@ export function IntroScene() {
         <div className="intro-scene__arrival-seam" />
       </div>
 
-      <div className="intro-scene__flash" />
+      {/* Departure no longer ends on a bright flash — it fades the whole car
+          to black, so Intro Film's own dark first frame reads as the far
+          side of the same darkness rather than a new page loading in. */}
+      <div className="intro-scene__blackout" />
     </div>
   );
 }

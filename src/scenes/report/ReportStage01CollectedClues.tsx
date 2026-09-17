@@ -43,7 +43,7 @@ const MAP_PHASE = INTRO_BEATS.length;
  * A reading step, not an analysis step — every clue the visitor already
  * left, reassembled one at a time into a single record cluster. Nothing
  * here is derived beyond what `report`/`record` already carry: the same
- * `ReportData` src/scenes/SavedReportDocument.tsx reads, the same
+ * `ReportData` src/scenes/report/PrintableFullReport.tsx reads, the same
  * `renderLightGraphic`/`drawStrokes` calls the rest of the exhibition uses.
  */
 export function ReportStage01CollectedClues({ record, report, index, total, locked, onAdvance }: Props) {

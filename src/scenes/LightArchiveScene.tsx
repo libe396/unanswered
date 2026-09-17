@@ -9,6 +9,7 @@ import { logSceneTracking, useSceneTracking } from '../hooks/useSceneTracking';
 import { playClueRecordedSignature } from '../lib/postElevatorAudio';
 import { TerminalCorners } from '../components/TerminalCorners';
 import { ZoneIntroCard } from '../components/ZoneIntroCard';
+import { ZONE_INFO } from '../data/zones';
 import type { LightAnalysisRules } from '../types';
 import './LightArchiveScene.css';
 
@@ -108,15 +109,27 @@ const TRACKING_GROUPS = { image: 'single', emotion: 'multi' } as const;
 
 export function LightArchiveScene() {
   const archiveImages = useMemo(buildArchiveImages, []);
+  const storedLightArchive = useExperienceStore((s) => s.lightArchive);
   const setLightArchive = useExperienceStore((s) => s.setLightArchive);
   const completeScene = useExperienceStore((s) => s.completeScene);
   const prefersReducedMotion = useReducedMotion();
   const tracking = useSceneTracking('lightArchive', TRACKING_GROUPS);
 
   const [phase, setPhase] = useState<Phase>('zoneIntro');
-  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
-  const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
-  const [rules, setRules] = useState<LightAnalysisRules | null>(null);
+  // Seeded from any answer this visit already saved — e.g. via Back
+  // navigation and back forward again — so re-confirming without changing
+  // anything re-saves the same choice instead of a blank one. A first-ever
+  // visit has no `lightArchive` yet, so these fall back to empty exactly as
+  // before.
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(() => {
+    if (!storedLightArchive) return null;
+    const idx = archiveImages.findIndex((img) => img.id === storedLightArchive.imageId);
+    return idx === -1 ? null : idx;
+  });
+  const [selectedKeywords, setSelectedKeywords] = useState<string[]>(
+    () => storedLightArchive?.rules.emotionKeywords ?? [],
+  );
+  const [rules, setRules] = useState<LightAnalysisRules | null>(() => storedLightArchive?.rules ?? null);
   const [revealedCount, setRevealedCount] = useState(0);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -297,7 +310,7 @@ export function LightArchiveScene() {
   if (phase === 'zoneIntro') {
     return (
       <ZoneIntroCard
-        zone="ZONE 03"
+        zone={ZONE_INFO.lightArchive.zone}
         title="빛의 흔적"
         subtitle="빛은 그 사람의 흔적을 가장 잘 담고 있다."
         ctaLabel="조사 시작"

@@ -1,0 +1,50 @@
+.intro-film-scene {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  overflow: hidden;
+  cursor: none;
+}
+
+.intro-film-scene__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  opacity: 0;
+  transition: opacity 550ms var(--ease-scene, ease);
+}
+
+.intro-film-scene--ready .intro-film-scene__video {
+  opacity: 1;
+}
+
+/* Sits above the video and stays fully transparent until the film ends —
+   then carries the fade-to-black beat before the next Scene is allowed
+   to mount. See IntroFilmScene's handleEnded. */
+.intro-film-scene__curtain {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 550ms ease;
+}
+
+.intro-film-scene--ended .intro-film-scene__curtain {
+  opacity: 1;
+}
+
+/* Invisible full-bleed catcher for the autoplay-blocked fallback: any
+   click/key/touch anywhere on screen retries playback with sound. No
+   visible "Play" affordance by design. */
+.intro-film-scene__gesture-catcher {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: transparent;
+}

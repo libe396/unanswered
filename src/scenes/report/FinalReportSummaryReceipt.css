@@ -1,0 +1,243 @@
+/* The web surface of the Final Report — a narrow, vertical read of the
+   visit, issued rather than printed: this stays dark, on the same tokens
+   the rest of the exhibition already runs on (src/styles/tokens.css), so it
+   reads as a screen the archive handed the visitor, not a paper card set
+   down on top of it. `PrintableFullReport.css` is the one surface that gets
+   the light A4 paper treatment, and only under `@media print`. No box
+   surface color or shadow is invented here beyond what those tokens and a
+   couple of near-transparent whites already provide. */
+
+.summary-receipt {
+  --receipt-ink: var(--color-text);
+  --receipt-ink-dim: var(--color-text-dim);
+  --receipt-line: rgba(201, 163, 255, 0.14);
+  --receipt-accent: var(--color-accent);
+  --receipt-surface: rgba(255, 255, 255, 0.025);
+  --receipt-surface-line: rgba(255, 255, 255, 0.08);
+
+  position: relative;
+  width: min(360px, 88vw);
+  padding: 30px 26px 28px;
+  background: var(--receipt-surface);
+  border: 1px solid var(--receipt-surface-line);
+  color: var(--receipt-ink);
+  text-align: left;
+}
+
+.summary-receipt__brand {
+  margin: 0;
+  text-align: center;
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--receipt-ink-dim);
+}
+
+.summary-receipt__title {
+  margin: 6px 0 0;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--receipt-ink);
+}
+
+.summary-receipt__subtitle {
+  margin: 3px 0 0;
+  text-align: center;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--receipt-accent);
+}
+
+.summary-receipt__divider {
+  height: 0;
+  margin: 16px 0;
+  border-top: 1px solid var(--receipt-line);
+}
+
+.summary-receipt__meta {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.summary-receipt__meta dt {
+  margin: 0 0 3px;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--receipt-ink-dim);
+}
+
+.summary-receipt__meta dd {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--receipt-ink);
+}
+
+.summary-receipt__meta-date {
+  font-size: 11px !important;
+  font-weight: 400 !important;
+  color: var(--receipt-ink-dim);
+}
+
+.summary-receipt__section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summary-receipt__section-label {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--receipt-accent);
+}
+
+.summary-receipt__color-visual {
+  width: 100%;
+  aspect-ratio: 16 / 5;
+  overflow: hidden;
+  border: 1px solid var(--receipt-surface-line);
+}
+
+.summary-receipt__light-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.summary-receipt__color-hex {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--receipt-ink);
+}
+
+.summary-receipt__color-desc {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--receipt-ink-dim);
+}
+
+.summary-receipt__clues {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.summary-receipt__clue {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.summary-receipt__clue-index {
+  font-size: 10px;
+  color: var(--receipt-ink-dim);
+}
+
+.summary-receipt__clue-text {
+  font-size: 13px;
+  line-height: 1.4;
+  overflow-wrap: break-word;
+  color: var(--receipt-ink);
+}
+
+.summary-receipt__clue-tag {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--receipt-ink-dim);
+  white-space: nowrap;
+}
+
+.summary-receipt__clue--empty .summary-receipt__clue-text {
+  color: var(--receipt-ink-dim);
+}
+
+.summary-receipt__observation {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--receipt-ink-dim);
+  white-space: pre-line;
+}
+
+.summary-receipt__owner {
+  text-align: center;
+}
+
+.summary-receipt__owner-label {
+  margin: 0;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--receipt-ink-dim);
+}
+
+.summary-receipt__owner-value {
+  margin: 6px 0 10px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--receipt-accent);
+}
+
+.summary-receipt__owner-scan {
+  margin: 0;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: var(--receipt-ink-dim);
+}
+
+.summary-receipt__issue-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+  margin-top: 22px;
+  padding: 14px 12px;
+  border: 1px solid rgba(232, 230, 240, 0.32);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--receipt-ink);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.summary-receipt__issue-btn:hover {
+  background: rgba(201, 163, 255, 0.1);
+  border-color: var(--receipt-accent);
+  color: var(--receipt-ink);
+}
+
+.summary-receipt__issue-btn-en {
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  opacity: 0.72;
+}
+
+@media (max-width: 640px) {
+  .summary-receipt {
+    width: 94vw;
+    padding: 24px 18px 22px;
+  }
+}

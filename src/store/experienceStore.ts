@@ -25,6 +25,8 @@ import { generateReportId } from '../utils/id';
 export const SCENE_ORDER: SceneId[] = [
   'landing',
   'intro',
+  'introFilm',
+  'investigationStart',
   'registration',
   'lightArchive',
   'zone03Intro',
@@ -45,6 +47,15 @@ function getFurthestAllowedScene(completedScenes: SceneId[]): SceneId {
 interface ExperienceState {
   currentScene: SceneId;
   completedScenes: SceneId[];
+  /**
+   * Dev-only navigation hint: which of FinalReportScene's internal stages to
+   * mount on. Read once on mount, the same way `currentScene` itself is
+   * navigation rather than answer data — never persisted (absent from
+   * `partialize` below), and always `'sequence'` outside of
+   * DevSceneNavigator.tsx's "Summary Receipt" shortcut, which is the only
+   * place that ever sets it to `'summary'`.
+   */
+  devFinalReportEntryStage: 'sequence' | 'summary';
   landing: LandingData;
   investigator: Investigator | null;
   lightArchive: LightArchiveData | null;
@@ -75,12 +86,22 @@ interface ExperienceState {
   completeScene: (id: SceneId) => void;
   /** Dev-only direct scene jump. Never expose in user-facing UI. */
   goToScene: (id: SceneId) => void;
+  /**
+   * User-facing Back — one step earlier in `SCENE_ORDER`, nothing else.
+   * Deliberately separate from `goToScene`/`completeScene`: it never touches
+   * `completedScenes` (so `getFurthestAllowedScene` still reflects real
+   * progress) and never touches any answer field, so every Zone's already
+   * saved data is exactly as it was when the visitor left it. A no-op at
+   * `SCENE_ORDER[0]`.
+   */
+  goToPreviousScene: () => void;
   reset: () => void;
 }
 
 const initialState = {
   currentScene: SCENE_ORDER[0],
   completedScenes: [] as SceneId[],
+  devFinalReportEntryStage: 'sequence' as 'sequence' | 'summary',
   landing: {
     enteredAt: 0,
     timeToEnterMs: 0,
@@ -183,6 +204,13 @@ export const useExperienceStore = create<ExperienceState>()(
         }),
 
       goToScene: (id) => set({ currentScene: id }),
+
+      goToPreviousScene: () =>
+        set((state) => {
+          const index = SCENE_ORDER.indexOf(state.currentScene);
+          if (index <= 0) return {};
+          return { currentScene: SCENE_ORDER[index - 1] };
+        }),
 
       reset: () => set({ ...initialState }),
     }),
