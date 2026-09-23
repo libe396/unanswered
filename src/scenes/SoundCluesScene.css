@@ -2,7 +2,7 @@
   position: relative;
   width: 100%;
   height: 100dvh;
-  background: #050506;
+  background: var(--bg-base);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -102,7 +102,7 @@
 }
 
 .sound-clues-scene__mini-btn--mark:disabled {
-  border-color: rgba(201, 163, 255, 0.38);
+  border-color: rgba(138, 107, 255, 0.38);
   color: var(--color-accent);
 }
 
@@ -146,11 +146,11 @@
   margin-top: clamp(-10px, -1.4vh, -6px);
   height: clamp(16px, 2.6vh, 24px);
   border-radius: 2px;
-  background: linear-gradient(180deg, #0c0c10 0%, #050506 100%);
+  background: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg-base) 100%);
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow:
-    0 -1px 0 rgba(201, 163, 255, 0.05),
-    0 18px 40px -12px rgba(201, 163, 255, 0.16),
+    0 -1px 0 rgba(164, 144, 255, 0.05),
+    0 18px 40px -12px rgba(164, 144, 255, 0.16),
     0 2px 0 rgba(0, 0, 0, 0.6);
 }
 
@@ -206,7 +206,7 @@
   transform: translateX(-50%);
   border-radius: 50%;
   border: 1px solid rgba(230, 224, 255, 0.22);
-  background: radial-gradient(circle at 35% 30%, rgba(230, 224, 255, 0.18), rgba(201, 163, 255, 0.04) 70%);
+  background: radial-gradient(circle at 35% 30%, rgba(230, 224, 255, 0.18), rgba(138, 107, 255, 0.04) 70%);
   transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
 }
 
@@ -219,7 +219,7 @@
   border: 1px solid rgba(216, 206, 245, 0.16);
   border-radius: 46% 46% 10px 10px / 58% 58% 10px 10px;
   background:
-    linear-gradient(180deg, rgba(201, 163, 255, 0.05) 0%, rgba(255, 255, 255, 0.012) 40%, rgba(255, 255, 255, 0.02) 100%);
+    linear-gradient(180deg, rgba(138, 107, 255, 0.05) 0%, rgba(255, 255, 255, 0.012) 40%, rgba(255, 255, 255, 0.02) 100%);
   backdrop-filter: blur(1.5px);
   -webkit-backdrop-filter: blur(1.5px);
   box-shadow:
@@ -236,7 +236,7 @@
   border-radius: inherit;
   background:
     linear-gradient(115deg, rgba(255, 255, 255, 0.14) 0%, transparent 22%),
-    radial-gradient(120% 60% at 50% 0%, rgba(201, 163, 255, 0.1), transparent 70%);
+    radial-gradient(120% 60% at 50% 0%, rgba(164, 144, 255, 0.1), transparent 70%);
   pointer-events: none;
 }
 
@@ -247,7 +247,7 @@
   right: 0;
   bottom: 0;
   height: 70%;
-  background: linear-gradient(180deg, transparent 0%, rgba(201, 163, 255, 0.16) 60%, rgba(201, 163, 255, 0.28) 100%);
+  background: linear-gradient(180deg, transparent 0%, rgba(138, 107, 255, 0.16) 60%, rgba(138, 107, 255, 0.28) 100%);
   opacity: 0;
   transition: opacity var(--duration-scene) ease;
   pointer-events: none;
@@ -342,7 +342,7 @@
   height: 60px;
   transform: translateX(-50%);
   border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(201, 163, 255, 0.28) 0%, rgba(201, 163, 255, 0.05) 45%, transparent 72%);
+  background: radial-gradient(ellipse at center, rgba(138, 107, 255, 0.28) 0%, rgba(138, 107, 255, 0.05) 45%, transparent 72%);
   opacity: 0.28;
   transition: opacity var(--duration-fast) ease;
   pointer-events: none;
@@ -436,8 +436,8 @@
   border-color: rgba(216, 206, 245, 0.55);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    inset 0 -20px 30px -18px rgba(201, 163, 255, 0.5),
-    0 0 22px -6px rgba(201, 163, 255, 0.35);
+    inset 0 -20px 30px -18px rgba(164, 144, 255, 0.5),
+    0 0 22px -6px rgba(164, 144, 255, 0.35);
 }
 
 .sound-clues-scene__cloche--playing .sound-clues-scene__cloche-fill {
@@ -459,7 +459,7 @@
 
 .sound-clues-scene__cloche--playing .sound-clues-scene__cloche-handle {
   border-color: rgba(230, 224, 255, 0.6);
-  box-shadow: 0 0 10px rgba(201, 163, 255, 0.5);
+  box-shadow: 0 0 10px rgba(164, 144, 255, 0.5);
 }
 
 .sound-clues-scene__cloche--playing .sound-clues-scene__cloche-wave {
@@ -546,7 +546,7 @@
   top: 50%;
   height: 1px;
   transform: translateY(-50%);
-  background: rgba(201, 163, 255, 0.62);
+  background: rgba(138, 107, 255, 0.62);
   transition: width 0.1s linear;
 }
 
@@ -707,7 +707,7 @@
   aspect-ratio: 1;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background:
-    radial-gradient(ellipse at center, rgba(201, 163, 255, 0.045) 0%, transparent 68%),
+    radial-gradient(ellipse at center, rgba(164, 144, 255, 0.045) 0%, transparent 68%),
     rgba(255, 255, 255, 0.012);
   cursor: crosshair;
   touch-action: none;
@@ -765,8 +765,8 @@
   border-radius: 50%;
   background: var(--color-accent);
   box-shadow:
-    0 0 0 3px rgba(201, 163, 255, 0.14),
-    0 0 14px 3px rgba(201, 163, 255, 0.35);
+    0 0 0 3px rgba(164, 144, 255, 0.14),
+    0 0 14px 3px rgba(164, 144, 255, 0.35);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -776,28 +776,9 @@
 }
 
 .sound-clues-scene__confirm {
+  /* Placement only — appearance comes from .cta .cta--primary. */
   flex: 0 0 auto;
-  position: relative;
   margin-top: 0;
-  padding: 12px 28px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: var(--color-text);
-  font-size: 11px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: border-color var(--duration-fast) ease, background var(--duration-fast) ease;
-}
-
-.sound-clues-scene__confirm:hover:not(:disabled) {
-  border-color: var(--color-accent);
-  background: rgba(201, 163, 255, 0.06);
-}
-
-.sound-clues-scene__confirm:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
 }
 
 @media (max-height: 720px) {

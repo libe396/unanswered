@@ -120,7 +120,7 @@ export function RecordLayerSecondVisitScene() {
         ) : null}
 
         <motion.button
-          className="record-layer-second-visit__confirm"
+          className="cta cta--primary record-layer-second-visit__confirm"
           onClick={handleConfirm}
           disabled={isRevealing}
           initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 4 }}
@@ -154,8 +154,12 @@ export function RecordLayerSecondVisitScene() {
       ) : null}
 
       <div className="record-layer-second-visit__meta">
-        <span>{record.investigator?.investigatorName ?? '-'}</span>
-        <span>{record.investigator?.reportId ?? '-'}</span>
+        <span className="record-layer-second-visit__meta-name">
+          {record.investigator?.investigatorName ?? '-'}
+        </span>
+        <span className="record-layer-second-visit__meta-id">
+          {record.investigator?.reportId ?? '-'}
+        </span>
       </div>
 
     </div>

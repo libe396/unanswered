@@ -1,76 +1,85 @@
+/*
+  The shared "entering a zone" beat, and the reference layout every other
+  Scene's heading block is measured against.
+
+  Spacing is per-pair rather than one flex `gap`: an even 24px between all
+  four elements gave the ZONE mark, the title, the subtitle and the CTA the
+  same weight of separation, which is what made the block read as four
+  stacked labels instead of one heading with one action under it.
+    ZONE  →  title     16   (the mark belongs to the title)
+    title →  subtitle  12   (the subtitle belongs to the title)
+    sub   →  CTA       40   (the action is its own thing)
+*/
+
 .zone-intro-card {
   position: relative;
   width: 100%;
-  min-height: 100dvh;
-  background: #050506;
+  height: 100%;
+  min-height: 100%;
+  overflow-y: auto;
+  background: var(--bg-base);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 24px;
-  padding: 0 8vw;
+  padding: var(--sp-48) 8vw;
   text-align: center;
 }
 
+/* Bebas — Latin identity mark. Never below 13px (see .t-eyebrow). */
 .zone-intro-card__zone {
-  font-size: 11px;
-  letter-spacing: 0.5em;
-  text-transform: uppercase;
-  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--trace);
   margin: 0;
 }
 
 .zone-intro-card__title {
-  font-size: clamp(24px, 3.4vw, 34px);
-  font-weight: 400;
-  color: var(--color-text);
-  max-width: 620px;
-  line-height: 1.5;
-  margin: 0;
+  margin: var(--sp-16) 0 0;
+  max-width: 560px;
+  font-family: var(--font-kr);
+  font-size: 32px;
+  line-height: 1.35;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
 }
 
 .zone-intro-card__subtitle {
-  font-size: 14px;
-  color: var(--color-text-dim);
-  max-width: 440px;
+  margin: var(--sp-12) 0 0;
+  max-width: 480px;
+  font-family: var(--font-kr);
+  font-size: 15px;
   line-height: 1.7;
-  margin: 0;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--text-secondary);
 }
 
+/* Primary CTA. The 0.3em uppercase tracking this used to carry was applied
+   to Korean labels ("조사 시작"), where uppercase does nothing and the
+   tracking alone pulled the glyphs apart. */
 .zone-intro-card__cta {
-  position: relative;
-  margin-top: 12px;
-  padding: 14px 32px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: var(--color-text);
-  font-size: 11px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: border-color var(--duration-fast) ease, background var(--duration-fast) ease;
-}
-
-.zone-intro-card__cta:hover {
-  border-color: var(--color-accent);
-  background: rgba(201, 163, 255, 0.06);
-}
-
-.zone-intro-card__cta:focus-visible {
-  outline: 1px solid var(--color-accent);
-  outline-offset: 5px;
+  margin-top: var(--sp-40);
 }
 
 @media (max-width: 640px) {
   .zone-intro-card {
-    gap: 18px;
+    padding: var(--sp-32) var(--sp-24);
   }
 
   .zone-intro-card__title {
-    font-size: 22px;
+    font-size: 24px;
   }
 
   .zone-intro-card__subtitle {
-    font-size: 13px;
+    font-size: 14px;
+  }
+
+  .zone-intro-card__cta {
+    margin-top: var(--sp-32);
   }
 }

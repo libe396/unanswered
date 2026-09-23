@@ -715,7 +715,7 @@ export function SoundCluesScene() {
         </p>
 
         <button
-          className="sound-clues-scene__confirm"
+          className="cta cta--primary sound-clues-scene__confirm"
           onClick={goToPositioning}
           disabled={!selectedSoundId}
         >
@@ -778,7 +778,7 @@ export function SoundCluesScene() {
       </div>
 
       <button
-        className="sound-clues-scene__confirm"
+        className="cta cta--primary sound-clues-scene__confirm"
         onClick={handleConfirm}
         disabled={!position}
       >

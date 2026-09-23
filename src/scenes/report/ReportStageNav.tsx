@@ -35,7 +35,7 @@ export function ReportStageNav({ label, index, total, visible, onAdvance, disabl
           <span className="report-stage-nav__index" aria-hidden="true">
             {String(index).padStart(2, '0')} / {String(total).padStart(2, '0')}
           </span>
-          <button className="report-stage-nav__cta" onClick={onAdvance} disabled={disabled}>
+          <button className="cta cta--primary report-stage-nav__cta" onClick={onAdvance} disabled={disabled}>
             <TerminalCorners />
             <span>{label}</span>
             <span aria-hidden="true">→</span>

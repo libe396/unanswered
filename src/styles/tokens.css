@@ -1,32 +1,116 @@
+/*
+  UNANSWERED — TRACE BX design tokens.
+
+  Two layers live here on purpose:
+
+  1. The TRACE BX tokens (--bg-*, --surface-*, --line-*, --text-*, --trace-*,
+     --atm-*, --sp-*, --r-*). These are what new and reworked UI reads.
+  2. A legacy alias block at the bottom. Every Scene written before this
+     system reads --color-accent / --color-text-dim / etc., and those names
+     now point at the TRACE tokens instead of holding their own values. That
+     is what lets Zone 03–08 pick up the new palette without being rewritten
+     Scene by Scene — and it is also why none of the legacy names may be
+     deleted until every Scene has been migrated.
+*/
+
 :root {
-  --color-bg: #0a0a0d;
-  --color-surface: #131318;
-  --color-surface-raised: #1b1b22;
-  --color-text: #e8e6f0;
-  --color-text-dim: #8b899c;
-  --color-accent: #c9a3ff;
-  --color-border: rgba(255, 255, 255, 0.12);
+  /* ── Background — Figma core/* ─────────────────────────────────────────── */
+  --bg-void: #07050e;      /* core/canvas — held black, film, CTA holds */
+  --bg-base: #0a0714;      /* core/background — the default Scene ground */
+  --bg-elevated: #150f26;  /* core/surface — panels and card faces */
+
+  /* ── Surface (translucent faces over a Scene's own art) ────────────────── */
+  --surface-1: rgba(242, 238, 255, 0.03);
+  --surface-2: rgba(242, 238, 255, 0.06);
+  --surface-3: rgba(242, 238, 255, 0.09);
+
+  /* ── Line ──────────────────────────────────────────────────────────────── */
+  --line-subtle: rgba(242, 238, 255, 0.08);
+  --line: #2a1f4e;                          /* core/border */
+  --line-strong: rgba(242, 238, 255, 0.24); /* input idle, scrollbar thumb */
+
+  /* ── Text — hierarchy by colour, never by opacity ──────────────────────── */
+  --text-primary: #f2eeff;   /* core/text */
+  --text-secondary: #9c93b8; /* core/text-muted — 6.9:1 on --bg-base */
+  --text-tertiary: #6e6788;  /* meta and inactive — 3.8:1, never body copy */
+
+  /* ── Trace (primary) — the visitor's own action and what it leaves ─────── */
+  --trace: #8a6bff;
+  --trace-ink: #0a0714;                    /* text ON a --trace fill (5.34:1).
+                                              White on --trace is 3.28:1 and
+                                              is not used anywhere. */
+  --trace-line: rgba(138, 107, 255, 0.45);
+  --trace-wash: rgba(138, 107, 255, 0.1);
+  --trace-glow: rgba(138, 107, 255, 0.28);
+
+  /* ── Atmosphere — light, glow and generated data graphics ──────────────── */
+  --atm-deep: #3d2c7a;
+  --atm-mid: #5b41c4;
+  --atm-light: #a490ff;
+  --atm-lightest: #cfc4ff;
+
+  /* ── Font ──────────────────────────────────────────────────────────────── */
+  --font-kr: 'Pretendard Variable', Pretendard, system-ui, sans-serif;
+  --font-display: 'Bebas Neue', var(--font-kr);
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* ── Spacing — 4px base ────────────────────────────────────────────────── */
+  --sp-4: 4px;
+  --sp-8: 8px;
+  --sp-12: 12px;
+  --sp-16: 16px;
+  --sp-24: 24px;
+  --sp-32: 32px;
+  --sp-40: 40px;
+  --sp-48: 48px;
+  --sp-64: 64px;
+  --sp-96: 96px;
+
+  /* ── Radius — 0 / 4 / 8 / 12 only ──────────────────────────────────────── */
+  --r-0: 0;
+  --r-4: 4px;
+  --r-8: 8px;
+  --r-12: 12px;
+
+  /* ── Motion — unchanged. Scene transition timing is out of scope. ──────── */
+  --duration-scene: 0.9s;
+  --duration-fast: 0.2s;
+  --ease-scene: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ══ Legacy aliases — DO NOT DELETE ═══════════════════════════════════════
+     Zone 03–08 still reads these names. They now resolve to TRACE tokens, so
+     those Scenes inherit the new palette without being touched. Remove a name
+     here only once nothing references it. */
+  --color-bg: var(--bg-base);
+  --color-surface: var(--bg-elevated);
+  --color-surface-raised: var(--bg-elevated);
+  --color-text: var(--text-primary);
+  --color-text-dim: var(--text-secondary);
+  --color-accent: var(--trace);
+  /* Kept at its original literal value on purpose: several Scenes use it as a
+     hairline and the TRACE --line (#2a1f4e) is heavier, which would thicken
+     the read of every divider in the back half of the exhibition. */
+  --color-border: #ffffff1f;
 
   /* The light inside the Memory Field. It is compressed into the vertical line
      when the visitor enters, leaks from the elevator door seam, and then lights
      the car interior — one light source carried across the two Scenes, which is
-     what makes the entry read as a single shot rather than a scene change. */
+     what makes the entry read as a single shot rather than a scene change.
+     TODO: atmosphere ramp로 이관 검토 (값 변경은 이번 작업 범위 밖) */
   --color-signal: #9fb2f2;
   --color-signal-rgb: 159, 178, 242;
 
   /* The Memory Field's own colour: a soft lavender, low saturation. Distinct
      from --color-signal, which is the cooler blue the field converges on as it
-     is compressed and which the elevator is then lit in. */
+     is compressed and which the elevator is then lit in.
+     TODO: atmosphere ramp로 이관 검토 (값 변경은 이번 작업 범위 밖) */
   --color-lavender-rgb: 186, 168, 236;
 
-  --font-base: system-ui, -apple-system, 'Segoe UI', sans-serif;
-
-  --space-xs: 8px;
-  --space-sm: 16px;
-  --space-md: 32px;
-  --space-lg: 64px;
-
-  --duration-scene: 0.9s;
-  --duration-fast: 0.2s;
-  --ease-scene: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Legacy spacing names — superseded by --sp-*, kept for the one or two
+     call sites that still use them. */
+  --font-base: var(--font-kr);
+  --space-xs: var(--sp-8);
+  --space-sm: var(--sp-16);
+  --space-md: var(--sp-32);
+  --space-lg: var(--sp-64);
 }

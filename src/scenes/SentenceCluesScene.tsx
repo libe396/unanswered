@@ -439,7 +439,7 @@ export function SentenceCluesScene() {
         <p className="sentence-clues-scene__prompt">{narrative.promptText}</p>
         <p className="sentence-clues-scene__instruction">{narrative.instructionText}</p>
 
-        <button className="sentence-clues-scene__confirm" onClick={() => setPhase('explore')}>
+        <button className="cta cta--primary sentence-clues-scene__confirm" onClick={() => setPhase('explore')}>
           <TerminalCorners />
           탐색 시작
         </button>
@@ -458,7 +458,7 @@ export function SentenceCluesScene() {
           {String(fragments.length).padStart(2, '0')} / {String(SENTENCE_MAX_FRAGMENTS).padStart(2, '0')}
         </p>
 
-        <div className="sentence-clues-scene__wall">
+        <div className="sentence-clues-scene__wall scroll-quiet">
           {SENTENCE_RECONSTRUCTION_FRAGMENTS.map((fragment) => {
             const drawn = fragments.includes(fragment.id);
             const locked = !drawn && isEndingLocked(fragment);
@@ -528,7 +528,7 @@ export function SentenceCluesScene() {
             {isValid ? '다음으로 이동할 수 있습니다.' : '세 개 이상의 기록을 꺼내주세요.'}
           </span>
           <button
-            className="sentence-clues-scene__confirm"
+            className="cta cta--primary sentence-clues-scene__confirm"
             onClick={handleExploreNext}
             disabled={!isValid}
           >
@@ -548,7 +548,7 @@ export function SentenceCluesScene() {
       <div className="sentence-clues-scene">
         <p className="sentence-clues-scene__hint">선택한 기록으로 이후의 기록이 구성되었습니다.</p>
 
-        <div className="sentence-clues-scene__account">
+        <div className="sentence-clues-scene__account scroll-quiet">
           {ordered.map((id, index) => (
             <p key={id} className="sentence-clues-scene__account-line">
               <span className="sentence-clues-scene__account-index">{String(index + 1).padStart(2, '0')}</span>
@@ -557,7 +557,7 @@ export function SentenceCluesScene() {
           ))}
         </div>
 
-        <button className="sentence-clues-scene__confirm" onClick={() => setPhase('discovering')}>
+        <button className="cta cta--primary sentence-clues-scene__confirm" onClick={() => setPhase('discovering')}>
           <TerminalCorners />
           다음으로
         </button>
@@ -611,7 +611,7 @@ export function SentenceCluesScene() {
           >
             기록하지 않는다
           </button>
-          <button className="sentence-clues-scene__confirm" onClick={() => proceedFromQuestion(false)}>
+          <button className="cta cta--primary sentence-clues-scene__confirm" onClick={() => proceedFromQuestion(false)}>
             <TerminalCorners />
             다음으로
           </button>
@@ -629,7 +629,7 @@ export function SentenceCluesScene() {
       <div className="sentence-clues-scene">
         <p className="sentence-clues-scene__hint">복원된 기록입니다.</p>
 
-        <div className="sentence-clues-scene__account sentence-clues-scene__account--final">
+        <div className="sentence-clues-scene__account sentence-clues-scene__account--final scroll-quiet">
           {ordered.map((id, index) => {
             const targetFragment = id === targetId ? FRAGMENT_BY_ID.get(id) : undefined;
             const line =
@@ -648,7 +648,7 @@ export function SentenceCluesScene() {
           })}
         </div>
 
-        <button className="sentence-clues-scene__confirm" onClick={handleRestoredRecordNext}>
+        <button className="cta cta--primary sentence-clues-scene__confirm" onClick={handleRestoredRecordNext}>
           <TerminalCorners />
           다음으로
         </button>
@@ -675,7 +675,7 @@ export function SentenceCluesScene() {
         )}
       </div>
 
-      <button className="sentence-clues-scene__confirm" onClick={handleComplete}>
+      <button className="cta cta--primary sentence-clues-scene__confirm" onClick={handleComplete}>
         <TerminalCorners />
         기록 확정
       </button>

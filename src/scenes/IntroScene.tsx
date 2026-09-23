@@ -3,10 +3,17 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useExperienceStore } from '../store/experienceStore';
 import './IntroScene.css';
 
+/*
+ * One readout, read in order, only ever one line on screen at a time. The
+ * last line is the only place arrival is announced as finished — the LED
+ * above no longer carries a "도착지 확인 중" caption of its own, which is
+ * what used to leave the Scene claiming to be mid-check and complete at the
+ * same moment. Terminology is "도착" throughout; "목적지" is not used.
+ */
 const STATUS_LINES = [
   '조사 대상의 기록이 확인되었습니다.',
   '남겨진 흔적이 각 구역에 분산되어 있습니다.',
-  '목적지 확인이 완료되었습니다.',
+  '도착지 확인이 완료되었습니다.',
 ];
 
 const DUST_PARTICLES = [
@@ -38,7 +45,10 @@ export function IntroScene() {
   const [statusIndex, setStatusIndex] = useState(0);
   const [departureReady, setDepartureReady] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
-  const [floor, setFloor] = useState('3');
+  // Literal car-floor readout: the elevator descends from 3F to B1 on
+  // departure (see handleApprove). Displayed with its unit rather than as a
+  // bare "3", which read as an unexplained number.
+  const [floor, setFloor] = useState('3F');
   const [floorFlicker, setFloorFlicker] = useState(false);
   const [departing, setDeparting] = useState(false);
 
@@ -228,54 +238,68 @@ export function IntroScene() {
           >
             {floor}
           </span>
-          <span className="intro-scene__led-caption">도착지 확인 중</span>
+          <span className="intro-scene__led-caption">FLOOR</span>
         </motion.div>
 
+        {/*
+          One centred block: STATUS caption, the line itself, and the Scene's
+          only action. These used to be two blocks — the readout pinned near
+          the bottom and the departure CTA floating dead centre, directly on
+          top of the light seam. Merged, the seam only has to open around one
+          region, and the visitor reads the state and the way out in one place.
+
+          The CTA's slot is reserved from the start (see
+          .intro-scene__depart-slot), so the line above it does not jump when
+          departure becomes available.
+        */}
         <motion.div
-          className="intro-scene__status"
+          className="intro-scene__readout"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.2 * timeScale, delay: 2.3 * timeScale }}
-          aria-live="polite"
         >
           <span className="intro-scene__status-label">STATUS</span>
-          <AnimatePresence mode="wait">
-            <motion.span
-              key={statusIndex}
-              className="intro-scene__status-line"
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.35 }}
-            >
-              {STATUS_LINES[statusIndex]}
-            </motion.span>
-          </AnimatePresence>
-        </motion.div>
+          <div className="intro-scene__status" aria-live="polite">
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={statusIndex}
+                className="intro-scene__status-line"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.35 }}
+              >
+                {STATUS_LINES[statusIndex]}
+              </motion.p>
+            </AnimatePresence>
+          </div>
 
-        {/* The one interaction this Scene needs: departs the elevator via the
-            same handleApprove sequence (floor flicker, doors, blackout,
-            completeScene) that a case-file "start" button used to trigger.
-            Intro Film carries the narrative now, so this says nothing about
-            why — only that the car is ready to move. */}
-        <AnimatePresence>
-          {departureReady && !isApproving ? (
-            <motion.button
-              type="button"
-              className="intro-scene__depart"
-              onClick={handleApprove}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.9 * timeScale, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <span>이동하기</span>
-              <span className="intro-scene__depart-arrow" aria-hidden="true">
-                →
-              </span>
-            </motion.button>
-          ) : null}
-        </AnimatePresence>
+          {/* The one interaction this Scene needs: departs the elevator via the
+              same handleApprove sequence (floor flicker, doors, blackout,
+              completeScene) that a case-file "start" button used to trigger.
+              Intro Film carries the narrative now, so this says nothing about
+              why — only that the car is ready to move. */}
+          <div className="intro-scene__depart-slot">
+            <AnimatePresence>
+              {departureReady && !isApproving ? (
+                <motion.button
+                  type="button"
+                  className="cta cta--primary intro-scene__depart"
+                  onClick={handleApprove}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.9 * timeScale, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <span>이동하기</span>
+                  <span className="cta__arrow" aria-hidden="true">
+                    →
+                  </span>
+                </motion.button>
+              ) : null}
+            </AnimatePresence>
+          </div>
+        </motion.div>
       </motion.div>
       </div>
 

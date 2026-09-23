@@ -1,6 +1,9 @@
-.report-stage-06__eyebrow {
-  opacity: 0.4;
-  font-size: 9px;
+/* Quieter than the other stages by intent — the reveal should not be
+   announced. Colour rather than opacity, and the shared 10px is kept so the
+   mono still resolves. */
+.report-stage-06__eyebrow,
+.report-stage-06__eyebrow .report-stage__eyebrow-code {
+  color: var(--text-tertiary);
 }
 
 .report-stage-06__frame {

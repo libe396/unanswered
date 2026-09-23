@@ -364,7 +364,7 @@ export function MemorySketchScene() {
           onViewEnd={(id) => tracking.viewEnd(OBJECT_GROUP, id)}
         />
 
-        <button className="memory-sketch-scene__confirm" onClick={proceedFromRoom} disabled={!canProceed}>
+        <button className="cta cta--primary memory-sketch-scene__confirm" onClick={proceedFromRoom} disabled={!canProceed}>
           <TerminalCorners />
           다음으로
         </button>
@@ -393,7 +393,7 @@ export function MemorySketchScene() {
               그대로 기록하기
             </button>
             <button
-              className="memory-sketch-scene__confirm"
+              className="cta cta--primary memory-sketch-scene__confirm"
               onClick={() => setPhase('drawing')}
             >
               <TerminalCorners />
@@ -448,7 +448,7 @@ export function MemorySketchScene() {
             </div>
           </div>
 
-          <button className="memory-sketch-scene__confirm" onClick={handleConfirm}>
+          <button className="cta cta--primary memory-sketch-scene__confirm" onClick={handleConfirm}>
             <TerminalCorners />
             기록 남기기
           </button>

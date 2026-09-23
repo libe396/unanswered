@@ -15,23 +15,57 @@
   align-items: center;
   justify-content: center;
   padding: clamp(20px, 5vh, 56px) clamp(20px, 6vw, 64px);
-  background: #050506;
+  background: var(--bg-base);
   text-align: center;
   box-sizing: border-box;
 }
 
+/*
+  Two scripts, two treatments. This was one run of 10px/0.32em uppercase
+  carrying both "REPORT 03" and a Korean subtitle — uppercase does nothing to
+  Korean and the 0.32em alone pulled it apart into loose characters.
+
+  The number itself is no longer written into each stage's markup: it is the
+  same `index` the counter at the bottom of the screen prints, so a session
+  that skips a stage (no return finding, no hesitation evidence — see
+  FinalReportScene's `stageKeys`) can no longer show "REPORT 03" above
+  "02 / 06".
+*/
 .report-stage__eyebrow {
   position: absolute;
   top: clamp(20px, 4vh, 40px);
   left: 50%;
   transform: translateX(-50%);
-  text-transform: uppercase;
-  letter-spacing: 0.32em;
-  font-size: 10px;
-  color: var(--color-text-dim);
-  opacity: 0.68;
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-8);
   margin: 0;
   white-space: nowrap;
+  color: var(--text-tertiary);
+}
+
+.report-stage__eyebrow-code {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+
+.report-stage__eyebrow-sep {
+  color: var(--text-tertiary);
+}
+
+.report-stage__eyebrow-title {
+  font-family: var(--font-kr);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-tertiary);
 }
 
 .report-stage__body {
@@ -44,11 +78,15 @@
   gap: clamp(12px, 2.2vh, 26px);
 }
 
+/* Korean — Label, no tracking. */
 .report-stage__kicker {
   margin: 0;
+  font-family: var(--font-kr);
   font-size: 12px;
-  letter-spacing: 0.14em;
-  color: var(--color-text-dim);
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--text-secondary);
 }
 
 .report-stage__lede {
@@ -73,34 +111,19 @@
   pointer-events: none;
 }
 
+/* Latin numerals, and the same value each stage's eyebrow now prints. */
 .report-stage-nav__index {
+  font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.26em;
-  color: var(--color-text-dim);
-  opacity: 0.55;
+  line-height: 1.4;
+  letter-spacing: 0.16em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
 }
 
+/* Placement only — appearance comes from .cta .cta--primary. */
 .report-stage-nav__cta {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 11px 24px;
-  background: rgba(8, 8, 10, 0.5);
-  border: 1px solid rgba(232, 230, 240, 0.4);
-  color: rgba(246, 244, 250, 0.95);
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  cursor: pointer;
   pointer-events: auto;
-  transition: border-color var(--duration-fast) ease, background var(--duration-fast) ease;
-}
-
-.report-stage-nav__cta:hover:not(:disabled) {
-  border-color: var(--color-accent);
-  background: rgba(201, 163, 255, 0.08);
 }
 
 .report-stage-nav__cta span:last-child {
@@ -109,11 +132,6 @@
 
 .report-stage-nav__cta:hover:not(:disabled) span:last-child {
   transform: translateX(3px);
-}
-
-.report-stage-nav__cta:focus-visible {
-  outline: 1px solid rgba(238, 236, 244, 0.7);
-  outline-offset: 5px;
 }
 
 .report-stage-nav__cta:disabled {

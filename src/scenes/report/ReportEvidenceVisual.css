@@ -129,8 +129,8 @@
 }
 
 .report-evidence-visual--hold .report-evidence-visual__frame {
-  border-color: rgba(201, 163, 255, 0.34);
-  box-shadow: 0 0 0 1px rgba(201, 163, 255, 0.06), 0 0 50px rgba(201, 163, 255, 0.08);
+  border-color: rgba(138, 107, 255, 0.34);
+  box-shadow: 0 0 0 1px rgba(164, 144, 255, 0.06), 0 0 50px rgba(164, 144, 255, 0.08);
 }
 
 .report-evidence-visual--converge {

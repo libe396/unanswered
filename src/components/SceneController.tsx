@@ -93,6 +93,7 @@ export function SceneController() {
       <AnimatePresence mode="wait">
         <motion.div
           key={currentScene}
+          className="scene-frame"
           initial="initial"
           animate="animate"
           exit="exit"
@@ -104,6 +105,9 @@ export function SceneController() {
       </AnimatePresence>
       <ZoneLabel />
       <BackButton />
+      {/* Above every Scene and below nothing. Static, decorative, never
+          interactive — see .grain-overlay in styles/global.css. */}
+      <div className="grain-overlay" aria-hidden="true" />
       <DevSceneNav />
       <DevSceneNavigator />
     </>

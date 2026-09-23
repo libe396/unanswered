@@ -119,7 +119,11 @@ export function ReportStage04MemoryReconstruction({ record, index, total, locked
 
   return (
     <div className="report-stage report-stage-04">
-      <p className="report-stage__eyebrow">REPORT 04 · 당신이 채운 빈자리</p>
+      <p className="report-stage__eyebrow">
+        <span className="report-stage__eyebrow-code">REPORT {String(index).padStart(2, '0')}</span>
+        <span className="report-stage__eyebrow-sep" aria-hidden="true">·</span>
+        <span className="report-stage__eyebrow-title">당신이 채운 빈자리</span>
+      </p>
 
       <div className="report-stage-04__room">
         <MemoryRoom

@@ -13,7 +13,7 @@
      touching the edge of a fixed box. */
   padding: clamp(56px, 10vh, 110px) clamp(18px, 5vw, 56px);
   box-sizing: border-box;
-  background: #050506;
+  background: var(--bg-base);
 }
 
 .final-record-layer__veil {
@@ -21,11 +21,13 @@
   inset: 0;
   z-index: 0;
   background:
-    radial-gradient(ellipse at 50% 42%, rgba(201, 163, 255, 0.08), rgba(0, 0, 0, 0) 48%),
-    linear-gradient(180deg, rgba(5, 5, 6, 0.42), #050506 72%);
+    radial-gradient(ellipse at 50% 42%, rgba(164, 144, 255, 0.08), rgba(0, 0, 0, 0) 48%),
+    linear-gradient(180deg, rgba(10, 7, 20, 0.42), var(--bg-base) 72%);
   pointer-events: none;
 }
 
+/* "RESPONSE RECORD" — Latin, so mono and tracking are fine. Colour rather
+   than an opacity on top of an already dim grey. */
 .final-record-layer__eyebrow {
   position: absolute;
   top: clamp(20px, 4vh, 40px);
@@ -33,11 +35,12 @@
   z-index: 2;
   margin: 0;
   transform: translateX(-50%);
-  text-transform: uppercase;
-  letter-spacing: 0.32em;
+  font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--color-text-dim);
-  opacity: 0.78;
+  line-height: 1.4;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
   white-space: nowrap;
 }
 
@@ -59,27 +62,18 @@
 }
 
 .final-record-layer__index {
+  font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.26em;
-  color: var(--color-text-dim);
-  opacity: 0.55;
-}
-
-.final-record-layer__button {
-  padding: 10px 20px;
-  border: 1px solid rgba(232, 230, 240, 0.16);
-  background: transparent;
-  color: var(--color-text-dim);
-  font-size: 11px;
+  line-height: 1.4;
   letter-spacing: 0.16em;
-  cursor: pointer;
-  transition: border-color var(--duration-fast) ease, color var(--duration-fast) ease;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
 }
 
-.final-record-layer__button:hover {
-  border-color: rgba(232, 230, 240, 0.32);
-  color: var(--color-text);
-}
+/* Restart is a secondary action on the way out, so it is the Text CTA.
+   A boxed button here competed with "전체 조사 기록 발급하기" inside the
+   receipt above it, which is the one thing on this screen worth pressing.
+   Appearance comes from .cta .cta--text — nothing to declare. */
 
 @media (max-width: 640px) {
   .final-record-layer__narrative {

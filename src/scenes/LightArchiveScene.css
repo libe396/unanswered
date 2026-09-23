@@ -1,8 +1,12 @@
 .light-archive-scene {
   position: relative;
   width: 100%;
-  min-height: 100dvh;
-  background: #050506;
+  /* Bounded rather than min-height: the page no longer scrolls (see
+     `.scene-frame`), so this Scene's own overflow-y is what has to catch a
+     tall browse grid on a short viewport. */
+  height: 100%;
+  min-height: 100%;
+  background: var(--bg-base);
   overflow-x: hidden;
   overflow-y: auto;
   display: flex;
@@ -74,35 +78,11 @@
   background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
 }
 
-.light-archive-scene__proceed,
-.light-archive-scene__confirm {
-  position: relative;
-  padding: 14px 32px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: var(--color-text);
-  font-size: 11px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: border-color var(--duration-fast) ease, background var(--duration-fast) ease;
-}
-
-.light-archive-scene__proceed:hover:not(:disabled),
-.light-archive-scene__confirm:hover {
-  border-color: var(--color-accent);
-  background: rgba(201, 163, 255, 0.06);
-}
-
-.light-archive-scene__proceed:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
+/* Placement only — appearance comes from .cta .cta--primary. */
 .light-archive-scene__confirm {
   position: absolute;
-  bottom: 40px;
-  right: 40px;
+  bottom: var(--sp-40);
+  right: var(--sp-40);
   z-index: 2;
 }
 
@@ -162,7 +142,7 @@
 .light-archive-scene__keyword--selected {
   border-color: var(--color-accent);
   color: var(--color-text);
-  background: rgba(201, 163, 255, 0.08);
+  background: rgba(138, 107, 255, 0.08);
 }
 
 .light-archive-scene__reading {
@@ -262,7 +242,7 @@
   background: linear-gradient(
     to bottom,
     transparent 0%,
-    rgba(201, 163, 255, 0.16) 48%,
+    rgba(138, 107, 255, 0.16) 48%,
     transparent 100%
   );
   background-size: 100% 240%;
@@ -418,7 +398,7 @@
 .light-archive-scene__brightness-meter span {
   display: block;
   height: 100%;
-  background: rgba(201, 163, 255, 0.62);
+  background: rgba(138, 107, 255, 0.62);
   transition: width 0.6s var(--ease-scene);
 }
 
@@ -525,7 +505,7 @@
 
 .light-archive-scene__analysis-complete button:hover:not(:disabled) {
   border-color: rgba(var(--color-signal-rgb), 0.58);
-  background: rgba(201, 163, 255, 0.055);
+  background: rgba(138, 107, 255, 0.055);
   color: var(--color-text);
 }
 

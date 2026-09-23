@@ -4,7 +4,7 @@
   height: 100dvh;
   max-height: 100dvh;
   overflow: hidden;
-  background: #050506;
+  background: var(--bg-base);
 }
 
 /* The cinematic stages (01–06) are deliberately no-scroll, one viewport per
@@ -15,9 +15,13 @@
    that stage is active (see FinalReportScene.tsx's `activeKey` check), so
    every other stage keeps the fixed-viewport behavior unchanged. */
 .final-report-scene--scrollable {
-  height: auto;
-  min-height: 100dvh;
-  max-height: none;
+  /* Scrolls inside itself rather than scrolling the page: `.scene-frame`
+     clips at the viewport (styles/global.css), so an `auto` height here
+     would push this stage's overflow out of reach instead of into a
+     scrollbar. */
+  height: 100%;
+  min-height: 100%;
+  max-height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -51,7 +55,7 @@
 
 .final-report-scene__save-btn:hover {
   border-color: var(--color-accent);
-  background: rgba(201, 163, 255, 0.06);
+  background: rgba(138, 107, 255, 0.06);
 }
 
 .final-report-scene__save-btn--ghost {

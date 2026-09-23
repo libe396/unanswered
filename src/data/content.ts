@@ -273,7 +273,7 @@ export const MEMORY_ROOM_OBJECTS: MemoryRoomObject[] = [
   { id: 'cup', label: '컵' },
   { id: 'chair', label: '의자' },
   { id: 'bag', label: '가방' },
-  { id: 'bedside', label: '침대 위의 작은 물건' },
+  { id: 'bedside', label: '책상 아래 쌓인 물건' },
 ];
 
 /**

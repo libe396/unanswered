@@ -65,7 +65,11 @@ export function ReportStage02BehaviorTrace({ finding, record, report, index, tot
 
   return (
     <div className="report-stage report-stage-02">
-      <p className="report-stage__eyebrow">REPORT 02 · 다시 돌아본 것</p>
+      <p className="report-stage__eyebrow">
+        <span className="report-stage__eyebrow-code">REPORT {String(index).padStart(2, '0')}</span>
+        <span className="report-stage__eyebrow-sep" aria-hidden="true">·</span>
+        <span className="report-stage__eyebrow-title">다시 돌아본 것</span>
+      </p>
 
       <div className="report-stage__body report-stage-02__body">
         <AnimatePresence mode="wait">

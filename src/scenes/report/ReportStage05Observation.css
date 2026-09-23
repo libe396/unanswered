@@ -1,5 +1,5 @@
+/* Tracking now lives on .report-stage__eyebrow-code / -title. */
 .report-stage-05__label {
-  letter-spacing: 0.28em;
   color: var(--color-text-dim);
 }
 
@@ -32,12 +32,12 @@
   place-items: center;
   border: 1px solid rgba(232, 230, 240, 0.22);
   background: rgba(5, 5, 6, 0.7);
-  box-shadow: 0 0 70px rgba(201, 163, 255, 0.09);
+  box-shadow: 0 0 70px rgba(164, 144, 255, 0.09);
 }
 
 .report-stage-05__record-core span {
   position: absolute;
-  border: 1px solid rgba(201, 163, 255, 0.24);
+  border: 1px solid rgba(138, 107, 255, 0.24);
 }
 
 .report-stage-05__record-core span:nth-child(1) {

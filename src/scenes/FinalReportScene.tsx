@@ -189,7 +189,9 @@ export function FinalReportScene() {
 
   return (
     <div
-      className={`final-report-scene${activeKey === 'archive' ? ' final-report-scene--scrollable' : ''}`}
+      className={`final-report-scene${
+        activeKey === 'archive' ? ' final-report-scene--scrollable scroll-quiet' : ''
+      }`}
     >
 
       <AnimatePresence mode="wait" onExitComplete={() => setLocked(false)}>

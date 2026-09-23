@@ -70,7 +70,11 @@ export function ReportStage05Observation({ record, report, findings, index, tota
 
   return (
     <div className="report-stage report-stage-05">
-      <p className="report-stage__eyebrow report-stage-05__label">REPORT 05 · 수렴</p>
+      <p className="report-stage__eyebrow report-stage-05__label">
+        <span className="report-stage__eyebrow-code">REPORT {String(index).padStart(2, '0')}</span>
+        <span className="report-stage__eyebrow-sep" aria-hidden="true">·</span>
+        <span className="report-stage__eyebrow-title">수렴</span>
+      </p>
 
       <div className="report-stage-05__composition" aria-hidden="true">
         {TRACE_LAYOUT.map((trace) => (

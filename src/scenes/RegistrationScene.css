@@ -1,14 +1,17 @@
 .registration-scene {
   position: relative;
   width: 100%;
-  min-height: 100dvh;
+  height: 100%;
+  min-height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #060608;
+  background: var(--bg-base);
   overflow: hidden;
 }
 
+/* The two existing 90px blurs, retinted to the TRACE ramp. No blur is added
+   anywhere else in this Scene — these are the only two. */
 .registration-scene__glow {
   position: absolute;
   border-radius: 50%;
@@ -21,7 +24,7 @@
   height: 420px;
   top: -10%;
   left: -8%;
-  background: radial-gradient(circle, rgba(120, 150, 255, 0.16), transparent 70%);
+  background: radial-gradient(circle, rgba(91, 65, 196, 0.22), transparent 70%);
 }
 
 .registration-scene__glow--b {
@@ -29,7 +32,7 @@
   height: 360px;
   bottom: -14%;
   right: -6%;
-  background: radial-gradient(circle, rgba(201, 163, 255, 0.14), transparent 70%);
+  background: radial-gradient(circle, rgba(138, 107, 255, 0.16), transparent 70%);
 }
 
 .registration-scene__vignette {
@@ -39,100 +42,179 @@
   pointer-events: none;
 }
 
+/*
+  Kiosk panel. One frame, not two: the outer 1px border is gone and
+  TerminalCorners is the only thing marking the edge, which is also what
+  stops the corner marks reading as decoration sitting on top of a box.
+*/
 .registration-scene__panel {
   position: relative;
   z-index: 1;
-  width: min(420px, 82vw);
-  padding: 48px 40px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
-  backdrop-filter: blur(6px);
+  width: min(400px, 88vw);
+  padding: var(--sp-32);
+  border: none;
+  border-radius: var(--r-0);
+  background: var(--bg-elevated);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 28px;
-  text-align: center;
+  text-align: left;
 }
 
-.registration-scene__label {
-  font-size: 11px;
-  letter-spacing: 0.4em;
-  text-transform: uppercase;
-  color: var(--color-text-dim);
-  margin: 0;
+/* Frame, not accent: violet here would compete with the Primary CTA below,
+   which is the one thing in this Scene the visitor is meant to act on. */
+.registration-scene__panel .terminal-corner {
+  border-color: var(--line-strong);
 }
 
 .registration-scene__form {
-  width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 24px;
 }
 
+/* ── Before input ─────────────────────────────────────────────────────────
+   REGISTRATION (16) title (8) description (32) field (24) CTA */
+
+.registration-scene__eyebrow {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--trace);
+}
+
+.registration-scene__title {
+  margin: var(--sp-16) 0 0;
+  font-family: var(--font-kr);
+  font-size: 24px;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.registration-scene__description {
+  margin: var(--sp-8) 0 0;
+  font-family: var(--font-kr);
+  font-size: 13px;
+  line-height: 1.6;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--text-secondary);
+}
+
+.registration-scene__field {
+  margin-top: var(--sp-32);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+}
+
+.registration-scene__field-label {
+  font-family: var(--font-kr);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--text-secondary);
+}
+
+/*
+  KIOSK FIELD. A single box — the old input was an underline inside a panel
+  that also had its own border, so the field read as a line floating in a
+  rectangle rather than as something to type into.
+*/
 .registration-scene__input {
   width: 100%;
-  padding: 10px 4px;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.24);
-  color: var(--color-text);
+  height: 48px;
+  padding: 0 var(--sp-16);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-4);
+  background: var(--surface-1);
+  color: var(--text-primary);
+  /* 16px is the iOS zoom floor as well as the Body size — anything smaller
+     makes Safari zoom the whole Scene on focus. */
   font-size: 16px;
-  text-align: center;
-  letter-spacing: 0.05em;
+  letter-spacing: -0.01em;
+  transition: border-color var(--duration-fast) ease;
+}
+
+.registration-scene__input::placeholder {
+  color: var(--text-tertiary);
 }
 
 .registration-scene__input:focus {
   outline: none;
-  border-bottom-color: var(--color-accent);
-}
-
-.registration-scene__input::placeholder {
-  color: var(--color-text-dim);
-  opacity: 0.6;
+  border-color: var(--trace);
+  caret-color: var(--trace);
 }
 
 .registration-scene__submit {
-  padding: 12px 32px;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: var(--color-text);
-  font-size: 11px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: border-color var(--duration-fast) ease, background var(--duration-fast) ease;
+  width: 100%;
+  margin-top: var(--sp-24);
 }
 
-.registration-scene__submit:hover:not(:disabled) {
-  border-color: var(--color-accent);
-  background: rgba(201, 163, 255, 0.06);
-}
-
-.registration-scene__submit:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
+/* ── After issue ──────────────────────────────────────────────────────────
+   REPORT ID (12) the id (16) confirmation */
 
 .registration-scene__issuing {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  text-align: center;
 }
 
-.registration-scene__issuing-label {
+.registration-scene__issued-label {
+  margin: 0;
+  font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.3em;
+  line-height: 1.4;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-text-dim);
-  margin: 0;
+  color: var(--text-tertiary);
 }
 
+/*
+  The climax of the Scene. Mono and tabular so the characters sit on a fixed
+  grid: the id arrives one glyph at a time (see RegistrationScene.tsx), and
+  in a proportional face each arrival re-measured the line and nudged every
+  character already on screen.
+
+  `min-width` holds the box at the id's full width — RPT- plus five
+  characters, 9ch, plus the 0.08em of tracking each one carries — so the
+  block is the same size before, during and after the reveal, and an empty
+  id can never collapse it.
+*/
 .registration-scene__issued-id {
-  font-size: 26px;
-  letter-spacing: 0.15em;
-  color: var(--color-accent);
-  margin: 0;
+  margin: var(--sp-12) 0 0;
   display: flex;
+  justify-content: center;
+  min-width: calc(9ch + 9 * 0.08em);
+  font-family: var(--font-mono);
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  color: var(--trace);
+}
+
+.registration-scene__issued-note {
+  margin: var(--sp-16) 0 0;
+  font-family: var(--font-kr);
+  font-size: 13px;
+  line-height: 1.6;
+  letter-spacing: 0;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 640px) {
+  .registration-scene__panel {
+    padding: var(--sp-24);
+  }
+
+  .registration-scene__issued-id {
+    font-size: 26px;
+  }
 }

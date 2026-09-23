@@ -48,7 +48,8 @@ export function ZoneIntroCard({ zone, title, subtitle, ctaLabel, onContinue }: Z
         {subtitle}
       </motion.p>
       <motion.button
-        className="zone-intro-card__cta"
+        type="button"
+        className="cta cta--primary zone-intro-card__cta"
         onClick={onContinue}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

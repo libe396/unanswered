@@ -83,7 +83,11 @@ export function ReportStage06SubjectReveal({ index, total, locked, onAdvance }: 
 
   return (
     <div className="report-stage report-stage-06">
-      <p className="report-stage__eyebrow report-stage-06__eyebrow">REPORT 06 · SUBJECT REVEAL</p>
+      <p className="report-stage__eyebrow report-stage-06__eyebrow">
+        <span className="report-stage__eyebrow-code">REPORT {String(index).padStart(2, '0')}</span>
+        <span className="report-stage__eyebrow-sep" aria-hidden="true">·</span>
+        <span className="report-stage__eyebrow-code">SUBJECT REVEAL</span>
+      </p>
 
       <div className="report-stage-06__frame">
         <AnimatePresence mode="wait">

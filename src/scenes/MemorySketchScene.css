@@ -1,8 +1,9 @@
 .memory-sketch-scene {
   position: relative;
   width: 100%;
-  min-height: 100dvh;
-  background: #050506;
+  height: 100%;
+  min-height: 100%;
+  background: var(--bg-base);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -121,35 +122,17 @@
 }
 
 .memory-sketch-scene__confirm {
-  position: relative;
+  /* Placement only — appearance comes from .cta .cta--primary. */
   z-index: 1;
-  margin-top: 4px;
-  padding: 14px 32px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: var(--color-text);
-  font-size: 11px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: border-color var(--duration-fast) ease, background var(--duration-fast) ease;
-}
-
-.memory-sketch-scene__confirm:hover:not(:disabled) {
-  border-color: var(--color-accent);
-  background: rgba(201, 163, 255, 0.06);
+  margin-top: var(--sp-4);
 }
 
 /*
-  Previously missing entirely — a disabled NEXT looked pixel-identical to an
-  enabled one, so a visitor under MEMORY_MIN_OBJECT_SELECTION had no way to
-  tell a click was ever going to do nothing. This is the same treatment
-  .memory-sketch-scene__mini-btn:disabled already uses.
+  A disabled NEXT used to look pixel-identical to an enabled one, so a visitor
+  under MEMORY_MIN_OBJECT_SELECTION had no way to tell a click was ever going
+  to do nothing. That now comes from the shared `.cta:disabled` rule (0.35,
+  border kept, not-allowed), so there is nothing to declare here.
 */
-.memory-sketch-scene__confirm:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
 
 .memory-sketch-scene__modal-veil {
   position: fixed;

@@ -30,10 +30,10 @@
   width: 1px;
   background: linear-gradient(
     180deg,
-    rgba(201, 163, 255, 0),
-    rgba(201, 163, 255, 0.46) 18%,
+    rgba(138, 107, 255, 0),
+    rgba(138, 107, 255, 0.46) 18%,
     rgba(159, 178, 242, 0.44) 82%,
-    rgba(201, 163, 255, 0)
+    rgba(138, 107, 255, 0)
   );
   transform-origin: top;
 }
@@ -42,26 +42,39 @@
   position: relative;
   display: grid;
   grid-template-columns: clamp(72px, 15vw, 126px) 18px minmax(0, 1fr);
-  align-items: center;
+  /* start, so the label and the node both sit on the row's first line. */
+  align-items: start;
   gap: clamp(10px, 2vw, 18px);
   min-height: clamp(62px, 10dvh, 94px);
   text-align: left;
 }
 
+/*
+  Aligned to the first line of the block it labels, not to that block's
+  vertical centre — a label next to a two-line sentence used to float halfway
+  down it. 5px is the offset between a 10px/1.4 label's baseline and the
+  first baseline of 16px/1.45 content.
+*/
 .report-stage-01__trace-label {
   justify-self: end;
+  padding-top: 5px;
+  font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.28em;
-  color: rgba(232, 230, 240, 0.48);
+  line-height: 1.4;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
 }
 
 .report-stage-01__node {
+  /* Keeps the dot on the first line now that the row aligns to start. */
+  margin-top: 6px;
   width: 10px;
   height: 10px;
   border-radius: 999px;
-  border: 1px solid rgba(232, 230, 240, 0.7);
-  background: #050506;
-  box-shadow: 0 0 16px rgba(201, 163, 255, 0.28);
+  border: 1px solid var(--line-strong);
+  background: var(--bg-base);
+  box-shadow: 0 0 16px rgba(164, 144, 255, 0.28);
 }
 
 .report-stage-01__trace-visual {
@@ -69,8 +82,11 @@
   width: clamp(72px, 10vw, 94px);
   aspect-ratio: 1;
   overflow: hidden;
-  border: 1px solid rgba(232, 230, 240, 0.14);
-  background: #000;
+  border: 1px solid var(--line-subtle);
+  /* Deliberately --bg-void rather than --bg-base: this box backs a canvas of
+     the visitor's own extracted colour, and the base ground's violet cast
+     would tint it. */
+  background: var(--bg-void);
 }
 
 .report-stage-01__light-canvas,
@@ -91,12 +107,21 @@
   opacity: 0.84;
 }
 
+/*
+  Sits under the preview it counts. The -8px it used to carry pulled it back
+  up into the block above, which is why "1 STROKES" printed on top of its
+  neighbour.
+*/
 .report-stage-01__tag {
   grid-column: 3;
-  margin-top: -8px;
+  margin-top: var(--sp-8);
+  font-family: var(--font-mono);
   font-size: 10px;
+  line-height: 1.4;
   letter-spacing: 0.16em;
-  color: rgba(232, 230, 240, 0.48);
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
 }
 
 .report-stage-01__sound-label {

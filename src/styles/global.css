@@ -9,73 +9,261 @@ body,
   margin: 0;
 }
 
+/*
+  Scene transitions animate `scale` and `filter: blur()` on the Scene wrapper,
+  which briefly pushes painted pixels past the viewport and used to flash a
+  horizontal and vertical scrollbar on every Scene change. The page itself is
+  never the scroll container in this exhibition — any Scene that needs to
+  scroll does it inside its own box (see `.scene-frame` below, and
+  `.final-report-scene--scrollable` / `.light-archive-scene` /
+  `.sentence-clues-scene__wall`).
+*/
+html,
 body {
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-base);
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-kr);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-button {
-  font-family: inherit;
+/*
+  Form controls do not inherit type by default, which is why inputs and
+  buttons were still rendering in the UA's own font (Arial on most machines)
+  after the webfonts landed. One rule fixes every control in the project.
+*/
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  letter-spacing: inherit;
 }
 
-.scene {
+/* ── Scene frame ──────────────────────────────────────────────────────────
+   The box AnimatePresence swaps on every Scene change (see SceneController).
+   `overflow: clip` contains the transition's blur/scale bleed without
+   creating a scroll container of its own. */
+.scene-frame {
   position: relative;
   width: 100%;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  height: 100%;
+  overflow: clip;
+}
+
+/* ── Typography ───────────────────────────────────────────────────────────
+   Web scale, not the Figma board's presentation scale. Three families, each
+   with one job:
+     Pretendard  — Korean, all prose, long English
+     Bebas Neue  — short English identity marks (ZONE, eyebrow, big numbers)
+     IBM Plex Mono — values the system produced (IDs, hex, coords, counters)
+
+   The one rule that keeps Korean readable: wide tracking and uppercase are
+   Latin-only. Korean never goes past -0.02em..0em. */
+
+.t-display {
+  font-family: var(--font-kr);
+  font-size: 32px;
+  line-height: 1.35;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.t-h1 {
+  font-family: var(--font-kr);
+  font-size: 24px;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.t-h2 {
+  font-family: var(--font-kr);
+  font-size: 18px;
+  line-height: 1.5;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.t-body {
+  font-family: var(--font-kr);
+  font-size: 15px;
+  line-height: 1.7;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.t-body-sm {
+  font-family: var(--font-kr);
+  font-size: 13px;
+  line-height: 1.6;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.t-label {
+  font-family: var(--font-kr);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+/* Bebas has no lowercase and its glyphs are already caps, so it never needs
+   text-transform. Below 13px it collapses into an unreadable smear — that
+   floor is a hard rule, not a preference. */
+.t-eyebrow {
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+.t-number {
+  font-family: var(--font-display);
+  font-size: 48px;
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.t-caption {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+.t-micro {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.4;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── CTA system ───────────────────────────────────────────────────────────
+   Three buttons, mapped onto the BX state model:
+     IDLE   → rest
+     DWELL  → hover (the glow, before anything is committed)
+     SELECT → focus-visible
+     DRAW   → active (the fill lands; the visitor has made the mark)
+
+   One Primary per screen. Everything else is Secondary or Text. */
+
+.cta {
+  position: relative;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-md);
-  padding: var(--space-lg);
-  text-align: center;
-}
-
-.scene__title {
-  font-size: 28px;
+  gap: var(--sp-8);
+  height: 48px;
+  padding: 0 var(--sp-24);
+  border-radius: var(--r-0);
+  font-family: var(--font-kr);
+  font-size: 13px;
   font-weight: 500;
-  letter-spacing: -0.02em;
-  color: var(--color-text);
-}
-
-.scene__subtitle {
-  font-size: 15px;
-  color: var(--color-text-dim);
-  max-width: 480px;
-  line-height: 1.6;
-}
-
-.scene__button {
-  padding: 14px 32px;
-  border-radius: 999px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface-raised);
-  color: var(--color-text);
-  font-size: 15px;
+  letter-spacing: 0.02em;
   cursor: pointer;
-  transition: border-color var(--duration-fast) ease, transform var(--duration-fast) ease;
+  transition: background var(--duration-fast) ease, border-color var(--duration-fast) ease,
+    color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
 }
 
-.scene__button:hover {
-  border-color: var(--color-accent);
+.cta__arrow {
+  display: inline-block;
+  transition: transform var(--duration-fast) ease;
 }
 
-.scene__button:disabled {
+.cta:hover:not(:disabled) .cta__arrow,
+.cta:focus-visible .cta__arrow {
+  transform: translateX(3px);
+}
+
+/* Primary — IDLE */
+.cta--primary {
+  border: 1px solid var(--trace);
+  background: var(--trace-wash);
+  color: var(--text-primary);
+}
+
+/* DWELL */
+.cta--primary:hover:not(:disabled) {
+  box-shadow: 0 0 24px var(--trace-glow);
+}
+
+/* DRAW — the fill lands. Text flips to --trace-ink; white on --trace is
+   3.28:1 and is never used. */
+.cta--primary:active:not(:disabled) {
+  background: var(--trace);
+  color: var(--trace-ink);
+}
+
+.cta--secondary {
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.cta--secondary:hover:not(:disabled) {
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
+/* SELECT */
+.cta:focus-visible {
+  outline: 1px solid var(--trace);
+  outline-offset: 3px;
+}
+
+/*
+  Disabled reads at roughly 35% while keeping its border, so the control is
+  still visibly a button that is not yet available — rather than dissolving
+  into the background and leaving the visitor with nothing to aim at.
+*/
+.cta:disabled {
   opacity: 0.35;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
-.scene__button:active:not(:disabled) {
-  transform: scale(0.97);
+/* Text CTA — InvestigationStartScene's underline control, generalised.
+   Secondary actions only: skip, restart, back. */
+.cta--text {
+  height: auto;
+  padding: var(--sp-4) 2px var(--sp-8);
+  gap: 0.65em;
+  border: none;
+  border-bottom: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
 }
+
+.cta--text:hover:not(:disabled),
+.cta--text:focus-visible {
+  color: var(--text-primary);
+  border-bottom-color: var(--text-primary);
+}
+
+/* ── TerminalCorners ─────────────────────────────────────────────────────── */
 
 .terminal-corner {
   position: absolute;
   width: 10px;
   height: 10px;
-  border: 1px solid var(--color-accent);
+  border: 1px solid var(--trace);
   pointer-events: none;
 }
 
@@ -102,6 +290,54 @@ button {
   right: -1px;
   border-width: 0 1px 1px 0;
 }
+
+/* ── Scrollbars ───────────────────────────────────────────────────────────
+   Opt-in, per container. The default white scrollbar is the single loudest
+   non-designed element on a dark screen. */
+
+.scroll-quiet {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+.scroll-quiet::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.scroll-quiet::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-quiet::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: var(--r-4);
+}
+
+/* ── Grain ────────────────────────────────────────────────────────────────
+   A single static film grain over everything. Pure gradients on a very dark
+   screen band badly, and that banding is most of what reads as "unfinished".
+   soft-light at 3% adds tooth without lifting the blacks. Never animated —
+   a moving grain is a different, much louder effect. */
+
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.03;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+@media print {
+  .grain-overlay {
+    display: none;
+  }
+}
+
+/* ── Misc ─────────────────────────────────────────────────────────────────── */
 
 @keyframes blink {
   0%,
@@ -131,8 +367,15 @@ button {
 }
 
 @media print {
+  html,
   body {
+    overflow: visible;
     background: #fff;
     color: #000;
+  }
+
+  .scene-frame {
+    overflow: visible;
+    height: auto;
   }
 }

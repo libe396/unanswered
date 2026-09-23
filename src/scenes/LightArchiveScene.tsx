@@ -323,7 +323,7 @@ export function LightArchiveScene() {
   }
 
   return (
-    <div className="light-archive-scene">
+    <div className="light-archive-scene scroll-quiet">
       {phase === 'browse' ? (
         <div className="light-archive-scene__browse">
           <p className="light-archive-scene__hint">그 사람이 남긴 흔적의 이미지를 선택하세요</p>
@@ -358,7 +358,7 @@ export function LightArchiveScene() {
             ))}
           </div>
           <button
-            className="light-archive-scene__proceed"
+            className="cta cta--primary light-archive-scene__proceed"
             onClick={() => {
               tracking.commit('image');
               tracking.openGroup('emotion');
@@ -392,7 +392,7 @@ export function LightArchiveScene() {
               ))}
             </div>
             <button
-              className="light-archive-scene__proceed"
+              className="cta cta--primary light-archive-scene__proceed"
               onClick={startAnalysis}
               disabled={selectedKeywords.length === 0}
             >
@@ -518,7 +518,7 @@ export function LightArchiveScene() {
 
       {phase === 'projecting' ? (
         <motion.button
-          className="light-archive-scene__confirm"
+          className="cta cta--primary light-archive-scene__confirm"
           onClick={handleConfirm}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

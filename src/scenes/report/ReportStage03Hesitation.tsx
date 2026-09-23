@@ -75,7 +75,11 @@ export function ReportStage03Hesitation({ finding, record, report, index, total,
 
   return (
     <div className="report-stage report-stage-03">
-      <p className="report-stage__eyebrow">REPORT 03 · 머문 순간</p>
+      <p className="report-stage__eyebrow">
+        <span className="report-stage__eyebrow-code">REPORT {String(index).padStart(2, '0')}</span>
+        <span className="report-stage__eyebrow-sep" aria-hidden="true">·</span>
+        <span className="report-stage__eyebrow-title">머문 순간</span>
+      </p>
 
       <div className="report-stage__body report-stage-03__body">
         <AnimatePresence mode="wait">

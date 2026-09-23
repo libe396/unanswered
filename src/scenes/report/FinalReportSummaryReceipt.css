@@ -10,7 +10,7 @@
 .summary-receipt {
   --receipt-ink: var(--color-text);
   --receipt-ink-dim: var(--color-text-dim);
-  --receipt-line: rgba(201, 163, 255, 0.14);
+  --receipt-line: rgba(138, 107, 255, 0.14);
   --receipt-accent: var(--color-accent);
   --receipt-surface: rgba(255, 255, 255, 0.025);
   --receipt-surface-line: rgba(255, 255, 255, 0.08);
@@ -224,7 +224,7 @@
 }
 
 .summary-receipt__issue-btn:hover {
-  background: rgba(201, 163, 255, 0.1);
+  background: rgba(138, 107, 255, 0.1);
   border-color: var(--receipt-accent);
   color: var(--receipt-ink);
 }

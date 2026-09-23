@@ -3,7 +3,7 @@
   width: 100%;
   min-height: 100dvh;
   overflow: hidden;
-  background: #050506;
+  background: var(--bg-base);
 }
 
 .record-layer-second-visit__record-veil {
@@ -220,42 +220,58 @@
   opacity: 0.28;
 }
 
+/*
+  Sits below BackButton rather than underneath it. Both were pinned at
+  top/left 28px, so the investigator name and REPORT ID printed straight
+  through "BACK / 이전 기록으로".
+
+  88px = BackButton's own 28px offset plus its two stacked lines and the
+  gap between them, plus 24px of clearance. BackButton itself is untouched.
+*/
 .record-layer-second-visit__meta {
   position: absolute;
   z-index: 2;
-  top: 28px;
+  top: 88px;
   left: 28px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 11px;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--color-text-dim);
-  opacity: 0.6;
+  gap: var(--sp-4);
+  color: var(--text-tertiary);
   transition: opacity 720ms ease;
 }
 
-.record-layer-second-visit__confirm {
-  position: relative;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 56px;
-  min-width: 142px;
-  padding: 13px 26px;
-  background: rgba(8, 8, 10, 0.56);
-  border: 1px solid rgba(232, 230, 240, 0.52);
-  color: rgba(246, 244, 250, 0.98);
-  font-size: 11px;
-  letter-spacing: 0.22em;
+/* The name is Korean — no uppercase, no tracking. */
+.record-layer-second-visit__meta-name {
+  font-family: var(--font-kr);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--text-secondary);
+}
+
+/* The id is a value the system issued — mono, like everywhere else it appears. */
+.record-layer-second-visit__meta-id {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+
+.record-layer-second-visit__confirm {
+  /* Placement only — appearance comes from .cta .cta--primary. The long
+     opacity/transform transition stays: it is this Scene's reveal, not the
+     button's own hover. */
+  z-index: 1;
+  margin-top: var(--sp-48);
+  min-width: 142px;
   pointer-events: auto;
-  transition: border-color var(--duration-fast) ease, background var(--duration-fast) ease,
-    color var(--duration-fast) ease, opacity 720ms ease, transform 720ms ease;
+  transition: background var(--duration-fast) ease, border-color var(--duration-fast) ease,
+    color var(--duration-fast) ease, box-shadow var(--duration-fast) ease, opacity 720ms ease,
+    transform 720ms ease;
 }
 
 .record-layer-second-visit__confirm span:last-child {

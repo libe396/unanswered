@@ -3,7 +3,7 @@
   width: 100%;
   min-height: 100dvh;
   overflow: hidden;
-  background: #030303;
+  background: var(--bg-void);
 }
 
 /*
@@ -183,22 +183,45 @@
     rgba(230, 210, 255, 0.5) 80%,
     transparent 100%
   );
-  box-shadow: 0 0 40px 6px rgba(201, 163, 255, 0.25);
+  box-shadow: 0 0 40px 6px var(--trace-glow);
+  /*
+    The line breaks around the readout instead of running behind it. The
+    departure CTA used to sit dead centre, directly on top of this seam, with
+    the two fighting for the same pixels.
+
+    Measured against .intro-scene__readout: the block is ~149px tall (caption
+    15 + 12 + line 34 + 40 + slot 48) and vertically centred, so ±75px, plus
+    the 32px of clearance the block is meant to keep — ±107px clear, fading
+    out over the 40px on either side of that. A second wrapped status line
+    still lands inside the cleared band.
+
+    A mask, not an opacity or height change, so none of the seam's own
+    transitions (width, box-shadow, opacity) are touched.
+  */
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0,
+    #000 calc(50% - 147px),
+    transparent calc(50% - 107px),
+    transparent calc(50% + 107px),
+    #000 calc(50% + 147px),
+    #000 100%
+  );
   transition: width 1.1s var(--ease-scene), box-shadow 1.1s var(--ease-scene),
     background 1.1s var(--ease-scene), opacity 1.1s var(--ease-scene);
   pointer-events: none;
 }
 
 .intro-scene--open .intro-scene__seam {
-  box-shadow: 0 0 58px 9px rgba(201, 163, 255, 0.22);
+  box-shadow: 0 0 58px 9px rgba(138, 107, 255, 0.22);
 }
 
 .intro-scene--moving .intro-scene__seam {
-  box-shadow: 0 0 35px 5px rgba(201, 163, 255, 0.18);
+  box-shadow: 0 0 35px 5px rgba(138, 107, 255, 0.18);
 }
 
 .intro-scene--arrived .intro-scene__seam {
-  box-shadow: 0 0 70px 10px rgba(232, 230, 240, 0.24);
+  box-shadow: 0 0 70px 10px rgba(242, 238, 255, 0.24);
 }
 
 .intro-scene__vignette {
@@ -218,16 +241,20 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: var(--sp-4);
 }
 
+/* Bebas, at the Number step of the scale — a car's floor readout, not a
+   22px run of body text. Tabular so 3F and B1 occupy the same box and the
+   flicker on arrival does not also shift the glyph. */
 .intro-scene__led-floor {
-  font-family: var(--font-base);
+  font-family: var(--font-display);
   font-variant-numeric: tabular-nums;
-  font-size: 22px;
-  letter-spacing: 0.1em;
-  color: rgba(232, 230, 240, 0.75);
-  text-shadow: 0 0 12px rgba(201, 163, 255, 0.4);
+  font-size: 48px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+  text-shadow: 0 0 18px var(--trace-glow);
 }
 
 .intro-scene__led-floor--flicker {
@@ -235,8 +262,8 @@
 }
 
 .intro-scene--arrived .intro-scene__led-floor {
-  color: rgba(245, 244, 250, 0.84);
-  text-shadow: 0 0 16px rgba(232, 230, 240, 0.44);
+  color: var(--text-primary);
+  text-shadow: 0 0 20px rgba(242, 238, 255, 0.4);
 }
 
 @keyframes intro-led-flicker {
@@ -249,82 +276,73 @@
   }
 }
 
+/* Names the number above it. Latin only, so mono + tracking is fine here. */
 .intro-scene__led-caption {
-  font-size: 9px;
-  letter-spacing: 0.35em;
-  text-transform: uppercase;
-  color: var(--color-text-dim);
-}
-
-.intro-scene__status {
-  position: absolute;
-  bottom: 17%;
-  left: 50%;
-  z-index: 5;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  min-width: 260px;
-}
-
-.intro-scene__status-label {
+  font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.4em;
+  line-height: 1.4;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--text-tertiary);
 }
 
-.intro-scene__status-line {
-  display: block;
-  font-size: 13px;
-  color: var(--color-text-dim);
-  letter-spacing: 0.03em;
-}
-
-/* The elevator's one interaction: departs via handleApprove. Text-only by
-   design — no fill, no card, no glow — so it reads as part of the space
-   rather than as a UI control dropped on top of it. */
-.intro-scene__depart {
+/*
+  The readout and the Scene's one action, as a single centred block. The
+  status line used to sit near the bottom at 13px while the CTA floated at
+  dead centre on top of the light seam; both are here now, and the seam is
+  masked to open around this block (see .intro-scene__seam).
+*/
+.intro-scene__readout {
   position: absolute;
   top: 50%;
   left: 50%;
-  translate: -50% -50%;
   z-index: 5;
-  display: inline-flex;
+  translate: -50% -50%;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.6em;
-  padding: 10px 14px;
-  border: none;
-  background: transparent;
-  color: var(--color-text-dim);
-  font-family: var(--font-base);
-  font-size: 13px;
-  letter-spacing: 0.16em;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.72), 0 0 10px rgba(0, 0, 0, 0.34);
-  cursor: pointer;
-  transition: color 220ms ease;
+  width: min(560px, 84vw);
+  text-align: center;
 }
 
-.intro-scene__depart:hover,
-.intro-scene__depart:focus-visible {
-  color: var(--color-text);
+.intro-scene__status-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--trace);
 }
 
-.intro-scene__depart:focus-visible {
-  outline: 1px solid rgba(var(--color-signal-rgb), 0.46);
-  outline-offset: 6px;
+/* Fixed height for one line at H1, so a line swapping out mid-crossfade
+   cannot collapse the block and pull the CTA up with it. */
+.intro-scene__status {
+  margin-top: var(--sp-12);
+  min-height: calc(24px * 1.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.intro-scene__depart-arrow {
-  display: inline-block;
-  transition: transform 220ms ease;
+.intro-scene__status-line {
+  margin: 0;
+  font-family: var(--font-kr);
+  font-size: 24px;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
 }
 
-.intro-scene__depart:hover .intro-scene__depart-arrow,
-.intro-scene__depart:focus-visible .intro-scene__depart-arrow {
-  transform: translateX(3px);
+/* Reserved from the first frame. The CTA arrives ~4.7s in, and without a
+   held slot its appearance would shove the status line upward. */
+.intro-scene__depart-slot {
+  margin-top: var(--sp-40);
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Departure used to end on a bright flash; now it fades to solid black so
@@ -333,7 +351,8 @@
 .intro-scene__blackout {
   position: absolute;
   inset: 0;
-  background: #000;
+  /* Hands over to Intro Film, which opens on this same value. */
+  background: var(--bg-base);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.9s ease;
@@ -483,7 +502,15 @@
     width: 30vw;
   }
 
-  .intro-scene__status {
-    min-width: 220px;
+  .intro-scene__readout {
+    width: 88vw;
+  }
+
+  .intro-scene__status-line {
+    font-size: 20px;
+  }
+
+  .intro-scene__led-floor {
+    font-size: 40px;
   }
 }

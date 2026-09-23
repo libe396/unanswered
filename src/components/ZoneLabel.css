@@ -11,22 +11,27 @@
   pointer-events: none;
 }
 
+/* Latin only, so mono + tracking is safe. Hierarchy is carried by --trace
+   against --text-tertiary rather than by two stacked opacities, which is what
+   used to drop the zone name to an effective 0.55 of an already dim grey. */
 .zone-label__zone {
   display: block;
-  font-size: 10px;
-  letter-spacing: 0.35em;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-accent);
-  opacity: 0.75;
+  color: var(--trace);
 }
 
 .zone-label__name {
   display: block;
+  font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.12em;
+  line-height: 1.4;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--color-text-dim);
-  opacity: 0.55;
+  color: var(--text-tertiary);
 }
 
 @media print {
@@ -41,7 +46,10 @@
     right: 18px;
   }
 
-  .zone-label__zone,
+  .zone-label__zone {
+    font-size: 10px;
+  }
+
   .zone-label__name {
     font-size: 9px;
   }

@@ -1,3 +1,13 @@
+/*
+  Hierarchy by colour, not by opacity. This used to be a 0.55-opacity button
+  containing a 0.75-opacity span, so the Korean line rendered at an effective
+  0.41 against a near-black ground — below anything readable, and impossible
+  to reason about from either number on its own.
+
+  Neutral throughout: Back is structure, not something the visitor is being
+  invited to do, so it never takes the violet.
+*/
+
 .back-button {
   position: fixed;
   top: 28px;
@@ -5,20 +15,23 @@
   z-index: 5;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-8);
   padding: 0;
   border: none;
   background: transparent;
-  color: var(--color-text-dim);
-  font-family: inherit;
+  color: var(--text-secondary);
   cursor: pointer;
-  opacity: 0.55;
-  transition: opacity var(--duration-fast) ease, color var(--duration-fast) ease;
+  transition: color var(--duration-fast) ease;
 }
 
-.back-button:hover {
-  opacity: 1;
-  color: var(--color-accent);
+.back-button:hover,
+.back-button:focus-visible {
+  color: var(--text-primary);
+}
+
+.back-button:focus-visible {
+  outline: 1px solid var(--trace);
+  outline-offset: 4px;
 }
 
 .back-button__arrow {
@@ -31,16 +44,24 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 2px;
-  font-size: 10px;
-  letter-spacing: 0.28em;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  color: inherit;
 }
 
+/* Korean: no uppercase, no tracking. The 0.08em it used to carry was a
+   leftover from the Latin label above it. */
 .back-button__label-ko {
-  font-size: 9px;
-  letter-spacing: 0.08em;
+  font-family: var(--font-kr);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0;
   text-transform: none;
-  opacity: 0.75;
+  color: var(--text-tertiary);
 }
 
 @media print {
@@ -55,8 +76,11 @@
     left: 18px;
   }
 
-  .back-button__label,
+  .back-button__label {
+    font-size: 10px;
+  }
+
   .back-button__label-ko {
-    font-size: 9px;
+    font-size: 11px;
   }
 }

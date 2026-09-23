@@ -88,7 +88,11 @@ export function ReportStage01CollectedClues({ record, report, index, total, lock
 
   return (
     <div className="report-stage report-stage-01">
-      <p className="report-stage__eyebrow">REPORT 01 · 당신이 남긴 것</p>
+      <p className="report-stage__eyebrow">
+        <span className="report-stage__eyebrow-code">REPORT {String(index).padStart(2, '0')}</span>
+        <span className="report-stage__eyebrow-sep" aria-hidden="true">·</span>
+        <span className="report-stage__eyebrow-title">당신이 남긴 것</span>
+      </p>
 
       <AnimatePresence mode="wait">
         {!mapVisible ? (

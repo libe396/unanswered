@@ -56,7 +56,11 @@ export function FinalRecordLayer({ record, presentation, index, total, onIssueFu
               <span className="final-record-layer__index" aria-hidden="true">
                 {String(index).padStart(2, '0')} / {String(total).padStart(2, '0')}
               </span>
-              <button className="final-record-layer__button final-record-layer__button--ghost" onClick={onRestart}>
+              <button
+                type="button"
+                className="cta cta--text final-record-layer__button"
+                onClick={onRestart}
+              >
                 처음으로 돌아가기
               </button>
             </motion.div>

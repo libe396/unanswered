@@ -1,8 +1,9 @@
 .sentence-clues-scene {
   position: relative;
   width: 100%;
-  min-height: 100dvh;
-  background: #050506;
+  height: 100%;
+  min-height: 100%;
+  background: var(--bg-base);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -51,13 +52,18 @@
   margin: 0 auto;
 }
 
+/* Korean ("복원된 기록"). uppercase does nothing to it and the 0.3em alone
+   pulled the three characters apart; Label, no tracking, colour instead of
+   a stacked opacity. */
 .sentence-clues-scene__kicker {
   margin: 0;
-  font-size: 14px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--color-text-dim);
-  opacity: 0.7;
+  font-family: var(--font-kr);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-tertiary);
 }
 
 .sentence-clues-scene__context-paragraphs {
@@ -210,7 +216,7 @@
   border-color: var(--color-accent);
   color: var(--color-text);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 12px 22px rgba(0, 0, 0, 0.45),
-    0 0 0 1px rgba(201, 163, 255, 0.15);
+    0 0 0 1px rgba(164, 144, 255, 0.15);
   outline: none;
 }
 
@@ -250,7 +256,7 @@
 
 .sentence-clues-scene__card--drawn:hover {
   opacity: 0.55;
-  border-color: rgba(201, 163, 255, 0.35);
+  border-color: rgba(138, 107, 255, 0.35);
 }
 
 @keyframes sentence-card-draw {
@@ -304,7 +310,7 @@
   padding: 8px 10px;
   border: 1px solid var(--color-accent);
   border-radius: 3px;
-  background: rgba(201, 163, 255, 0.07);
+  background: rgba(138, 107, 255, 0.07);
   color: var(--color-text);
   text-align: left;
   cursor: pointer;
@@ -545,26 +551,9 @@
 /* ── Shared confirm control ──────────────────────────────────────────────── */
 
 .sentence-clues-scene__confirm {
-  position: relative;
-  padding: 14px 32px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: var(--color-text);
-  font-size: 14px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: border-color var(--duration-fast) ease, background var(--duration-fast) ease;
-}
-
-.sentence-clues-scene__confirm:hover:not(:disabled) {
-  border-color: var(--color-accent);
-  background: rgba(201, 163, 255, 0.06);
-}
-
-.sentence-clues-scene__confirm:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
+  /* Placement only — appearance comes from .cta .cta--primary. This carried
+     14px at 0.3em uppercase on Korean labels, the widest Korean tracking
+     left in the project. */
 }
 
 @media (max-width: 640px) {
