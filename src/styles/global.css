@@ -24,12 +24,50 @@ body {
   overscroll-behavior: none;
 }
 
+/*
+  Korean has no spaces inside a 어절, so the default `break-word` chops words
+  mid-syllable — "조사원증을 발급합니" / "다". `keep-all` breaks only between
+  words; `anywhere` is the escape hatch for the one thing keep-all cannot
+  wrap, an unbroken Latin run like a REPORT ID or a hex value.
+*/
 body {
   background: var(--bg-base);
   color: var(--text-primary);
   font-family: var(--font-kr);
+  word-break: keep-all;
+  overflow-wrap: anywhere;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Metric ───────────────────────────────────────────────────────────────
+   A counted readout: "2 / 7 단서 청취". The number is something the system
+   produced, so it is mono; the noun after it is Korean, and Korean in a mono
+   face falls back to whatever the OS has — a different family, a different
+   weight, and Latin tracking pulling the syllables apart. Two spans, two
+   faces, one baseline. */
+
+.metric {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--sp-8);
+}
+
+.metric__value {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.14em;
+  font-variant-numeric: tabular-nums;
+}
+
+.metric__label {
+  font-family: var(--font-kr);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 /*
@@ -154,6 +192,37 @@ select {
   font-variant-numeric: tabular-nums;
 }
 
+/* ── Glass ────────────────────────────────────────────────────────────────
+   One matte translucent surface, used for the objects on a stage: the pass
+   card, a result panel, a shelf plate. Matte on purpose — a reflection
+   gradient here would read as a 2014 glassmorphism demo rather than as
+   something sitting in a dark room.
+
+   Budget: at most three per screen. `backdrop-filter` forces the compositor
+   to re-sample everything behind the element, so it never goes on anything
+   that moves or animates continuously. */
+
+.glass {
+  background: var(--glass-1);
+  border: 1px solid var(--line-subtle);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-highlight), var(--glass-shadow);
+}
+
+/* ── Residue ──────────────────────────────────────────────────────────────
+   The only violet allowed to cover area, and only one per screen, behind the
+   object the Scene is about. A gradient rather than a blurred box: `filter:
+   blur()` on something this large re-rasterises every frame the Scene
+   animates. */
+
+.residue {
+  position: absolute;
+  z-index: 0;
+  background: var(--residue);
+  pointer-events: none;
+}
+
 /* ── CTA system ───────────────────────────────────────────────────────────
    Three buttons, mapped onto the BX state model:
      IDLE   → rest
@@ -191,15 +260,33 @@ select {
   transform: translateX(3px);
 }
 
-/* Primary — IDLE */
+/*
+  Primary — IDLE.
+
+  Neutral at rest. The violet is the 5px dot in front of the label and
+  nothing else: a violet border plus a violet fill on every idle button was
+  most of why the accent stopped reading as one.
+*/
 .cta--primary {
-  border: 1px solid var(--trace);
-  background: var(--trace-wash);
+  border: 1px solid var(--line-strong);
+  background: var(--glass-2);
   color: var(--text-primary);
 }
 
-/* DWELL */
+.cta--primary::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--trace);
+  box-shadow: 0 0 8px var(--trace);
+  transition: background var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
+}
+
+/* DWELL — the border picks the violet up only once the pointer is on it. */
 .cta--primary:hover:not(:disabled) {
+  border-color: var(--trace);
   box-shadow: 0 0 24px var(--trace-glow);
 }
 
@@ -208,6 +295,17 @@ select {
 .cta--primary:active:not(:disabled) {
   background: var(--trace);
   color: var(--trace-ink);
+}
+
+.cta--primary:active:not(:disabled)::before {
+  background: var(--trace-ink);
+  box-shadow: none;
+}
+
+/* A disabled control is not pointing at anything, so its dot goes neutral. */
+.cta--primary:disabled::before {
+  background: var(--text-tertiary);
+  box-shadow: none;
 }
 
 .cta--secondary {
@@ -240,6 +338,10 @@ select {
 
 /* Text CTA — InvestigationStartScene's underline control, generalised.
    Secondary actions only: skip, restart, back. */
+.cta--text::before {
+  content: none;
+}
+
 .cta--text {
   height: auto;
   padding: var(--sp-4) 2px var(--sp-8);
@@ -257,13 +359,17 @@ select {
   border-bottom-color: var(--text-primary);
 }
 
-/* ── TerminalCorners ─────────────────────────────────────────────────────── */
+/* ── TerminalCorners ──────────────────────────────────────────────────────
+   Bracket marks for a stage object — the pass card, a result panel. They are
+   deliberately no longer on buttons: corner marks plus a border plus a dot
+   made every CTA louder than the object it belonged to. Neutral, because the
+   violet budget is spent on the dot. */
 
 .terminal-corner {
   position: absolute;
   width: 10px;
   height: 10px;
-  border: 1px solid var(--trace);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   pointer-events: none;
 }
 
@@ -325,7 +431,7 @@ select {
   inset: 0;
   z-index: 9999;
   pointer-events: none;
-  opacity: 0.03;
+  opacity: 0.05;
   mix-blend-mode: soft-light;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
   background-repeat: repeat;

@@ -20,9 +20,9 @@
   position: absolute;
   inset: 0;
   z-index: 0;
-  background:
-    radial-gradient(ellipse at 50% 42%, rgba(164, 144, 255, 0.08), rgba(0, 0, 0, 0) 48%),
-    linear-gradient(180deg, rgba(10, 7, 20, 0.42), var(--bg-base) 72%);
+  /* The violet radial that used to sit behind the receipt is gone; violet no
+     longer covers area anywhere except a StageLayout residue. */
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), var(--bg-base) 72%);
   pointer-events: none;
 }
 

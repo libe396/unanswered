@@ -1,114 +1,240 @@
+/*
+  Zone 02 — the reference screen for the stage layout.
+
+  Everything that used to make this Scene its own little world is gone: the
+  two 90px blurred violet orbs, the vignette, the bordered panel, and the
+  separate "id reveal" screen that replaced the form. The Scene is now a
+  stage like every other, and the only object on it is the card.
+*/
+
 .registration-scene {
   position: relative;
   width: 100%;
   height: 100%;
-  min-height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background: var(--bg-base);
+}
+
+/* ── The card ─────────────────────────────────────────────────────────────
+   272 x 432, the 54x86 proportion of a real ID card. The one .glass surface
+   on this screen. */
+
+.pass-card {
+  position: relative;
+  width: 272px;
+  height: 432px;
+  padding: var(--sp-24);
+  border-radius: var(--r-8);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.pass-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-12);
+}
+
+.pass-card__kind {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.5;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.pass-card__kind-mark {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+
+/* ── Photo frame ─────────────────────────────────────────────────────────── */
+
+.pass-card__photo {
+  position: relative;
+  height: 132px;
+  margin-top: var(--sp-24);
+  border: 1px solid var(--line-subtle);
+  border-radius: var(--r-4);
   overflow: hidden;
 }
 
-/* The two existing 90px blurs, retinted to the TRACE ramp. No blur is added
-   anywhere else in this Scene — these are the only two. */
-.registration-scene__glow {
+/*
+  Head and shoulders, at the size a passport photo would sit — a circle over
+  a wide half-round, blurred until it is only a mass. Greyscale by
+  construction: nothing here is coloured, so there is nothing to desaturate.
+*/
+.pass-card__silhouette {
   position: absolute;
-  border-radius: 50%;
-  filter: blur(90px);
-  pointer-events: none;
-}
-
-.registration-scene__glow--a {
-  width: 420px;
-  height: 420px;
-  top: -10%;
-  left: -8%;
-  background: radial-gradient(circle, rgba(91, 65, 196, 0.22), transparent 70%);
-}
-
-.registration-scene__glow--b {
-  width: 360px;
-  height: 360px;
+  left: 50%;
   bottom: -14%;
-  right: -6%;
-  background: radial-gradient(circle, rgba(138, 107, 255, 0.16), transparent 70%);
+  width: 96px;
+  height: 108px;
+  translate: -50% 0;
+  opacity: 0.35;
+  filter: blur(6px);
+  background:
+    radial-gradient(
+      circle 26px at 50% 26px,
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(255, 255, 255, 0.95) 88%,
+      transparent 100%
+    ),
+    radial-gradient(
+      ellipse 48px 46px at 50% 108px,
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(255, 255, 255, 0.95) 88%,
+      transparent 100%
+    );
+  background-repeat: no-repeat;
 }
 
-.registration-scene__vignette {
+/* Top-left. It used to sit bottom-left, where the silhouette's blurred
+   shoulders reach the full width of the frame and printed straight through
+   it. */
+.pass-card__photo-note {
   position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.8) 100%);
-  pointer-events: none;
+  left: var(--sp-8);
+  top: var(--sp-8);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  line-height: 1.4;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+/* ── Fields ──────────────────────────────────────────────────────────────── */
+
+.pass-card__field {
+  margin-top: var(--sp-16);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pass-card__field-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  line-height: 1.4;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
 }
 
 /*
-  Kiosk panel. One frame, not two: the outer 1px border is gone and
-  TerminalCorners is the only thing marking the edge, which is also what
-  stops the corner marks reading as decoration sitting on top of a box.
+  Bound live to the input beside it, so the card fills in as the visitor
+  types. The field caps at 12 characters, and anything that still overruns
+  this line is clipped rather than allowed to re-flow the card.
 */
-.registration-scene__panel {
-  position: relative;
-  z-index: 1;
-  width: min(400px, 88vw);
-  padding: var(--sp-32);
-  border: none;
-  border-radius: var(--r-0);
-  background: var(--bg-elevated);
-  display: flex;
-  flex-direction: column;
-  text-align: left;
+.pass-card__name {
+  font-family: var(--font-kr);
+  font-size: 18px;
+  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Frame, not accent: violet here would compete with the Primary CTA below,
-   which is the one thing in this Scene the visitor is meant to act on. */
-.registration-scene__panel .terminal-corner {
-  border-color: var(--line-strong);
+.pass-card__name--empty {
+  font-weight: 400;
+  color: var(--text-tertiary);
 }
+
+/*
+  Holds its own width whether it is showing the placeholder or the id: both
+  are 9 characters of the same monospace at the same tracking, so the line
+  cannot shift as the characters arrive.
+*/
+.pass-card__id {
+  display: flex;
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+  transition: color 400ms var(--ease-scene);
+}
+
+/* The one moment violet lands on this card. */
+.pass-card__id--issued {
+  color: var(--trace);
+}
+
+/* ── Barcode ──────────────────────────────────────────────────────────────
+   Ornament. Nothing is encoded, and it is deliberately neutral so it cannot
+   be mistaken for a second accent. */
+
+.pass-card__barcode {
+  height: 22px;
+  margin-top: 14px;
+  opacity: 0.5;
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--text-secondary) 0 1px,
+    transparent 1px 3px,
+    var(--text-secondary) 3px 5px,
+    transparent 5px 6px,
+    var(--text-secondary) 6px 7px,
+    transparent 7px 11px
+  );
+}
+
+/* ── Foot ────────────────────────────────────────────────────────────────── */
+
+.pass-card__foot {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+}
+
+.pass-card__ticks {
+  display: flex;
+  gap: 4px;
+}
+
+/* Same reading as the ArchiveHUD's strip, at card scale. */
+.pass-card__tick {
+  display: block;
+  flex: 1 1 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.pass-card__tick--current {
+  background: var(--trace);
+}
+
+.pass-card__foot-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  line-height: 1.4;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+
+/* ── The form, in the stage's action area ─────────────────────────────────── */
 
 .registration-scene__form {
   display: flex;
   flex-direction: column;
-}
-
-/* ── Before input ─────────────────────────────────────────────────────────
-   REGISTRATION (16) title (8) description (32) field (24) CTA */
-
-.registration-scene__eyebrow {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  line-height: 1.4;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--trace);
-}
-
-.registration-scene__title {
-  margin: var(--sp-16) 0 0;
-  font-family: var(--font-kr);
-  font-size: 24px;
-  line-height: 1.4;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: var(--text-primary);
-}
-
-.registration-scene__description {
-  margin: var(--sp-8) 0 0;
-  font-family: var(--font-kr);
-  font-size: 13px;
-  line-height: 1.6;
-  font-weight: 400;
-  letter-spacing: 0;
-  color: var(--text-secondary);
-}
-
-.registration-scene__field {
-  margin-top: var(--sp-32);
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-8);
 }
 
 .registration-scene__field-label {
@@ -120,24 +246,21 @@
   color: var(--text-secondary);
 }
 
-/*
-  KIOSK FIELD. A single box — the old input was an underline inside a panel
-  that also had its own border, so the field read as a line floating in a
-  rectangle rather than as something to type into.
-*/
+/* KIOSK FIELD — one box, matte, neutral until it is focused. */
 .registration-scene__input {
   width: 100%;
   height: 48px;
+  margin-top: var(--sp-8);
   padding: 0 var(--sp-16);
   border: 1px solid var(--line-strong);
   border-radius: var(--r-4);
-  background: var(--surface-1);
+  background: var(--glass-1);
   color: var(--text-primary);
   /* 16px is the iOS zoom floor as well as the Body size — anything smaller
      makes Safari zoom the whole Scene on focus. */
   font-size: 16px;
   letter-spacing: -0.01em;
-  transition: border-color var(--duration-fast) ease;
+  transition: border-color var(--duration-fast) ease, opacity var(--duration-fast) ease;
 }
 
 .registration-scene__input::placeholder {
@@ -150,71 +273,25 @@
   caret-color: var(--trace);
 }
 
+/* Locked once the card has been issued — the name on the pass is the name on
+   the record. */
+.registration-scene__input:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
 .registration-scene__submit {
   width: 100%;
   margin-top: var(--sp-24);
 }
 
-/* ── After issue ──────────────────────────────────────────────────────────
-   REPORT ID (12) the id (16) confirmation */
-
-.registration-scene__issuing {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.registration-scene__issued-label {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  line-height: 1.4;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-tertiary);
-}
-
-/*
-  The climax of the Scene. Mono and tabular so the characters sit on a fixed
-  grid: the id arrives one glyph at a time (see RegistrationScene.tsx), and
-  in a proportional face each arrival re-measured the line and nudged every
-  character already on screen.
-
-  `min-width` holds the box at the id's full width — RPT- plus five
-  characters, 9ch, plus the 0.08em of tracking each one carries — so the
-  block is the same size before, during and after the reveal, and an empty
-  id can never collapse it.
-*/
-.registration-scene__issued-id {
-  margin: var(--sp-12) 0 0;
-  display: flex;
-  justify-content: center;
-  min-width: calc(9ch + 9 * 0.08em);
-  font-family: var(--font-mono);
-  font-size: 32px;
-  font-weight: 500;
-  line-height: 1.2;
-  letter-spacing: 0.08em;
-  font-variant-numeric: tabular-nums;
-  color: var(--trace);
-}
-
-.registration-scene__issued-note {
-  margin: var(--sp-16) 0 0;
-  font-family: var(--font-kr);
-  font-size: 13px;
-  line-height: 1.6;
-  letter-spacing: 0;
-  color: var(--text-secondary);
-}
-
-@media (max-width: 640px) {
-  .registration-scene__panel {
-    padding: var(--sp-24);
+@media (max-width: 900px) {
+  .pass-card {
+    width: 240px;
+    height: 382px;
   }
 
-  .registration-scene__issued-id {
-    font-size: 26px;
+  .pass-card__photo {
+    height: 112px;
   }
 }

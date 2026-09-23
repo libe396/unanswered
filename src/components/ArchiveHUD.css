@@ -1,0 +1,119 @@
+/*
+  The archive status strip. Fixed to the bottom of every numbered Zone from
+  Registration to the Record Layer, above every Scene's own content and below
+  the grain.
+
+  A readout, never a control: `pointer-events: none` all the way through, and
+  aria-hidden in the markup, because everything it says is already said by
+  the Scene itself.
+*/
+
+.archive-hud {
+  position: fixed;
+  z-index: 5;
+  left: 28px;
+  right: 28px;
+  bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-24);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* The rule sits at 48px from the viewport bottom — 24px above the strip. */
+.archive-hud::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 24px;
+  height: 1px;
+  background: var(--line-subtle);
+}
+
+.archive-hud__mark,
+.archive-hud__record {
+  white-space: nowrap;
+}
+
+.archive-hud__record {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
+}
+
+/* Korean: its own face, its own tracking. */
+.archive-hud__name {
+  font-family: var(--font-kr);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-secondary);
+}
+
+.archive-hud__ticks {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.archive-hud__tick {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.archive-hud__tick--past {
+  background: var(--text-secondary);
+}
+
+/* The one violet mark the strip is allowed. */
+.archive-hud__tick--current {
+  background: var(--trace);
+}
+
+@media print {
+  .archive-hud {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .archive-hud {
+    left: var(--sp-16);
+    right: var(--sp-16);
+    bottom: var(--sp-16);
+    gap: var(--sp-12);
+  }
+
+  .archive-hud::before {
+    bottom: var(--sp-24);
+  }
+
+  .archive-hud__tick {
+    width: 12px;
+  }
+}
+
+/* Under the ticks there is no room for both end labels; the record id is the
+   one worth keeping, since it is what the visitor leaves with. */
+@media (max-width: 560px) {
+  .archive-hud__mark {
+    display: none;
+  }
+
+  .archive-hud {
+    justify-content: space-between;
+  }
+}

@@ -1,5 +1,4 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { TerminalCorners } from '../../components/TerminalCorners';
 
 interface ReportStageNavProps {
   label: string;
@@ -36,7 +35,6 @@ export function ReportStageNav({ label, index, total, visible, onAdvance, disabl
             {String(index).padStart(2, '0')} / {String(total).padStart(2, '0')}
           </span>
           <button className="cta cta--primary report-stage-nav__cta" onClick={onAdvance} disabled={disabled}>
-            <TerminalCorners />
             <span>{label}</span>
             <span aria-hidden="true">→</span>
           </button>

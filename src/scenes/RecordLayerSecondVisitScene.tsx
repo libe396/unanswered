@@ -4,7 +4,6 @@ import { useShallow } from 'zustand/react/shallow';
 import { renderLightGraphic } from '../lib/lightRenderer.js';
 import { drawStrokes } from '../lib/memorySketch';
 import { selectRecordLayerDerived, useExperienceStore } from '../store/experienceStore';
-import { TerminalCorners } from '../components/TerminalCorners';
 import './RecordLayerSecondVisitScene.css';
 
 const ARCHIVE_TRACE_MARKS = [
@@ -127,7 +126,6 @@ export function RecordLayerSecondVisitScene() {
           animate={prefersReducedMotion ? { opacity: isRevealing ? 0 : 1, y: 0 } : { opacity: isRevealing ? 0 : 1, y: isRevealing ? 4 : 0 }}
           transition={{ duration: isRevealing ? 0.72 : 0.68, delay: isRevealing || prefersReducedMotion ? 0 : 2.55 }}
         >
-          <TerminalCorners />
           <span>기록 확인</span>
           <span aria-hidden="true">→</span>
         </motion.button>
@@ -153,14 +151,10 @@ export function RecordLayerSecondVisitScene() {
         </motion.div>
       ) : null}
 
-      <div className="record-layer-second-visit__meta">
-        <span className="record-layer-second-visit__meta-name">
-          {record.investigator?.investigatorName ?? '-'}
-        </span>
-        <span className="record-layer-second-visit__meta-id">
-          {record.investigator?.reportId ?? '-'}
-        </span>
-      </div>
+      {/* The investigator name and REPORT ID used to print here, under
+          BackButton. ArchiveHUD says the same thing along the bottom of every
+          Zone from Registration on, and prefixes the name on this Scene
+          specifically — so this block was the second copy. */}
 
     </div>
   );

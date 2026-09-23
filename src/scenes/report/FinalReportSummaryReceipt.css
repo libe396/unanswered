@@ -224,7 +224,7 @@
 }
 
 .summary-receipt__issue-btn:hover {
-  background: rgba(138, 107, 255, 0.1);
+  background: var(--glass-2);
   border-color: var(--receipt-accent);
   color: var(--receipt-ink);
 }

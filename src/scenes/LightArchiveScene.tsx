@@ -7,8 +7,8 @@ import { EMOTION_KEYWORDS, MAX_EMOTION_KEYWORDS } from '../data/content';
 import { useExperienceStore } from '../store/experienceStore';
 import { logSceneTracking, useSceneTracking } from '../hooks/useSceneTracking';
 import { playClueRecordedSignature } from '../lib/postElevatorAudio';
-import { TerminalCorners } from '../components/TerminalCorners';
 import { ZoneIntroCard } from '../components/ZoneIntroCard';
+import { StageLayout } from '../components/StageLayout';
 import { ZONE_INFO } from '../data/zones';
 import type { LightAnalysisRules } from '../types';
 import './LightArchiveScene.css';
@@ -131,12 +131,22 @@ export function LightArchiveScene() {
   );
   const [rules, setRules] = useState<LightAnalysisRules | null>(() => storedLightArchive?.rules ?? null);
   const [revealedCount, setRevealedCount] = useState(0);
+  /* Which cell the pointer or focus is on, purely so the large preview in the
+     object column knows what to show. Selection is still `selectedIdx`;
+     nothing here is read by tracking. */
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [saved, setSaved] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const enteredAtRef = useRef(Date.now());
   const timersRef = useRef<number[]>([]);
 
   const selectedImage = selectedIdx !== null ? archiveImages[selectedIdx] : null;
+  /* What the large preview shows: whatever the pointer is on, falling back to
+     the committed choice. Null until the visitor has touched the grid, which
+     is what keeps the preview unresolved on arrival. */
+  const focusIdx = hoveredIdx ?? selectedIdx;
+  const focusedImage = focusIdx !== null ? archiveImages[focusIdx] : null;
   const isAnalysisPhase = phase === 'reading' || phase === 'complete' || phase === 'reconstructing';
 
   function nextKeywords(prev: string[], ko: string): string[] {
@@ -187,10 +197,17 @@ export function LightArchiveScene() {
     timersRef.current.push(closingTimer);
   }
 
+  /*
+    `phase` is a dependency because the canvas element moves in the tree
+    between the analysis backdrop and the result stage's object slot, and a
+    canvas that React re-parents comes back blank. renderLightGraphic is a
+    single synchronous draw with no animation loop of its own, so redrawing
+    on arrival is safe and idempotent.
+  */
   useEffect(() => {
     if (!rules || !canvasRef.current) return;
     renderLightGraphic(canvasRef.current, rules, 1);
-  }, [rules]);
+  }, [rules, phase]);
 
   useEffect(() => {
     if (phase !== 'reconstructing') return;
@@ -207,7 +224,8 @@ export function LightArchiveScene() {
   }
 
   function handleConfirm() {
-    if (!selectedImage || !rules) return;
+    if (!selectedImage || !rules || saved) return;
+    setSaved(true);
     setLightArchive({
       imageId: selectedImage.id,
       imagePath: selectedImage.src,
@@ -325,8 +343,33 @@ export function LightArchiveScene() {
   return (
     <div className="light-archive-scene scroll-quiet">
       {phase === 'browse' ? (
-        <div className="light-archive-scene__browse">
-          <p className="light-archive-scene__hint">그 사람이 남긴 흔적의 이미지를 선택하세요</p>
+        <StageLayout
+          eyebrow="LIGHT ARCHIVE"
+          title="그 사람이 남긴 흔적의 이미지를 선택하세요"
+          description="하나를 고르면, 그 이미지가 품고 있는 빛을 읽습니다."
+          object={
+            /*
+              The grid shows ten blurred thumbnails; this is the one that is
+              currently under the pointer, at a size worth looking at. The
+              blur→clear reading is unchanged, just moved up a scale: nothing
+              focused means nothing has resolved yet.
+            */
+            <div
+              className={`light-archive-scene__preview${
+                focusedImage ? ' light-archive-scene__preview--focused' : ''
+              }`}
+            >
+              <img
+                src={(focusedImage ?? archiveImages[0])?.src}
+                alt=""
+                className="light-archive-scene__preview-img"
+              />
+              <span className="light-archive-scene__preview-slot">
+                {(focusedImage ?? archiveImages[0])?.id.replace('IMAGE_', 'IMG ')}
+              </span>
+            </div>
+          }
+        >
           <div className="light-archive-scene__grid">
             {archiveImages.map((img, idx) => (
               <button
@@ -341,18 +384,32 @@ export function LightArchiveScene() {
                   screen. Focus is bound as well so a keyboard visitor is
                   recorded on the same terms as a pointer one.
                 */
-                onPointerEnter={() => tracking.viewStart('image', img.id)}
-                onPointerLeave={() => tracking.viewEnd('image', img.id)}
-                onFocus={() => tracking.viewStart('image', img.id)}
-                onBlur={() => tracking.viewEnd('image', img.id)}
+                onPointerEnter={() => {
+                  setHoveredIdx(idx);
+                  tracking.viewStart('image', img.id);
+                }}
+                onPointerLeave={() => {
+                  setHoveredIdx((current) => (current === idx ? null : current));
+                  tracking.viewEnd('image', img.id);
+                }}
+                onFocus={() => {
+                  setHoveredIdx(idx);
+                  tracking.viewStart('image', img.id);
+                }}
+                onBlur={() => {
+                  setHoveredIdx((current) => (current === idx ? null : current));
+                  tracking.viewEnd('image', img.id);
+                }}
                 onClick={() => {
                   setSelectedIdx(idx);
                   tracking.select('image', img.id);
                 }}
               >
                 <img src={img.src} alt={img.label} className="light-archive-scene__cell-img" />
-                {img.label ? (
-                  <span className="light-archive-scene__cell-label">{img.label}</span>
+                {selectedIdx === idx ? (
+                  <span className="light-archive-scene__cell-badge">
+                    {img.id.replace('IMAGE_', '')}
+                  </span>
                 ) : null}
               </button>
             ))}
@@ -366,41 +423,52 @@ export function LightArchiveScene() {
             }}
             disabled={selectedIdx === null}
           >
-            <TerminalCorners />
             이 단서를 따라간다
           </button>
-        </div>
+        </StageLayout>
       ) : null}
 
       {phase === 'feeling' && selectedImage ? (
-        <div className="light-archive-scene__feeling">
-          <img src={selectedImage.src} alt="" className="light-archive-scene__feeling-img" />
-          <div className="light-archive-scene__feeling-panel">
-            <p className="light-archive-scene__label">이 이미지에서 어떤 것이 느껴지나요?</p>
-            <p className="light-archive-scene__sublabel">최대 {MAX_EMOTION_KEYWORDS}개 선택</p>
-            <div className="light-archive-scene__keywords">
-              {EMOTION_KEYWORDS.map((kw) => (
-                <button
-                  key={kw.ko}
-                  className={`light-archive-scene__keyword${
-                    selectedKeywords.includes(kw.ko) ? ' light-archive-scene__keyword--selected' : ''
-                  }`}
-                  onClick={() => toggleKeyword(kw.ko)}
-                >
-                  {kw.ko}
-                </button>
-              ))}
+        <StageLayout
+          eyebrow="LIGHT ARCHIVE"
+          title="이 이미지에서 어떤 것이 느껴지나요?"
+          description={`가장 가까운 감각을 최대 ${MAX_EMOTION_KEYWORDS}개까지 고를 수 있습니다.`}
+          object={
+            <div className="light-archive-scene__preview light-archive-scene__preview--focused">
+              <img src={selectedImage.src} alt="" className="light-archive-scene__preview-img" />
+              <span className="light-archive-scene__preview-slot">
+                {selectedImage.id.replace('IMAGE_', 'IMG ')}
+              </span>
             </div>
-            <button
-              className="cta cta--primary light-archive-scene__proceed"
-              onClick={startAnalysis}
-              disabled={selectedKeywords.length === 0}
-            >
-              <TerminalCorners />
-              다음으로
-            </button>
+          }
+        >
+          <p className="metric light-archive-scene__count" aria-live="polite">
+            <span className="metric__value">
+              {selectedKeywords.length} / {MAX_EMOTION_KEYWORDS}
+            </span>
+            <span className="metric__label">선택</span>
+          </p>
+          <div className="light-archive-scene__keywords">
+            {EMOTION_KEYWORDS.map((kw) => (
+              <button
+                key={kw.ko}
+                className={`light-archive-scene__keyword${
+                  selectedKeywords.includes(kw.ko) ? ' light-archive-scene__keyword--selected' : ''
+                }`}
+                onClick={() => toggleKeyword(kw.ko)}
+              >
+                {kw.ko}
+              </button>
+            ))}
           </div>
-        </div>
+          <button
+            className="cta cta--primary light-archive-scene__proceed"
+            onClick={startAnalysis}
+            disabled={selectedKeywords.length === 0}
+          >
+            다음으로
+          </button>
+        </StageLayout>
       ) : null}
 
       {isAnalysisPhase ? (
@@ -453,10 +521,15 @@ export function LightArchiveScene() {
 
           <div className="light-archive-scene__rules">
             <div className="light-archive-scene__rules-header">
+              {/*
+                Driven by the counter beside it rather than by `phase`. The
+                sixth rule lands, the counter reads 06 / 06, and the Scene
+                then holds for RULE_HOLD_MS before `phase` becomes
+                'complete' — for that second the heading still said
+                IN PROGRESS over a finished readout.
+              */}
               <p className="light-archive-scene__rules-heading">
-                {phase === 'complete' || phase === 'reconstructing'
-                  ? 'ANALYSIS COMPLETE'
-                  : 'ANALYSIS IN PROGRESS'}
+                {revealedCount >= RULE_STAGES.length ? 'ANALYSIS COMPLETE' : 'ANALYSIS IN PROGRESS'}
               </p>
               <span className="light-archive-scene__rules-progress">
                 {String(Math.min(revealedCount, RULE_STAGES.length)).padStart(2, '0')} /{' '}
@@ -494,43 +567,79 @@ export function LightArchiveScene() {
               animate={{ opacity: phase === 'complete' ? 1 : 0.32 }}
               transition={{ duration: prefersReducedMotion ? 0.15 : 0.42, ease: [0.22, 1, 0.36, 1] }}
             >
-              <button type="button" onClick={handleRevealLight} disabled={phase !== 'complete'}>
+              <button
+                type="button"
+                className="cta cta--primary"
+                onClick={handleRevealLight}
+                disabled={phase !== 'complete'}
+              >
                 <span>VIEW DETECTED LIGHT</span>
-                <span aria-hidden="true">→</span>
+                <span className="cta__arrow" aria-hidden="true">
+                  →
+                </span>
               </button>
             </motion.div>
           </div>
         </div>
       ) : null}
 
-      <canvas
-        ref={canvasRef}
-        width={1000}
-        height={1000}
-        className={`light-archive-scene__canvas${
-          isAnalysisPhase || phase === 'projecting'
-            ? ' light-archive-scene__canvas--visible'
-            : ''
-        }${
-          isAnalysisPhase ? ' light-archive-scene__canvas--analysis' : ''
-        }`}
-      />
-
-      {phase === 'projecting' ? (
-        <motion.button
-          className="cta cta--primary light-archive-scene__confirm"
-          onClick={handleConfirm}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{
-            duration: prefersReducedMotion ? 0.2 : 1.2,
-            delay: prefersReducedMotion ? 0 : 1,
-          }}
-        >
-          <TerminalCorners />
-          기록 저장
-        </motion.button>
+      {/* Analysis backdrop only — the result screen mounts its own copy of
+          this canvas inside the stage's object slot (see below). */}
+      {phase !== 'projecting' ? (
+        <canvas
+          ref={canvasRef}
+          width={1000}
+          height={1000}
+          className={`light-archive-scene__canvas${
+            isAnalysisPhase ? ' light-archive-scene__canvas--visible light-archive-scene__canvas--analysis' : ''
+          }`}
+        />
       ) : null}
+
+      {phase === 'projecting' && rules ? (
+        <StageLayout
+          eyebrow="LIGHT TRACE"
+          title="당신이 고른 색으로 번역된 빛입니다"
+          description="이 빛은 조사 기록에 그대로 남습니다."
+          object={
+            <div className="light-archive-scene__result">
+              <canvas
+                ref={canvasRef}
+                width={1000}
+                height={1000}
+                className="light-archive-scene__result-canvas"
+              />
+            </div>
+          }
+        >
+          <ul className="light-archive-scene__palette-list">
+            {rules.palette.slice(0, 5).map((color, index) => (
+              <li key={`${color}-${index}`} className="light-archive-scene__palette-chip">
+                <span
+                  className="light-archive-scene__palette-dot"
+                  style={{ backgroundColor: color }}
+                />
+                <span className="light-archive-scene__palette-hex">{color}</span>
+              </li>
+            ))}
+          </ul>
+
+          <motion.button
+            className="cta cta--primary light-archive-scene__confirm"
+            onClick={handleConfirm}
+            disabled={saved}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{
+              duration: prefersReducedMotion ? 0.2 : 1.2,
+              delay: prefersReducedMotion ? 0 : 0.6,
+            }}
+          >
+            {saved ? '저장됨' : '기록 저장'}
+          </motion.button>
+        </StageLayout>
+      ) : null}
+
     </div>
   );
 }

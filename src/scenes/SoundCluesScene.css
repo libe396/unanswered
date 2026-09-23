@@ -1,16 +1,68 @@
 .sound-clues-scene {
   position: relative;
   width: 100%;
-  height: 100dvh;
+  height: 100%;
   background: var(--bg-base);
   display: flex;
   flex-direction: column;
+  /* Left edge, not centre: the heading, the shelf and the action row all sit
+     on the same 960 measure, the way the two-column stages do. */
   align-items: center;
   justify-content: center;
   gap: clamp(8px, 1.7vh, 16px);
-  padding: clamp(14px, 3.2vh, 30px) clamp(14px, 4vw, 56px);
+  padding: var(--stage-top) var(--sp-32) var(--stage-bottom);
   box-sizing: border-box;
   overflow: hidden;
+}
+
+.sound-clues-scene__head {
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: var(--stage-max);
+  text-align: left;
+}
+
+.sound-clues-scene__eyebrow {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--trace);
+}
+
+/* Was 13px — the Zone's own question, at the size a question gets. */
+.sound-clues-scene__title {
+  margin: var(--sp-12) 0 0;
+  font-family: var(--font-kr);
+  font-size: 24px;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
+  word-break: keep-all;
+}
+
+/* One wide light behind the shelf — the Scene's single residue. */
+.sound-clues-scene__residue {
+  top: 50%;
+  left: 50%;
+  width: 120%;
+  height: 180%;
+  translate: -50% -50%;
+}
+
+.sound-clues-scene__action {
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: var(--stage-max);
+  margin-top: var(--sp-24);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-24);
 }
 
 .sound-clues-scene__hint {
@@ -113,10 +165,14 @@
    silhouette (handle → dome → base → glow) is what should register first; the
    number, glyph and waveform stay quiet inside it. */
 
+/* The shelf keeps its own box so the residue behind it can be positioned
+   against it rather than against the Scene. */
 .sound-clues-scene__shelf-scroll {
+  position: relative;
+  margin-top: var(--sp-48);
   flex: 0 1 auto;
   width: 100%;
-  max-width: min(1120px, 96vw);
+  max-width: var(--stage-max);
   overflow-x: hidden;
   overflow-y: hidden;
 }
@@ -149,8 +205,8 @@
   background: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg-base) 100%);
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow:
-    0 -1px 0 rgba(164, 144, 255, 0.05),
-    0 18px 40px -12px rgba(164, 144, 255, 0.16),
+    0 -1px 0 rgba(255, 255, 255, 0.04),
+    0 18px 40px -12px rgba(0, 0, 0, 0.5),
     0 2px 0 rgba(0, 0, 0, 0.6);
 }
 
@@ -219,7 +275,7 @@
   border: 1px solid rgba(216, 206, 245, 0.16);
   border-radius: 46% 46% 10px 10px / 58% 58% 10px 10px;
   background:
-    linear-gradient(180deg, rgba(138, 107, 255, 0.05) 0%, rgba(255, 255, 255, 0.012) 40%, rgba(255, 255, 255, 0.02) 100%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.012) 40%, rgba(255, 255, 255, 0.02) 100%);
   backdrop-filter: blur(1.5px);
   -webkit-backdrop-filter: blur(1.5px);
   box-shadow:
@@ -236,7 +292,7 @@
   border-radius: inherit;
   background:
     linear-gradient(115deg, rgba(255, 255, 255, 0.14) 0%, transparent 22%),
-    radial-gradient(120% 60% at 50% 0%, rgba(164, 144, 255, 0.1), transparent 70%);
+    radial-gradient(120% 60% at 50% 0%, rgba(255, 255, 255, 0.07), transparent 70%);
   pointer-events: none;
 }
 
@@ -268,32 +324,6 @@
   width: 100%;
   height: auto;
   display: block;
-}
-
-.sound-clues-scene__cloche-inner-label {
-  position: absolute;
-  bottom: 16%;
-  left: 0;
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-  color: rgba(216, 206, 245, 0.5);
-  opacity: 0.4;
-  transition: opacity var(--duration-fast) ease;
-}
-
-.sound-clues-scene__cloche-inner-word {
-  font-size: clamp(5px, 0.7vw, 8px);
-  letter-spacing: 0.32em;
-  text-indent: 0.32em;
-}
-
-.sound-clues-scene__cloche-inner-num {
-  font-size: clamp(9px, 1.1vw, 13px);
-  letter-spacing: 0.12em;
-  color: rgba(232, 230, 240, 0.7);
 }
 
 /* Waveform along the base of the dome — only while playing. */
@@ -449,10 +479,6 @@
   color: rgba(238, 232, 255, 0.95);
 }
 
-.sound-clues-scene__cloche--playing .sound-clues-scene__cloche-inner-label {
-  opacity: 0.8;
-}
-
 .sound-clues-scene__cloche--playing .sound-clues-scene__cloche-glow {
   opacity: 0.85;
 }
@@ -489,11 +515,19 @@
    No card shell: the currently opened dome simply leaves a thin trace under
    the shelf, with controls tucked beneath the waveform. */
 
+/*
+  Height is reserved rather than derived. The empty state is one line and the
+  active state is three, so the shelf above used to shift ~8px the first time
+  a dome was played. Now the box is the same size either way and only its
+  contents change.
+*/
 .sound-clues-scene__player {
   flex: 0 0 auto;
   width: 100%;
   max-width: min(520px, 90vw);
-  min-height: clamp(58px, 10vh, 76px);
+  margin-top: var(--sp-40);
+  min-height: 92px;
+  justify-content: center;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -546,7 +580,7 @@
   top: 50%;
   height: 1px;
   transform: translateY(-50%);
-  background: rgba(138, 107, 255, 0.62);
+  background: var(--text-secondary);
   transition: width 0.1s linear;
 }
 
@@ -599,12 +633,11 @@
   justify-content: flex-end;
 }
 
+/* Type comes from `.metric` — see global.css. */
 .sound-clues-scene__progress {
   flex: 0 0 auto;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  color: var(--color-text-dim);
   margin: 0;
+  color: var(--text-tertiary);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -662,15 +695,18 @@
 .sound-clues-scene__field-frame {
   position: relative;
   padding: 20px 0;
-  width: min(320px, 72vw, 48vh);
+  /* Narrower than before: the side labels now need real width either side of
+     the field rather than sitting on its edges. */
+  width: min(300px, 52vw, 44vh);
+  margin: 0 auto;
 }
 
 .sound-clues-scene__axis {
   position: absolute;
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  color: var(--color-text-dim);
-  opacity: 0.65;
+  font-family: var(--font-kr);
+  font-size: 11px;
+  letter-spacing: 0;
+  color: var(--text-tertiary);
   white-space: nowrap;
   pointer-events: none;
 }
@@ -687,18 +723,22 @@
   transform: translateX(-50%);
 }
 
-/* The side words are rotated to run along the edges they belong to, which
-   keeps them out of the field without needing width for them. */
+/*
+  Horizontal, sitting just outside the ends of the axis they name. They used
+  to be rotated 90deg to run along the edges, which saved width at the cost of
+  making two of the four labels unreadable without turning your head.
+*/
 .sound-clues-scene__axis--left {
-  left: 0;
+  right: calc(100% + var(--sp-12));
   top: 50%;
-  transform: translate(calc(-50% - 10px), -50%) rotate(-90deg);
+  transform: translateY(-50%);
+  text-align: right;
 }
 
 .sound-clues-scene__axis--right {
-  right: 0;
+  left: calc(100% + var(--sp-12));
   top: 50%;
-  transform: translate(calc(50% + 10px), -50%) rotate(90deg);
+  transform: translateY(-50%);
 }
 
 .sound-clues-scene__field {
@@ -707,7 +747,7 @@
   aspect-ratio: 1;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background:
-    radial-gradient(ellipse at center, rgba(164, 144, 255, 0.045) 0%, transparent 68%),
+    radial-gradient(ellipse at center, rgba(255, 255, 255, 0.02) 0%, transparent 68%),
     rgba(255, 255, 255, 0.012);
   cursor: crosshair;
   touch-action: none;

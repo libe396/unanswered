@@ -26,7 +26,6 @@ import {
   synthesizeRestoredLine,
   type SentenceQuestionResult,
 } from '../lib/sentenceQuestionService';
-import { TerminalCorners } from '../components/TerminalCorners';
 import { ZoneIntroCard } from '../components/ZoneIntroCard';
 import { ZONE_INFO } from '../data/zones';
 import type { SceneBehaviorRecord, SentenceBehavioralTrace } from '../types';
@@ -440,7 +439,6 @@ export function SentenceCluesScene() {
         <p className="sentence-clues-scene__instruction">{narrative.instructionText}</p>
 
         <button className="cta cta--primary sentence-clues-scene__confirm" onClick={() => setPhase('explore')}>
-          <TerminalCorners />
           탐색 시작
         </button>
       </div>
@@ -532,7 +530,6 @@ export function SentenceCluesScene() {
             onClick={handleExploreNext}
             disabled={!isValid}
           >
-            <TerminalCorners />
             다음으로
           </button>
         </div>
@@ -558,7 +555,6 @@ export function SentenceCluesScene() {
         </div>
 
         <button className="cta cta--primary sentence-clues-scene__confirm" onClick={() => setPhase('discovering')}>
-          <TerminalCorners />
           다음으로
         </button>
       </div>
@@ -612,7 +608,6 @@ export function SentenceCluesScene() {
             기록하지 않는다
           </button>
           <button className="cta cta--primary sentence-clues-scene__confirm" onClick={() => proceedFromQuestion(false)}>
-            <TerminalCorners />
             다음으로
           </button>
         </div>
@@ -649,7 +644,6 @@ export function SentenceCluesScene() {
         </div>
 
         <button className="cta cta--primary sentence-clues-scene__confirm" onClick={handleRestoredRecordNext}>
-          <TerminalCorners />
           다음으로
         </button>
       </div>
@@ -676,7 +670,6 @@ export function SentenceCluesScene() {
       </div>
 
       <button className="cta cta--primary sentence-clues-scene__confirm" onClick={handleComplete}>
-        <TerminalCorners />
         기록 확정
       </button>
     </div>

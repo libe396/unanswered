@@ -13,7 +13,6 @@ import {
 } from '../lib/soundTracking';
 import { SOUND_THRESHOLDS } from '../lib/soundThresholds';
 import { POSITION_THRESHOLDS } from '../lib/positionThresholds';
-import { TerminalCorners } from '../components/TerminalCorners';
 import type {
   MemoryPosition,
   PlayStopReason,
@@ -597,7 +596,6 @@ export function SoundCluesScene() {
    */
   function renderCloche(clue: (typeof SOUND_CLUES)[number], index: number) {
     const r = getRuntime(clue.id);
-    const number = clue.label.replace(/[^0-9]/g, '') || String(index + 1).padStart(2, '0');
     const listened = listenedIds.has(clue.id);
     const state = [
       r.isPlaying ? 'sound-clues-scene__cloche--playing' : '',
@@ -625,10 +623,6 @@ export function SoundCluesScene() {
             <span className="sound-clues-scene__cloche-glyph">
               <SpecimenGlyph index={index} />
             </span>
-            <span className="sound-clues-scene__cloche-inner-label" aria-hidden="true">
-              <span className="sound-clues-scene__cloche-inner-word">SOUND</span>
-              <span className="sound-clues-scene__cloche-inner-num">{number}</span>
-            </span>
             <span className="sound-clues-scene__cloche-wave" aria-hidden="true">
               {Array.from({ length: 5 }).map((_, i) => (
                 <span key={i} style={{ animationDelay: `${i * 0.12}s` }} />
@@ -638,8 +632,15 @@ export function SoundCluesScene() {
           <span className="sound-clues-scene__cloche-base" aria-hidden="true" />
           <span className="sound-clues-scene__cloche-glow" aria-hidden="true" />
         </span>
+        {/*
+          One label per specimen. This used to print the number inside the
+          dome, again as a caption number, and a third time as `clue.label` —
+          which is itself only ever "SOUND 01", because SOUND_CLUES carries no
+          names (see content.ts: naming a sound is the one thing this Zone
+          must not do). So there is nothing to pair the number with, and the
+          label stands alone.
+        */}
         <span className="sound-clues-scene__cloche-caption">
-          <span className="sound-clues-scene__cloche-caption-num">{number}</span>
           <span className="sound-clues-scene__cloche-caption-label">
             {clue.label}
             {listened ? (
@@ -697,9 +698,21 @@ export function SoundCluesScene() {
   if (phase === 'browse') {
     return (
       <div className="sound-clues-scene">
-        <p className="sound-clues-scene__hint">그 사람의 기억에선 어떤 소리가 존재했을까요?</p>
+        {/*
+          Not the two-column stage: the shelf runs the full width of the
+          container and is itself the object, so the heading sits above it and
+          the action row below it, both on the same 960 measure and the same
+          left edge.
+        */}
+        <header className="sound-clues-scene__head">
+          <p className="sound-clues-scene__eyebrow">SOUND CLUES</p>
+          <h1 className="sound-clues-scene__title">
+            그 사람의 기억에선 어떤 소리가 존재했을까요?
+          </h1>
+        </header>
 
         <div className="sound-clues-scene__shelf-scroll">
+          <span className="residue sound-clues-scene__residue" aria-hidden="true" />
           <div className="sound-clues-scene__shelf">
             <div className="sound-clues-scene__shelf-row">
               {SOUND_CLUES.map((clue, index) => renderCloche(clue, index))}
@@ -710,25 +723,33 @@ export function SoundCluesScene() {
 
         {renderPlayer(focusedClue, focusedRuntime)}
 
-        <p className="sound-clues-scene__progress">
-          {listenedIds.size} / {SOUND_CLUES.length} 단서 청취
-        </p>
-
-        <button
-          className="cta cta--primary sound-clues-scene__confirm"
-          onClick={goToPositioning}
-          disabled={!selectedSoundId}
-        >
-          <TerminalCorners />
-          다음으로
-        </button>
+        <div className="sound-clues-scene__action">
+          <p className="metric sound-clues-scene__progress">
+            <span className="metric__value">
+              {listenedIds.size} / {SOUND_CLUES.length}
+            </span>
+            <span className="metric__label">단서 청취</span>
+          </p>
+          <button
+            className="cta cta--primary sound-clues-scene__confirm"
+            onClick={goToPositioning}
+            disabled={!selectedSoundId}
+          >
+            다음으로
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="sound-clues-scene">
-      <p className="sound-clues-scene__hint">이 소리가 기억 속 어디쯤 남아 있는지 표시하세요.</p>
+    <div className="sound-clues-scene sound-clues-scene--positioning">
+      <header className="sound-clues-scene__head">
+        <p className="sound-clues-scene__eyebrow">SOUND CLUES</p>
+        <h1 className="sound-clues-scene__title">
+          이 소리가 기억 속 어디쯤 남아 있는지 표시하세요
+        </h1>
+      </header>
 
       {renderPlayer(selectedClue, selectedSoundId ? getRuntime(selectedSoundId) : null)}
 
@@ -777,14 +798,16 @@ export function SoundCluesScene() {
         </div>
       </div>
 
-      <button
-        className="cta cta--primary sound-clues-scene__confirm"
-        onClick={handleConfirm}
-        disabled={!position}
-      >
-        <TerminalCorners />
-        다음으로
-      </button>
+      <div className="sound-clues-scene__action">
+        <span />
+        <button
+          className="cta cta--primary sound-clues-scene__confirm"
+          onClick={handleConfirm}
+          disabled={!position}
+        >
+          다음으로
+        </button>
+      </div>
     </div>
   );
 }

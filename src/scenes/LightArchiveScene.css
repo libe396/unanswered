@@ -14,39 +14,69 @@
   justify-content: center;
 }
 
-.light-archive-scene__browse {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: clamp(18px, 3vh, 28px);
-  padding: clamp(28px, 6vh, 54px) 6vw;
+/* ── Browse & feeling (stage layout) ─────────────────────────────────────── */
+
+/*
+  The large preview in the object column. Same blur→clear reading the
+  thumbnails have always had, one scale up: unresolved until the visitor puts
+  the pointer on something.
+*/
+.light-archive-scene__preview {
+  position: relative;
   width: 100%;
-  box-sizing: border-box;
+  max-width: 340px;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid var(--line-subtle);
+  border-radius: var(--r-8);
+  background: var(--glass-1);
 }
 
-.light-archive-scene__hint {
-  font-size: 13px;
-  letter-spacing: 0.1em;
-  color: var(--color-text-dim);
-  margin: 0;
+.light-archive-scene__preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(14px) brightness(0.6);
+  transform: scale(1.06);
+  transition: filter 520ms var(--ease-scene), transform 520ms var(--ease-scene);
+}
+
+.light-archive-scene__preview--focused .light-archive-scene__preview-img {
+  filter: blur(0) brightness(0.98);
+  transform: scale(1);
+}
+
+.light-archive-scene__preview-slot {
+  position: absolute;
+  left: var(--sp-12);
+  bottom: var(--sp-12);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
 }
 
 .light-archive-scene__grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 14px;
-  max-width: 900px;
+  gap: var(--sp-8);
   width: 100%;
 }
 
 .light-archive-scene__cell {
   position: relative;
   aspect-ratio: 1;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--line-subtle);
+  border-radius: var(--r-4);
   background: none;
   padding: 0;
   overflow: hidden;
   cursor: pointer;
+  transition: border-color var(--duration-fast) ease;
 }
 
 .light-archive-scene__cell-img {
@@ -63,86 +93,126 @@
   transform: scale(1.03);
 }
 
+/* Selection is the one violet mark in this column. */
 .light-archive-scene__cell--selected {
-  border-color: var(--color-accent);
+  border-color: var(--trace);
 }
 
-.light-archive-scene__cell-label {
+.light-archive-scene__cell-badge {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 6px 8px;
+  top: 3px;
+  right: 3px;
+  padding: 1px 4px;
+  border-radius: var(--r-4);
+  background: var(--trace);
+  color: var(--trace-ink);
+  font-family: var(--font-mono);
   font-size: 10px;
-  color: rgba(255, 255, 255, 0.75);
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  line-height: 1.3;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
 }
 
-/* Placement only — appearance comes from .cta .cta--primary. */
-.light-archive-scene__confirm {
-  position: absolute;
-  bottom: var(--sp-40);
-  right: var(--sp-40);
-  z-index: 2;
+/* Type comes from `.metric` — see global.css. */
+.light-archive-scene__count {
+  margin: 0 0 var(--sp-12);
+  color: var(--text-tertiary);
 }
 
-.light-archive-scene__feeling {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  gap: 48px;
-  align-items: center;
-  max-width: 900px;
-  padding: 0 6vw;
-}
-
-.light-archive-scene__feeling-img {
-  width: 320px;
-  height: 320px;
-  object-fit: cover;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  flex-shrink: 0;
-}
-
-.light-archive-scene__feeling-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  max-width: 380px;
-}
-
-.light-archive-scene__label {
-  font-size: 15px;
-  color: var(--color-text);
-  margin: 0;
-}
-
-.light-archive-scene__sublabel {
-  font-size: 12px;
-  color: var(--color-text-dim);
-  margin: 0;
-}
-
+/* Three equal columns so the right edge of the chip block lines up with the
+   CTA under it, instead of ragging wherever the words happen to end. */
 .light-archive-scene__keywords {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-8);
 }
 
 .light-archive-scene__keyword {
-  padding: 8px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 10px var(--sp-8);
+  border: 1px solid var(--line);
+  border-radius: var(--r-4);
   background: transparent;
-  color: var(--color-text-dim);
+  color: var(--text-secondary);
+  font-family: var(--font-kr);
   font-size: 13px;
+  letter-spacing: 0;
   cursor: pointer;
   transition: border-color var(--duration-fast) ease, color var(--duration-fast) ease;
 }
 
+.light-archive-scene__keyword:hover {
+  border-color: var(--line-strong);
+  color: var(--text-primary);
+}
+
 .light-archive-scene__keyword--selected {
-  border-color: var(--color-accent);
-  color: var(--color-text);
-  background: rgba(138, 107, 255, 0.08);
+  border-color: var(--trace);
+  color: var(--text-primary);
+}
+
+.light-archive-scene__proceed,
+.light-archive-scene__confirm {
+  width: 100%;
+  margin-top: var(--sp-24);
+}
+
+/* ── Light result ────────────────────────────────────────────────────────── */
+
+.light-archive-scene__result {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid var(--line-subtle);
+  border-radius: var(--r-8);
+}
+
+.light-archive-scene__result-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/*
+  One row, five colours. Measured against the 400px action column: a 10px
+  swatch + 6px + a 7-character hex at 10px mono is ~58px, so 5 chips plus four
+  16px gaps come to ~354px. `nowrap` because a palette that wraps to a second
+  line stops reading as one reading of one image.
+*/
+.light-archive-scene__palette-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--sp-16);
+}
+
+.light-archive-scene__palette-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.light-archive-scene__palette-dot {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--r-4);
+  border: 1px solid var(--line-strong);
+}
+
+.light-archive-scene__palette-hex {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  white-space: nowrap;
 }
 
 .light-archive-scene__reading {
@@ -186,7 +256,7 @@
   min-height: 280px;
   flex-shrink: 0;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid var(--line-subtle);
 }
 
 .light-archive-scene__origin-marker {
@@ -242,7 +312,7 @@
   background: linear-gradient(
     to bottom,
     transparent 0%,
-    rgba(138, 107, 255, 0.16) 48%,
+    rgba(255, 255, 255, 0.1) 48%,
     transparent 100%
   );
   background-size: 100% 240%;
@@ -280,19 +350,20 @@
   justify-content: space-between;
   gap: 18px;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--line-subtle);
 }
 
 .light-archive-scene__rules-heading {
+  font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--color-accent);
   margin: 0;
 }
 
 .light-archive-scene__rules-progress {
-  color: rgba(232, 230, 240, 0.48);
+  color: var(--text-tertiary);
   font-size: 10px;
   letter-spacing: 0.18em;
   white-space: nowrap;
@@ -311,9 +382,9 @@
   gap: 6px;
   min-height: 96px;
   padding: 12px 13px 13px;
-  border: 1px solid rgba(232, 230, 240, 0.09);
+  border: 1px solid var(--line-subtle);
   border-radius: 1px;
-  background: rgba(0, 0, 0, 0.115);
+  background: var(--glass-1);
 }
 
 .light-archive-scene__rule--structure-match,
@@ -326,7 +397,7 @@
   font-size: 9px;
   line-height: 1;
   letter-spacing: 0.12em;
-  color: rgba(232, 230, 240, 0.4);
+  color: var(--text-tertiary);
 }
 
 .light-archive-scene__rule-name {
@@ -345,12 +416,15 @@
   display: block;
   margin-top: 4px;
   font-size: 12px;
-  color: rgba(232, 230, 240, 0.35);
+  color: var(--text-tertiary);
   letter-spacing: 0.02em;
 }
 
+/* The readout is data the analysis produced, not something to act on — the
+   violet on this screen is spent on the heading and the matched rule's
+   border. */
 .light-archive-scene__rule--matched .light-archive-scene__rule-value {
-  color: var(--color-accent);
+  color: var(--text-primary);
 }
 
 .light-archive-scene__result-stack {
@@ -360,7 +434,7 @@
 }
 
 .light-archive-scene__result-stack strong {
-  color: rgba(232, 230, 240, 0.94);
+  color: var(--text-primary);
   font-size: clamp(18px, 1.75vw, 24px);
   font-weight: 400;
   line-height: 1.05;
@@ -368,7 +442,7 @@
 }
 
 .light-archive-scene__result-stack small {
-  color: rgba(232, 230, 240, 0.46);
+  color: var(--text-tertiary);
   font-size: 10px;
   line-height: 1.2;
   letter-spacing: 0.08em;
@@ -391,14 +465,14 @@
   position: relative;
   width: min(100%, 128px);
   height: 3px;
-  background: rgba(232, 230, 240, 0.12);
+  background: var(--line);
   overflow: hidden;
 }
 
 .light-archive-scene__brightness-meter span {
   display: block;
   height: 100%;
-  background: rgba(138, 107, 255, 0.62);
+  background: var(--text-secondary);
   transition: width 0.6s var(--ease-scene);
 }
 
@@ -408,7 +482,7 @@
   width: 14px;
   height: 14px;
   flex-shrink: 0;
-  border: 1px solid rgba(232, 230, 240, 0.34);
+  border: 1px solid var(--line-strong);
 }
 
 .light-archive-scene__highlight-value .light-archive-scene__color-swatch {
@@ -424,8 +498,8 @@
 
 .light-archive-scene__structure-tokens span {
   padding: 5px 8px;
-  border: 1px solid rgba(232, 230, 240, 0.16);
-  color: rgba(232, 230, 240, 0.72);
+  border: 1px solid var(--line);
+  color: var(--text-secondary);
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -451,7 +525,7 @@
 }
 
 .light-archive-scene__palette-item small {
-  color: rgba(232, 230, 240, 0.42);
+  color: var(--text-tertiary);
   font-size: 9px;
 }
 
@@ -474,53 +548,22 @@
   padding-top: 4px;
 }
 
+/* Appearance comes from .cta .cta--primary; only the width and the
+   analysis-specific disabled behaviour are declared here. */
 .light-archive-scene__analysis-complete button {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 28px;
   width: min(100%, 268px);
-  padding: 13px 16px;
-  border: 1px solid rgba(var(--color-signal-rgb), 0.3);
-  background: transparent;
-  color: var(--color-accent);
-  font-family: var(--font-base);
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background 180ms ease, border-color 180ms ease, color 180ms ease, opacity 180ms ease,
-    transform 180ms ease;
+  letter-spacing: 0.14em;
 }
 
-.light-archive-scene__analysis-complete button span:last-child {
-  transition: transform 180ms ease;
-}
-
+/*
+  Deliberately not dimmed. Every other disabled control in the project drops
+  to 0.35, but this one is waiting on the analysis finishing rather than on
+  the visitor, and fading it would read as "this did not work".
+*/
 .light-archive-scene__analysis-complete button:disabled {
   opacity: 1;
   cursor: not-allowed;
   pointer-events: none;
-}
-
-.light-archive-scene__analysis-complete button:hover:not(:disabled) {
-  border-color: rgba(var(--color-signal-rgb), 0.58);
-  background: rgba(138, 107, 255, 0.055);
-  color: var(--color-text);
-}
-
-.light-archive-scene__analysis-complete button:hover:not(:disabled) span:last-child {
-  transform: translateX(3px);
-}
-
-.light-archive-scene__analysis-complete button:active:not(:disabled) {
-  opacity: 0.78;
-  transform: translateY(1px);
-}
-
-.light-archive-scene__analysis-complete button:focus-visible {
-  outline: 1px solid var(--color-accent);
-  outline-offset: 5px;
 }
 
 .light-archive-scene__canvas {
@@ -544,16 +587,11 @@
 }
 
 @media (max-width: 768px) {
-  .light-archive-scene__grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
 
-  .light-archive-scene__feeling,
+  /* The browse/feeling columns are StageLayout's problem now; only the
+     analysis readout still lays itself out here. */
   .light-archive-scene__reading {
     flex-direction: column;
-  }
-
-  .light-archive-scene__reading {
     display: flex;
     width: 100%;
     max-height: none;

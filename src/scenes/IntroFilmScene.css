@@ -9,7 +9,22 @@
   and the fade-out are the same colour the next Scene opens on.
 */
 
+/*
+  The film is 1920x1080 shown `object-fit: contain`, so on anything taller
+  than 16:9 there is a band of ground above and below it. The chrome lives in
+  the lower band rather than on top of the picture.
+
+  --film-letterbox is that band's real height: 40px at 1280x800, 45px at
+  1440x900, 66px at 1512x982 — and 0 on a true 16:9 screen, where there is no
+  band at all. --film-chrome-band therefore floors it at 36px so SKIP and the
+  sound toggle can never collapse to nothing; on 16:9 they sit over the very
+  bottom of the frame, which is the only place left for them.
+*/
 .intro-film-scene {
+  --film-height: min(100vh, calc(100vw * 1080 / 1920));
+  --film-letterbox: calc((100vh - var(--film-height)) / 2);
+  --film-chrome-band: max(var(--film-letterbox), 36px);
+
   position: fixed;
   inset: 0;
   width: 100vw;
@@ -75,10 +90,12 @@
   left: 0;
   right: 0;
   bottom: 0;
+  height: var(--film-chrome-band);
   display: flex;
-  align-items: flex-end;
+  /* Centred on the band, not on the viewport edge. */
+  align-items: center;
   justify-content: space-between;
-  padding: var(--sp-32) var(--sp-32) var(--sp-40);
+  padding: 0 var(--sp-32);
   pointer-events: none;
 }
 
@@ -168,6 +185,6 @@
 
 @media (max-width: 640px) {
   .intro-film-scene__chrome {
-    padding: var(--sp-24) var(--sp-24) var(--sp-32);
+    padding: 0 var(--sp-24);
   }
 }

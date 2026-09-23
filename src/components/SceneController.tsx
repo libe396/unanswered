@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer-motion';
-import type { ComponentType } from 'react';
+import { useState, type ComponentType } from 'react';
 import { useExperienceStore } from '../store/experienceStore';
 import { useCrossSceneDebug } from '../hooks/useCrossSceneDebug';
 import { LandingScene } from '../scenes/LandingScene';
@@ -20,6 +20,7 @@ import { DevSceneNav } from './DevSceneNav';
 import { DevSceneNavigator } from './DevSceneNavigator';
 import { PostElevatorSoundManager } from './PostElevatorSoundManager';
 import { ZoneLabel } from './ZoneLabel';
+import { ArchiveHUD } from './ArchiveHUD';
 import { BackButton } from './BackButton';
 
 const SCENE_COMPONENTS: Record<SceneId, ComponentType> = {
@@ -80,6 +81,16 @@ export function SceneController() {
   const ActiveScene = SCENE_COMPONENTS[currentScene];
   const isMatchCut = MATCH_CUT_SCENES.has(currentScene);
 
+  /*
+    The Scene that is actually on screen. `currentScene` changes as soon as a
+    Scene completes, but with mode="wait" the outgoing Scene stays mounted for
+    its whole exit — so anything rendered outside AnimatePresence that reads
+    the store directly runs ahead of what the visitor is looking at.
+    `onExitComplete` fires exactly as the incoming Scene mounts, which is the
+    beat the ArchiveHUD's zone marker should move on.
+  */
+  const [displayedScene, setDisplayedScene] = useState<SceneId>(currentScene);
+
   const variants = isMatchCut ? cutVariants : prefersReducedMotion ? reducedVariants : motionVariants;
   const transition = isMatchCut
     ? { duration: 0 }
@@ -90,7 +101,10 @@ export function SceneController() {
   return (
     <>
       <PostElevatorSoundManager currentScene={currentScene} />
-      <AnimatePresence mode="wait">
+      <AnimatePresence
+        mode="wait"
+        onExitComplete={() => setDisplayedScene(useExperienceStore.getState().currentScene)}
+      >
         <motion.div
           key={currentScene}
           className="scene-frame"
@@ -105,6 +119,8 @@ export function SceneController() {
       </AnimatePresence>
       <ZoneLabel />
       <BackButton />
+      {/* Decides for itself which Zones it belongs on — see ArchiveHUD. */}
+      <ArchiveHUD scene={displayedScene} />
       {/* Above every Scene and below nothing. Static, decorative, never
           interactive — see .grain-overlay in styles/global.css. */}
       <div className="grain-overlay" aria-hidden="true" />

@@ -1,5 +1,4 @@
 import { motion, useReducedMotion } from 'framer-motion';
-import { TerminalCorners } from './TerminalCorners';
 import './ZoneIntroCard.css';
 
 interface ZoneIntroCardProps {
@@ -55,7 +54,6 @@ export function ZoneIntroCard({ zone, title, subtitle, ctaLabel, onContinue }: Z
         animate={{ opacity: 1 }}
         transition={{ duration: d(1), delay: d(1.6) }}
       >
-        <TerminalCorners />
         {ctaLabel}
       </motion.button>
     </div>

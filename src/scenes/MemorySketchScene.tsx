@@ -365,7 +365,6 @@ export function MemorySketchScene() {
         />
 
         <button className="cta cta--primary memory-sketch-scene__confirm" onClick={proceedFromRoom} disabled={!canProceed}>
-          <TerminalCorners />
           다음으로
         </button>
       </div>
@@ -396,7 +395,6 @@ export function MemorySketchScene() {
               className="cta cta--primary memory-sketch-scene__confirm"
               onClick={() => setPhase('drawing')}
             >
-              <TerminalCorners />
               흔적 덧그리기
             </button>
           </div>
@@ -449,7 +447,6 @@ export function MemorySketchScene() {
           </div>
 
           <button className="cta cta--primary memory-sketch-scene__confirm" onClick={handleConfirm}>
-            <TerminalCorners />
             기록 남기기
           </button>
         </>

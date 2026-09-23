@@ -200,7 +200,14 @@
   */
   mask-image: linear-gradient(
     to bottom,
-    #000 0,
+    /* Starts below the floor readout. .intro-scene__led sits at top 8% and
+       stands 66px tall (48px Bebas + 4px gap + 14px caption), so its bottom
+       edge is 8% + 66px; +24px of clearance puts the line's first visible
+       pixel at 8% + 90px, fading up over the same 40px the centre break
+       uses. */
+    transparent 0,
+    transparent calc(8% + 90px),
+    #000 calc(8% + 130px),
     #000 calc(50% - 147px),
     transparent calc(50% - 107px),
     transparent calc(50% + 107px),
