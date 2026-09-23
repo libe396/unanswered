@@ -186,10 +186,8 @@
 .sentence-clues-scene__wall {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  /* Rows take the height their records need and the box scrolls. Without
-     this the grid has a definite height, `align-content` stretches four auto
-     rows to fill it exactly, and every three-line record is cut off inside
-     its own card — the cards are min-height: 0, so nothing stops the squeeze. */
+  /* Rows take the height their records need; items stretch, so every card in
+     a row is the same height without any card carrying a fixed one. */
   grid-auto-rows: min-content;
   align-content: start;
   gap: var(--sp-8);
@@ -197,21 +195,12 @@
   max-width: var(--stage-max);
   flex: 1 1 auto;
   min-height: 0;
-  margin-top: var(--sp-24);
-  overflow-y: auto;
-  /* 8px left/right so a focus ring is never clipped and the cards' own edges
-     line up with the slots' inside the .glass row below. 24px top and bottom
-     so that at either end of the scroll the outermost row clears the fade. */
-  padding: var(--sp-24) var(--sp-8);
-  /* A 24px fade at both cuts, so a card crossing the edge reads as "the wall
-     continues" rather than as a clipping bug. */
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0,
-    black 24px,
-    black calc(100% - 24px),
-    transparent 100%
-  );
+  margin-top: var(--sp-12);
+  /* All twenty records are on the screen at once — no scroller, so no fade
+     at a cut and no edge for a card to be caught on. The card measures below
+     are what keep four rows inside 800px. */
+  overflow: visible;
+  padding: 0;
 }
 
 /* A translucent surface with real depth behind it — not a flat button, not
@@ -315,55 +304,10 @@
   }
 }
 
-/* ── The account: Reconstruction and Restored Record share one reading
-   layout — a short, numbered list of lines, ENDING fragments always last.
-   Reconstruction shows the fragments as drawn; Restored Record shows the
-   same list with the one answered line folded back in. */
 
-.sentence-clues-scene__account {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: min(560px, 92vw);
-  max-height: min(52vh, 440px);
-  overflow-y: auto;
-  padding: 4px 2px;
-}
 
-.sentence-clues-scene__account-line {
-  display: flex;
-  gap: 12px;
-  align-items: baseline;
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.65;
-  color: var(--color-text);
-}
 
-.sentence-clues-scene__account-index {
-  flex: none;
-  font-size: 11px;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.08em;
-  color: var(--color-text-dim);
-  opacity: 0.55;
-  padding-top: 2px;
-}
 
-.sentence-clues-scene__account--final .sentence-clues-scene__account-line {
-  color: var(--color-text);
-}
-
-/* The one mark for an unanswered question — a small trailing note, never a
-   red flag, never phrased as an error. It sits on the line it belongs to,
-   nowhere else. */
-.sentence-clues-scene__unanswered-mark {
-  margin-left: 6px;
-  font-size: 11px;
-  color: var(--color-text-dim);
-  opacity: 0.5;
-  white-space: nowrap;
-}
 
 /* ── Discovering ──────────────────────────────────────────────────────────
    One quiet line, alone on the screen. No card, no gap left waiting to be
@@ -395,37 +339,8 @@
   }
 }
 
-/* ── Question: one fragment, one gap in it, one line to fill it ──────────
-   Exactly one card — the fragment the question is about — with the question
-   itself sitting just under it, a small gap of its own space and nothing
-   more. Not two cards with a blank between them: the visitor is filling in
-   *this* record, not connecting two. */
 
-.sentence-clues-scene--question {
-  gap: 22px;
-}
 
-.sentence-clues-scene__target-card {
-  margin: 0;
-  width: min(480px, 92vw);
-  padding: 16px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.02);
-  color: var(--color-text-dim);
-  font-size: 14px;
-  line-height: 1.6;
-  text-align: center;
-}
-
-.sentence-clues-scene__question {
-  margin: 0;
-  max-width: 400px;
-  text-align: center;
-  font-size: 16px;
-  line-height: 1.6;
-  color: var(--color-text);
-}
 
 .sentence-clues-scene__response-field {
   display: flex;
@@ -490,33 +405,8 @@
   opacity: 0.55;
 }
 
-/* ── Shared bottom bar ───────────────────────────────────────────────────── */
 
-.sentence-clues-scene__submit {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  width: min(920px, 94vw);
-  min-height: 48px;
-  margin-top: 4px;
-}
 
-.sentence-clues-scene__edit {
-  padding: 10px 18px;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: var(--color-text-dim);
-  font-size: 13px;
-  letter-spacing: 0.08em;
-  cursor: pointer;
-  transition: border-color var(--duration-fast) ease, color var(--duration-fast) ease;
-}
-
-.sentence-clues-scene__edit:hover {
-  border-color: var(--color-accent);
-  color: var(--color-text);
-}
 
 /* ── Shared confirm control ──────────────────────────────────────────────── */
 
@@ -537,13 +427,6 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .sentence-clues-scene__submit {
-    flex-direction: column;
-    width: 100%;
-    align-items: stretch;
-  }
-
-  .sentence-clues-scene__edit,
   .sentence-clues-scene__confirm {
     width: 100%;
   }
@@ -552,14 +435,26 @@
 /* Full archive view: all twenty records stay readable, drawn and locked ones
    included. Only this Scene's explore phase uses these measures. */
 .sentence-clues-scene--explore {
-  --sentence-body-size: 14px;
+  /* 12px, not 13. Measured at 1094x800 with the description line already
+     dropped: three clamped lines at 13px put the fourth row of cards 15px
+     into the slot row. 12px clears it by 39px. */
+  --sentence-body-size: 12px;
   --sentence-caption-size: 10px;
+}
+
+/* One extra column of room once the viewport can pay for it. Set on the Scene
+   so StageHeader, the wall, the slot row and the action row all move together
+   and keep the one left and right edge. */
+@media (min-width: 1280px) {
+  .sentence-clues-scene--explore {
+    --stage-max: 1040px;
+  }
 }
 
 .sentence-clues-scene--explore .sentence-clues-scene__card {
   min-height: 0;
   padding: var(--sp-12);
-  gap: var(--sp-8);
+  gap: 6px;
   border: 1px solid var(--line);
   border-radius: var(--r-4);
   background: var(--glass-1);
@@ -580,16 +475,25 @@
   gap: var(--sp-8);
   font-family: var(--font-mono);
   font-size: var(--sentence-caption-size);
+  line-height: 1.4;
   letter-spacing: 0.14em;
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
   opacity: 1;
 }
 
+/* Three lines at most. A record that runs longer is cut rather than allowed
+   to set a taller row — four rows have to land inside one 800px screen, and
+   the full sentence is one click away in the slot row and in the account. */
 .sentence-clues-scene--explore .sentence-clues-scene__card-text {
   font-size: var(--sentence-body-size);
-  line-height: 1.55;
+  line-height: 1.5;
   word-break: keep-all;
   overflow-wrap: break-word;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
 }
 
 .sentence-clues-scene--explore .sentence-clues-scene__card:hover:not(:disabled):not(.sentence-clues-scene__card--drawn) {
@@ -656,20 +560,18 @@
   flex: 0 0 auto;
   width: 100%;
   max-width: var(--stage-max);
-  margin-top: var(--sp-16);
+  margin-top: var(--sp-12);
 }
 
-/* Five slots in one glass row, on the grid's own left and right edges. The
-   row is the selection order, which is why the cards above carry no numbered
-   badge and the old "02 ×" chips are gone. */
+/* Five slots on the wall's own five columns — same track widths, same gap,
+   same outer edges — so slot 03 sits directly under the third column. */
 .sentence-clues-scene__slots {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: var(--sp-8);
   width: 100%;
-  height: 64px;
-  padding: var(--sp-8);
-  border-radius: var(--r-8);
+  height: 52px;
+  padding: 0;
   box-sizing: border-box;
 }
 
@@ -755,7 +657,7 @@
 /* ── Action row ───────────────────────────────────────────────────────────── */
 
 .sentence-clues-scene--explore .stage-actions {
-  margin-top: var(--sp-16);
+  margin-top: var(--sp-12);
 }
 
 .sentence-clues-scene--explore .sentence-clues-scene__count {
@@ -775,9 +677,14 @@
    the grid is still the one box that moves. --stage-top and --stage-hud-clear
    are never reduced here, since that is exactly what let the heading slide
    under the BACK / ZONE header. */
-@media (max-width: 1100px) {
-  .sentence-clues-scene--explore .sentence-clues-scene__wall {
+@media (max-width: 1023px) {
+  .sentence-clues-scene--explore .sentence-clues-scene__wall,
+  .sentence-clues-scene__slots {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .sentence-clues-scene__slots {
+    height: auto;
+    grid-auto-rows: 52px;
   }
 }
 @media (max-width: 800px) {
@@ -801,14 +708,6 @@
 
 /* Consistent reading measure across the recovered context and record steps. */
 .sentence-clues-scene--context,
-.sentence-clues-scene--reading {
-  justify-content: flex-start;
-  align-items: stretch;
-  padding: var(--stage-top) 32px var(--stage-bottom);
-  overflow-y: auto;
-  gap: 24px;
-  margin-inline: auto;
-}
 .sentence-clues-scene--context {
   max-width: 992px;
   display: grid;
@@ -831,39 +730,16 @@
 .sentence-clues-scene__swatches { display: flex; flex-wrap: wrap; gap: 8px; }
 .sentence-clues-scene__swatches span { width: 28px; height: 28px; border: 1px solid var(--line-strong); border-radius: 50%; }
 .sentence-clues-scene__context-reading { display: flex; flex-direction: column; align-items: flex-start; gap: 24px; min-height: 0; }
-.sentence-clues-scene__reading-title { margin: 0; font-size: 28px; font-weight: 500; line-height: 1.5; text-align: left; }
 .sentence-clues-scene__context-p { font-size: 18px; line-height: 1.8; opacity: 1; animation: none; }
 .sentence-clues-scene--context .sentence-clues-scene__missing { width: 100%; align-items: flex-start; text-align: left; gap: 16px; }
 .sentence-clues-scene--context .sentence-clues-scene__prompt,
 .sentence-clues-scene--context .sentence-clues-scene__instruction { text-align: left; line-height: 1.7; }
-.sentence-clues-scene--reading { max-width: 880px; }
-.sentence-clues-scene--reading > * { flex-shrink: 0; }
-.sentence-clues-scene--reading .sentence-clues-scene__account {
-  width: 100%; max-height: none; overflow: visible; gap: 14px; padding: 0;
-}
-.sentence-clues-scene--reading .sentence-clues-scene__account-line {
-  width: 100%; padding: 20px 0; gap: 20px; border-bottom: 1px solid var(--line);
-  font-size: 21px; line-height: 1.75; overflow-wrap: anywhere;
-}
-.sentence-clues-scene--reading .sentence-clues-scene__account-index { font-size: 12px; color: var(--text-secondary); opacity: 1; font-family: var(--font-mono); }
-.sentence-clues-scene--reading > .sentence-clues-scene__confirm { align-self: flex-start; }
-.sentence-clues-scene--reading .sentence-clues-scene__submit { width: 100%; justify-content: flex-start; }
-.sentence-clues-scene--question .sentence-clues-scene__reading-title { font-size: 28px; }
-.sentence-clues-scene--question .sentence-clues-scene__question { font-size: 26px; font-weight: 500; line-height: 1.6; max-width: none; text-align: left; }
-.sentence-clues-scene--question .sentence-clues-scene__response-field { width: min(100%, 560px); align-items: flex-end; }
-.sentence-clues-scene--question .sentence-clues-scene__response-input {
-  box-sizing: border-box; min-height: 104px; padding: 16px; font-family: inherit;
-  font-size: 18px; line-height: 1.6; text-align: left; resize: vertical;
-  border: 1px solid var(--line-strong); border-radius: var(--r-4); background: var(--glass-1);
-}
-.sentence-clues-scene--question .sentence-clues-scene__response-input::placeholder { opacity: 1; }
-.sentence-clues-scene--question .sentence-clues-scene__submit button { height: 48px; min-height: 48px; font-size: 14px; color: var(--text-primary); }
 .sentence-clues-scene button:focus-visible,
 .sentence-clues-scene textarea:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 3px; }
 @media (max-width: 800px) {
   .sentence-clues-scene--context { grid-template-columns: minmax(0, 1fr); gap: 24px; }
   .sentence-clues-scene__clue-summary { border-right: 0; border-bottom: 1px solid var(--line); padding: 0 0 20px; }
-  .sentence-clues-scene--context, .sentence-clues-scene--reading { padding-inline: 20px; }
+  .sentence-clues-scene--context { padding-inline: 20px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .sentence-clues-scene__context-p, .sentence-clues-scene__discovering-text { animation: none; opacity: 1; }
@@ -945,4 +821,441 @@
 
 .sentence-clues-scene--context .sentence-clues-scene__confirm {
   margin-top: var(--sp-24);
+}
+
+
+/* ══ The record sheet ═══════════════════════════════════════════════════════
+   Reconstruction → Discovering → Question → Restored Record are one screen:
+   a sheet of paper on the left that stays where it is, and a column on the
+   right that changes. Everything here is scoped to .sentence-clues-scene, so
+   none of it reaches another Scene.
+
+   Deliberately quieter than the rest of the Zone's objects: one flat
+   translucent face, one hairline border, four corner marks, and no backdrop
+   blur, no glow and no grain of its own. The violet is spent on two things
+   only — the record currently being asked about, and the sentence the
+   visitor adds. */
+
+.sentence-clues-scene--record {
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  padding: var(--stage-top) var(--sp-32) var(--stage-hud-clear);
+}
+
+.sentence-clues-scene__record-grid {
+  display: grid;
+  /* ~55:45, on a 1040–1120 measure. */
+  grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr);
+  gap: clamp(48px, 5vw, 64px);
+  /* `start`, not `center`: the sheet grows downward as the answer is typed
+     and as the addition lands, and a centred row would move its top edge on
+     every keystroke. The reserved height below keeps the row's own top still
+     while the Scene centres it. */
+  align-items: start;
+  width: 100%;
+  max-width: 1120px;
+  min-width: 0;
+  /* The row is at least this tall whatever step it is on, so centring it in
+     the Scene resolves to the same y on all three. Measured: without it the
+     sheet jumped 39px between an empty and a filled answer. */
+  min-height: min(600px, 100%);
+  max-height: 100%;
+}
+
+/* ── The sheet ───────────────────────────────────────────────────────────── */
+
+.sentence-clues-scene__sheet {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-height: 100%;
+  padding: var(--sp-24) var(--sp-32) var(--sp-24);
+  background: var(--glass-1);
+  border: 1px solid var(--line-subtle);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.32);
+  box-sizing: border-box;
+}
+
+.sentence-clues-scene__sheet-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-16);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: 0.16em;
+  /* Secondary, not tertiary: tertiary on --glass-1 over --bg-base does not
+     clear 4.5:1, and this line carries the sheet's state. */
+  color: var(--text-secondary);
+}
+
+.sentence-clues-scene__sheet-state {
+  padding: 4px var(--sp-8);
+  border: 1px solid var(--line);
+  color: var(--text-secondary);
+  transition: border-color 240ms ease, color 240ms ease;
+}
+
+/* The one moment the sheet itself is allowed to carry the accent. */
+.sentence-clues-scene__sheet-state--done {
+  border-color: var(--trace);
+  color: var(--text-primary);
+}
+
+.sentence-clues-scene__sheet-title {
+  margin: var(--sp-16) 0 var(--sp-8);
+  padding-bottom: var(--sp-16);
+  border-bottom: 1px solid var(--line-subtle);
+  font-family: var(--font-kr);
+  font-size: 13px;
+  line-height: 1.6;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+/* Records are separated by space, not by rules. */
+.sentence-clues-scene__sheet-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--sp-8) 0;
+  margin: 0 calc(var(--sp-16) * -1);
+}
+
+.sentence-clues-scene__record-line {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: var(--sp-12);
+  padding: var(--sp-12) var(--sp-16);
+  border-left: 1px solid transparent;
+  transition: opacity 240ms ease, background-color 240ms ease, border-color 240ms ease;
+}
+
+/* The record being asked about. Everything else steps back rather than
+   disappearing — the account still has to be readable while answering. */
+.sentence-clues-scene__record-line--focus {
+  background: rgba(255, 255, 255, 0.03);
+  border-left-color: var(--trace);
+}
+
+.sentence-clues-scene__record-line--dim {
+  opacity: 0.45;
+}
+
+.sentence-clues-scene__record-no {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 2.6;
+  letter-spacing: 0.16em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+
+.sentence-clues-scene__record-body {
+  min-width: 0;
+}
+
+.sentence-clues-scene__record-text {
+  margin: 0;
+  font-family: var(--font-kr);
+  font-size: 18px;
+  line-height: 1.75;
+  color: var(--text-primary);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* ── What the visitor added ──────────────────────────────────────────────── */
+
+.sentence-clues-scene__addition {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: var(--sp-8) 0 0;
+  padding-left: var(--sp-12);
+  border-left: 2px solid var(--trace);
+}
+
+/* Korean, so Pretendard with no tracking and no uppercase — the mono/0.16em
+   treatment is for Latin marks only (see global.css's type rules). */
+.sentence-clues-scene__addition-label {
+  font-family: var(--font-kr);
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--trace);
+}
+
+.sentence-clues-scene__addition-text {
+  font-family: var(--font-kr);
+  font-size: 16px;
+  line-height: 1.7;
+  /* The sentence reads at full strength — what marks it as the visitor's own
+     is the violet rule under it, not a colour of its own. */
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-decoration-color: var(--trace);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+/* Still being typed — dashed, and never styled as though it were saved. The
+   min-height reserves the slot while it is empty, so the sheet does not
+   resize on the first keystroke. */
+.sentence-clues-scene__addition--draft {
+  min-height: 48px;
+  border-left-style: dashed;
+  border-left-color: var(--line-strong);
+}
+
+.sentence-clues-scene__addition--draft .sentence-clues-scene__addition-label,
+.sentence-clues-scene__addition--blank .sentence-clues-scene__addition-label {
+  color: var(--text-tertiary);
+}
+
+.sentence-clues-scene__addition--draft .sentence-clues-scene__addition-text {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+/* Declined. The record above it is left exactly as the archive wrote it. */
+.sentence-clues-scene__addition--blank {
+  border-left-style: dashed;
+  border-left-color: var(--line);
+}
+
+.sentence-clues-scene__sheet-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-16);
+  margin-top: var(--sp-8);
+  padding-top: var(--sp-16);
+  border-top: 1px solid var(--line-subtle);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: 0.16em;
+  color: var(--text-secondary);
+}
+
+/* ── The column that changes ─────────────────────────────────────────────── */
+
+.sentence-clues-scene__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  text-align: left;
+}
+
+.sentence-clues-scene__steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-16);
+  margin: 0 0 var(--sp-24);
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-kr);
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text-tertiary);
+}
+
+.sentence-clues-scene__step {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  transition: color 240ms ease;
+}
+
+.sentence-clues-scene__step--on {
+  color: var(--text-primary);
+}
+
+.sentence-clues-scene__step-no {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+}
+
+.sentence-clues-scene__panel-eyebrow {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--trace);
+}
+
+.sentence-clues-scene__panel-title {
+  margin: var(--sp-16) 0 0;
+  font-family: var(--font-kr);
+  font-size: 28px;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
+  word-break: keep-all;
+}
+
+.sentence-clues-scene__panel-desc {
+  margin: var(--sp-12) 0 0;
+  font-family: var(--font-kr);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.sentence-clues-scene__panel-hint {
+  margin: var(--sp-12) 0 0;
+  font-family: var(--font-kr);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-tertiary);
+  word-break: keep-all;
+}
+
+.sentence-clues-scene__panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-12);
+  margin-top: var(--sp-32);
+}
+
+/* ── The field ───────────────────────────────────────────────────────────── */
+
+.sentence-clues-scene--record .sentence-clues-scene__response-field {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  width: 100%;
+  margin-top: var(--sp-24);
+}
+
+.sentence-clues-scene__response-label {
+  font-family: var(--font-kr);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-secondary);
+}
+
+.sentence-clues-scene--record .sentence-clues-scene__response-input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 112px;
+  max-height: 224px;
+  padding: var(--sp-16);
+  border: 1px solid var(--line);
+  border-radius: var(--r-4);
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--text-primary);
+  font-family: var(--font-kr);
+  font-size: 16px;
+  line-height: 1.6;
+  text-align: left;
+  /* Height is set from the content — the drag handle would fight it. */
+  resize: none;
+  caret-color: var(--trace);
+  transition: border-color var(--duration-fast) ease;
+}
+
+.sentence-clues-scene--record .sentence-clues-scene__response-input::placeholder {
+  color: var(--text-tertiary);
+  opacity: 1;
+}
+
+.sentence-clues-scene--record .sentence-clues-scene__response-input:focus {
+  outline: none;
+  border-color: var(--trace);
+  box-shadow: 0 0 0 1px var(--trace);
+}
+
+.sentence-clues-scene--record .sentence-clues-scene__response-count {
+  align-self: flex-end;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+  opacity: 1;
+}
+
+/* ── Discovering, in place ───────────────────────────────────────────────── */
+
+.sentence-clues-scene--record .sentence-clues-scene__discovering-text {
+  margin: var(--sp-16) 0 0;
+  max-width: none;
+  text-align: left;
+  font-size: 20px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* ── Narrow screens: one column, sheet first. Never a scaled-down stage. ─── */
+
+@media (max-width: 900px) {
+  .sentence-clues-scene--record {
+    justify-content: flex-start;
+    overflow-y: auto;
+    padding: var(--stage-top) var(--sp-24) var(--stage-hud-clear);
+  }
+
+  .sentence-clues-scene__record-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-32);
+    max-height: none;
+  }
+
+  .sentence-clues-scene__sheet,
+  .sentence-clues-scene__sheet-lines {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .sentence-clues-scene__sheet {
+    padding: var(--sp-24);
+  }
+
+  .sentence-clues-scene__record-text {
+    font-size: 16px;
+  }
+
+  .sentence-clues-scene__panel-title {
+    font-size: 22px;
+  }
+
+  .sentence-clues-scene__panel-actions {
+    width: 100%;
+  }
+
+  .sentence-clues-scene__panel-actions .cta {
+    flex: 1 1 160px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sentence-clues-scene__record-line,
+  .sentence-clues-scene__sheet-state,
+  .sentence-clues-scene__step {
+    transition: none;
+  }
 }

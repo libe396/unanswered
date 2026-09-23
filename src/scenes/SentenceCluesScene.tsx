@@ -24,10 +24,10 @@ import {
   NO_TARGET_MESSAGE,
   findQuestionTarget,
   generateFragmentQuestion,
-  synthesizeRestoredLine,
   type SentenceQuestionResult,
 } from '../lib/sentenceQuestionService';
 import { ZoneIntroCard } from '../components/ZoneIntroCard';
+import { TerminalCorners } from '../components/TerminalCorners';
 import { StageActions, StageHeader } from '../components/StageHeader';
 import { ZONE_INFO } from '../data/zones';
 import type { SceneBehaviorRecord, SentenceBehavioralTrace } from '../types';
@@ -91,6 +91,56 @@ function orderedForReading(drawnIds: readonly string[]): string[] {
   const ending = drawnIds.filter((id) => roleOf(id) === 'ending');
   return [...nonEnding, ...ending];
 }
+
+/**
+ * The ENDING gate (records 17–20 stay shut until two other records are drawn),
+ * off.
+ *
+ * Off means the wall is twenty equal records from the first frame: no LOCKED
+ * mark, no card in a third state, and no line of the instruction explaining a
+ * rule the visitor never meets. It is a flag rather than a deletion because
+ * the rule itself is a narrative decision, not a layout one —
+ * `isEndingLocked`, `SENTENCE_MIN_NON_ENDING_BEFORE_ENDING` and the sentence
+ * that announces the unlock are all still here, and flipping this back to
+ * `true` restores every one of them.
+ *
+ * It does not touch what gets recorded: SENTENCE_MIN_FRAGMENTS/
+ * SENTENCE_MAX_FRAGMENTS (3–5) and every tracking call are unchanged.
+ */
+const ENDING_LOCK_ENABLED = false;
+
+/**
+ * The four phases that are one screen.
+ *
+ * Reconstruction, Discovering, Question and Restored Record are not four
+ * Scenes — they are one sheet of paper being filled in, and the sheet has to
+ * stay in the same place on the screen the whole time or the Zone reads as a
+ * form with three pages. Discovering is in the list for exactly that reason:
+ * on its own it was a lone line on an empty screen, so the sheet vanished
+ * between step 1 and step 2 and came back somewhere slightly different.
+ *
+ * The phase machine itself is untouched — only where these phases draw.
+ */
+const RECORD_PHASES: readonly Phase[] = ['reconstruction', 'discovering', 'question', 'restoredRecord'];
+
+/** 기록 확인 / 빈칸 채우기 / 기록 완료 — the three marks in the step rail. */
+const RECORD_STEPS = ['기록 확인', '빈칸 채우기', '기록 완료'] as const;
+
+/**
+ * Hangul Compatibility Jamo — a single ㄱ-ㅎ / ㅏ-ㅣ, i.e. a syllable that was
+ * never finished. One of these at the very end of an answer is what is left
+ * when a visitor commits out of a half-typed character, so it is dropped on
+ * the way into the record. Exactly one, and only at the end: everything the
+ * visitor actually wrote is kept as written.
+ */
+const TRAILING_LONE_JAMO = /[\u3131-\u318E]$/;
+
+function dropTrailingLoneJamo(value: string): string {
+  return TRAILING_LONE_JAMO.test(value) ? value.slice(0, -1).trimEnd() : value;
+}
+
+const RESPONSE_MIN_HEIGHT = 112;
+const RESPONSE_MAX_HEIGHT = 224;
 
 const RESPONSE_MAX_LENGTH = 100;
 const DISCOVERING_MIN_MS = 900;
@@ -228,6 +278,7 @@ export function SentenceCluesScene() {
   const nonEndingDrawnCount = fragments.filter((id) => roleOf(id) !== 'ending').length;
 
   function isEndingLocked(fragment: SentenceReconstructionFragment): boolean {
+    if (!ENDING_LOCK_ENABLED) return false;
     return fragment.narrativeRole === 'ending' && nonEndingDrawnCount < SENTENCE_MIN_NON_ENDING_BEFORE_ENDING;
   }
 
@@ -243,6 +294,17 @@ export function SentenceCluesScene() {
   const responseEditCountRef = useRef(0);
   const responseDeleteCountRef = useRef(0);
   const responseLengthRef = useRef(0);
+  const responseInputRef = useRef<HTMLTextAreaElement>(null);
+  /*
+    True between compositionstart and compositionend — i.e. while a Hangul
+    syllable is still being assembled out of jamo. React's onChange does fire
+    mid-composition, but the value it carries is the half-built syllable, and
+    a commit taken from state at that moment either drops the last letter or
+    keeps a stray one ("...것이다.ㅇ"). Every commit therefore reads the
+    textarea's own value instead; this flag is what tells the handlers a
+    composition is in flight.
+  */
+  const isComposingRef = useRef(false);
   const [behavioralTrace, setBehavioralTrace] = useState<SentenceBehavioralTrace | null>(null);
 
   useEffect(() => {
@@ -260,6 +322,15 @@ export function SentenceCluesScene() {
   useEffect(() => {
     if (isValid) tracking.advanceReady();
   }, [isValid, tracking]);
+
+  // The field grows with the answer instead of scrolling inside itself. Run
+  // on phase too, so it is sized correctly the frame it first appears.
+  useEffect(() => {
+    const field = responseInputRef.current;
+    if (!field) return;
+    field.style.height = 'auto';
+    field.style.height = `${Math.min(Math.max(field.scrollHeight, RESPONSE_MIN_HEIGHT), RESPONSE_MAX_HEIGHT)}px`;
+  }, [responseText, phase]);
 
   useEffect(
     () => () => {
@@ -354,12 +425,41 @@ export function SentenceCluesScene() {
     setResponseText(value);
   }
 
+  /**
+   * Force a Hangul syllable that is still being assembled to be finished.
+   *
+   * Blurring makes the IME commit whatever it is holding, which fires
+   * compositionend and settles the textarea's value — before the click that
+   * follows this mousedown reaches either button. Without it a visitor who
+   * clicks straight out of a half-typed syllable commits a value that is one
+   * keystroke behind what they can see.
+   */
+  function commitComposition() {
+    if (!isComposingRef.current) return;
+    responseInputRef.current?.blur();
+  }
+
+  /**
+   * Commit the answer, or decline to give one.
+   *
+   * The value is read off the textarea rather than out of `responseText`: a
+   * visitor who clicks straight from an unfinished Hangul syllable is still
+   * mid-composition, and state is one jamo behind the DOM at that moment.
+   *
+   * Two things happen to the text and nothing else: surrounding whitespace is
+   * trimmed, and a single trailing lone jamo — the leftover of that unfinished
+   * syllable — is dropped. Punctuation, spelling and wording are stored exactly
+   * as typed. See dropTrailingLoneJamo.
+   */
   function proceedFromQuestion(skip: boolean) {
-    const trimmed = responseText.trim();
+    isComposingRef.current = false;
+    const live = responseInputRef.current?.value ?? responseText;
+    const trimmed = dropTrailingLoneJamo(live.trim());
     const skipped = skip || trimmed.length === 0;
     setResponseSkipped(skipped);
     if (skipped) setResponseText('');
     else setResponseText(trimmed);
+    responseLengthRef.current = skipped ? 0 : trimmed.length;
     setPhase('restoredRecord');
   }
 
@@ -477,11 +577,11 @@ export function SentenceCluesScene() {
   if (phase === 'explore') {
     return (
       <div className="sentence-clues-scene sentence-clues-scene--explore">
-        <StageHeader
-          eyebrow="SENTENCE CLUES"
-          title="그 사람에게 이후 어떤 일이 있었을까요?"
-          description={`전체 기록을 살펴보고, 가능하다고 생각되는 문장을 ${SENTENCE_MIN_FRAGMENTS}–${SENTENCE_MAX_FRAGMENTS}개 골라 주세요.`}
-        />
+        {/* No description line here. Twenty records, four rows and the slot
+            row have to land inside one 800px screen without a scroller, and
+            the instruction is the one block that can be said somewhere else —
+            the action row's label below carries the 3–5 range instead. */}
+        <StageHeader eyebrow="SENTENCE CLUES" title="그 사람에게 이후 어떤 일이 있었을까요?" />
 
         <div className="sentence-clues-scene__wall scroll-quiet" aria-label="전체 문장 기록">
           {SENTENCE_RECONSTRUCTION_FRAGMENTS.map((fragment) => {
@@ -516,7 +616,7 @@ export function SentenceCluesScene() {
         <div className="sentence-clues-scene__foot">
           {/* The slot row *is* the selection order — which is why a drawn card
               leaves only a dashed gap in the grid and carries no "✓ 1" badge. */}
-          <div className="sentence-clues-scene__slots glass" aria-label="선택한 기록">
+          <div className="sentence-clues-scene__slots" aria-label="선택한 기록">
             {Array.from({ length: SENTENCE_MAX_FRAGMENTS }, (_, index) => {
               const id = fragments[index];
               if (!id) {
@@ -557,13 +657,13 @@ export function SentenceCluesScene() {
                   {String(fragments.length).padStart(2, '0')} / {String(SENTENCE_MAX_FRAGMENTS).padStart(2, '0')}
                 </span>
                 <span className="metric__label">
-                  {nonEndingDrawnCount < SENTENCE_MIN_NON_ENDING_BEFORE_ENDING
+                  {ENDING_LOCK_ENABLED && nonEndingDrawnCount < SENTENCE_MIN_NON_ENDING_BEFORE_ENDING
                     ? '17–20번은 다른 기록 2개를 고르면 열립니다.'
                     : isFull
                       ? '다른 문장을 고르려면 선택한 기록을 해제하세요.'
                       : isValid
                         ? '선택한 문장을 다시 누르면 해제됩니다.'
-                        : '세 개 이상 꺼내주세요.'}
+                        : `가능하다고 생각되는 기록을 ${SENTENCE_MIN_FRAGMENTS}–${SENTENCE_MAX_FRAGMENTS}개 골라 주세요.`}
                 </span>
               </p>
             }
@@ -577,116 +677,257 @@ export function SentenceCluesScene() {
     );
   }
 
-  /* ── reconstruction: what was drawn, read as one account ─────────────────── */
+  /* ── The record sheet: one page, read through three steps ─────────────────
+     Reconstruction, Discovering, Question and Restored Record all render from
+     here so the sheet on the left is literally the same element throughout —
+     only its contents and its emphasis change, and the right-hand column
+     swaps. See RECORD_PHASES. */
 
-  if (phase === 'reconstruction') {
-    const ordered = orderedForReading(fragments);
-    return (
-      <div className="sentence-clues-scene sentence-clues-scene--reading">
-        <h1 className="sentence-clues-scene__reading-title">선택한 기록</h1>
-
-        <div className="sentence-clues-scene__account scroll-quiet">
-          {ordered.map((id) => (
-            <p key={id} className="sentence-clues-scene__account-line">
-              <span className="sentence-clues-scene__account-index">{archiveCodeOf(id)}</span>
-              <span>{textOf(id)}</span>
-            </p>
-          ))}
-        </div>
-
-        <button className="cta cta--primary sentence-clues-scene__confirm" onClick={() => setPhase('discovering')}>
-          다음으로
-        </button>
-      </div>
-    );
-  }
-
-  /* ── discovering ──────────────────────────────────────────────────────────── */
-
-  if (phase === 'discovering') {
-    return (
-      <div className="sentence-clues-scene sentence-clues-scene--discovering">
-        <p className="sentence-clues-scene__discovering-text" key={discoveringMessage}>
-          {discoveringMessage}
-        </p>
-      </div>
-    );
-  }
-
-  /* ── question: the one fragment with something left to ask ─────────────── */
-
-  if (phase === 'question' && questionResult?.fragmentId) {
-    const targetFragment = FRAGMENT_BY_ID.get(questionResult.fragmentId);
-    return (
-      <div className="sentence-clues-scene sentence-clues-scene--reading sentence-clues-scene--question">
-        <h1 className="sentence-clues-scene__reading-title">이 기록에 남은 빈칸</h1>
-        {targetFragment ? (
-          <p className="sentence-clues-scene__account-line"><span className="sentence-clues-scene__account-index">{archiveCodeOf(targetFragment.id)}</span><span>{targetFragment.text}</span></p>
-        ) : null}
-        <h2 className="sentence-clues-scene__question">{questionResult.question}</h2>
-
-        <div className="sentence-clues-scene__response-field">
-          <textarea
-            rows={3}
-            className="sentence-clues-scene__response-input"
-            value={responseText}
-            maxLength={RESPONSE_MAX_LENGTH}
-            placeholder="떠오르는 말이 있다면 짧게 남겨 주세요."
-            onChange={(event) => handleResponseChange(event.target.value)}
-            aria-label={questionResult.question}
-          />
-          <span className="sentence-clues-scene__response-count">
-            {responseText.length} / {RESPONSE_MAX_LENGTH}
-          </span>
-        </div>
-
-        <div className="sentence-clues-scene__submit">
-          <button
-            type="button"
-            className="sentence-clues-scene__edit"
-            onClick={() => proceedFromQuestion(true)}
-          >
-            기록하지 않는다
-          </button>
-          <button className="cta cta--primary sentence-clues-scene__confirm" onClick={() => proceedFromQuestion(false)}>
-            다음으로
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  /* ── restoredRecord ───────────────────────────────────────────────────────── */
-
-  if (phase === 'restoredRecord') {
+  if (RECORD_PHASES.includes(phase)) {
     const ordered = orderedForReading(fragments);
     const targetId = questionResult?.fragmentId ?? null;
+    const targetFragment = targetId ? (FRAGMENT_BY_ID.get(targetId) ?? null) : null;
+    const trimmedResponse = responseText.trim();
+
+    // Asking (or about to ask) is the only state that dims the other records.
+    const isAsking = phase === 'question' && !!targetFragment;
+    // What the visitor is typing right now, not yet part of the record.
+    const draftAddition = isAsking ? responseText : '';
+    // Committed: past the Question step, with something actually written.
+    const hasAddition = phase === 'restoredRecord' && !responseSkipped && trimmedResponse.length > 0;
+    const leftBlank = phase === 'restoredRecord' && responseSkipped && !noQuestionAvailable;
+    const canSubmit = responseText.trim().length > 0;
+
+    const stepIndex = phase === 'reconstruction' ? 0 : phase === 'restoredRecord' ? 2 : 1;
+
+    const sheetState = phase === 'restoredRecord' ? (hasAddition ? 'RESTORED' : 'UNANSWERED') : 'RESTORING';
+    const fragmentCount = `${String(ordered.length).padStart(2, '0')} FRAGMENTS`;
+    const blankMark =
+      phase !== 'restoredRecord'
+        ? '01 BLANK'
+        : noQuestionAvailable
+          ? 'NO BLANK'
+          : hasAddition
+            ? '01 RESTORED'
+            : '01 UNANSWERED';
+
     return (
-      <div className="sentence-clues-scene sentence-clues-scene--reading">
-        <h1 className="sentence-clues-scene__reading-title">복원된 기록</h1>
+      <div className="sentence-clues-scene sentence-clues-scene--record">
+        <div className="sentence-clues-scene__record-grid">
+          {/* ── The sheet ─────────────────────────────────────────────────── */}
+          <section
+            className={`sentence-clues-scene__sheet sentence-clues-scene__sheet--${phase}`}
+            aria-labelledby="sentence-sheet-title"
+          >
+            <TerminalCorners />
 
-        <div className="sentence-clues-scene__account sentence-clues-scene__account--final scroll-quiet">
-          {ordered.map((id) => {
-            const targetFragment = id === targetId ? FRAGMENT_BY_ID.get(id) : undefined;
-            const line =
-              targetFragment && !responseSkipped && responseText.trim()
-                ? synthesizeRestoredLine(targetFragment, responseText)
-                : textOf(id);
-            return (
-              <p key={id} className="sentence-clues-scene__account-line">
-                <span className="sentence-clues-scene__account-index">{archiveCodeOf(id)}</span>
-                <span>{line}
-                {id === targetId && responseSkipped ? (
-                  <span className="sentence-clues-scene__unanswered-mark">· 미응답</span>
-                ) : null}</span>
-              </p>
-            );
-          })}
+            <header className="sentence-clues-scene__sheet-top">
+              {/* "ZONE 06" → "06": the sheet is RECORD 06, and the Zone is
+                  already named in the corner above it. */}
+              <span className="sentence-clues-scene__sheet-mark">
+                RECORD {ZONE_INFO.sentenceClues.zone.replace(/^ZONE\s*/, '')}
+              </span>
+              <span
+                className={`sentence-clues-scene__sheet-state${
+                  phase === 'restoredRecord' ? ' sentence-clues-scene__sheet-state--done' : ''
+                }`}
+              >
+                {sheetState}
+              </span>
+            </header>
+
+            <h2 id="sentence-sheet-title" className="sentence-clues-scene__sheet-title">
+              그날, 이 방에서 있었던 일 — 복원 중인 기록
+            </h2>
+
+            <div className="sentence-clues-scene__sheet-lines scroll-quiet">
+              {ordered.map((id) => {
+                const isTarget = id === targetId;
+                const dimmed = isAsking && !isTarget;
+                return (
+                  <article
+                    key={id}
+                    className={`sentence-clues-scene__record-line${
+                      isTarget && isAsking ? ' sentence-clues-scene__record-line--focus' : ''
+                    }${dimmed ? ' sentence-clues-scene__record-line--dim' : ''}`}
+                  >
+                    <span className="sentence-clues-scene__record-no" aria-hidden="true">
+                      {archiveCodeOf(id)}
+                    </span>
+                    <div className="sentence-clues-scene__record-body">
+                      {/* The record as it was written. Never rewritten to fold
+                          an answer into it — the answer is its own block. */}
+                      <p className="sentence-clues-scene__record-text">{textOf(id)}</p>
+
+                      {/* Rendered from the moment the question is asked, empty
+                          or not, so the sheet does not resize under the first
+                          keystroke. Dashed and secondary: this is a preview,
+                          not something the record has kept yet. */}
+                      {isTarget && isAsking ? (
+                        <p className="sentence-clues-scene__addition sentence-clues-scene__addition--draft">
+                          <span className="sentence-clues-scene__addition-label">덧붙이는 중</span>
+                          <span className="sentence-clues-scene__addition-text">{draftAddition}</span>
+                        </p>
+                      ) : null}
+
+                      {isTarget && hasAddition ? (
+                        <p className="sentence-clues-scene__addition">
+                          <span className="sentence-clues-scene__addition-label">덧붙인 기록</span>
+                          <span className="sentence-clues-scene__addition-text">{responseText}</span>
+                        </p>
+                      ) : null}
+
+                      {isTarget && leftBlank ? (
+                        <p className="sentence-clues-scene__addition sentence-clues-scene__addition--blank">
+                          <span className="sentence-clues-scene__addition-label">미응답</span>
+                        </p>
+                      ) : null}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+
+            <footer className="sentence-clues-scene__sheet-foot">
+              <span>
+                {fragmentCount} · {blankMark}
+              </span>
+            </footer>
+          </section>
+
+          {/* ── The column that changes ───────────────────────────────────── */}
+          <div className="sentence-clues-scene__panel">
+            <ol className="sentence-clues-scene__steps" aria-label="진행 단계">
+              {RECORD_STEPS.map((label, index) => (
+                <li
+                  key={label}
+                  className={`sentence-clues-scene__step${
+                    index === stepIndex ? ' sentence-clues-scene__step--on' : ''
+                  }`}
+                  aria-current={index === stepIndex ? 'step' : undefined}
+                >
+                  <span className="sentence-clues-scene__step-no" aria-hidden="true">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  {label}
+                </li>
+              ))}
+            </ol>
+
+            {phase === 'reconstruction' ? (
+              <>
+                <p className="sentence-clues-scene__panel-eyebrow">SELECTED FRAGMENTS</p>
+                <h1 className="sentence-clues-scene__panel-title">선택한 기록이 한 장으로 모였습니다.</h1>
+                <p className="sentence-clues-scene__panel-desc">
+                  기록 사이에 아직 채워지지 않은 빈칸이 있습니다.
+                </p>
+                <div className="sentence-clues-scene__panel-actions">
+                  <button className="cta cta--primary" onClick={() => setPhase('discovering')}>
+                    빈칸 확인하기
+                  </button>
+                </div>
+              </>
+            ) : null}
+
+            {phase === 'discovering' ? (
+              <>
+                <p className="sentence-clues-scene__panel-eyebrow">SEARCHING</p>
+                <p className="sentence-clues-scene__discovering-text" key={discoveringMessage} role="status">
+                  {discoveringMessage}
+                </p>
+              </>
+            ) : null}
+
+            {phase === 'question' && targetFragment ? (
+              <>
+                <p className="sentence-clues-scene__panel-eyebrow">
+                  BLANK · {archiveCodeOf(targetFragment.id)}
+                </p>
+                <h1 className="sentence-clues-scene__panel-title">{questionResult?.question}</h1>
+
+                <div className="sentence-clues-scene__response-field">
+                  <label className="sentence-clues-scene__response-label" htmlFor="sentence-response">
+                    덧붙일 기록
+                  </label>
+                  <textarea
+                    id="sentence-response"
+                    ref={responseInputRef}
+                    className="sentence-clues-scene__response-input"
+                    value={responseText}
+                    maxLength={RESPONSE_MAX_LENGTH}
+                    placeholder="떠오르는 문장을 적어주세요."
+                    aria-describedby="sentence-response-count sentence-response-hint"
+                    onChange={(event) => handleResponseChange(event.target.value)}
+                    onCompositionStart={() => {
+                      isComposingRef.current = true;
+                    }}
+                    onCompositionEnd={(event) => {
+                      // The syllable is finished: take the settled value, so
+                      // state and the DOM agree before anything reads either.
+                      isComposingRef.current = false;
+                      handleResponseChange(event.currentTarget.value);
+                    }}
+                  />
+                  <span
+                    id="sentence-response-count"
+                    className="sentence-clues-scene__response-count"
+                    aria-live="polite"
+                  >
+                    {responseText.length} / {RESPONSE_MAX_LENGTH}자
+                  </span>
+                </div>
+
+                <p id="sentence-response-hint" className="sentence-clues-scene__panel-hint">
+                  떠오르는 말이 없다면 빈칸으로 남겨도 괜찮습니다.
+                </p>
+
+                <div className="sentence-clues-scene__panel-actions">
+                  <button
+                    type="button"
+                    className="cta cta--secondary"
+                    onMouseDown={commitComposition}
+                    onClick={() => proceedFromQuestion(true)}
+                  >
+                    빈칸으로 남기기
+                  </button>
+                  <button
+                    className="cta cta--primary"
+                    onMouseDown={commitComposition}
+                    onClick={() => proceedFromQuestion(false)}
+                    disabled={!canSubmit}
+                  >
+                    기록에 남기기
+                  </button>
+                </div>
+              </>
+            ) : null}
+
+            {phase === 'restoredRecord' ? (
+              <>
+                <p className="sentence-clues-scene__panel-eyebrow">RESTORED RECORD</p>
+                <h1 className="sentence-clues-scene__panel-title">
+                  {hasAddition
+                    ? '기록에 문장이 더해졌습니다.'
+                    : noQuestionAvailable
+                      ? '기록이 그대로 복원되었습니다.'
+                      : '빈칸이 그대로 남았습니다.'}
+                </h1>
+                <p className="sentence-clues-scene__panel-desc">
+                  {hasAddition
+                    ? '왼쪽 표시된 문장은 당신이 덧붙인 기록입니다.'
+                    : noQuestionAvailable
+                      ? '더 채울 빈칸이 남아 있지 않았습니다.'
+                      : '대답하지 않은 것도 하나의 기록으로 남습니다.'}
+                </p>
+                <div className="sentence-clues-scene__panel-actions">
+                  <button className="cta cta--primary" onClick={handleRestoredRecordNext}>
+                    다음으로
+                  </button>
+                </div>
+              </>
+            ) : null}
+          </div>
         </div>
-
-        <button className="cta cta--primary sentence-clues-scene__confirm" onClick={handleRestoredRecordNext}>
-          다음으로
-        </button>
       </div>
     );
   }
