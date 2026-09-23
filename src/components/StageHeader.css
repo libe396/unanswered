@@ -1,0 +1,106 @@
+/*
+  The shared heading block and the shared action row. See StageHeader.tsx.
+
+  Every measure here comes from a --stage-* token so a Zone's sub-screens
+  cannot end up with their headings on different lines.
+*/
+
+.stage-head {
+  width: 100%;
+  max-width: var(--stage-max);
+  text-align: left;
+}
+
+.stage-head__eyebrow {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--trace);
+}
+
+.stage-head__title {
+  margin: var(--sp-12) 0 0;
+  font-family: var(--font-kr);
+  font-size: 24px;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
+  word-break: keep-all;
+}
+
+.stage-head__description {
+  margin: var(--sp-12) 0 0;
+  max-width: 420px;
+  font-family: var(--font-kr);
+  font-size: 15px;
+  line-height: 1.7;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+/* ── Page shell ───────────────────────────────────────────────────────────
+   For the Scenes that are not two-column stages: one measure, anchored below
+   the header, clear of the HUD. */
+
+.stage-page {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: var(--stage-top) var(--sp-32) var(--stage-hud-clear);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+/* ── Action row ──────────────────────────────────────────────────────────── */
+
+.stage-actions {
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: var(--stage-max);
+  margin-top: var(--sp-24);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-24);
+}
+
+.stage-actions__info {
+  min-width: 0;
+  color: var(--text-tertiary);
+}
+
+.stage-actions__cta {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 900px) {
+  .stage-page {
+    padding: var(--stage-top) var(--sp-24) var(--stage-hud-clear);
+  }
+
+  .stage-head__title {
+    font-size: 22px;
+  }
+
+  .stage-actions {
+    flex-wrap: wrap;
+    gap: var(--sp-12);
+  }
+
+  .stage-actions__cta {
+    flex: 1 1 100%;
+  }
+
+  .stage-actions__cta .cta {
+    width: 100%;
+  }
+}
