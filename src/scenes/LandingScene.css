@@ -120,7 +120,7 @@
 
 .landing-scene__wordmark {
   display: block;
-  width: clamp(170px, 23vw, 320px);
+  width: clamp(85px, 11.5vw, 160px);
   height: auto;
   opacity: 0.92;
   user-select: none;
@@ -159,7 +159,7 @@
 
 @media (max-width: 640px) {
   .landing-scene__wordmark {
-    width: clamp(140px, 46vw, 220px);
+    width: clamp(70px, 23vw, 110px);
   }
 
   .landing-scene__subcopy {
