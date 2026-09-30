@@ -35,7 +35,7 @@
 }
 
 .back-button__arrow {
-  font-size: var(--type-button);
+  font-size: var(--type-meta);
   line-height: 1;
 }
 
@@ -45,7 +45,7 @@
   align-items: flex-start;
   gap: 2px;
   font-family: var(--font-mono);
-  font-size: var(--type-button);
+  font-size: var(--type-meta);
   line-height: 1.4;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -56,7 +56,7 @@
    leftover from the Latin label above it. */
 .back-button__label-ko {
   font-family: var(--font-kr);
-  font-size: var(--type-button);
+  font-size: var(--type-meta);
   line-height: 1.4;
   font-weight: 500;
   letter-spacing: 0;
@@ -77,10 +77,10 @@
   }
 
   .back-button__label {
-    font-size: var(--type-button);
+    font-size: var(--type-meta);
   }
 
   .back-button__label-ko {
-    font-size: var(--type-button);
+    font-size: var(--type-meta);
   }
 }

@@ -842,7 +842,7 @@
 .sound-clues-scene .sound-clues-scene__cloche--playing .sound-clues-scene__cloche-glow { opacity: .95; animation: glass-ring 1.8s ease-in-out infinite; }
 .sound-clues-scene .sound-clues-scene__cloche--selected .sound-clues-scene__cloche-caption-label { color: #cbb4ff; text-shadow: 0 0 8px #a58ad940; }
 .sound-clues-scene .sound-clues-scene__cloche-caption-label { font-size: clamp(var(--type-body), 1vw, var(--type-body)); letter-spacing: 0; color: #c5c3d0; max-width: 110px; line-height: 1.5; }
-.sound-clues-scene__cloche-status { font-size: var(--type-body); color: #c4b6f7; min-height: 15px; }
+.sound-clues-scene__cloche-status { font-size: var(--type-meta); color: #c4b6f7; min-height: 15px; }
 .sound-clues-scene__field { overflow: hidden; }
 .sound-clues-scene__echo { position: absolute; width: 0; height: 0; pointer-events: none; }
 .sound-clues-scene__echo i { position: absolute; width: 180px; height: 180px; margin: -90px; border: 1px solid #c7b6f2; border-radius: 50%; opacity: 0; animation: coordinate-echo 1.35s ease-out both; }
@@ -862,7 +862,7 @@
   .sound-clues-scene__shelf-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 12px; }
   .sound-clues-scene__cloche-stage { width: 58px; height: 90px; }
   .sound-clues-scene .sound-clues-scene__cloche-caption-label { font-size: var(--type-body); }
-  .sound-clues-scene__cloche-status { font-size: var(--type-body); }
+  .sound-clues-scene__cloche-status { font-size: var(--type-meta); }
   .sound-clues-scene__player { margin-top: 12px; }
 }
 

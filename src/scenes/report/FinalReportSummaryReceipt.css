@@ -45,7 +45,7 @@
 .summary-receipt__subtitle {
   margin: 3px 0 0;
   text-align: center;
-  font-size: var(--type-body);
+  font-size: var(--type-meta);
   font-weight: 600;
   letter-spacing: 0.28em;
   text-transform: uppercase;
@@ -95,7 +95,7 @@
 
 .summary-receipt__section-label {
   margin: 0;
-  font-size: var(--type-body);
+  font-size: var(--type-meta);
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -118,7 +118,7 @@
 
 .summary-receipt__color-hex {
   margin: 0;
-  font-size: var(--type-body);
+  font-size: var(--type-meta);
   font-weight: 600;
   letter-spacing: 0.02em;
   color: var(--receipt-ink);
@@ -148,7 +148,7 @@
 }
 
 .summary-receipt__clue-index {
-  font-size: var(--type-body);
+  font-size: var(--type-meta);
   color: var(--receipt-ink-dim);
 }
 
@@ -160,7 +160,7 @@
 }
 
 .summary-receipt__clue-tag {
-  font-size: var(--type-body);
+  font-size: var(--type-meta);
   letter-spacing: 0.1em;
   color: var(--receipt-ink-dim);
   white-space: nowrap;
@@ -184,7 +184,7 @@
 
 .summary-receipt__owner-label {
   margin: 0;
-  font-size: var(--type-body);
+  font-size: var(--type-meta);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--receipt-ink-dim);
@@ -199,7 +199,7 @@
 
 .summary-receipt__owner-scan {
   margin: 0;
-  font-size: var(--type-body);
+  font-size: var(--type-meta);
   letter-spacing: 0.1em;
   color: var(--receipt-ink-dim);
 }

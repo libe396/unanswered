@@ -826,7 +826,7 @@
 }
 .sentence-clues-scene__clue-summary { padding-right: 24px; border-right: 1px solid var(--line); }
 .sentence-clues-scene__clue-summary h2 { font-size: var(--type-body); font-weight: 500; margin: 0 0 28px; line-height: 1.6; }
-.sentence-clues-scene__clue-summary dt { font-size: var(--type-body); color: var(--text-secondary); margin: 24px 0 10px; }
+.sentence-clues-scene__clue-summary dt { font-size: var(--type-meta); color: var(--text-secondary); margin: 24px 0 10px; }
 .sentence-clues-scene__clue-summary dd { margin: 0; font-size: var(--type-body); line-height: 1.8; }
 .sentence-clues-scene__clue-summary ul { list-style: none; margin: 0; padding: 0; }
 .sentence-clues-scene__swatches { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -848,7 +848,7 @@
   width: 100%; padding: 20px 0; gap: 20px; border-bottom: 1px solid var(--line);
   font-size: 1.3125rem; line-height: 1.75; overflow-wrap: anywhere;
 }
-.sentence-clues-scene--reading .sentence-clues-scene__account-index { font-size: var(--type-body); color: var(--text-secondary); opacity: 1; font-family: var(--font-mono); }
+.sentence-clues-scene--reading .sentence-clues-scene__account-index { font-size: var(--type-meta); color: var(--text-secondary); opacity: 1; font-family: var(--font-mono); }
 .sentence-clues-scene--reading > .sentence-clues-scene__confirm { align-self: flex-start; }
 .sentence-clues-scene--reading .sentence-clues-scene__submit { width: 100%; justify-content: flex-start; }
 .sentence-clues-scene--question .sentence-clues-scene__reading-title { font-size: 1.75rem; }

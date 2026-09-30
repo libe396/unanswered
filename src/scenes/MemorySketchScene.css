@@ -82,7 +82,7 @@
 .memory-sketch-scene__collected-label {
   margin: 0 0 var(--sp-12);
   font-family: var(--font-mono);
-  font-size: var(--type-body);
+  font-size: var(--type-meta);
   line-height: 1.4;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -113,7 +113,7 @@
   flex: 0 0 auto;
   min-width: 24px;
   font-family: var(--font-mono);
-  font-size: var(--type-body);
+  font-size: var(--type-meta);
   color: var(--trace);
 }
 

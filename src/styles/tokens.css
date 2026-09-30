@@ -60,7 +60,8 @@
   --font-display: 'Bebas Neue', var(--font-kr);
   --font-mono: var(--font-kr);
 
-  /* Visitor typography. Never shrink these tokens at mobile breakpoints. */
+  /* Minimum visitor type: 12pt = 16 CSS px = 1rem at html 100%.
+     Secondary labels use this minimum; body and primary actions stay larger. */
   --type-meta: 1rem;
   --type-body: 1.125rem;
   --type-body-lg: 1.25rem;
