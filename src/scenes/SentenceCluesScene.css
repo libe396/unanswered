@@ -1453,3 +1453,65 @@
 }
 
 .sentence-clues-scene__selection-numbers button { display: flex; align-items: center; justify-content: center; gap: 3px; padding: 0; width: 48px; white-space: nowrap; }
+
+.sentence-clues-scene__intro-bridge { margin: 0 0 20px; font-size: var(--type-body); line-height: 1.7; color: var(--text-secondary); text-wrap: pretty; }
+@media (max-width: 700px) {
+  .sentence-clues-scene--context { justify-content: flex-start; padding: 16px 24px; }
+  .sentence-clues-scene__intro-bridge { margin-bottom: 16px; }
+  .sentence-clues-scene__clue-strip { margin-block: 18px; padding-block: 14px; }
+}
+
+/* Keep the repeated question in the free header space on short desktops,
+   leaving all twenty choices and the action row their own vertical band. */
+@media (min-width: 1100px) and (min-height: 650px) and (max-height: 700px) {
+  .sentence-clues-scene--explore { padding: 88px 24px 60px; gap: 6px; }
+  .sentence-clues-scene--explore .stage-head { position: absolute; top: 20px; left: 180px; right: 180px; width: auto; text-align: center; }
+  .sentence-clues-scene--explore .sentence-clues-scene__card { padding: 5px 7px; gap: 2px; }
+}
+
+/* Recovered opening story, using the existing clue-dependent narrative. */
+.sentence-clues-scene__recovered-story { margin: 0 auto 20px; max-width: 720px; padding: 20px 24px; border: 1px solid var(--line); border-radius: var(--r-8); background: var(--glass-1); text-align: left; font-size: var(--type-body); line-height: 1.7; color: var(--text-secondary); word-break: keep-all; }
+.sentence-clues-scene__recovered-story p { margin: 0; }
+.sentence-clues-scene__recovered-story .sentence-clues-scene__story-gap { margin-top: 12px; color: var(--text-tertiary); font-size: var(--type-meta); }
+@media (min-width: 1100px) and (max-height: 700px) {
+  .sentence-clues-scene__recovered-story { margin-bottom: 12px; padding: 14px 20px; line-height: 1.55; }
+  .sentence-clues-scene--context .sentence-clues-scene__clue-strip { margin: 16px 0; padding: 12px 0; }
+  .sentence-clues-scene--context .sentence-clues-scene__intro-guide { margin-top: 10px; }
+}
+
+@media (max-width: 700px) {
+  .sentence-clues-scene__recovered-story { padding: 16px; }
+}
+
+/* A pinned archive note: restrained hardware, ruled field and an open ending. */
+.sentence-clues-scene__recovered-story {
+  position: relative;
+  padding: 20px 28px 18px 38px;
+  border-radius: 2px;
+  border-color: rgba(190, 185, 207, .2);
+  background: linear-gradient(90deg, transparent 22px, rgba(171, 147, 255, .16) 22px, rgba(171, 147, 255, .16) 23px, transparent 23px), linear-gradient(135deg, #1b1b21, #121216);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, .24), inset 0 1px rgba(255, 255, 255, .04);
+}
+.sentence-clues-scene__recovered-story::before {
+  content: ''; position: absolute; top: -6px; left: calc(50% - 22px);
+  width: 44px; height: 10px; border: 1px solid rgba(206, 203, 219, .25);
+  border-radius: 2px; background: linear-gradient(#55545e, #292930);
+  box-shadow: 0 3px 5px rgba(0, 0, 0, .3); pointer-events: none;
+}
+.sentence-clues-scene__memo-heading {
+  display: flex; justify-content: space-between; gap: 16px; margin-bottom: 12px;
+  padding-bottom: 9px; border-bottom: 1px solid var(--line);
+  color: var(--text-tertiary); font-size: var(--type-meta); letter-spacing: .08em;
+}
+.sentence-clues-scene__recovered-story > p:not(.sentence-clues-scene__story-gap) {
+  background: repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.7em - 1px), rgba(210, 205, 222, .055) calc(1.7em - 1px), rgba(210, 205, 222, .055) 1.7em);
+}
+.sentence-clues-scene__recovered-story .sentence-clues-scene__story-gap { margin-top: 14px; }
+@media (min-width: 1100px) and (max-height: 700px) {
+  .sentence-clues-scene__recovered-story { padding: 14px 24px 12px 36px; line-height: 1.7; }
+  .sentence-clues-scene__memo-heading { margin-bottom: 6px; padding-bottom: 6px; }
+}
+@media (max-width: 700px) {
+  .sentence-clues-scene__recovered-story { padding: 18px 16px 16px 30px; background: linear-gradient(90deg, transparent 17px, rgba(171, 147, 255, .16) 17px, rgba(171, 147, 255, .16) 18px, transparent 18px), linear-gradient(135deg, #1b1b21, #121216); }
+  .sentence-clues-scene__memo-heading { letter-spacing: .03em; }
+}

@@ -1,3 +1,5 @@
+import { buildActionEvidence, PROCESS_GUIDE, RECORD_MEANING, RECORD_CLOSING } from '../../lib/reportActionEvidence';
+import { useExperienceStore } from '../../store/experienceStore';
 import { useEffect, useRef } from 'react';
 import { renderLightGraphic } from '../../lib/lightRenderer.js';
 import type { FinalReportPresentation } from '../../lib/finalReportPresentation';
@@ -20,6 +22,9 @@ interface Props {
  * nothing itself.
  */
 export function FinalReportSummaryReceipt({ record, presentation, onIssueFullReport }: Props) {
+  const behavior = useExperienceStore((state) => state.behavior);
+  const evidence = buildActionEvidence(record, behavior);
+  const hasProcess = evidence.some((item) => item.kind !== 'selection');
   const lightCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -99,14 +104,17 @@ export function FinalReportSummaryReceipt({ record, presentation, onIssueFullRep
       <div className="summary-receipt__divider" role="presentation" />
 
       <section className="summary-receipt__section">
-        <p className="summary-receipt__section-label">AI OBSERVATION</p>
-        <p className="summary-receipt__observation">{presentation.observationText}</p>
+        <p className="summary-receipt__section-label">선택의 과정</p>
+        <p className="summary-receipt__observation">{hasProcess ? PROCESS_GUIDE : '이번 기록에서 확인할 수 있는 선택입니다.'}</p>
+        {evidence.length ? evidence.map((item) => <p className="summary-receipt__observation" key={item.text}>{item.text}</p>) : <p className="summary-receipt__observation">확인할 수 있는 선택 기록이 없습니다.</p>}
+        <p className="summary-receipt__observation">{RECORD_MEANING}</p>
+        <p className="summary-receipt__observation">{RECORD_CLOSING}</p>
       </section>
 
       <div className="summary-receipt__divider" role="presentation" />
 
       <div className="summary-receipt__owner">
-        <p className="summary-receipt__owner-label">THE OWNER OF THIS REPORT</p>
+        <p className="summary-receipt__owner-label">흔적을 남긴 관객</p>
         <p className="summary-receipt__owner-value">{presentation.ownerLabel}</p>
         <p className="summary-receipt__owner-scan">SCAN FOR FULL A4 REPORT</p>
       </div>

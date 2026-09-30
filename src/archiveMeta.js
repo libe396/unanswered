@@ -1,5 +1,6 @@
 // 아카이브 이미지 메타데이터
-// 사진을 src/assets/archive/ 폴더에 01.jpg ~ N.jpg 형식으로 저장하세요.
+// 현재 사진: src/assets/archive/light-trace-01.png ~ light-trace-10.png.
+// 이전 01.jpg ~ 10.jpg와 docs/light-trace-before-replacement의 설정 사본은 복구용으로 보존합니다.
 // label: 그리드에 표시할 한국어 제목 (없으면 빈 문자열)
 
 export const ARCHIVE_META = [

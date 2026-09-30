@@ -2,29 +2,12 @@ import { SENTENCE_RECONSTRUCTION_FRAGMENTS, SOUND_CLUES } from '../data/content'
 import type { RecordLayerDerived, ReportData } from '../types';
 
 function buildObservationText(record: RecordLayerDerived): string {
-  const dominantKeyword =
-    record.light?.rules.emotionKeywords[0] ?? record.soundClues.selectedKeyword ?? '미응답';
-  const structureType = record.light?.rules.structure?.compositionType ?? 'abstract / unclear';
-  const repeated = record.sentenceClues.repeatedKeywords[0];
-  const repeatedLine = repeated
-    ? `'${repeated}'라는 단어가 반복해서 나타났다.`
-    : '뚜렷하게 반복되는 단어는 나타나지 않았다.';
-
-  /*
-    Gated per the Data / Finding Audit: this line used to close every
-    observation unconditionally, regardless of whether the session's data
-    actually failed to resolve to anything. `structureType` is the one
-    already-computed signal available here (LIGHT's own deterministic
-    composition read — src/lib/imageAnalysis.js's compositionTypeLabel) that
-    means roughly the same thing: the image itself did not resolve to one
-    clear subject. Everywhere else this line would need behavioural data
-    (e.g. SENTENCE's viewedButUnusedFragments) that this function, reading
-    only the final answers in `record`, does not have.
-  */
-  const unresolvedLine =
-    structureType === 'abstract / unclear' ? ' 그러나 이 모든 단서는 하나의 문장으로 정리되지 않는다.' : '';
-
-  return `이 기록의 대상은 ${dominantKeyword}에 오래 머물렀고, ${structureType} 구조의 빛에 반응했다. ${repeatedLine}${unresolvedLine}`;
+  const parts: string[] = [];
+  if (record.light) parts.push('관객이 고른 사진에서 빛의 기록을 만들었습니다.');
+  if (record.soundClues.selectedSoundId) parts.push('선택한 소리를 기록에 남겼습니다.');
+  if (record.memorySketch.selectedObjects.length) parts.push('공간에서 선택한 물건을 기록에 남겼습니다.');
+  if (record.sentenceClues.selectedSentenceIds.length) parts.push('이어졌을 법한 이야기의 문장을 골랐습니다.');
+  return parts.length ? parts.join(' ') : '확인할 수 있는 선택 기록이 없습니다.';
 }
 
 function buildSoundPattern(record: RecordLayerDerived): string {

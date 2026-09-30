@@ -235,10 +235,17 @@ export const useExperienceStore = create<ExperienceState>()(
       onRehydrateStorage: () => (state) => {
         if (!state) return;
         // A browser visit always starts at the exhibition entrance. Persisted
-        // answers remain available, but navigation state is intentionally
+        // answers from other zones remain available; navigation is intentionally
         // session-local so reloads never resume into a later Zone.
         state.currentScene = 'landing';
         state.completedScenes = [];
+        // Reload starts a new visit for these two scenes. Back navigation does
+        // not rehydrate, so current-visit answers and drafts remain intact.
+        state.memorySketch = { ...initialState.memorySketch, strokes: [], selectedObjects: [], selectedColors: [] };
+        state.sentenceClues = { ...initialState.sentenceClues };
+        state.behavior = { ...state.behavior };
+        delete state.behavior.memorySketch;
+        delete state.behavior.sentenceClues;
         // Storage written before behavioural tracking existed has no such key,
         // and the merge leaves it undefined rather than falling back.
         if (!state.behavior) state.behavior = {};

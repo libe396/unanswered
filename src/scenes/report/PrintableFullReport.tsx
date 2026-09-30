@@ -1,3 +1,5 @@
+import { buildActionEvidence, PROCESS_GUIDE, RECORD_MEANING, RECORD_CLOSING } from '../../lib/reportActionEvidence';
+import { useExperienceStore } from '../../store/experienceStore';
 import { sentenceDwellNote } from '../../lib/sentenceDwellNote';
 import { useEffect, useRef } from 'react';
 import { renderLightGraphic } from '../../lib/lightRenderer.js';
@@ -27,6 +29,9 @@ interface Props {
  * a number computed independently of what the receipt already shows.
  */
 export function PrintableFullReport({ record, presentation }: Props) {
+  const behavior = useExperienceStore((state) => state.behavior);
+  const evidence = buildActionEvidence(record, behavior);
+  const hasProcess = evidence.some((item) => item.kind !== 'selection');
   const lightCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const sketchCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -204,13 +209,16 @@ export function PrintableFullReport({ record, presentation }: Props) {
         </section>
 
         <section className="pfr-section pfr-observation pfr-section--avoid-break">
-          <p className="pfr-section__label">05&nbsp;&nbsp;AI OBSERVATION / 관찰문</p>
-          <p className="pfr-observation__text">{presentation.observationText}</p>
+          <p className="pfr-section__label">05&nbsp;&nbsp;선택의 과정</p>
+          <p className="pfr-observation__text">{hasProcess ? PROCESS_GUIDE : '이번 기록에서 확인할 수 있는 선택입니다.'}</p>
+          {evidence.length ? evidence.map((item) => <p className="pfr-section__body" key={item.text}>{item.text}</p>) : <p className="pfr-section__body">확인할 수 있는 선택 기록이 없습니다.</p>}
+          <p className="pfr-observation__text">{RECORD_MEANING}</p>
+          <p className="pfr-section__body">{RECORD_CLOSING}</p>
         </section>
 
         <footer className="pfr-footer">
           <div>
-            <p className="pfr-footer__label">THE OWNER OF THIS REPORT / 보고서의 주인</p>
+            <p className="pfr-footer__label">흔적을 남긴 관객</p>
             <p className="pfr-footer__owner">{presentation.ownerLabel}</p>
           </div>
           <p className="pfr-footer__report-id">{presentation.reportId}</p>

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LIGHT LAB — lightRenderer 테스트</title>
+    <link rel="stylesheet" href="./light-lab.css" />
+  </head>
+  <body>
+    <header class="bar">
+      <div class="brand">LIGHT LAB</div>
+
+      <div class="group">
+        <button data-mode="single" class="seg">단일</button>
+        <button data-mode="grid" class="seg">전체 비교</button>
+      </div>
+
+      <div class="group">
+        <label class="lbl">렌더러</label>
+        <button data-renderer="orig" class="seg">기존</button>
+        <button data-renderer="exp" class="seg">실험</button>
+        <button data-renderer="ab" class="seg">A | B</button>
+      </div>
+
+      <div class="group">
+        <label class="lbl">비율</label>
+        <button data-aspect="1:1" class="seg">1:1</button>
+        <button data-aspect="16:10" class="seg">16:10</button>
+        <button data-aspect="16:9" class="seg">16:9</button>
+        <button data-aspect="wall" class="seg">벽 3.5:1</button>
+        <button data-aspect="viewport" class="seg">화면</button>
+      </div>
+
+      <div class="group">
+        <label class="lbl">VAR</label>
+        <button id="varDown" class="icon">−</button>
+        <input id="varInput" type="number" min="1" step="1" />
+        <button id="varUp" class="icon">+</button>
+        <button id="varRandom" class="ghost">랜덤</button>
+      </div>
+
+      <div class="group">
+        <button id="toggleSource" class="ghost"></button>
+        <button id="fullscreen" class="ghost">전체화면</button>
+        <button id="download" class="primary">PNG 저장</button>
+      </div>
+
+      <div class="group grow" id="keywords"></div>
+    </header>
+
+    <main id="single" class="single">
+      <aside class="thumbs" id="thumbs"></aside>
+      <section class="stage" id="stage"></section>
+      <aside class="panel" id="panel"></aside>
+    </main>
+
+    <main id="grid" class="grid"></main>
+
+    <div id="full" class="full" hidden><canvas></canvas></div>
+
+    <footer class="hint">
+      ← → 이미지 · R 랜덤 · [ ] variation ±1 · G 모드 · A 기존/실험/AB · 1–5 비율 · F 전체화면 · S 원본 · 이미지 드래그&드롭 업로드
+    </footer>
+
+    <script type="module" src="./light-lab.js"></script>
+  </body>
+</html>

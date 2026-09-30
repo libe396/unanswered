@@ -199,3 +199,11 @@ When uncertain whether a change might destroy, overwrite, or conflict with exist
 STOP.
 
 Inspect first and ask the user before proceeding.
+
+## Confirmed shared copy and sound assets (2026-09-30)
+
+The user finalized consent immediately before the final identity reveal. Keep Landing unchanged; do not move consent back to Landing.
+- Notice before either button: `다음 장면에서 카메라로 내 모습을 실시간으로 볼 수 있습니다. 영상은 저장·전송하지 않으며 마이크는 사용하지 않습니다.`
+- Buttons: `카메라로 보기` / `카메라 없이 계속`
+Start the reveal only after video is ready; otherwise use the visitor's recorded clues. Never record, transmit, request audio, or retain a stream after scene exit.
+Keep the existing seven sounds and SOUND_01–SOUND_07 IDs. Subway and car use matching SVG icons; do not add cup, footsteps, wind, or an eighth choice.

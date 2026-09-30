@@ -33,7 +33,7 @@ export const STAGE_01_COPY = {
  */
 export const STAGE_06_BEATS = [
   '처음 이곳에 들어왔을 때,\n당신은 이름 모를 누군가의 기록을 조사하고 있었습니다.',
-  '그런데 지금까지 따라온 기록은,\n다른 누군가의 것이 아니었습니다.',
+  '그 사람을 상상하는 동안,\n당신의 선택도 이곳에 남았습니다.',
 ];
 
 /** The reveal itself — the strongest single beat before the closing line. */
@@ -55,7 +55,7 @@ export const STAGE_06_MEANING =
 export const STAGE_06_CLOSURE = '답은\n마지막에 고른 하나만으로\n만들어지지 않았습니다.';
 
 /** The strongest visual emphasis in the whole sequence. */
-export const STAGE_06_FINAL_LINE = '대답하지 못한 순간에도\n당신은 남아 있었습니다.';
+export const STAGE_06_FINAL_LINE = '보고서에 적히는 것은 결론이 아니라 흔적입니다.';
 
 /* ── Final Record Layer ─────────────────────────────────────────────────── */
 

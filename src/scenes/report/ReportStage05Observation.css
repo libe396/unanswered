@@ -127,3 +127,9 @@
     font-size: 1.5625rem;
   }
 }
+
+.report-stage-05__facts { width: 100%; font-size: var(--type-body); line-height: 1.7; text-align: left; text-shadow: 0 2px 8px #000; }
+.report-stage-05__facts > p { margin: 0 0 20px; color: var(--text-secondary); }
+.report-stage-05__facts ul { padding: 0; margin: 0; list-style: none; display: grid; gap: 16px; }
+.report-stage-05__composition { opacity: .2; }
+@media (max-width: 640px) { .report-stage-05__facts ul { gap: 12px; } }

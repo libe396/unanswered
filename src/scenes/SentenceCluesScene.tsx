@@ -1,3 +1,4 @@
+import { buildSentenceNarrativeContext } from '../lib/sentenceNarrative';
 import { useInteractionClock } from '../hooks/useInteractionClock';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -468,13 +469,18 @@ export function SentenceCluesScene() {
 
 
   if (phase === 'context') {
+    const narrative = buildSentenceNarrativeContext(lightArchive, soundClues, memorySketch);
     const selectedSound = SOUND_CLUES.find(sound => sound.id === soundClues.selectedSoundId);
     const selectedObjects = memorySketch.selectedObjects.map(id => MEMORY_ROOM_OBJECTS.find(object => object.id === id)?.label ?? id);
     return (
       <div className="sentence-clues-scene sentence-clues-scene--context">
         <div className="sentence-clues-scene__intro">
-          <p className="sentence-clues-scene__intro-label">문장의 흔적</p>
-          <h1>그 사람에게 이후 어떤 일이 있었을까요?</h1>
+          <div className="sentence-clues-scene__recovered-story" aria-label="수집한 단서로 복원한 앞 이야기">
+            <div className="sentence-clues-scene__memo-heading"><span>수집된 기록</span><span>복원 메모</span></div>
+            {narrative.paragraphs.filter((_, index) => index < 3 || selectedObjects.length > 0).map((paragraph, index) => <p key={index}>{paragraph}</p>)}
+            <p className="sentence-clues-scene__story-gap">{narrative.missingSegmentText}</p>
+          </div>
+          <h1>이 공간에 머물던 사람의 이야기는 어떻게 이어졌을까요?</h1>
           <p className="sentence-clues-scene__intro-guide">수집한 단서를 떠올리며, 이어졌을 법한 문장을 {SENTENCE_MIN_FRAGMENTS}~{SENTENCE_MAX_FRAGMENTS}개 골라 주세요.</p>
           <dl className="sentence-clues-scene__clue-strip" aria-label="수집한 단서 요약">
             <div><dt>색</dt><dd>{lightArchive?.rules.palette.length ? <div className="sentence-clues-scene__swatches">{lightArchive.rules.palette.map((color, index) => <span key={index} style={{ backgroundColor: color }} role="img" aria-label={color} />)}</div> : '수집한 색 없음'}</dd></div>
@@ -498,7 +504,7 @@ export function SentenceCluesScene() {
             row have to land inside one 800px screen without a scroller, and
             the instruction is the one block that can be said somewhere else —
             the action row's label below carries the 3–5 range instead. */}
-        <StageHeader eyebrow="문장의 흔적" title="그 사람에게 이후 어떤 일이 있었을까요?" />
+        <StageHeader eyebrow="문장의 흔적" title="이 공간에 머물던 사람의 이야기는 어떻게 이어졌을까요?" />
 
         <div className="sentence-clues-scene__wall scroll-quiet" aria-label="전체 문장 기록">
           {SENTENCE_RECONSTRUCTION_FRAGMENTS.map((fragment) => {

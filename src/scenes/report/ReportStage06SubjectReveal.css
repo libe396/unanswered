@@ -125,3 +125,16 @@
   .camera-consent__actions { display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
   .identity-reveal__portrait { max-height: 28dvh; }
 }
+
+.identity-preamble { width: min(680px, 86vw); font-size: var(--type-body-lg); line-height: 1.8; white-space: pre-line; text-align: center; }
+.identity-preamble__evidence, .identity-reveal__evidence { font-size: var(--type-body); line-height: 1.7; color: var(--text-secondary); margin: 20px 0 0; }
+.identity-reveal__closure { white-space: pre-line; font-size: var(--type-body-lg); line-height: 1.8; }
+.identity-reveal__final { font-size: var(--type-body-lg); line-height: 1.8; color: var(--trace); }
+.identity-reveal [hidden] { display: none; }
+@media (max-width: 640px) {
+  .identity-preamble, .identity-reveal__closure, .identity-reveal__final { font-size: var(--type-body); }
+  .identity-reveal__portrait { height: 20dvh; }
+  .identity-reveal { gap: 10px; }
+  .identity-reveal__evidence { margin-top: 0; }
+  .identity-reveal__setup { font-size: var(--type-body-lg); }
+}
