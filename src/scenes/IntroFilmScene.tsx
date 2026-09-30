@@ -14,7 +14,7 @@ const POST_BLACK_HOLD_MS = 500;
 /** The film has to be underway before anything is offered on top of it. */
 const SKIP_VISIBLE_AFTER_MS = 2000;
 
-const VIDEO_SRC = `${import.meta.env.BASE_URL}video/intro-film.mp4`;
+const VIDEO_SRC = `${import.meta.env.BASE_URL}video/intro-film.mp4?v=d1f817509c4c`;
 
 /**
  * The bridge between the elevator and the first investigation Scene. It is
