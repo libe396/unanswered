@@ -12,6 +12,11 @@ import './ReportStage06SubjectReveal.css';
 
 interface Props { index: number; total: number; locked: boolean; onAdvance: () => void }
 
+const PREAMBLE = [
+  '당신은 특정한 누군가를 떠올리며\n이 기록을 복원했을지도 모릅니다.',
+  '그렇다면 이 기록에 남은 선택들은\n누구의 것이었을까요?',
+];
+
 export function ReportStage06SubjectReveal({ index, total, locked, onAdvance }: Props) {
   const reduced = useReducedMotion();
   const { enabled, setEnabled } = useCameraPreference();
@@ -30,9 +35,10 @@ export function ReportStage06SubjectReveal({ index, total, locked, onAdvance }: 
   const [notice, setNotice] = useState('');
   const [phase, setPhase] = useState(0);
 
-  // One quiet opening beat; its meaning is explained only after the reveal.
+  // Two quiet opening beats: the person imagined, then the question of whose
+  // choices these were. The answer is given only by the reveal.
   useEffect(() => {
-    if (preamble >= 1) return;
+    if (preamble >= PREAMBLE.length) return;
     const timer = window.setTimeout(() => setPreamble((value) => value + 1), 4500);
     return () => window.clearTimeout(timer);
   }, [preamble]);
@@ -111,11 +117,11 @@ export function ReportStage06SubjectReveal({ index, total, locked, onAdvance }: 
 
   return <div className="report-stage report-stage-06" data-reveal-phase={phase} data-preamble={preamble}>
     <p className="report-stage__eyebrow">마지막 기록</p>
-    {choice === null && preamble < 1 && <motion.div key={preamble} className="identity-preamble" aria-live="polite"
+    {choice === null && preamble < PREAMBLE.length && <motion.div key={preamble} className="identity-preamble" aria-live="polite"
       initial={{ opacity: reduced ? 1 : 0 }} animate={{ opacity: 1 }} transition={{ duration: reduced ? 0 : .8 }}>
-      <p>당신은 특정한 누군가를 떠올리며 이 기록을 복원했을지도 모릅니다.</p>
+      <p>{PREAMBLE[preamble]}</p>
     </motion.div>}
-    {choice === null && preamble >= 1 && <CameraOptIn onUse={() => { setChoice('camera'); setEnabled(true); }} onSkip={continueWithoutCamera} />}
+    {choice === null && preamble >= PREAMBLE.length && <CameraOptIn onUse={() => { setChoice('camera'); setEnabled(true); }} onSkip={continueWithoutCamera} />}
     {choice !== null && !ready && <div className="camera-consent" role="status"><p>마지막 장면에 내 얼굴을 비추기 위해 카메라를 준비하고 있습니다.</p><button className="cta cta--secondary" onClick={continueWithoutCamera}>카메라 없이 계속하기</button></div>}
     <div className="identity-reveal" aria-live="polite" hidden={!ready}>
       <p className="identity-reveal__setup" hidden={phase >= 3}>{ready ? '이 보고서에 남은 흔적의 주인은,' : '\u00a0'}</p>

@@ -138,3 +138,21 @@
   .identity-reveal__evidence { margin-top: 0; }
   .identity-reveal__setup { font-size: var(--type-body-lg); }
 }
+
+/* Every line from the preamble on matches the single lines of the earlier
+   stages (report-stage-02__line, report-stage-05__line). */
+.identity-preamble,
+.identity-reveal__setup,
+.identity-reveal__evidence,
+.identity-reveal__closure,
+.identity-reveal__final {
+  font-size: clamp(var(--type-body), 2.4vw, 1.5625rem);
+  line-height: 1.72;
+}
+@media (max-width: 640px) {
+  .identity-preamble,
+  .identity-reveal__setup,
+  .identity-reveal__evidence,
+  .identity-reveal__closure,
+  .identity-reveal__final { font-size: var(--type-body); }
+}

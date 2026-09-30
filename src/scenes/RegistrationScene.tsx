@@ -178,7 +178,13 @@ export function RegistrationScene() {
         object={card}
         eyebrow="REGISTRATION"
         title="조사원증을 발급합니다"
-        description="이름 없는 사람을 찾는 동안 사용할 임시 조사원증입니다. 조사 기록 화면에 표시될 이름을 입력해주세요."
+        description={
+          <>
+            이름 없는 사람을 찾는 동안 사용할 임시 조사원증입니다.
+            <br />
+            조사 기록 화면에 표시될 이름을 입력해주세요.
+          </>
+        }
         steps={STEPS}
         activeStep={activeStep}
       >

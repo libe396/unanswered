@@ -120,7 +120,7 @@ export function ReportStage04MemoryReconstruction({ record, index, total, locked
   const finalCopy = !hasRecord ? '이 공간에 남겨진 선택 기록이 없습니다.'
     : unselected.length === 0 ? '선택할 수 있는 모든 물건을 기록에 남겼습니다.'
     : memory.selectedObjects.length === 0 ? '물건을 선택하지 않고 이 공간을 지나갔습니다.'
-    : '선택하지 않고 남겨둔 자리도 이번 기록에 함께 남았습니다.';
+    : '선택하지 않고 남겨둔 자리도\n이번 기록에 함께 남았습니다.';
   const copy = hasStrokes ? ['익숙한 방에 당신의 흔적이 남아 있습니다.', '당신이 남긴 선과 선택한 물건들입니다.', finalCopy]
     : ['이 방에서 남긴 기록을 다시 살펴봅니다.', finalCopy];
 

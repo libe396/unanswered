@@ -422,12 +422,16 @@
   padding: 18px 20px;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.16);
-  background: linear-gradient(
-    160deg,
-    rgba(255, 255, 255, 0.1),
-    rgba(255, 255, 255, 0.025) 40%,
-    rgba(255, 255, 255, 0.04)
-  );
+  /* A faint dark fill under the glass so each sheet separates from the one
+     behind it; the stack still reads through. */
+  background:
+    linear-gradient(
+      160deg,
+      rgba(255, 255, 255, 0.12),
+      rgba(255, 255, 255, 0.04) 40%,
+      rgba(255, 255, 255, 0.06)
+    ),
+    rgba(14, 14, 18, 0.32);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 30px 60px rgba(0, 0, 0, 0.35);
   /* 3px, not 10: the panes have to read as stacked glass, which only works
      if the pane behind is still legible through the one in front. */
@@ -757,6 +761,9 @@
 .record-layer-second-visit__pane-head, .record-layer-second-visit__pane-foot { font-size: calc(var(--type-meta) * 1.5); letter-spacing: 0; color: var(--text-secondary); }
 .record-layer-second-visit__pane-body { min-height: 220px; overflow: visible; }
 .record-layer-second-visit__pane-empty, .record-layer-second-visit__objects, .record-layer-second-visit__lines p { font-size: calc(var(--type-body) * 1.5); line-height: 1.45; }
+/* LAYER 04 is the front pane (z 0) and holds full sentences, so it needs no
+   depth compensation. */
+.record-layer-second-visit__lines p { font-size: var(--type-body); line-height: 1.6; }
 .record-layer-second-visit__layout { top: var(--stage-top); height: calc(100% - var(--stage-top) - var(--stage-hud-clear)); padding-block: 0; overflow-y: auto; align-items: start; }
 @media (max-width: 900px) {
   .record-layer-second-visit__layout { padding: 0 24px 24px; align-content: start; }
