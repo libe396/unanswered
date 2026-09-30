@@ -1,7 +1,10 @@
 .record-layer-second-visit {
   position: relative;
   width: 100%;
-  min-height: 100dvh;
+  /* Exactly one viewport. `min-height` left the Scene 7px taller than the
+     screen — enough for the full-bleed canvases, which are inset: 0 on it, to
+     report a scrollable overflow. */
+  height: 100dvh;
   overflow: hidden;
   background: var(--bg-base);
 }
@@ -14,11 +17,27 @@
     radial-gradient(ellipse at 28% 43%, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.62) 28%, rgba(0, 0, 0, 0.28) 58%, rgba(0, 0, 0, 0.08) 74%),
     radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0.16) 0%, rgba(0, 0, 0, 0.34) 48%, rgba(0, 0, 0, 0.86) 100%),
     linear-gradient(180deg, rgba(0, 0, 0, 0.54) 0%, rgba(3, 3, 4, 0.18) 42%, rgba(0, 0, 0, 0.72) 100%);
-  opacity: 0.58;
+  opacity: 0;
   pointer-events: none;
   transition: opacity 1050ms ease;
 }
 
+/* Clips the reveal's own overscale — see the comment in the component. */
+.record-layer-second-visit__backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/*
+  The Scene at rest is --bg-base and grain. These three layers — the light
+  render, the sketch and the veil over them — were the "blurred photo"
+  background; they stay mounted and keep their reveal transitions, but they
+  are held at zero until 기록 확인 fades them up. Nothing about the reveal
+  itself changed.
+*/
 .record-layer-second-visit__light-canvas {
   position: absolute;
   inset: 0;
@@ -26,7 +45,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.82;
+  opacity: 0;
   filter: blur(1.1px) saturate(0.94) brightness(0.78);
   transform: scale(1.018);
   transition: opacity 1050ms ease, filter 1050ms ease, transform 1050ms ease;
@@ -39,7 +58,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.24;
+  opacity: 0;
   mix-blend-mode: screen;
   transition: opacity 900ms ease;
 }
@@ -64,7 +83,7 @@
   display: flex;
   flex-direction: column;
   gap: 17px;
-  font-size: clamp(18px, 2.1vw, 24px);
+  font-size: clamp(var(--type-body), 2.1vw, var(--type-title-sm));
   line-height: 1.78;
   text-align: center;
   color: rgba(242, 240, 247, 0.95);
@@ -294,7 +313,7 @@
   }
 
   .record-layer-second-visit__sentence {
-    font-size: 17px;
+    font-size: var(--type-body);
   }
 
   .record-layer-second-visit__confirm {
@@ -325,4 +344,430 @@
   .record-layer-second-visit__confirm span:last-child {
     transition-duration: 1ms;
   }
+}
+
+
+/* ══ Glass layers ═══════════════════════════════════════════════════════════
+   The four Zones the visitor has finished, as four sheets of glass held one
+   behind the other. Nothing here is an image asset: the panes are CSS 3D and
+   the only violet area on the Scene is the light they are lit by. */
+
+.record-layer-second-visit__layout {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 620px) 380px;
+  gap: clamp(32px, 4vw, 64px);
+  align-items: center;
+  justify-content: center;
+  padding: var(--stage-top) var(--sp-32) var(--stage-hud-clear);
+  box-sizing: border-box;
+  transition: opacity 720ms ease;
+}
+
+/* ── The stage ───────────────────────────────────────────────────────────── */
+
+.record-layer-second-visit__stage3d {
+  position: relative;
+  width: 100%;
+  height: 560px;
+  perspective: 1400px;
+}
+
+/* The one violet area on this Scene. */
+.record-layer-second-visit__glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 560px;
+  height: 460px;
+  margin: -230px 0 0 -280px;
+  background: radial-gradient(
+    closest-side,
+    rgba(91, 65, 196, 0.22),
+    rgba(91, 65, 196, 0.06) 60%,
+    transparent
+  );
+  pointer-events: none;
+}
+
+.record-layer-second-visit__stack {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(8deg) rotateY(-28deg);
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.record-layer-second-visit__stack--open {
+  transform: rotateX(4deg) rotateY(-12deg);
+}
+
+/* Carried only while the stack is actually opening — a permanent
+   will-change on five composited layers costs memory for the whole Scene. */
+.record-layer-second-visit__stack--moving,
+.record-layer-second-visit__stack--moving .record-layer-second-visit__pane {
+  will-change: transform;
+}
+
+/* ── A pane ──────────────────────────────────────────────────────────────── */
+
+.record-layer-second-visit__pane {
+  position: absolute;
+  left: 170px;
+  top: 95px;
+  width: 280px;
+  height: 370px;
+  padding: 18px 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.025) 40%,
+    rgba(255, 255, 255, 0.04)
+  );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 30px 60px rgba(0, 0, 0, 0.35);
+  /* 3px, not 10: the panes have to read as stacked glass, which only works
+     if the pane behind is still legible through the one in front. */
+  backdrop-filter: blur(3px) saturate(110%);
+  -webkit-backdrop-filter: blur(3px) saturate(110%);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  transform: translate3d(var(--px), var(--py), var(--pz));
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* One raking highlight across the face. */
+.record-layer-second-visit__pane::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.07) 45%, transparent 60%);
+  pointer-events: none;
+}
+
+/*
+  Stacked — four sheets seen almost edge-on.
+
+  X is wider here than the -150/-100/-50 the design called for, because of
+  which way the rotation throws depth. Under rotateY(-28deg) a pane's screen
+  x is 0.883·x - 0.469·z, so a *negative* z pushes a pane to the RIGHT: at
+  x -150 / z -330, pane 01 lands 22px to the right of pane 04 and disappears
+  behind it completely. Measured at 1280x800: with the original numbers the
+  four panes' left edges were 346 / 334 / 321 / 304 — the back three inside
+  the front one. At -300/-200/-100 they are staggered ~30px apart and the
+  Scene reads as four sheets. Y and Z are exactly as specified, and the
+  opened state below is untouched, so it stays the wider of the two.
+*/
+.record-layer-second-visit__pane--1 { --px: -300px; --py: -66px; --pz: -330px; }
+.record-layer-second-visit__pane--2 { --px: -200px; --py: -44px; --pz: -220px; }
+.record-layer-second-visit__pane--3 { --px: -100px; --py: -22px; --pz: -110px; }
+.record-layer-second-visit__pane--4 { --px: 0px;    --py: 0px;   --pz: 0px; }
+
+/* Opened — the corridor between the layers. */
+.record-layer-second-visit__stack--open .record-layer-second-visit__pane--1 { --px: -330px; --py: -40px; --pz: -360px; }
+.record-layer-second-visit__stack--open .record-layer-second-visit__pane--2 { --px: -220px; --py: -26px; --pz: -240px; }
+.record-layer-second-visit__stack--open .record-layer-second-visit__pane--3 { --px: -110px; --py: -13px; --pz: -120px; }
+
+/* A legend row points at one layer: it comes forward, nothing else moves. */
+.record-layer-second-visit__pane--lifted {
+  transform: translate3d(var(--px), var(--py), calc(var(--pz) + 40px));
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+.record-layer-second-visit__pane-head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-8);
+  font-family: var(--font-mono);
+  /* 11px, not 9: pane 01 sits at z -330 behind a 1400px perspective, which
+     renders it at 0.81×. At 9px the back three headers came out under 7.5px
+     and stopped being readable in the stacked state. */
+  font-size: var(--type-body);
+  line-height: 1.4;
+  letter-spacing: 0.18em;
+  color: rgba(237, 236, 242, 0.62);
+}
+
+.record-layer-second-visit__pane-head b {
+  font-weight: 500;
+  color: rgba(237, 236, 242, 0.86);
+}
+
+.record-layer-second-visit__pane-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.record-layer-second-visit__pane-body--top {
+  align-items: flex-start;
+  padding-top: var(--sp-8);
+}
+
+.record-layer-second-visit__pane-foot {
+  flex: 0 0 auto;
+  min-height: 16px;
+  font-family: var(--font-mono);
+  font-size: var(--type-body);
+  line-height: 1.5;
+  letter-spacing: 0.08em;
+  color: rgba(237, 236, 242, 0.62);
+}
+
+.record-layer-second-visit__pane-empty {
+  margin: 0;
+  font-family: var(--font-kr);
+  font-size: var(--type-body);
+  letter-spacing: 0;
+  color: var(--text-tertiary);
+}
+
+/* ── What each pane holds ────────────────────────────────────────────────── */
+
+.record-layer-second-visit__swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.record-layer-second-visit__swatches i {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+
+.record-layer-second-visit__objects {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: center;
+  font-family: var(--font-kr);
+  font-size: var(--type-body);
+  line-height: 1.6;
+  color: var(--text-primary);
+  word-break: keep-all;
+}
+
+.record-layer-second-visit__lines {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.record-layer-second-visit__lines p {
+  margin: 0;
+  font-family: var(--font-kr);
+  font-size: var(--type-body);
+  line-height: 1.75;
+  letter-spacing: 0;
+  color: var(--text-primary);
+  word-break: keep-all;
+}
+
+/* ── The column that reads it back ───────────────────────────────────────── */
+
+.record-layer-second-visit__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  min-width: 0;
+  text-align: left;
+}
+
+.record-layer-second-visit__eyebrow {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  line-height: 1.4;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--trace);
+}
+
+.record-layer-second-visit__title {
+  margin: var(--sp-16) 0 0;
+  font-family: var(--font-kr);
+  font-size: 1.75rem;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
+  word-break: keep-all;
+}
+
+.record-layer-second-visit__desc {
+  margin: var(--sp-12) 0 0;
+  font-family: var(--font-kr);
+  font-size: var(--type-body);
+  line-height: 1.7;
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.record-layer-second-visit__legend {
+  width: 100%;
+  margin: var(--sp-32) 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line-subtle);
+}
+
+.record-layer-second-visit__legend-row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--sp-8);
+  width: 100%;
+  padding: 11px 0;
+  border: 0;
+  border-bottom: 1px solid var(--line-subtle);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: color var(--duration-fast) ease;
+}
+
+.record-layer-second-visit__legend-no {
+  font-family: var(--font-mono);
+  font-size: var(--type-body);
+  letter-spacing: 0.1em;
+  color: var(--text-tertiary);
+  transition: color var(--duration-fast) ease;
+}
+
+.record-layer-second-visit__legend-ko {
+  font-family: var(--font-kr);
+  font-size: var(--type-body);
+  line-height: 1.5;
+  letter-spacing: 0;
+  color: inherit;
+}
+
+.record-layer-second-visit__legend-latin {
+  font-family: var(--font-mono);
+  font-size: var(--type-body);
+  letter-spacing: 0.1em;
+  color: var(--text-tertiary);
+  transition: color var(--duration-fast) ease;
+}
+
+.record-layer-second-visit__legend-row--on {
+  color: var(--text-primary);
+}
+
+.record-layer-second-visit__legend-row--on .record-layer-second-visit__legend-latin {
+  color: var(--trace);
+}
+
+.record-layer-second-visit__legend-row:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+.record-layer-second-visit__layout .record-layer-second-visit__confirm {
+  margin-top: var(--sp-32);
+}
+
+/* ── The reveal after 기록 확인 ──────────────────────────────────────────── */
+
+.record-layer-second-visit--revealing .record-layer-second-visit__layout {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Narrow: one column, the stack scaled down, the column under it ─────── */
+
+@media (max-width: 900px) {
+  .record-layer-second-visit__layout {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    gap: var(--sp-16);
+    /* BackButton and ZoneLabel move to top: 18px below 640, so 72 still
+       clears them and buys back 16px for the column. */
+    padding: 72px var(--sp-24) var(--stage-hud-clear);
+    overflow: hidden;
+  }
+
+  .record-layer-second-visit__stage3d {
+    /* Scaled, never re-laid-out: the corridor only reads as depth at its own
+       proportions. The negative margin gives back the layout height the
+       scale no longer uses, so the column below starts right under it. */
+    height: 560px;
+    margin-bottom: -157px;
+    transform: scale(0.72);
+    transform-origin: 30% top;
+  }
+
+  .record-layer-second-visit__content {
+    align-items: flex-start;
+  }
+
+  /* 756px of usable height at 430x932 has to hold a 403px stack and the whole
+     column, with the CTA still 40px clear of the HUD's rule. Every measure
+     below is trimmed for that, and nothing here applies above 900px. */
+  .record-layer-second-visit__title {
+    margin-top: var(--sp-12);
+    font-size: var(--type-body-lg);
+  }
+
+  .record-layer-second-visit__desc {
+    margin-top: var(--sp-8);
+    font-size: var(--type-body);
+  }
+
+  .record-layer-second-visit__legend {
+    margin-top: var(--sp-16);
+  }
+
+  .record-layer-second-visit__legend-row {
+    padding: 7px 0;
+  }
+
+  .record-layer-second-visit__layout .record-layer-second-visit__confirm {
+    margin-top: var(--sp-16);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .record-layer-second-visit__stack,
+  .record-layer-second-visit__pane {
+    transition: none;
+  }
+}
+
+/* Compensate the desktop perspective. Narrow screens use flat layered cards
+   instead of shrinking the text with the entire 3D scene. */
+.record-layer-second-visit__pane { height: auto; min-height: 370px; }
+.record-layer-second-visit__pane-head, .record-layer-second-visit__pane-foot { font-size: calc(var(--type-meta) * 1.5); letter-spacing: 0; color: var(--text-secondary); }
+.record-layer-second-visit__pane-body { min-height: 220px; overflow: visible; }
+.record-layer-second-visit__pane-empty, .record-layer-second-visit__objects, .record-layer-second-visit__lines p { font-size: calc(var(--type-body) * 1.5); line-height: 1.45; }
+.record-layer-second-visit__layout { top: var(--stage-top); height: calc(100% - var(--stage-top) - var(--stage-hud-clear)); padding-block: 0; overflow-y: auto; align-items: start; }
+@media (max-width: 900px) {
+  .record-layer-second-visit__layout { padding: 0 24px 24px; align-content: start; }
+  .record-layer-second-visit__stage3d { height: 390px; margin: 0; transform: none; perspective: none; }
+  .record-layer-second-visit__stack, .record-layer-second-visit__stack--open { transform: none; }
+  .record-layer-second-visit__pane { left: 36px; top: 20px; width: calc(100% - 36px); min-height: 330px; padding: 16px; }
+  .record-layer-second-visit__pane--1 { --px: -30px; --py: 0px; --pz: 0px; }
+  .record-layer-second-visit__pane--2 { --px: -20px; --py: 6px; --pz: 0px; }
+  .record-layer-second-visit__pane--3 { --px: -10px; --py: 12px; --pz: 0px; }
+  .record-layer-second-visit__pane--4 { --px: 0px; --py: 18px; --pz: 0px; }
+  .record-layer-second-visit__stack--open .record-layer-second-visit__pane { --px: 0px; --py: 0px; --pz: 0px; }
+  .record-layer-second-visit__pane-head, .record-layer-second-visit__pane-foot { font-size: var(--type-meta); }
+  .record-layer-second-visit__pane-empty, .record-layer-second-visit__objects, .record-layer-second-visit__lines p { font-size: var(--type-body); }
 }

@@ -38,8 +38,10 @@ export interface Investigator {
 export interface LightAnalysisRules {
   palette: string[];
   paletteWeights: number[];
+  paletteSources?: Array<{ x: number; y: number }>;
   lightOrigin: { x: number; y: number };
   brightRegions: Array<{
+    contour?: string;
     x: number;
     y: number;
     brightness: number;

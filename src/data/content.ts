@@ -196,12 +196,8 @@ export const SENTENCE_MAX_FRAGMENTS = 5;
   fetched from a path — so the hashed filenames and the deployment's base path
   are Vite's problem rather than something to keep in step by hand.
 
-  What is in each recording is deliberately not written down here, and is not
-  named anywhere the visitor can reach it. A sound labelled "rain" is heard as
-  rain; the same recording labelled SOUND 01 is heard, and what it is heard as
-  is the visitor's own. The whole Zone rests on that, and a description under
-  the label would answer the question the Zone is asking. Anyone needing to
-  know which file is which can compare the numbered files in src/assets/sound.
+  Labels and icons match the byte-identical named source recordings.
+  Existing SOUND IDs remain stable for saved visits.
 
   Real durations come off the audio itself, so nothing is declared here.
 */
@@ -216,19 +212,20 @@ import sound07 from '../assets/sound/07.mp3';
 export interface SoundClue {
   /** Also the tracking target id — the name every recorded event is filed under. */
   id: string;
-  /** The only thing shown. */
+  /** Human-readable source identity. */
   label: string;
   src: string;
+  icon: 'rain' | 'paper' | 'people' | 'elevator' | 'pencil' | 'subway' | 'car';
 }
 
 export const SOUND_CLUES: SoundClue[] = [
-  { id: 'SOUND_01', label: 'SOUND 01', src: sound01 },
-  { id: 'SOUND_02', label: 'SOUND 02', src: sound02 },
-  { id: 'SOUND_03', label: 'SOUND 03', src: sound03 },
-  { id: 'SOUND_04', label: 'SOUND 04', src: sound04 },
-  { id: 'SOUND_05', label: 'SOUND 05', src: sound05 },
-  { id: 'SOUND_06', label: 'SOUND 06', src: sound06 },
-  { id: 'SOUND_07', label: 'SOUND 07', src: sound07 },
+  { id: 'SOUND_01', label: '빗소리', src: sound01, icon: 'rain' },
+  { id: 'SOUND_02', label: '종이 넘기는 소리', src: sound02, icon: 'paper' },
+  { id: 'SOUND_03', label: '사람들 웃고 떠드는 소리', src: sound03, icon: 'people' },
+  { id: 'SOUND_04', label: '엘리베이터', src: sound04, icon: 'elevator' },
+  { id: 'SOUND_05', label: '연필로 쓰고 지우는 소리', src: sound05, icon: 'pencil' },
+  { id: 'SOUND_06', label: '지하철', src: sound06, icon: 'subway' },
+  { id: 'SOUND_07', label: '차가 지나가는 소리', src: sound07, icon: 'car' },
 ];
 
 /**
@@ -248,10 +245,8 @@ export const SKETCH_COLORS = ['#c9a3ff', '#7fa7d9', '#e2b6a0', '#9fd6c9'];
  * MEMORY's Reconstructed Room — the interactive objects a visitor can
  * recognise as "that person's trace."
  *
- * `label` exists for assistive technology only. The UI never renders it as
- * visible text — the object's line art is the only thing anyone reading the
- * room sees, on the same principle as SOUND_CLUES: a labelled list would
- * turn the room into a form.
+ * Labels serve the room tooltip, selection list and downstream record.
+ * Legacy IDs remain readable; only IDs with current room geometry are selectable.
  *
  * A flat, swappable table on purpose. Nothing about the interaction (hover,
  * select, the color that washes in) reads `id` or `label` for meaning — see
@@ -261,7 +256,7 @@ export const SKETCH_COLORS = ['#c9a3ff', '#7fa7d9', '#e2b6a0', '#9fd6c9'];
  */
 export interface MemoryRoomObject {
   id: string;
-  /** Screen-reader only. Never shown as UI text. */
+  /** Accessible name and visible record label. */
   label: string;
 }
 
@@ -272,6 +267,10 @@ export const MEMORY_ROOM_OBJECTS: MemoryRoomObject[] = [
   { id: 'photo', label: '사진' },
   { id: 'cup', label: '컵' },
   { id: 'chair', label: '의자' },
+  { id: 'pillow', label: '베개' },
+  { id: 'duvet', label: '이불' },
+  { id: 'bedsidePlant', label: '협탁 위 화분' },
+  // Historical records keep their names without acquiring new hit areas.
   { id: 'bag', label: '가방' },
   { id: 'bedside', label: '책상 아래 쌓인 물건' },
 ];

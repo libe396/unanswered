@@ -8,7 +8,7 @@ export function Zone03IntroScene() {
   return (
     <ZoneIntroCard
       zone={ZONE_INFO.zone03Intro.zone}
-      title="소리의 단서"
+      title="소리의 흔적"
       subtitle="이름 없는 사람의 기억이 담긴, 그 순간의 소리를 들어보세요."
       ctaLabel="조사 시작"
       onContinue={() => completeScene('zone03Intro')}

@@ -63,38 +63,9 @@
   text-align: left;
 }
 
-.stage__eyebrow {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  line-height: 1.4;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--trace);
-}
-
-.stage__title {
-  margin: var(--sp-16) 0 0;
-  font-family: var(--font-kr);
-  font-size: 32px;
-  line-height: 1.35;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: var(--text-primary);
-  text-wrap: balance;
-  word-break: keep-all;
-}
-
-.stage__description {
-  margin: var(--sp-12) 0 0;
-  max-width: 380px;
-  font-family: var(--font-kr);
-  font-size: 15px;
-  line-height: 1.7;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  color: var(--text-secondary);
-  word-break: keep-all;
+/* Heading type lives in StageHeader.css — this column only sets its width. */
+.stage__content > .stage-head {
+  max-width: none;
 }
 
 /* ── Steps ───────────────────────────────────────────────────────────────── */
@@ -113,7 +84,7 @@
   align-items: baseline;
   gap: var(--sp-8);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--type-meta);
   line-height: 1.4;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -129,7 +100,7 @@
 /* Korean step names do not take the Latin tracking. */
 .stage__step-label {
   font-family: var(--font-kr);
-  font-size: 11px;
+  font-size: var(--type-meta);
   letter-spacing: 0;
   text-transform: none;
 }
@@ -137,6 +108,20 @@
 .stage__action {
   margin-top: var(--sp-24);
   max-width: 400px;
+}
+
+/* ── Wide variant ─────────────────────────────────────────────────────────
+   For an object that is a drawing: a 720px column is the smallest width the
+   room illustration still reads at, and it leaves 1fr for the list beside it. */
+
+.stage--wide .stage__inner {
+  max-width: 1120px;
+  grid-template-columns: 720px 1fr;
+  gap: var(--sp-48);
+}
+
+.stage--wide .stage__object-body {
+  width: 100%;
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
@@ -147,8 +132,9 @@
     gap: var(--sp-64);
   }
 
-  .stage__title {
-    font-size: 28px;
+  .stage--wide .stage__inner {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: var(--sp-32);
   }
 }
 
@@ -179,11 +165,14 @@
     width: 100%;
   }
 
-  .stage__title {
-    font-size: 26px;
+  .stage--wide .stage__inner {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .stage__description,
+  .stage--wide .stage__object-body {
+    max-width: none;
+  }
+
   .stage__action {
     max-width: none;
   }
@@ -194,15 +183,12 @@
     padding: 76px var(--sp-24) var(--stage-bottom);
   }
 
-  .stage__title {
-    font-size: 23px;
-  }
-
-  .stage__description {
-    font-size: 14px;
-  }
-
   .stage__steps {
     gap: var(--sp-12) var(--sp-16);
   }
+}
+
+/* A scrollable narrow stage must never travel behind the fixed navigation. */
+@media (max-width: 900px) {
+  .stage { top: var(--stage-top); height: calc(100% - var(--stage-top) - var(--stage-hud-clear)); padding: 0 var(--sp-24); scroll-padding-block: 16px; }
 }

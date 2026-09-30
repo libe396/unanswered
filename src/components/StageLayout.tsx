@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { StageHeader } from './StageHeader';
 import './StageLayout.css';
 
 export interface StageStep {
@@ -29,6 +30,11 @@ interface StageLayoutProps {
    * Defaults to on, because every stage has exactly one object.
    */
   residue?: boolean;
+  /**
+   * Wide variant: a 1120 container with a 720px object column, for an object
+   * that is an image rather than a card (see MemorySketch).
+   */
+  wide?: boolean;
   className?: string;
 }
 
@@ -54,10 +60,11 @@ export function StageLayout({
   activeStep,
   children,
   residue = true,
+  wide = false,
   className,
 }: StageLayoutProps) {
   return (
-    <div className={`stage${className ? ` ${className}` : ''}`}>
+    <div className={`stage${wide ? ' stage--wide' : ''}${className ? ` ${className}` : ''}`}>
       <div className="stage__inner">
         <div className="stage__object">
           {residue ? <span className="residue stage__residue" aria-hidden="true" /> : null}
@@ -65,9 +72,7 @@ export function StageLayout({
         </div>
 
         <div className="stage__content">
-          <p className="stage__eyebrow">{eyebrow}</p>
-          <h1 className="stage__title">{title}</h1>
-          {description ? <p className="stage__description">{description}</p> : null}
+          <StageHeader eyebrow={eyebrow} title={title} description={description} />
 
           {steps && steps.length > 0 ? (
             <ol className="stage__steps">

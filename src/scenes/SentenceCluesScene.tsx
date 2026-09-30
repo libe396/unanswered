@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useInteractionClock } from '../hooks/useInteractionClock';
+import { useEffect, useRef, useState } from 'react';
 import {
   MEMORY_ROOM_OBJECTS,
   SOUND_CLUES,
@@ -19,18 +20,16 @@ import {
   summarizeSentence,
 } from '../lib/sentenceTracking';
 import { SENTENCE_THRESHOLDS } from '../lib/sentenceThresholds';
-import { buildSentenceNarrativeContext } from '../lib/sentenceNarrative';
 import {
   NO_TARGET_MESSAGE,
   findQuestionTarget,
   generateFragmentQuestion,
   type SentenceQuestionResult,
 } from '../lib/sentenceQuestionService';
-import { ZoneIntroCard } from '../components/ZoneIntroCard';
 import { TerminalCorners } from '../components/TerminalCorners';
 import { StageActions, StageHeader } from '../components/StageHeader';
 import { ZONE_INFO } from '../data/zones';
-import type { SceneBehaviorRecord, SentenceBehavioralTrace } from '../types';
+import type { SceneBehaviorRecord } from '../types';
 import './SentenceCluesScene.css';
 
 const STOPWORDS = new Set([
@@ -146,25 +145,6 @@ const RESPONSE_MAX_LENGTH = 100;
 const DISCOVERING_MIN_MS = 900;
 const DEFAULT_DISCOVERING_TEXT = '아직 확인되지 않은 부분이 있습니다.';
 
-function traceMessage(trace: SentenceBehavioralTrace): string {
-  switch (trace.type) {
-    case 'long_unselected_dwell': {
-      const seconds = (trace.dwellMs / 1000).toFixed(1);
-      return `선택하지 않은 기록 하나에 ${seconds}초 동안 머물렀습니다.`;
-    }
-    case 'selected_then_removed':
-      return '한 번 꺼낸 기록을 다시 돌려놓았습니다.';
-    case 'removed_then_reselected':
-      return '한 번 돌려놓은 기록을 다시 꺼냈습니다.';
-    case 'repeat_hover':
-      return `같은 기록을 ${trace.revisitCount + 1}번 다시 확인했습니다.`;
-    case 'long_selected_dwell':
-      return '이 기록 앞에서 조금 더 오래 머물렀습니다.';
-    default:
-      return '';
-  }
-}
-
 /**
  * How the Zone reads its own record back, in development.
  *
@@ -220,14 +200,12 @@ function readSentenceTracking(record: SceneBehaviorRecord) {
 }
 
 type Phase =
-  | 'zoneIntro'
   | 'context'
   | 'explore'
   | 'reconstruction'
   | 'discovering'
   | 'question'
-  | 'restoredRecord'
-  | 'behavioralTrace';
+  | 'restoredRecord';
 
 export function SentenceCluesScene() {
   const lightArchive = useExperienceStore((s) => s.lightArchive);
@@ -240,18 +218,9 @@ export function SentenceCluesScene() {
     debugView: readSentenceTracking,
   });
 
-  /*
-    LIGHT/SOUND/MEMORY's final answers only — never a raw event or a Scene
-    Summary. See src/lib/sentenceNarrative.ts's module doc for why that
-    boundary is load-bearing here, not just tidy.
-  */
-  const narrative = useMemo(
-    () => buildSentenceNarrativeContext(lightArchive, soundClues, memorySketch),
-    [lightArchive, soundClues, memorySketch],
-  );
-
-  const [phase, setPhase] = useState<Phase>('zoneIntro');
-  const enteredAtRef = useRef(Date.now());
+  const [phase, setPhase] = useState<Phase>('context');
+  const interactionNow = useInteractionClock();
+  const enteredAtRef = useRef(interactionNow());
 
   /** The visitor's drawn cards, in draw order — this *is* the account's
    *  order now, `ending` fragments aside (see `orderedForReading`). Seeded
@@ -305,7 +274,6 @@ export function SentenceCluesScene() {
     composition is in flight.
   */
   const isComposingRef = useRef(false);
-  const [behavioralTrace, setBehavioralTrace] = useState<SentenceBehavioralTrace | null>(null);
 
   useEffect(() => {
     // Recovered Context is a reading step and records nothing. The group
@@ -465,12 +433,6 @@ export function SentenceCluesScene() {
 
   /* ── Restored Record → Behavioral Trace ─────────────────────────────────── */
 
-  function handleRestoredRecordNext() {
-    const trace = deriveSentenceBehavioralTrace(summarizeSentence(tracking.snapshot()));
-    setBehavioralTrace(trace);
-    setPhase('behavioralTrace');
-  }
-
   function handleComplete() {
     const record = tracking.snapshot();
     const summary = summarizeSentence(record);
@@ -493,8 +455,8 @@ export function SentenceCluesScene() {
       noQuestionAvailable,
       responseEditCount: responseEditCountRef.current,
       responseDeleteCount: responseDeleteCountRef.current,
-      behavioralTrace,
-      sceneDurationMs: Date.now() - enteredAtRef.current,
+      behavioralTrace: deriveSentenceBehavioralTrace(summary),
+      sceneDurationMs: interactionNow() - enteredAtRef.current,
     });
     tracking.save();
     logSceneTracking('sentenceClues', tracking, readSentenceTracking);
@@ -504,84 +466,39 @@ export function SentenceCluesScene() {
 
   /* ── zoneIntro / context ─────────────────────────────────────────────────── */
 
-  if (phase === 'zoneIntro') {
-    return (
-      <ZoneIntroCard
-        zone={ZONE_INFO.sentenceClues.zone}
-        title="문장의 흔적"
-        subtitle="사람의 기억은, 결국 글자로 남는 법."
-        ctaLabel="조사 시작"
-        onContinue={() => setPhase('context')}
-      />
-    );
-  }
 
   if (phase === 'context') {
+    const selectedSound = SOUND_CLUES.find(sound => sound.id === soundClues.selectedSoundId);
+    const selectedObjects = memorySketch.selectedObjects.map(id => MEMORY_ROOM_OBJECTS.find(object => object.id === id)?.label ?? id);
     return (
       <div className="sentence-clues-scene sentence-clues-scene--context">
-        <aside className="sentence-clues-scene__clue-summary" aria-labelledby="collected-clues-title">
-          <h2 id="collected-clues-title">이전 공간에서 수집한 단서</h2>
-          <dl>
-            <dt>색의 흔적</dt>
-            <dd>{lightArchive ? <div className="sentence-clues-scene__swatches">{lightArchive.rules.palette.map((color, index) => <span key={`${color}-${index}`} style={{ backgroundColor: color }} role="img" aria-label={color} title={color} />)}</div> : '남겨진 색이 없습니다.'}</dd>
-            <dt>소리의 흔적</dt>
-            <dd>{SOUND_CLUES.find((sound) => sound.id === soundClues.selectedSoundId)?.label ?? soundClues.selectedSoundId ?? '선택한 소리가 없습니다.'}</dd>
-            <dt>사물의 흔적</dt>
-            <dd>{memorySketch.selectedObjects.length ? <ul>{memorySketch.selectedObjects.map((id) => <li key={id}>{MEMORY_ROOM_OBJECTS.find((object) => object.id === id)?.label ?? id}</li>)}</ul> : '선택한 사물이 없습니다.'}</dd>
+        <div className="sentence-clues-scene__intro">
+          <p className="sentence-clues-scene__intro-label">문장의 흔적</p>
+          <h1>그 사람에게 이후 어떤 일이 있었을까요?</h1>
+          <p className="sentence-clues-scene__intro-guide">수집한 단서를 떠올리며, 이어졌을 법한 문장을 {SENTENCE_MIN_FRAGMENTS}~{SENTENCE_MAX_FRAGMENTS}개 골라 주세요.</p>
+          <dl className="sentence-clues-scene__clue-strip" aria-label="수집한 단서 요약">
+            <div><dt>색</dt><dd>{lightArchive?.rules.palette.length ? <div className="sentence-clues-scene__swatches">{lightArchive.rules.palette.map((color, index) => <span key={index} style={{ backgroundColor: color }} role="img" aria-label={color} />)}</div> : '수집한 색 없음'}</dd></div>
+            <div><dt>소리</dt><dd>{selectedSound?.label ?? '선택한 소리 없음'}</dd></div>
+            <div><dt>사물</dt><dd>{selectedObjects.length ? selectedObjects.join(' · ') : '선택한 사물 없음'}</dd></div>
           </dl>
-        </aside>
-        <div className="sentence-clues-scene__context-reading">
-        <p className="sentence-clues-scene__reading-eyebrow">RESTORED RECORD</p>
-
-        {/* Numbered, so the gap below reads as a missing line of a record
-            rather than as a paragraph break. */}
-        <div className="sentence-clues-scene__context-paragraphs glass scroll-quiet">
-          {narrative.paragraphs.map((paragraph, index) => (
-            <p
-              key={index}
-              className="sentence-clues-scene__context-p"
-              style={{ animationDelay: `${index * 0.4}s` }}
-            >
-              <span className="sentence-clues-scene__context-index" aria-hidden="true">
-                {String(index + 1).padStart(2, '0')}
-              </span>
-              <span className="sentence-clues-scene__context-body">{paragraph}</span>
-            </p>
-          ))}
-        </div>
-
-        {/* One break in the record: two dashed rules and the line itself. The
-            old interrupted solid rule sat inside this block as well, which read
-            as two different dividers stacked. */}
-        <div className="sentence-clues-scene__missing">
-          <p className="sentence-clues-scene__missing-text">{narrative.missingSegmentText}</p>
-        </div>
-
-        <h2 className="sentence-clues-scene__prompt">{narrative.promptText}</h2>
-        <p className="sentence-clues-scene__instruction">{narrative.instructionText}</p>
-
-        <button className="cta cta--primary sentence-clues-scene__confirm" onClick={() => setPhase('explore')}>
-          탐색 시작
-        </button>
+          <button className="cta cta--primary" onClick={() => setPhase('explore')}>문장 고르기</button>
         </div>
       </div>
     );
   }
 
   /* ── explore: the archive wall ─────────────────────────────────────────────
-     One screen, three bands: the heading, the card grid, and the fixed foot
-     (slot row + action row). Only the grid scrolls — the heading can never
-     slide under BackButton/ZoneLabel, and the CTA can never drift into the
-     ArchiveHUD. */
+     One screen: heading, the entire comparison grid, and a compact footer.
+     Unsupported viewports offer a larger-screen notice without losing state. */
 
   if (phase === 'explore') {
     return (
-      <div className="sentence-clues-scene sentence-clues-scene--explore">
+      <div className="sentence-clues-scene sentence-clues-scene--explore"><div className="sentence-clues-scene__size-notice" role="status"><h1>전체 기록을 한눈에 비교할 수 있는 화면이 필요합니다.</h1><p>가로 화면이나 더 큰 창으로 열어 주세요.<br />최소 가로 1100 × 세로 650 크기의 화면을 권장합니다.</p><p>선택한 기록과 작성 중인 문장은 그대로 유지됩니다.</p></div>
         {/* No description line here. Twenty records, four rows and the slot
             row have to land inside one 800px screen without a scroller, and
             the instruction is the one block that can be said somewhere else —
             the action row's label below carries the 3–5 range instead. */}
-        <StageHeader eyebrow="SENTENCE CLUES" title="그 사람에게 이후 어떤 일이 있었을까요?" />
+        <StageHeader eyebrow="문장의 흔적" title="그 사람에게 이후 어떤 일이 있었을까요?" />
 
         <div className="sentence-clues-scene__wall scroll-quiet" aria-label="전체 문장 기록">
           {SENTENCE_RECONSTRUCTION_FRAGMENTS.map((fragment) => {
@@ -605,7 +522,7 @@ export function SentenceCluesScene() {
               >
                 <span className="sentence-clues-scene__card-code" aria-hidden="true">
                   {archiveCodeOf(fragment.id)}
-                  {locked ? <span className="sentence-clues-scene__card-lock">LOCKED</span> : null}
+                  {locked ? <span className="sentence-clues-scene__card-lock">선택 대기</span> : null}
                 </span>
                 <span className="sentence-clues-scene__card-text">{fragment.text}</span>
               </button>
@@ -614,42 +531,9 @@ export function SentenceCluesScene() {
         </div>
 
         <div className="sentence-clues-scene__foot">
-          {/* The slot row *is* the selection order — which is why a drawn card
-              leaves only a dashed gap in the grid and carries no "✓ 1" badge. */}
-          <div className="sentence-clues-scene__slots" aria-label="선택한 기록">
-            {Array.from({ length: SENTENCE_MAX_FRAGMENTS }, (_, index) => {
-              const id = fragments[index];
-              if (!id) {
-                return (
-                  <div
-                    key={`slot-${index}`}
-                    className="sentence-clues-scene__slot sentence-clues-scene__slot--empty"
-                  >
-                    <span className="sentence-clues-scene__slot-num" aria-hidden="true">
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
-                  </div>
-                );
-              }
-              return (
-                <div key={id} className="sentence-clues-scene__slot sentence-clues-scene__slot--filled">
-                  <span className="sentence-clues-scene__slot-num" aria-hidden="true">
-                    {archiveCodeOf(id)}
-                  </span>
-                  <span className="sentence-clues-scene__slot-text">{textOf(id)}</span>
-                  <button
-                    type="button"
-                    className="sentence-clues-scene__slot-clear"
-                    onClick={() => returnFragment(id)}
-                    aria-label={`${index + 1}번째 기록: ${textOf(id)} · 선택 해제`}
-                  >
-                    <span aria-hidden="true">×</span>
-                  </button>
-                </div>
-              );
-            })}
+          <div className="sentence-clues-scene__selection-numbers" aria-label="선택한 기록 번호">
+            {Array.from({ length: SENTENCE_MAX_FRAGMENTS }, (_, i) => fragments[i] ? <button key={fragments[i]} onClick={() => returnFragment(fragments[i])} aria-label={`${archiveCodeOf(fragments[i])}번 기록 선택 해제`}>{archiveCodeOf(fragments[i])}<span aria-hidden="true"> ×</span></button> : <span key={i}>—</span>)}
           </div>
-
           <StageActions
             info={
               <p className="metric sentence-clues-scene__count" role="status">
@@ -700,19 +584,19 @@ export function SentenceCluesScene() {
 
     const stepIndex = phase === 'reconstruction' ? 0 : phase === 'restoredRecord' ? 2 : 1;
 
-    const sheetState = phase === 'restoredRecord' ? (hasAddition ? 'RESTORED' : 'UNANSWERED') : 'RESTORING';
-    const fragmentCount = `${String(ordered.length).padStart(2, '0')} FRAGMENTS`;
+    const sheetState = phase === 'restoredRecord' ? (hasAddition ? '복원 완료' : '미응답') : '복원 중';
+    const fragmentCount = `기록 ${ordered.length}개`;
     const blankMark =
       phase !== 'restoredRecord'
-        ? '01 BLANK'
+        ? '빈칸 1개'
         : noQuestionAvailable
-          ? 'NO BLANK'
+          ? '빈칸 없음'
           : hasAddition
-            ? '01 RESTORED'
-            : '01 UNANSWERED';
+            ? '복원 1개'
+            : '미응답 1개';
 
     return (
-      <div className="sentence-clues-scene sentence-clues-scene--record">
+      <div className="sentence-clues-scene sentence-clues-scene--record"><div className="sentence-clues-scene__size-notice" role="status"><h1>전체 기록을 한눈에 비교할 수 있는 화면이 필요합니다.</h1><p>가로 화면이나 더 큰 창으로 열어 주세요.<br />최소 가로 1100 × 세로 650 크기의 화면을 권장합니다.</p><p>선택한 기록과 작성 중인 문장은 그대로 유지됩니다.</p></div>
         <div className="sentence-clues-scene__record-grid">
           {/* ── The sheet ─────────────────────────────────────────────────── */}
           <section
@@ -725,7 +609,7 @@ export function SentenceCluesScene() {
               {/* "ZONE 06" → "06": the sheet is RECORD 06, and the Zone is
                   already named in the corner above it. */}
               <span className="sentence-clues-scene__sheet-mark">
-                RECORD {ZONE_INFO.sentenceClues.zone.replace(/^ZONE\s*/, '')}
+                기록 {ZONE_INFO.sentenceClues.zone.replace(/^ZONE\s*/, '')}
               </span>
               <span
                 className={`sentence-clues-scene__sheet-state${
@@ -816,7 +700,7 @@ export function SentenceCluesScene() {
 
             {phase === 'reconstruction' ? (
               <>
-                <p className="sentence-clues-scene__panel-eyebrow">SELECTED FRAGMENTS</p>
+                <p className="sentence-clues-scene__panel-eyebrow">선택한 기록</p>
                 <h1 className="sentence-clues-scene__panel-title">선택한 기록이 한 장으로 모였습니다.</h1>
                 <p className="sentence-clues-scene__panel-desc">
                   기록 사이에 아직 채워지지 않은 빈칸이 있습니다.
@@ -831,7 +715,7 @@ export function SentenceCluesScene() {
 
             {phase === 'discovering' ? (
               <>
-                <p className="sentence-clues-scene__panel-eyebrow">SEARCHING</p>
+                <p className="sentence-clues-scene__panel-eyebrow">빈칸 살펴보기</p>
                 <p className="sentence-clues-scene__discovering-text" key={discoveringMessage} role="status">
                   {discoveringMessage}
                 </p>
@@ -841,7 +725,7 @@ export function SentenceCluesScene() {
             {phase === 'question' && targetFragment ? (
               <>
                 <p className="sentence-clues-scene__panel-eyebrow">
-                  BLANK · {archiveCodeOf(targetFragment.id)}
+                  빈칸 · {archiveCodeOf(targetFragment.id)}
                 </p>
                 <h1 className="sentence-clues-scene__panel-title">{questionResult?.question}</h1>
 
@@ -904,7 +788,7 @@ export function SentenceCluesScene() {
 
             {phase === 'restoredRecord' ? (
               <>
-                <p className="sentence-clues-scene__panel-eyebrow">RESTORED RECORD</p>
+                <p className="sentence-clues-scene__panel-eyebrow">복원된 기록</p>
                 <h1 className="sentence-clues-scene__panel-title">
                   {hasAddition
                     ? '기록에 문장이 더해졌습니다.'
@@ -920,7 +804,7 @@ export function SentenceCluesScene() {
                       : '대답하지 않은 것도 하나의 기록으로 남습니다.'}
                 </p>
                 <div className="sentence-clues-scene__panel-actions">
-                  <button className="cta cta--primary" onClick={handleRestoredRecordNext}>
+                  <button className="cta cta--primary" onClick={handleComplete}>
                     다음으로
                   </button>
                 </div>
@@ -932,28 +816,5 @@ export function SentenceCluesScene() {
     );
   }
 
-  /* ── behavioralTrace ──────────────────────────────────────────────────────── */
-
-  return (
-    <div className="sentence-clues-scene">
-      <p className="sentence-clues-scene__hint">기록을 남기는 동안, 이런 흔적이 남았습니다.</p>
-
-      <div className="sentence-clues-scene__trace">
-        {behavioralTrace ? (
-          <>
-            <p className="sentence-clues-scene__trace-message">{traceMessage(behavioralTrace)}</p>
-            <p className="sentence-clues-scene__trace-fragment">{textOf(behavioralTrace.fragmentId)}</p>
-          </>
-        ) : (
-          <p className="sentence-clues-scene__trace-message">
-            이번 기록에서는 특별히 남은 행동 흔적이 없습니다.
-          </p>
-        )}
-      </div>
-
-      <button className="cta cta--primary sentence-clues-scene__confirm" onClick={handleComplete}>
-        기록 확정
-      </button>
-    </div>
-  );
+  return null;
 }

@@ -24,7 +24,7 @@
   margin: 0;
   width: max-content;
   max-width: min(680px, 88vw);
-  font-size: clamp(18px, 2.35vw, 25px);
+  font-size: clamp(var(--type-body), 2.35vw, 1.5625rem);
   line-height: 1.82;
   color: rgba(232, 230, 240, 0.92);
   text-align: center;
@@ -32,31 +32,31 @@
 }
 
 .report-stage-06__line--reveal {
-  font-size: clamp(30px, 4.8vw, 54px);
+  font-size: clamp(1.875rem, 4.8vw, 3.375rem);
   line-height: 1.28;
   color: var(--color-text);
 }
 
 .report-stage-06__line--detail {
-  font-size: clamp(17px, 2vw, 22px);
+  font-size: clamp(var(--type-body), 2vw, 1.375rem);
   line-height: 1.9;
   color: rgba(232, 230, 240, 0.84);
 }
 
 .report-stage-06__line--reframe {
-  font-size: clamp(18px, 2.4vw, 26px);
+  font-size: clamp(var(--type-body), 2.4vw, 1.625rem);
   line-height: 1.78;
   color: var(--color-text);
 }
 
 .report-stage-06__line--closure {
-  font-size: clamp(23px, 3.4vw, 36px);
+  font-size: clamp(1.4375rem, 3.4vw, 2.25rem);
   line-height: 1.6;
   color: var(--color-text);
 }
 
 .report-stage-06__line--final {
-  font-size: clamp(25px, 3.6vw, 40px);
+  font-size: clamp(1.5625rem, 3.6vw, 2.5rem);
   line-height: 1.58;
   color: var(--color-accent);
 }
@@ -76,19 +76,52 @@
   }
 
   .report-stage-06__line {
-    font-size: 18px;
+    font-size: var(--type-body);
     max-width: 88vw;
   }
 
   .report-stage-06__line--reveal {
-    font-size: 32px;
+    font-size: var(--type-title);
   }
 
   .report-stage-06__line--closure {
-    font-size: 25px;
+    font-size: 1.5625rem;
   }
 
   .report-stage-06__line--final {
-    font-size: 26px;
+    font-size: 1.625rem;
   }
+}
+
+.identity-reveal { width: min(760px, 88vw); display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
+.identity-reveal__setup { margin: 0; font-size: clamp(1.1875rem, 2.4vw, 1.75rem); }
+.identity-reveal__portrait { position: relative; width: min(460px, 70vw); height: clamp(150px, 31vh, 320px); overflow: hidden; background: #060609; border-radius: 4px; }
+.identity-reveal__video { width: 100%; height: 100%; object-fit: contain; transform: scaleX(-1); opacity: 0; }
+.identity-reveal__video--live { opacity: 1; }
+.identity-reveal__portrait::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 0 48px 18px #060609; pointer-events: none; }
+.identity-reveal__traces { position: absolute; inset: 0; }
+.identity-reveal__traces canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; animation: identity-gather 2s ease both; }
+.identity-reveal__traces canvas + canvas { animation-delay: .2s; }
+.identity-reveal__traces > div { position: absolute; inset: 20% 12%; font-size: var(--type-body); text-shadow: 0 1px 5px #000; animation: identity-gather 2.4s ease both; }
+.identity-reveal h1 { margin: 0; font-size: clamp(1.875rem, 4vw, var(--type-display)); }
+.identity-reveal__closure { font-size: var(--type-body); line-height: 1.7; margin: 0; transition: opacity 1s; }
+.identity-reveal__notice { font-size: var(--type-body); color: var(--text-secondary); text-align: center; }
+.identity-reveal__off { color: var(--text-secondary); background: none; border: 0; border-bottom: 1px solid var(--line); cursor: pointer; padding: 7px; }
+@keyframes identity-gather { from { opacity: 0; transform: translateY(24px) scale(.94); } to { opacity: 1; transform: none; } }
+@media(prefers-reduced-motion: reduce) { .identity-reveal * { animation: none !important; transition: none !important; } }
+@media print { .identity-reveal__video { display: none !important; } }
+.report-stage-06[data-reveal-phase="0"] .identity-reveal__traces > * { animation-play-state: paused; }
+
+.identity-reveal[hidden] { display: none; }
+.camera-consent { width: min(560px, 86vw); text-align: left; }
+.camera-consent h2 { margin: 0 0 24px; font-size: clamp(1.375rem, 3vw, 1.875rem); font-weight: 500; }
+.camera-consent h2:focus { outline: none; }
+.camera-consent p { margin: 12px 0; color: var(--text-secondary); font-size: var(--type-body); line-height: 1.8; word-break: keep-all; }
+.camera-consent__actions { display: flex; flex-wrap: wrap; gap: 16px 24px; margin-top: 32px; }
+.camera-consent button:focus-visible { outline: 2px solid var(--color-signal); outline-offset: 5px; }
+
+.camera-consent { max-width: 600px; }
+@media (max-width: 640px) {
+  .camera-consent__actions { display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
+  .identity-reveal__portrait { max-height: 28dvh; }
 }

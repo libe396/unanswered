@@ -1,105 +1,19 @@
 /**
- * Memory Field — the particle system the Landing scene is built around.
- *
- * The premise: the field is a memory the archive has not finished reconstructing.
- * It drifts through a sequence of half-formed targets — a sphere, a lattice, a
- * wireframe solid, a human outline — and never arrives cleanly at any of them.
- * Three mechanisms guarantee that:
- *
- *  - every particle carries a permanent random offset from its target, so the
- *    form is always slightly dissolved;
- *  - each particle crosses to the next target on its own stagger, so a shape is
- *    still assembling when the next one begins;
- *  - a fraction of the field ignores the targets entirely and drifts as ambient
- *    noise, which keeps a silhouette from ever closing.
- *
- * The pointer is not a cursor the particles follow — it is an interference. It
- * pushes them out of place and spins them, and the only thing that brings them
- * back is the spring toward the target. Stop moving and the reconstruction
- * slowly resumes. That is the whole interaction, and it is the narrative:
- * observation disturbs the record.
- *
- * Simulation runs entirely on the GPU. Position and velocity live in two pairs
- * of float textures that are ping-ponged through a fragment shader each frame
- * (MRT, so one pass writes both), and the render pass reads positions back with
- * texelFetch keyed on gl_VertexID. No per-particle data crosses the bus after
- * init, so particle count is bounded by fill rate rather than by JS.
- *
- * Deliberately no dependency: WebGL2 is enough, and CLAUDE.md asks for a small
- * tree. The figure target is sampled from FIGURE_RULES so the erased subject in
- * lib/figureLight.ts survives here as one of the forms the field passes through.
+ * One particle skin, repeatedly cut, folded, unrolled and sewn back together.
+ * Every index owns the same stratified (u, v) on every target. No volume fill,
+ * drifters, random target reassignment, meshes or new rendering passes.
+ * The existing float-texture spring simulation retains pointer interference
+ * and the fixed vertical-line handoff to the elevator.
  */
-
-import { DESIGN_H, DESIGN_W, FIGURE_RULES } from './figureLight';
-
 const TAU = Math.PI * 2;
-
-/** Fraction of the field that never joins a target — ambient archive noise. */
-const DRIFTER_RATIO = 0.11;
-
-/**
- * Overall size of the mass in world units, and the proportions of its
- * silhouette. Every target is scaled by these after it is generated, so the
- * mass keeps one consistent, slightly vertical footprint no matter which form
- * it is currently passing through.
- *
- * This is deliberately independent of two other sizes it would be easy to
- * conflate:
- *
- *  - how big an individual particle is drawn (PARTICLE_SIZE_MIN/MAX below —
- *    a screen-space property, unaffected by how large the body is);
- *  - how long the line is that the mass collapses into on entry
- *    (LINE_HALF_LENGTH — an absolute length, because it has to match the
- *    elevator door seam and must not move when the body is resized).
- *
- * Shrinking the body must not shrink the particles or shorten the line.
- */
-const FIELD_SCALE = 1.47;
-const FIELD_ASPECT: [number, number, number] = [0.86, 1.18, 0.86];
-
-/** Vertical half-extent of the line the mass is wrung into, in world units.
- *  Fixed, not derived from FIELD_SCALE — the elevator seam is cut to this, so
- *  resizing the body must leave the line exactly where it was. */
+const FIELD_SCALE = 0.92;
 const LINE_HALF_LENGTH = 0.56;
-
-/**
- * Reach of the pointer's interference, in world units.
- *
- * Absolute, and deliberately not scaled with FIELD_SCALE. The disturbance is
- * meant to be a touch at one spot on the body, so as the body grows the ripple
- * should stay the size it was — scaling it would keep it proportionally huge.
- */
 const POINTER_RADIUS = 0.3;
-
-/** Drawn size of one particle, in device pixels before the depth term. Purely
- *  screen-space: the body can be resized without touching these. */
 const PARTICLE_SIZE_MIN = 1.75;
 const PARTICLE_SIZE_MAX = 3.95;
-/** Seconds a target is held before the field starts crossing to the next one. */
-const HOLD_SECONDS = 5.5;
-/** Seconds the crossing itself takes. Long: the field should read as searching. */
-const MORPH_SECONDS = 7;
-
-/** Far enough back that the field sits inside the frame as a contained mass
- *  with black around it, rather than filling the room edge to edge. */
 const CAMERA_Z = 3.7;
 const FOV_Y = (46 * Math.PI) / 180;
 
-// ---------------------------------------------------------------------------
-// Deterministic randomness
-// ---------------------------------------------------------------------------
-
-function mulberry32(seed: number) {
-  let a = seed >>> 0;
-  return function random() {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-/** Stable per-index hash. Decides drifters, so it must agree across every shape. */
 function hash11(i: number): number {
   let h = Math.imul(i ^ 0x9e3779b9, 0x85ebca6b);
   h ^= h >>> 13;
@@ -107,402 +21,121 @@ function hash11(i: number): number {
   return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
 }
 
-function isDrifter(index: number): boolean {
-  return hash11(index * 3 + 11) < DRIFTER_RATIO;
+type Surface = (u: number, v: number) => [number, number, number, number];
+const rim = (distance: number) => Math.exp(-distance * 180);
+
+/** Equal-area sphere. Tilt is shared by the cut plane and its descendants. */
+function shell(u: number, v: number, cut: boolean): [number, number, number, number] {
+  const y = cut ? -0.48 + 1.48 * Math.pow(1 - v, 1.18) : 1 - 2 * v;
+  const radius = Math.sqrt(Math.max(0, 1 - y * y));
+  const angle = TAU * u;
+  return [radius * Math.cos(angle), y, radius * Math.sin(angle), cut ? rim(1 - v) : 0];
 }
 
-/** Box–Muller, for clouds that fall off smoothly instead of ending at a rim. */
-function gaussian(random: () => number): number {
-  const u = Math.max(random(), 1e-6);
-  return Math.sqrt(-2 * Math.log(u)) * Math.cos(TAU * random());
+/** Eight large curved panels, still indexed to the original sphere's skin. */
+function panel(u: number, v: number, folded: boolean): [number, number, number, number] {
+  const sector = Math.min(3, Math.floor(u * 4));
+  const band = Math.min(1, Math.floor(v * 2));
+  const localU = u * 4 - sector;
+  const localV = v * 2 - band;
+  const pu = (sector + 0.035 + localU * 0.93) / 4;
+  const pv = (band + 0.045 + localV * 0.91) / 2;
+  let [x, y, z] = shell(pu, pv, true);
+  const angle = (sector + 0.5) * TAU / 4;
+  const nx = Math.cos(angle), nz = Math.sin(angle);
+  const cy = band === 0 ? 0.58 : -0.23;
+  const cr = Math.sqrt(1 - cy * cy);
+  // Flatten each curved panel toward its own tangent plane, then hinge it.
+  const normalDistance = x * nx + z * nz - cr;
+  const flatten = folded ? 0.8 : 0;
+  x -= nx * normalDistance * flatten;
+  z -= nz * normalDistance * flatten;
+  const hinge = (folded ? 0.48 : 0.10) * (band === 0 ? 1 : -1)
+    * (sector % 2 === 0 ? 1 : -1);
+  const tangent = -x * nz + z * nx;
+  const dy = y - cy;
+  const rotatedTangent = tangent * Math.cos(hinge) - dy * Math.sin(hinge);
+  y = cy + tangent * Math.sin(hinge) + dy * Math.cos(hinge);
+  const radial = x * nx + z * nz + (folded ? 0.08 : 0.07);
+  x = nx * radial - nz * rotatedTangent;
+  z = nz * radial + nx * rotatedTangent;
+  y += band === 0 ? 0.045 : -0.045;
+  const edge = rim(Math.min(localU, 1 - localU, localV, 1 - localV));
+  return [x, y, z, edge];
 }
 
-/** Uniform point on the unit sphere — direction only, no radius bias. */
-function randomDirection(random: () => number): [number, number, number] {
-  const z = random() * 2 - 1;
-  const theta = random() * TAU;
-  const r = Math.sqrt(Math.max(0, 1 - z * z));
-  return [Math.cos(theta) * r, z, Math.sin(theta) * r];
-}
-
-// ---------------------------------------------------------------------------
-// Targets
-//
-// Every generator writes the same particle index to a different place, so the
-// crossing between two targets is a per-index interpolation. Each is authored
-// to roughly fill a unit-and-a-bit sphere, so no target reads as a size change.
-// ---------------------------------------------------------------------------
-
-type ShapeWriter = (out: Float32Array, count: number, random: () => number) => void;
-
-function writeDrifter(out: Float32Array, i: number, random: () => number) {
-  const o = i * 4;
-  // Tight enough that the drifters read as the form coming apart at its edge,
-  // rather than as a starfield filling the room. Scaled up with everything else
-  // afterwards, so this is roughly a third of the field's nominal radius.
-  out[o] = gaussian(random) * 0.32;
-  out[o + 1] = gaussian(random) * 0.34;
-  out[o + 2] = gaussian(random) * 0.28;
-}
-
-/**
- * The resting form, and the one the visitor meets first: a filled volume rather
- * than a shell, dense at the core and thinning outward with no defined surface.
- *
- * Two populations make it read as a body instead of a fog. Most particles fall
- * on a centre-weighted radius, which supplies the glow; the rest cluster around
- * a handful of interior nodes, which is what keeps the inside lumpy and organic
- * as it turns over. A shell was the wrong instinct here — it reads as a
- * planet, and the brief asks for something closer to a thought than an object.
- */
-const NUCLEUS_NODES = 9;
-
-const writeNucleus: ShapeWriter = (out, count, random) => {
-  const nodes: Array<[number, number, number]> = [];
-  for (let n = 0; n < NUCLEUS_NODES; n += 1) {
-    const dir = randomDirection(random);
-    const radius = 0.32 + random() * 0.42;
-    nodes.push([dir[0] * radius, dir[1] * radius, dir[2] * radius]);
-  }
-
-  for (let i = 0; i < count; i += 1) {
-    if (isDrifter(i)) {
-      writeDrifter(out, i, random);
-      continue;
-    }
-    const o = i * 4;
-    if (random() < 0.42) {
-      const node = nodes[Math.floor(random() * nodes.length) % nodes.length];
-      out[o] = node[0] + gaussian(random) * 0.28;
-      out[o + 1] = node[1] + gaussian(random) * 0.3;
-      out[o + 2] = node[2] + gaussian(random) * 0.26;
-      continue;
-    }
-    // Exponent well above the 1/3 that would fill the volume evenly: this is
-    // what puts the mass in the core and lets the edge thin out to nothing.
-    const radius = Math.pow(random(), 0.82);
-    const dir = randomDirection(random);
-    out[o] = dir[0] * radius;
-    out[o + 1] = dir[1] * radius;
-    out[o + 2] = dir[2] * radius;
-  }
+const sphere: Surface = (u, v) => shell(u, v, false);
+const cutSphere: Surface = (u, v) => shell(u, v, true);
+const segmented: Surface = (u, v) => panel(u, v, false);
+const folded: Surface = (u, v) => panel(u, v, true);
+const rolled: Surface = (u, v) => {
+  const t = (u - 0.5) * Math.PI * 1.7;
+  const h = 1 - 2 * v;
+  const radius = 0.68 + 0.12 * h;
+  return [Math.sin(t) * radius, h * 0.9 + Math.sin(t) * 0.14,
+    Math.cos(t) * radius - 0.13, rim(Math.min(u, 1 - u, v, 1 - v))];
+};
+const ribbon: Surface = (u, v) => {
+  const h = 1 - 2 * v;
+  const twist = h * Math.PI * 0.92;
+  const width = (u * 2 - 1) * (0.62 + 0.2 * h * h);
+  return [width * Math.cos(twist) + 0.18 * Math.sin(h * Math.PI), h * 1.08,
+    width * Math.sin(twist), rim(Math.min(u, 1 - u, v, 1 - v))];
 };
 
-/** Points along the twelve edges of a cube — a wireframe, not a filled solid. */
-const writeWireCube: ShapeWriter = (out, count, random) => {
-  const corners: Array<[number, number, number]> = [];
-  for (let i = 0; i < 8; i += 1) {
-    corners.push([(i & 1 ? 1 : -1) * 0.72, (i & 2 ? 1 : -1) * 0.72, (i & 4 ? 1 : -1) * 0.72]);
+// A soft bust on the same indexed skin: no eyes or fixed identity. Its outline
+// is briefly legible before the existing cut/fold targets disperse it again.
+// A rounded cranium, a tapered jaw and a continuous neck/shoulder curve.
+// No facial features; the anonymous silhouette remains steady while its skin breathes.
+const portraitTrace: Surface = (u, v) => {
+  const y = 1 - 2 * v;
+  const ease = (t: number) => { const x = Math.max(0, Math.min(1, t)); return x * x * (3 - 2 * x); };
+  let radius: number;
+  if (y >= 0.36) {
+    radius = 0.30 * Math.sqrt(Math.max(0, 1 - ((y - 0.62) / 0.38) ** 2));
+  } else if (y >= 0.18) {
+    const t = (0.36 - y) / 0.18;
+    radius = (2*t*t*t-3*t*t+1)*0.219 + (t*t*t-2*t*t+t)*-0.133 + (-2*t*t*t+3*t*t)*0.16;
+  } else if (y >= 0.08) {
+    radius = 0.16;
+  } else if (y >= -0.42) {
+    radius = 0.16 + 0.595 * ease((0.08 - y) / 0.50);
+  } else {
+    radius = 0.755 - 0.055 * ease((-0.42 - y) / 0.58);
   }
-  const edges: Array<[number, number]> = [];
-  for (let a = 0; a < 8; a += 1) {
-    for (let b = a + 1; b < 8; b += 1) {
-      // Two corners share an edge when they differ in exactly one axis bit.
-      const diff = a ^ b;
-      if (diff === 1 || diff === 2 || diff === 4) edges.push([a, b]);
-    }
-  }
-  for (let i = 0; i < count; i += 1) {
-    if (isDrifter(i)) {
-      writeDrifter(out, i, random);
-      continue;
-    }
-    const [a, b] = edges[i % edges.length];
-    const t = random();
-    const o = i * 4;
-    for (let axis = 0; axis < 3; axis += 1) {
-      out[o + axis] = corners[a][axis] + (corners[b][axis] - corners[a][axis]) * t + gaussian(random) * 0.022;
-    }
-  }
+  const depth = y > 0.12 ? radius * 0.86 : 0.16 + 0.11 * ease((0.12 - y) / 0.8);
+  const angle = TAU * u;
+  return [radius * Math.cos(angle), y, depth * Math.sin(angle), 0];
 };
 
-/** Regular lattice — the most "indexed / catalogued" the field ever looks. */
-const writeLattice: ShapeWriter = (out, count, random) => {
-  const side = 13;
-  for (let i = 0; i < count; i += 1) {
-    if (isDrifter(i)) {
-      writeDrifter(out, i, random);
-      continue;
-    }
-    const cell = i % (side * side * side);
-    const gx = cell % side;
-    const gy = Math.floor(cell / side) % side;
-    const gz = Math.floor(cell / (side * side)) % side;
-    const o = i * 4;
-    out[o] = ((gx / (side - 1)) * 2 - 1) * 0.8 + gaussian(random) * 0.02;
-    out[o + 1] = ((gy / (side - 1)) * 2 - 1) * 0.8 + gaussian(random) * 0.02;
-    out[o + 2] = ((gz / (side - 1)) * 2 - 1) * 0.7 + gaussian(random) * 0.02;
-  }
-};
-
-/** A slow torus — the field at its most "flowing". */
-const writeRing: ShapeWriter = (out, count, random) => {
-  for (let i = 0; i < count; i += 1) {
-    if (isDrifter(i)) {
-      writeDrifter(out, i, random);
-      continue;
-    }
-    const major = random() * TAU;
-    const minor = random() * TAU;
-    const tube = 0.26 * Math.sqrt(random());
-    const radius = 0.82 + Math.cos(minor) * tube;
-    const o = i * 4;
-    out[o] = Math.cos(major) * radius;
-    out[o + 1] = Math.sin(minor) * tube * 1.5;
-    out[o + 2] = Math.sin(major) * radius;
-  }
-};
-
-/** A double helix drawn loosely enough to read as a current, not as DNA. */
-const writeStream: ShapeWriter = (out, count, random) => {
-  for (let i = 0; i < count; i += 1) {
-    if (isDrifter(i)) {
-      writeDrifter(out, i, random);
-      continue;
-    }
-    const t = random();
-    const strand = i % 2 === 0 ? 0 : Math.PI;
-    const angle = t * TAU * 2.1 + strand;
-    const radius = 0.52 + Math.sin(t * Math.PI) * 0.24;
-    const o = i * 4;
-    out[o] = Math.cos(angle) * radius + gaussian(random) * 0.05;
-    out[o + 1] = (t * 2 - 1) * 1.02 + gaussian(random) * 0.04;
-    out[o + 2] = Math.sin(angle) * radius + gaussian(random) * 0.05;
-  }
-};
-
-/** Formless. Deliberately in the rotation: the archive loses the thread too. */
-const writeCloud: ShapeWriter = (out, count, random) => {
-  for (let i = 0; i < count; i += 1) {
-    const o = i * 4;
-    out[o] = gaussian(random) * 0.46;
-    out[o + 1] = gaussian(random) * 0.5;
-    out[o + 2] = gaussian(random) * 0.42;
-  }
-};
-
-/**
- * The subject, sampled from the Light Rule System's ellipses.
- *
- * Weighted by area and tone so the strong cues carry more particles, then
- * scattered hard. It has to survive only as a suggestion of a head and
- * shoulders — the moment it is legible as a face it becomes the horror image
- * this redesign exists to remove.
- */
-/**
- * How much of the field each light cue is given.
- *
- * Weighting by area and tone alone spread the particles evenly and the result
- * read as a person-shaped lump. What makes a head legible is its contour, so
- * the ridge of the nose, the jaw and the chin are given two to three times
- * their share, while the cues that would read as features — eye sockets, the
- * brow band, the mouth — are starved. The silhouette firms up and the face
- * stays empty, which is the only version of this that is not frightening.
- */
-const FIGURE_EMPHASIS: Record<string, number> = {
-  cranium: 1.35,
-  foreheadPlane: 1.35,
-  templeL: 1.05,
-  templeR: 1.05,
-  browBand: 0.7,
-  socketL: 0.4,
-  socketR: 0.4,
-  noseBridge: 1.9,
-  noseSide: 1.5,
-  noseBase: 1.0,
-  cheekL: 0.95,
-  cheekR: 0.95,
-  hollowL: 0.85,
-  hollowR: 0.85,
-  mouthShadow: 0.45,
-  chinLight: 1.5,
-  jawShadow: 1.9,
-  neckShadow: 1.45,
-  neckLight: 1.35,
-  clavicle: 1.2,
-  chestFall: 0.85,
-  chestFallLow: 0.7,
-  sideL: 0.75,
-  sideR: 0.75,
-};
-
-/** The cues that sit on the face rather than on its outline. A head turning
- *  slides these across the skull; the skull and jaw themselves barely move. */
-const FIGURE_FACE_CUES = new Set([
-  'browBand',
-  'socketL',
-  'socketR',
-  'noseBridge',
-  'noseSide',
-  'noseBase',
-  'cheekL',
-  'cheekR',
-  'hollowL',
-  'hollowR',
-  'mouthShadow',
-  'chinLight',
-]);
-
-interface FigurePose {
-  /** In-plane tilt, degrees. Reads as the head leaning. */
-  roll: number;
-  /** Sideways slide of the face cues only, in normalised units. Reads as the
-   *  head turning: a true yaw would do almost nothing to a form this flat. */
-  faceShiftX: number;
-  /** Downward slide of the face cues. Reads as the gaze dropping. */
-  faceShiftY: number;
-}
-
-/**
- * Three poses, cycled so the figure is never twice the same.
- *
- * Kept to a few degrees and a few hundredths of a unit. The point is not that
- * the visitor sees a head turn — it is that the apparition is not identical
- * each time it surfaces, which is the difference between a recurring asset and
- * something remembered slightly differently on each occasion.
- */
-const FIGURE_POSES: FigurePose[] = [
-  { roll: 0, faceShiftX: 0, faceShiftY: 0 },
-  { roll: -3.5, faceShiftX: 0.055, faceShiftY: 0.008 },
-  { roll: 2.5, faceShiftX: -0.032, faceShiftY: 0.03 },
+// Keep the existing surfaces and their continuous crossings, returning to a
+// human trace between abstractions. Flat forms have only brief holds.
+const SHAPE_TARGETS = [
+  { surface: portraitTrace, hold: 2.2, morph: 1.8 },
+  { surface: sphere, hold: 0.7, morph: 1.0 },
+  { surface: cutSphere, hold: 0.7, morph: 1.6 },
+  { surface: segmented, hold: 1.0, morph: 1.8 },
+  { surface: folded, hold: 0.8, morph: 1.9 },
+  { surface: portraitTrace, hold: 1.4, morph: 1.8 },
+  { surface: rolled, hold: 0.7, morph: 1.6 },
+  { surface: ribbon, hold: 0.6, morph: 2.4 },
 ];
 
-const makeFigureWriter =
-  (pose: FigurePose): ShapeWriter =>
-  (out, count, random) => {
-  const weights: number[] = [];
-  let total = 0;
-  for (const r of FIGURE_RULES) {
-    const w = Math.abs(r.tone) * Math.sqrt(r.rx * r.ry) * (FIGURE_EMPHASIS[r.id] ?? 1);
-    total += w;
-    weights.push(total);
-  }
-  const rollSin = Math.sin((pose.roll * Math.PI) / 180);
-  const rollCos = Math.cos((pose.roll * Math.PI) / 180);
-
-  for (let i = 0; i < count; i += 1) {
-    if (isDrifter(i)) {
-      writeDrifter(out, i, random);
-      continue;
-    }
-
-    const pick = random() * total;
-    let index = 0;
-    while (index < weights.length - 1 && weights[index] < pick) index += 1;
-    const r = FIGURE_RULES[index];
-
-    const angle = random() * TAU;
-    const radius = Math.sqrt(random());
-    const ex = Math.cos(angle) * radius * r.rx;
-    const ey = Math.sin(angle) * radius * r.ry;
-    const rot = (r.rot * Math.PI) / 180;
-    const px = r.x + ex * Math.cos(rot) - ey * Math.sin(rot);
-    const py = r.y + ex * Math.sin(rot) + ey * Math.cos(rot);
-
-    // Scattered in proportion to how readily the cue erodes: the structural
-    // ones (skull, jaw, neck) stay crisp enough to draw an outline, the
-    // identifying ones stay smeared. Same ordering the Light Rule System uses,
-    // reused here rather than restated.
-    // Slightly softer overall than a drawn outline would be: the form should
-    // look like particles that happened to gather this way, not like features
-    // that were placed.
-    const blur = 0.03 + r.erosion * 0.075;
-
-    let nx = ((px - DESIGN_W / 2) / (DESIGN_W / 2)) * 0.78 + gaussian(random) * blur;
-    let ny = -((py - DESIGN_H * 0.44) / (DESIGN_H / 2)) * 1.06 + gaussian(random) * blur;
-
-    // The face slides across the skull; the outline stays where it is.
-    if (FIGURE_FACE_CUES.has(r.id)) {
-      nx += pose.faceShiftX;
-      ny -= pose.faceShiftY;
-    }
-
-    const o = i * 4;
-    out[o] = nx * rollCos - ny * rollSin;
-    out[o + 1] = nx * rollSin + ny * rollCos;
-    // Shallow: a head reads from its outline, and depth only softens it.
-    out[o + 2] = gaussian(random) * 0.13;
-  }
-};
-
-/**
- * Ordered so the figure is always approached from, and left for, an abstract
- * form — it never sits next to another representational shape.
- *
- * Each target carries its own scale because equal radii do not read as equal
- * sizes. The nucleus is centre-weighted, so its outermost particles are too
- * sparse and too dim to register and it reads compact; a lattice or a wireframe
- * populates its full extent and reads enormous at the same nominal radius.
- * Measured on screen, the nucleus occupies 37% × 70% of the frame while the
- * lattice at 0.72 occupied 51% × 95% — visibly bursting out of the room.
- *
- * These are also fighting a fixed term: the breathing and permanent-offset
- * displacements add roughly ±0.23 world units whatever the target's size, so
- * the smaller forms need proportionally more reduction than arithmetic implies.
- * They are tuned by measurement, not by ratio.
- */
-interface ShapeTarget {
-  /** One writer, or several variants cycled on successive appearances. */
-  write: ShapeWriter | ShapeWriter[];
-  scale: number;
-  /** Seconds held before crossing onward. Defaults to HOLD_SECONDS. */
-  hold?: number;
-  /** Seconds of the crossing on either side of this target. The shorter of the
-   *  two targets' values wins, so setting it here shortens both the gather into
-   *  this form and the dispersal out of it. Defaults to MORPH_SECONDS. */
-  morph?: number;
-}
-
-const SHAPE_TARGETS: ShapeTarget[] = [
-  { write: writeNucleus, scale: 1.0 },
-  { write: writeLattice, scale: 0.66 },
-  // The figure is an apparition, not a form the field rests in: it gathers
-  // slowly, is legible for about two seconds, and is already coming apart
-  // again. Holding it as long as the abstract shapes turns a memory surfacing
-  // into a portrait on display. Three poses, cycled, so it is never twice the
-  // same apparition.
-  { write: FIGURE_POSES.map(makeFigureWriter), scale: 0.74, hold: 2.0, morph: 4.1 },
-  { write: writeCloud, scale: 0.92 },
-  { write: writeWireCube, scale: 0.66 },
-  { write: writeStream, scale: 0.72 },
-  { write: writeRing, scale: 0.64 },
-];
-
-/** How many pose variants a target cycles through. */
-function variantCount(target: ShapeTarget): number {
-  return Array.isArray(target.write) ? target.write.length : 1;
-}
-
-/**
- * Generates one target's point set.
- *
- * Called on demand rather than up front. Building every target and every pose
- * at startup cost a 523ms freeze on the first frame — roughly 2.7 million
- * points generated before anything could be drawn, which is the worst possible
- * place in this piece to drop half a second. Each set is now built during the
- * hold before it is needed, where the cost is a single dropped frame nobody is
- * looking for.
- */
-function buildShape(count: number, targetIndex: number, variant: number): Float32Array {
-  const target = SHAPE_TARGETS[targetIndex];
-  const writers = Array.isArray(target.write) ? target.write : [target.write];
-  const write = writers[variant % writers.length];
-  const scale = FIELD_SCALE * target.scale;
-
+function buildShape(count: number, _targetIndex: number): Float32Array {
   const data = new Float32Array(count * 4);
-  const random = mulberry32(0x5eed + targetIndex * 7919 + variant * 104729);
-  write(data, count, random);
+  const side = Math.sqrt(count);
   for (let i = 0; i < count; i += 1) {
+    // Fixed small within-cell jitter avoids scan lines without changing the
+    // correspondence or adding thickness. Neighbours remain surface neighbours.
+    const u = (i % side + 0.2 + hash11(i * 2 + 17) * 0.6) / side;
+    const v = (Math.floor(i / side) + 0.2 + hash11(i * 2 + 31) * 0.6) / side;
+    const [x, y, z, edge] = SHAPE_TARGETS[0].surface(u, v);
     const o = i * 4;
-    // One set of proportions across every target, so the silhouette stays
-    // recognisably the same body as it changes form.
-    data[o] *= scale * FIELD_ASPECT[0];
-    data[o + 1] *= scale * FIELD_ASPECT[1];
-    data[o + 2] *= scale * FIELD_ASPECT[2];
-    // Alpha carries a per-particle seed. Constant across every target so a
-    // particle keeps the same identity — size, stagger, wobble, tint — as it
-    // moves.
-    data[o + 3] = hash11(i);
+    // An oblique cut reads as an opening, instead of a horizontal missing cap.
+    data[o] = (x * Math.cos(0.06) - y * Math.sin(0.06)) * FIELD_SCALE;
+    data[o + 1] = (x * Math.sin(0.06) + y * Math.cos(0.06)) * FIELD_SCALE;
+    data[o + 2] = z * FIELD_SCALE;
+    data[o + 3] = edge;
   }
   return data;
 }
@@ -516,31 +149,14 @@ in vec2 aPosition;
 void main() { gl_Position = vec4(aPosition, 0.0, 1.0); }
 `;
 
-/** Vertical half-extent of the body itself, used only to normalise a particle's
- *  height before it is remapped onto the fixed line length. */
-const FIELD_HALF_HEIGHT = FIELD_SCALE * FIELD_ASPECT[1];
-
-/**
- * Hard ceiling on the body's radius, in aspect-normalised world units.
- *
- * Per-target scale factors alone could not hold this. A centre-weighted form
- * and a fully-populated lattice read at completely different sizes for the same
- * nominal radius, and the breathing terms add a fixed displacement on top that
- * hurts the small forms most — measured, the field ranged from 25% to 100% of
- * the frame height across one morph cycle. Rather than keep guessing seven
- * numbers, the extent is bounded here: tanh leaves small radii untouched and
- * asymptotes to this limit, so the body can never leave the room whatever
- * geometry it is passing through, including any target added later.
- */
-const FIELD_LIMIT = FIELD_SCALE * 0.95;
+// Preserve the original collapse height mapping independently of shell size.
+const FIELD_HALF_HEIGHT = 1.47 * 1.18;
 
 /** Compile-time constants rather than uniforms: none of these change at
  *  runtime, and baking them keeps the per-frame uniform set to the things that
  *  actually vary. */
 const SHADER_CONSTANTS = `
 #define FIELD_HALF_HEIGHT ${FIELD_HALF_HEIGHT.toFixed(4)}
-#define FIELD_LIMIT ${FIELD_LIMIT.toFixed(4)}
-#define FIELD_ASPECT vec3(${FIELD_ASPECT.map((v) => v.toFixed(4)).join(', ')})
 #define LINE_HALF_LENGTH ${LINE_HALF_LENGTH.toFixed(4)}
 #define PARTICLE_SIZE_MIN ${PARTICLE_SIZE_MIN.toFixed(4)}
 #define PARTICLE_SIZE_MAX ${PARTICLE_SIZE_MAX.toFixed(4)}
@@ -558,6 +174,7 @@ uniform float uMorph;
 uniform float uTime;
 uniform float uDelta;
 uniform vec3 uPointer;
+uniform mat4 uView;
 uniform float uPointerPower;
 uniform float uPointerRadius;
 uniform float uHover;
@@ -586,31 +203,11 @@ void main() {
   vec3 velocity = V.xyz;
   float disturbance = V.w;
 
-  /* Per-particle stagger across the crossing. The field is always partly
-     arrived and partly still travelling — no frame where the form is whole. */
-  float stagger = fract(seed * 7.31);
-  float m = clamp((uMorph - stagger * 0.34) / 0.66, 0.0, 1.0);
-  m = m * m * (3.0 - 2.0 * m);
-
+  // One interpolation fraction for neighbours: a surface throughout the morph.
+  float m = uMorph * uMorph * (3.0 - 2.0 * uMorph);
   vec3 home = mix(texelFetch(uHomeFrom, cell, 0).xyz, texelFetch(uHomeTo, cell, 0).xyz, m);
-
-  /* Permanent offset: the reconstruction is never finished. */
-  float a = seed * 43.0;
-  home += vec3(sin(a), cos(a * 1.7), sin(a * 2.3)) * 0.08;
-
-  /* Breathing, on two scales so it never reads as a single pulse. Hover opens
-     the mass slightly and quickens the interior without moving it anywhere. */
-  float agitation = 1.0 + uHover * 0.55;
-  home += flow(home * 0.62, uTime * agitation) * 0.055 * agitation;
-  home += flow(home * 1.9 + 11.0, uTime * 0.6) * 0.022;
-  home *= 1.0 + 0.035 * sin(uTime * 0.17 + seed * 6.2831) + uHover * 0.04;
-
-  /* Soft ceiling, applied in aspect-normalised space so the ellipse keeps its
-     proportions instead of rounding off at the extremes. Identity near the
-     centre, asymptotic at the edge — nothing is clipped onto a shell. */
-  vec3 normalised = home / FIELD_ASPECT;
-  float extent = length(normalised) + 1e-5;
-  home = normalised * ((FIELD_LIMIT * tanh(extent / FIELD_LIMIT)) / extent) * FIELD_ASPECT;
+  // Coherent sub-pixel breathing, never random volume offsets.
+  home += flow(home, uTime * 0.35) * 0.002 * (1.0 - uCollapse);
 
   /*
     Entry. The mass is drawn into a single vertical line: first the horizontal
@@ -632,27 +229,24 @@ void main() {
     home.xz += vec2(sin(seed * 91.0), cos(seed * 57.0)) * 0.02 * radial;
   }
 
-  /* Stiffening as it collapses is what makes the gather feel decisive: the same
-     spring that idles slowly enough to breathe would take ten seconds to close. */
-  float stiffness = mix(2.7, 36.0, uCollapse);
+  /* A responsive, damped spring keeps the travelling skin thin. Entry retains
+     the original collapse spring and damping for the elevator match cut. */
+  float stiffness = mix(48.0, 36.0, uCollapse);
   velocity += (home - position) * (stiffness * uDelta);
-
-  /* Slow differential turn, so the interior is always rearranging itself even
-     when nothing is touching it. Faster at the core than at the edge — a rigid
-     rotation reads as a spinning object rather than as something alive. */
-  vec3 axis = normalize(vec3(0.16, 1.0, 0.07));
-  float spin = 0.075 * (1.0 - 0.5 * clamp(length(position) / 2.1, 0.0, 1.0));
-  velocity += cross(axis, position) * spin * uDelta * agitation * (1.0 - uCollapse);
 
   /* Interference. Radial push plus a tangential component, so a pass of the
      pointer opens the field and turns it rather than only shoving it aside. */
-  vec3 offset = position - uPointer;
+  // Compare in view space so interference still meets the visible layers
+  // after rotation. Perspective follows the cursor ray through their depths.
+  vec3 viewed = (uView * vec4(position, 1.0)).xyz;
+  vec2 ray = uPointer.xy * (-viewed.z / ${CAMERA_Z.toFixed(4)});
+  vec3 offset = vec3(viewed.xy - ray, position.z * 0.32);
   float dist = length(offset) + 1e-4;
   float falloff = exp(-(dist * dist) / (uPointerRadius * uPointerRadius));
   float influence = falloff * uPointerPower;
   vec3 pushDir = offset / dist;
   vec3 swirl = normalize(cross(pushDir, vec3(0.0, 0.0, 1.0)) + vec3(1e-5));
-  velocity += (pushDir * 2.0 + swirl * 0.95) * influence * uDelta * 9.5 * (1.0 - uCollapse);
+  velocity += transpose(mat3(uView)) * (pushDir * 2.0 + swirl * 0.95) * influence * uDelta * 9.5 * (1.0 - uCollapse);
 
   /* Memory of having been disturbed. Rises instantly, releases over seconds —
      this is what the render pass tints, so the trace outlives the gesture. */
@@ -660,7 +254,7 @@ void main() {
 
   /* Just under critical damping for the collapsed spring (2*sqrt(36) = 12), so
      it closes on the line fast with the faintest overshoot rather than crawling. */
-  velocity *= exp(-uDelta * mix(2.15, 11.5, uCollapse));
+  velocity *= exp(-uDelta * mix(12.0, 11.5, uCollapse));
   position += velocity * uDelta;
 
   outPosition = vec4(position, seed);
@@ -681,6 +275,9 @@ uniform float uPixelRatio;
 uniform float uTime;
 uniform float uHover;
 uniform float uCollapse;
+uniform sampler2D uHomeFrom;
+uniform sampler2D uHomeTo;
+uniform float uMorph;
 uniform vec3 uCalm;
 uniform vec3 uTintA;
 uniform vec3 uTintB;
@@ -692,51 +289,56 @@ out float vDisturbance;
 out float vDepth;
 out float vSeed;
 out vec3 vColor;
+out float vSurfaceLight;
 
 void main() {
   ivec2 cell = ivec2(gl_VertexID % uTextureWidth, gl_VertexID / uTextureWidth);
   vec4 P = texelFetch(uPosition, cell, 0);
   vec4 V = texelFetch(uVelocity, cell, 0);
 
-  vec4 viewPosition = uView * vec4(P.xyz, 1.0);
+  // Remove the spring's last lateral residue during the existing line hold.
+  // Thin sheets otherwise leave tiny slits even when the target is on-axis.
+  vec3 drawnPosition = P.xyz;
+  drawnPosition.xz *= 1.0 - smoothstep(0.82, 1.0, uCollapse);
+  vec4 viewPosition = uView * vec4(drawnPosition, 1.0);
   gl_Position = uProjection * viewPosition;
 
   float depth = -viewPosition.z;
-  vDisturbance = V.w;
+  vDisturbance = V.w * (1.0 - uCollapse);
   vDepth = depth;
   vSeed = P.w;
 
+  // Actual skin normals from two adjacent simulated particles. This also
+  // catches folds and the temporary dents made by the pointer.
+  ivec2 stepX = ivec2(cell.x < uTextureWidth - 1 ? 1 : -1, 0);
+  ivec2 stepY = ivec2(0, cell.y < uTextureWidth - 1 ? 1 : -1);
+  vec3 dx = texelFetch(uPosition, cell + stepX, 0).xyz - P.xyz;
+  vec3 dy = texelFetch(uPosition, cell + stepY, 0).xyz - P.xyz;
+  vec3 normal = normalize(mat3(uView) * cross(dx, dy) + vec3(1e-10));
+  float facing = abs(dot(normal, normalize(-viewPosition.xyz)));
+  float rimLight = pow(1.0 - facing, 2.0);
+  float m = uMorph * uMorph * (3.0 - 2.0 * uMorph);
+  float edge = mix(texelFetch(uHomeFrom, cell, 0).w, texelFetch(uHomeTo, cell, 0).w, m);
+  vSurfaceLight = mix(0.8 + rimLight * 0.8 + edge * 4.5, 1.0, uCollapse);
+
+
   /*
-    Colour. Four cool tints blended per particle from its seed, then pulled most
-    of the way back to white — the field has to read as achromatic at a glance
-    and only show its blue/violet/cyan/mint on inspection. The second term makes
-    the mixture drift slowly through the body, so the chroma is internal weather
-    rather than a fixed pattern painted on.
+    Stable near-white grains. The existing lavender/blue palette is strongest
+    at a cut, a grazing edge, or a disturbed patch, not across the whole skin.
   */
   float pickA = fract(P.w * 17.0);
   float pickB = fract(P.w * 53.0);
   vec3 tint = mix(mix(uTintA, uTintB, pickA), mix(uTintC, uTintD, pickA), pickB);
-  float drift = 0.5 + 0.5 * sin(uTime * 0.13 + P.x * 1.3 + P.y * 0.9 + P.w * 6.2831);
 
-  /*
-    Colour falls off toward the body's edge, so the lavender lives in the dense
-    middle and the outskirts stay near-white. Whitening each particle's halo was
-    not enough on its own: every pixel receives a similar mix of nearby cores
-    and distant halos, so it desaturated the whole field evenly instead of
-    leaving the spread of light colourless. Tying the hue to where a particle
-    sits in the mass is what actually confines it to the centre.
-  */
-  float radial = length(P.xyz / FIELD_ASPECT) / FIELD_LIMIT;
-  float centreness = 1.0 - smoothstep(0.12, 0.95, radial);
-
-  float chroma = uChroma * (0.35 + 0.65 * drift) * mix(0.22, 1.0, centreness);
+  float chroma = uChroma * (0.10 + edge * 0.55 + rimLight * 0.18 + vDisturbance * 0.25);
   vColor = mix(uCalm, tint, chroma);
 
   /* Screen-space only. Independent of how large the body is — shrinking the
      mass must make the mass smaller, not the particles in it. */
   float base = mix(PARTICLE_SIZE_MIN, PARTICLE_SIZE_MAX, fract(P.w * 13.0));
-  float swell = 1.0 + V.w * 0.8 + uHover * 0.18 + uCollapse * 0.5;
-  gl_PointSize = uPixelRatio * base * (2.5 / max(depth, 0.4)) * swell;
+  float swell = 1.0 + vDisturbance * 0.8 + uHover * 0.18 + uCollapse * 0.5;
+  float depthSize = mix(clamp(1.0 + (3.7 - depth) * 0.14, 0.8, 1.2), 1.0, uCollapse);
+  gl_PointSize = uPixelRatio * base * (2.5 / max(depth, 0.4)) * swell * depthSize;
 }
 `;
 
@@ -747,6 +349,7 @@ in float vDisturbance;
 in float vDepth;
 in float vSeed;
 in vec3 vColor;
+in float vSurfaceLight;
 
 uniform vec3 uDisturbed;
 uniform vec3 uSignal;
@@ -771,18 +374,22 @@ void main() {
   /* The core's radius is widened without touching the halo's, so each particle
      reads as a more definite point rather than the whole field getting foggier.
      Growing gl_PointSize instead would have widened both. */
-  float core = smoothstep(0.34, 0.02, r);
-  float halo = smoothstep(0.5, 0.0, r);
+  float core = (1.0 - smoothstep(0.02, 0.34, r));
+  float halo = (1.0 - smoothstep(0.0, 0.5, r));
   float coreAlpha = core * 0.82;
   /* Lighter than it was: with the halo whitened, too much of it accumulates
      into a flat sheet of white and the individual particles stop reading. */
-  float haloAlpha = halo * halo * 0.19;
+  float haloAlpha = halo * halo * mix(0.035, 0.19, uCollapse);
 
   /* Depth fade doubles as the atmospheric haze that keeps the far side of the
      field from reading as a second, separate cloud. */
-  float fade = mix(0.26, 0.92, clamp((3.6 - vDepth) / 2.4, 0.0, 1.0))
+  float atmosphere = mix(0.055, 0.43, (1.0 - smoothstep(2.8, 4.5, vDepth)));
+  float fade = mix(atmosphere, 0.26, uCollapse)
     * mix(0.72, 1.0, fract(vSeed * 31.0));
-  float gain = uIntensity
+  // A fixed sparse bright population makes individual grains legible at
+  // this large GPU count; the remaining skin stays faint, never vanishes.
+  float grain = mix(0.10, 4.8, step(0.84, fract(vSeed * 97.0)));
+  float gain = uIntensity * vSurfaceLight * mix(grain, 1.0, uCollapse)
     * (0.62 + vDisturbance * 0.55)
     * (1.0 + uHover * 0.28)
     * (1.0 + uCollapse * 2.4);
@@ -865,18 +472,22 @@ function perspective(out: Float32Array, fovY: number, aspect: number, near: numb
   out[14] = (2 * far * near) / (near - far);
 }
 
-/** Translation only. Under perspective that is already true parallax — near
- *  particles sweep further across the frame than far ones — without the camera
- *  ever turning, which is what keeps the space meditative. */
-function translation(out: Float32Array, x: number, y: number, z: number) {
+/** Slow automatic yaw exposes the skin; the pointer adds a heavily eased offset. */
+function fieldView(out: Float32Array, x: number, y: number, release: number, time: number) {
+  const angle = -0.22 + Math.sin(time * 0.10) * 0.025 + Math.max(-1, Math.min(1, x)) * 0.0873;
+  // The shortest route back to neutral, even after many unattended loops.
+  const yaw = Math.atan2(Math.sin(angle), Math.cos(angle)) * release;
+  const pitch = (-0.08 + Math.sin(time * 0.17) * 0.012 - Math.max(-1, Math.min(1, y)) * 0.0698) * release;
+  const cy = Math.cos(yaw), sy = Math.sin(yaw);
+  const cx = Math.cos(pitch), sx = Math.sin(pitch);
   out.fill(0);
-  out[0] = 1;
-  out[5] = 1;
-  out[10] = 1;
+  out[0] = cy; out[1] = sx * sy; out[2] = -cx * sy;
+  out[5] = cx; out[6] = sx;
+  out[8] = sy; out[9] = -sx * cy; out[10] = cx * cy;
+  out[12] = -x * 0.045 * release;
+  out[13] = -y * 0.035 * release;
+  out[14] = -CAMERA_Z;
   out[15] = 1;
-  out[12] = -x;
-  out[13] = -y;
-  out[14] = -z;
 }
 
 // ---------------------------------------------------------------------------
@@ -923,20 +534,17 @@ export function createMemoryField(
 
   const size = particleTextureSize;
   const count = size * size;
-  // Built on demand and kept, keyed by target and pose.
-  const shapeCache = new Map<string, Float32Array>();
-  function getShape(targetIndex: number, variant: number): Float32Array {
-    const target = SHAPE_TARGETS[targetIndex];
-    const pose = variant % variantCount(target);
-    const key = `${targetIndex}:${pose}`;
-    let data = shapeCache.get(key);
+  // Generate each skin once, lazily. The same targets recur on every loop.
+  const shapeCache = new Map<number, Float32Array>();
+  function getShape(targetIndex: number): Float32Array {
+    let data = shapeCache.get(targetIndex);
     if (!data) {
-      data = buildShape(count, targetIndex, pose);
-      shapeCache.set(key, data);
+      data = buildShape(count, targetIndex);
+      shapeCache.set(targetIndex, data);
     }
     return data;
   }
-  const firstShape = getShape(0, 0);
+  const firstShape = getShape(0);
 
   const simProgram = link(gl, QUAD_VERT, SIM_FRAG);
   const renderProgram = link(gl, RENDER_VERT, RENDER_FRAG);
@@ -956,20 +564,10 @@ export function createMemoryField(
   // no attribute buffers at all.
   const pointVao = gl.createVertexArray()!;
 
-  // Seed positions on the first target, nudged outward so the opening frames
-  // are the field converging rather than a shape simply appearing.
-  const initial = new Float32Array(count * 4);
-  const seedRandom = mulberry32(0x1d0a);
-  for (let i = 0; i < count; i += 1) {
-    const o = i * 4;
-    // Modest: the opening should be the mass drawing itself together over a
-    // couple of seconds, not a long fall inward from off screen.
-    const spread = 1.25 + seedRandom() * 0.9;
-    initial[o] = firstShape[o] * spread + gaussian(seedRandom) * 0.35;
-    initial[o + 1] = firstShape[o + 1] * spread + gaussian(seedRandom) * 0.35;
-    initial[o + 2] = firstShape[o + 2] * spread + gaussian(seedRandom) * 0.35;
-    initial[o + 3] = firstShape[o + 3];
-  }
+  // The opening is already a thin shell; the existing Landing opacity reveal
+  // brings it into the room. No volume cloud before the first readable form.
+  const initial = firstShape.slice();
+  for (let i = 0; i < count; i += 1) initial[i * 4 + 3] = hash11(i);
 
   const positionTextures = [
     createFloatTexture(gl, size, initial),
@@ -981,7 +579,7 @@ export function createMemoryField(
   ];
   const homeTextures = [
     createFloatTexture(gl, size, firstShape),
-    createFloatTexture(gl, size, getShape(1, 0)),
+    createFloatTexture(gl, size, getShape(1)),
   ];
 
   const framebuffers = [0, 1].map((index) => {
@@ -1022,6 +620,7 @@ export function createMemoryField(
     time: gl.getUniformLocation(simProgram, 'uTime'),
     delta: gl.getUniformLocation(simProgram, 'uDelta'),
     pointer: gl.getUniformLocation(simProgram, 'uPointer'),
+    view: gl.getUniformLocation(simProgram, 'uView'),
     pointerPower: gl.getUniformLocation(simProgram, 'uPointerPower'),
     pointerRadius: gl.getUniformLocation(simProgram, 'uPointerRadius'),
     hover: gl.getUniformLocation(simProgram, 'uHover'),
@@ -1036,6 +635,9 @@ export function createMemoryField(
     textureWidth: gl.getUniformLocation(renderProgram, 'uTextureWidth'),
     pixelRatio: gl.getUniformLocation(renderProgram, 'uPixelRatio'),
     time: gl.getUniformLocation(renderProgram, 'uTime'),
+    homeFrom: gl.getUniformLocation(renderProgram, 'uHomeFrom'),
+    homeTo: gl.getUniformLocation(renderProgram, 'uHomeTo'),
+    morph: gl.getUniformLocation(renderProgram, 'uMorph'),
     calm: gl.getUniformLocation(renderProgram, 'uCalm'),
     disturbed: gl.getUniformLocation(renderProgram, 'uDisturbed'),
     signal: gl.getUniformLocation(renderProgram, 'uSignal'),
@@ -1069,6 +671,8 @@ export function createMemoryField(
   let hoverTarget = 0;
   let collapse = 0;
   let renderTime = 0;
+  let previousTime = 0;
+  let rotationTime = 0;
   const parallax = { x: 0, y: 0 };
 
   // Morph scheduling. `shapeIndex` counts upward forever: the target data is
@@ -1076,7 +680,7 @@ export function createMemoryField(
   // so the two home slots simply alternate as the sequence advances.
   let shapeIndex = 0;
   let phaseSeconds = 0;
-  let uploadedNext = false;
+  let uploadedNext = true;
   let heldMorph = 0;
 
   function bindTexture(unit: number, texture: WebGLTexture, location: WebGLUniformLocation | null) {
@@ -1089,21 +693,16 @@ export function createMemoryField(
     phaseSeconds += delta;
 
     const current = SHAPE_TARGETS[shapeIndex % SHAPE_TARGETS.length];
-    const upcoming = SHAPE_TARGETS[(shapeIndex + 1) % SHAPE_TARGETS.length];
-    const holdSeconds = current.hold ?? HOLD_SECONDS;
-    // The shorter of the pair, so a brief target is brief coming and going.
-    const morphSeconds = Math.min(current.morph ?? MORPH_SECONDS, upcoming.morph ?? MORPH_SECONDS);
+    const holdSeconds = current.hold;
+    const morphSeconds = current.morph;
 
     if (phaseSeconds < holdSeconds) {
       // Upload the next target during the hold, never during the crossing, so
       // the texture write can never land inside an animating frame.
       if (!uploadedNext && phaseSeconds > holdSeconds * 0.4) {
-        // Which variant depends on how many full rotations of the sequence
-        // have passed, so a target with several poses shows a different one
-        // each time it comes round.
+        // Cache and upload during the hold, before the next crossing begins.
         const nextTarget = (shapeIndex + 1) % SHAPE_TARGETS.length;
-        const cycle = Math.floor((shapeIndex + 1) / SHAPE_TARGETS.length);
-        const nextData = getShape(nextTarget, cycle);
+        const nextData = getShape(nextTarget);
         gl!.bindTexture(gl!.TEXTURE_2D, homeTextures[(shapeIndex + 1) % 2]);
         gl!.texSubImage2D(gl!.TEXTURE_2D, 0, 0, 0, size, size, gl!.RGBA, gl!.FLOAT, nextData);
         uploadedNext = true;
@@ -1125,7 +724,14 @@ export function createMemoryField(
     return shapeIndex % 2 === 1 ? 1 - t : t;
   }
 
+  function updateView() {
+    // Settle exactly on the original camera before the final line hold.
+    const t = Math.min(collapse / 0.66, 1);
+    fieldView(viewMatrix, parallax.x, parallax.y, 1 - t * t * (3 - 2 * t), rotationTime);
+  }
+
   function simulate(time: number, delta: number, morph: number) {
+    updateView();
     gl!.bindFramebuffer(gl!.FRAMEBUFFER, framebuffers[write]);
     gl!.viewport(0, 0, size, size);
     gl!.disable(gl!.BLEND);
@@ -1141,7 +747,8 @@ export function createMemoryField(
     gl!.uniform1f(sim.time, time);
     gl!.uniform1f(sim.delta, delta);
     gl!.uniform3f(sim.pointer, pointer.x, pointer.y, 0);
-    gl!.uniform1f(sim.pointerPower, pointerPower);
+    gl!.uniform1f(sim.pointerPower, collapse > 0 ? 0 : pointerPower);
+    gl!.uniformMatrix4fv(sim.view, false, viewMatrix);
     gl!.uniform1f(sim.pointerRadius, POINTER_RADIUS);
     gl!.uniform1f(sim.hover, hover);
     gl!.uniform1f(sim.collapse, collapse);
@@ -1169,9 +776,12 @@ export function createMemoryField(
 
     bindTexture(0, positionTextures[read], render.position);
     bindTexture(1, velocityTextures[read], render.velocity);
+    bindTexture(2, homeTextures[0], render.homeFrom);
+    bindTexture(3, homeTextures[1], render.homeTo);
+    gl!.uniform1f(render.morph, heldMorph);
 
     perspective(projectionMatrix, FOV_Y, aspect, 0.1, 20);
-    translation(viewMatrix, parallax.x, parallax.y, CAMERA_Z);
+    updateView();
 
     gl!.uniformMatrix4fv(render.projection, false, projectionMatrix);
     gl!.uniformMatrix4fv(render.view, false, viewMatrix);
@@ -1211,7 +821,7 @@ export function createMemoryField(
     // Holds brightness steady against the chroma: the tints sit well below
     // white in luminance, so mixing more of them in costs exposure that has to
     // be paid back here rather than by desaturating.
-    gl!.uniform1f(render.intensity, 0.6);
+    gl!.uniform1f(render.intensity, 0.42 + collapse * 0.18);
     gl!.uniform1f(render.hover, hover);
     gl!.uniform1f(render.collapse, collapse);
     // How far the halo is pulled back to white. High: the spread of light is
@@ -1253,7 +863,12 @@ export function createMemoryField(
     },
 
     frame(time, delta) {
-      renderTime = time;
+      const elapsed = Math.min(Math.max(time - previousTime, 0), 0.1);
+      previousTime = time;
+      if (collapse === 0) {
+        renderTime = time;
+        rotationTime += elapsed;
+      }
       // The pointer itself is eased, so a fast flick still arrives as a swell
       // through the field rather than as a jump.
       const ease = 1 - Math.exp(-delta / 0.09);
@@ -1264,15 +879,15 @@ export function createMemoryField(
       hover += (hoverTarget - hover) * (1 - Math.exp(-delta / 0.42));
 
       const parallaxEase = 1 - Math.exp(-delta / 1.5);
-      parallax.x += (pointerTarget.x * 0.045 - parallax.x) * parallaxEase;
-      parallax.y += (pointerTarget.y * 0.035 - parallax.y) * parallaxEase;
+      parallax.x += (Math.max(-1, Math.min(1, pointerTarget.x)) - parallax.x) * parallaxEase;
+      parallax.y += (Math.max(-1, Math.min(1, pointerTarget.y)) - parallax.y) * parallaxEase;
 
       // The form is frozen once entry begins. Letting it keep crossing to the
       // next target while it is being wrung into a line produces a gather that
       // fights itself.
-      const morph = collapse > 0 ? heldMorph : advanceMorph(delta);
+      const morph = collapse > 0 ? heldMorph : advanceMorph(elapsed);
       heldMorph = morph;
-      simulate(time, delta, morph);
+      simulate(renderTime, delta, morph);
       drawField();
     },
 
@@ -1287,7 +902,7 @@ export function createMemoryField(
       // and at 0.016 the circulation term injects enough energy per step to
       // inflate the orbits — the settled field measured half again as large as
       // the same field running live. Smaller steps, more of them.
-      for (let i = 0; i < steps; i += 1) simulate(i * 0.008, 0.008, 0);
+      for (let i = 0; i < steps; i += 1) simulate(0, 0.008, heldMorph);
     },
 
     draw() {

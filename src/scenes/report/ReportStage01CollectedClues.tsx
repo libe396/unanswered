@@ -1,11 +1,11 @@
+import { sentenceDwellNote } from '../../lib/sentenceDwellNote';
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer-motion';
 import { renderLightGraphic } from '../../lib/lightRenderer.js';
-import { drawStrokes } from '../../lib/memorySketch';
-import { MemoryRoom } from '../../components/MemoryRoom';
 import type { RecordLayerDerived, ReportData } from '../../types';
 import { useStageReveal } from './useStageReveal';
 import { ReportStageNav } from './ReportStageNav';
+import { buildSoundWaveform } from '../../lib/finalReportPresentation';
 import { STAGE_01_COPY } from '../../lib/reportFindingCopy';
 import './ReportStage01CollectedClues.css';
 
@@ -51,19 +51,13 @@ export function ReportStage01CollectedClues({ record, report, index, total, lock
   const [phase, setPhase] = useState(prefersReducedMotion ? MAP_PHASE : 0);
   const revealed = useStageReveal(prefersReducedMotion ? 260 : 9800);
   const lightCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const sketchCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    if (!record.light || !lightCanvasRef.current) return;
+    // The map is hidden during the opening lines. Its full-resolution light
+    // must not block the incoming Zone film/title crossfade.
+    if (phase < MAP_PHASE || !record.light || !lightCanvasRef.current) return;
     renderLightGraphic(lightCanvasRef.current, record.light.rules, record.light.variation);
-  }, [record.light]);
-
-  useEffect(() => {
-    const canvas = sketchCanvasRef.current;
-    const context = canvas?.getContext('2d');
-    if (!canvas || !context) return;
-    drawStrokes(context, record.memorySketch.strokes, canvas.width, canvas.height);
-  }, [record.memorySketch]);
+  }, [record.light, phase]);
 
   useEffect(() => {
     if (prefersReducedMotion) {
@@ -80,9 +74,7 @@ export function ReportStage01CollectedClues({ record, report, index, total, lock
     return () => timers.forEach((timer) => window.clearTimeout(timer));
   }, [prefersReducedMotion]);
 
-  const hasMemoryTrace = record.memorySketch.strokes.length > 0 || record.memorySketch.selectedObjects.length > 0;
-  const soundEvents = record.soundClues.events;
-  const maxPlayedMs = Math.max(1, ...soundEvents.map((e) => e.totalPlayedMs));
+  const waveform = buildSoundWaveform(record.soundClues.selectedSoundId ?? 'none', 40);
   const variants = prefersReducedMotion ? itemVariantsReduced : itemVariants;
   const mapVisible = phase >= MAP_PHASE;
 
@@ -130,7 +122,7 @@ export function ReportStage01CollectedClues({ record, report, index, total, lock
 
         {record.light ? (
           <motion.div className="report-stage-01__trace-row report-stage-01__trace-row--light" variants={variants}>
-            <span className="report-stage-01__trace-label">LIGHT</span>
+            <span className="report-stage-01__trace-label">빛</span>
             <span className="report-stage-01__node" aria-hidden="true" />
             <div className="report-stage-01__trace-visual report-stage-01__trace-visual--light">
               <canvas ref={lightCanvasRef} width={1000} height={1000} className="report-stage-01__light-canvas" />
@@ -144,63 +136,27 @@ export function ReportStage01CollectedClues({ record, report, index, total, lock
 
         {record.soundClues.selectedSoundId ? (
           <motion.div className="report-stage-01__trace-row report-stage-01__trace-row--sound" variants={variants}>
-            <span className="report-stage-01__trace-label">SOUND</span>
+            <span className="report-stage-01__trace-label">소리</span>
             <span className="report-stage-01__node" aria-hidden="true" />
-            <span className="report-stage-01__sound-label">{report.selectedSoundLabel}</span>
+            <span className="report-stage-01__sound-label">{report.selectedSoundLabel.replace(/^SOUND\s*/i, '소리 ')}</span>
             <span className="report-stage-01__sound-trace" aria-hidden="true">
-              {soundEvents.length ? (
-                soundEvents.map((event) => (
-                  <span
-                    key={event.soundId}
-                    className={`report-stage-01__sound-bar${
-                      event.completedFully ? ' report-stage-01__sound-bar--full' : ''
-                    }${event.skipped ? ' report-stage-01__sound-bar--skipped' : ''}`}
-                    style={{ height: `${Math.max(12, (event.totalPlayedMs / maxPlayedMs) * 100)}%` }}
-                  />
-                ))
-              ) : (
-                <span className="report-stage-01__sound-bar" style={{ height: '30%' }} />
-              )}
+              {waveform.map((height, i) => <span key={i} className="report-stage-01__sound-bar" style={{ height: `${Math.max(8, height * 100)}%` }} />)}
             </span>
           </motion.div>
         ) : null}
 
         {report.selectedSentences.length || report.customSentence ? (
           <motion.div className="report-stage-01__trace-row report-stage-01__trace-row--sentence" variants={variants}>
-            <span className="report-stage-01__trace-label">SENTENCE</span>
+            <span className="report-stage-01__trace-label">문장</span>
             <span className="report-stage-01__node" aria-hidden="true" />
-            <p className="report-stage-01__sentence">
-              {report.customSentence || report.selectedSentences.join(' ')}
-            </p>
+            <ol className="report-stage-01__sentences">
+              {(report.selectedSentences.length ? report.selectedSentences : report.customSentence ? [report.customSentence] : []).map((sentence, i) => <li key={i}><span>{String(i + 1).padStart(2, '0')}</span><p>{sentence}{sentenceDwellNote(record, i) && <small className="sentence-dwell-note">{sentenceDwellNote(record, i)}</small>}</p></li>)}
+              {record.sentenceClues.responseText ? <li><span>+</span><p>{record.sentenceClues.responseText}</p></li> : null}
+            </ol>
           </motion.div>
         ) : null}
 
-        {hasMemoryTrace ? (
-          <motion.div className="report-stage-01__trace-row report-stage-01__trace-row--memory" variants={variants}>
-            <span className="report-stage-01__trace-label">MEMORY</span>
-            <span className="report-stage-01__node" aria-hidden="true" />
-            <div className="report-stage-01__memory-preview">
-              <MemoryRoom
-                selectedIds={record.memorySketch.selectedObjects}
-                onSelectToggle={() => {}}
-                onViewStart={() => {}}
-                onViewEnd={() => {}}
-                interactive={false}
-              />
-              <canvas
-                ref={sketchCanvasRef}
-                width={480}
-                height={320}
-                className="report-stage-01__memory-canvas"
-              />
-            </div>
-            <span className="report-stage-01__tag">
-              {record.memorySketch.strokes.length > 0
-                ? `${record.memorySketch.strokes.length} STROKES`
-                : `${record.memorySketch.selectedObjects.length} OBJECTS`}
-            </span>
-          </motion.div>
-        ) : null}
+
       </motion.div>
 
       <motion.p

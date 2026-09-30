@@ -81,12 +81,12 @@ export function ReportStage05Observation({ record, report, findings, index, tota
           <motion.div
             key={trace.sceneId}
             className="report-stage-05__trace"
-            initial={{ opacity: 0, x: trace.x, y: trace.y, scale: 0.88 }}
+            initial={{ opacity: 0, x: trace.x, y: trace.y, scale: 1 }}
             animate={{
               opacity: phase >= 0 ? 1 : 0,
               x: phase >= 2 ? 0 : trace.x,
               y: phase >= 2 ? 0 : trace.y,
-              scale: phase >= 2 ? 0.72 : 0.88,
+              scale: 1,
             }}
             transition={{
               duration: prefersReducedMotion ? 0.15 : phase >= 2 ? 2.2 : 1,

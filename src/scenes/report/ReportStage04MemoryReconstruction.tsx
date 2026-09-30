@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { drawStrokes } from '../../lib/memorySketch';
 import { MemoryRoom } from '../../components/MemoryRoom';
+import { ROOM_WIDTH, ROOM_HEIGHT, ROOM_OBJECT_GEOMETRY } from '../../data/memoryRoomGeometry';
+import { MEMORY_ROOM_OBJECTS } from '../../data/content';
 import type { RecordLayerDerived, Stroke } from '../../types';
 import { useStageReveal } from './useStageReveal';
 import { ReportStageNav } from './ReportStageNav';
@@ -48,6 +50,15 @@ function buildPartialStrokes(strokes: Stroke[], revealedPoints: number): Stroke[
  */
 export function ReportStage04MemoryReconstruction({ record, index, total, locked, onAdvance }: Props) {
   const prefersReducedMotion = useReducedMotion();
+  const memory = record.memorySketch;
+  const hasRecord = memory.lastInputAt > 0 || memory.selectedObjects.length > 0 || memory.strokes.length > 0;
+  const unselected = hasRecord ? MEMORY_ROOM_OBJECTS.filter((object) => ROOM_OBJECT_GEOMETRY.some(({ id }) => id === object.id) && !memory.selectedObjects.includes(object.id)) : [];
+  const [showUnselected, setShowUnselected] = useState(Boolean(prefersReducedMotion));
+  useEffect(() => {
+    if (prefersReducedMotion) { setShowUnselected(true); return; }
+    const timer = window.setTimeout(() => setShowUnselected(true), 2200);
+    return () => window.clearTimeout(timer);
+  }, [prefersReducedMotion]);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rafRef = useRef<number | null>(null);
   const strokes = record.memorySketch.strokes;
@@ -64,12 +75,12 @@ export function ReportStage04MemoryReconstruction({ record, index, total, locked
     if (!canvas || !context) return;
 
     if (!hasStrokes) {
-      drawStrokes(context, [], canvas.width, canvas.height);
+      drawStrokes(context, [], canvas.width, canvas.height, ROOM_WIDTH / 1200);
       return;
     }
 
     if (prefersReducedMotion) {
-      drawStrokes(context, strokes, canvas.width, canvas.height);
+      drawStrokes(context, strokes, canvas.width, canvas.height, ROOM_WIDTH / 1200);
       return;
     }
 
@@ -79,7 +90,7 @@ export function ReportStage04MemoryReconstruction({ record, index, total, locked
       const elapsed = t - start;
       const progress = Math.min(1, elapsed / replayDurationMs);
       const revealedPoints = Math.round(progress * totalPoints);
-      drawStrokes(context as CanvasRenderingContext2D, buildPartialStrokes(strokes, revealedPoints), canvas!.width, canvas!.height);
+      drawStrokes(context as CanvasRenderingContext2D, buildPartialStrokes(strokes, revealedPoints), canvas!.width, canvas!.height, ROOM_WIDTH / 1200);
       if (progress < 1) rafRef.current = requestAnimationFrame(frame);
     }
     rafRef.current = requestAnimationFrame(frame);
@@ -106,23 +117,19 @@ export function ReportStage04MemoryReconstruction({ record, index, total, locked
     return () => timers.forEach((timer) => window.clearTimeout(timer));
   }, [finalPhase, hasStrokes, prefersReducedMotion, replayDurationMs]);
 
-  const copy = hasStrokes
-    ? [
-        '마지막 방에는\n비어 있는 자리가 있었습니다.',
-        '당신은 그곳에\n직접 흔적을 덧붙였습니다.',
-        '기억에 없던 흔적이\n당신의 손에서 새로 생겨났습니다.',
-      ]
-    : [
-        '마지막 방에서,\n당신은 이곳을 그대로 두었습니다.',
-        '남겨둔 빈자리도\n이번 기록에 함께 남았습니다.',
-      ];
+  const finalCopy = !hasRecord ? '이 공간에 남겨진 선택 기록이 없습니다.'
+    : unselected.length === 0 ? '선택할 수 있는 모든 물건을 기록에 남겼습니다.'
+    : memory.selectedObjects.length === 0 ? '물건을 선택하지 않고 이 공간을 지나갔습니다.'
+    : '선택하지 않고 남겨둔 자리도 이번 기록에 함께 남았습니다.';
+  const copy = hasStrokes ? ['익숙한 방에 당신의 흔적이 남아 있습니다.', '당신이 남긴 선과 선택한 물건들입니다.', finalCopy]
+    : ['이 방에서 남긴 기록을 다시 살펴봅니다.', finalCopy];
 
   return (
     <div className="report-stage report-stage-04">
       <p className="report-stage__eyebrow">
         <span className="report-stage__eyebrow-code">REPORT {String(index).padStart(2, '0')}</span>
         <span className="report-stage__eyebrow-sep" aria-hidden="true">·</span>
-        <span className="report-stage__eyebrow-title">당신이 채운 빈자리</span>
+        <span className="report-stage__eyebrow-title">선택한 자리, 남겨둔 자리</span>
       </p>
 
       <div className="report-stage-04__room">
@@ -132,10 +139,15 @@ export function ReportStage04MemoryReconstruction({ record, index, total, locked
           onViewStart={() => {}}
           onViewEnd={() => {}}
           interactive={false}
+          highlightIds={unselected.map((object) => object.id)}
+          highlightsVisible={showUnselected}
         />
-        <canvas ref={canvasRef} width={1200} height={800} className="report-stage-04__canvas" />
+        <canvas ref={canvasRef} width={ROOM_WIDTH} height={ROOM_HEIGHT} className="report-stage-04__canvas" />
       </div>
 
+      <p className="report-stage-04__legend" aria-live="polite">
+        {showUnselected && hasRecord && unselected.length > 0 ? <><span aria-hidden="true" />선택하지 않고 남겨둔 자리 · {unselected.map((object) => object.label).join(' · ')}</> : !hasRecord ? '선택 기록 없음 · 미선택 영역을 표시하지 않습니다.' : unselected.length === 0 ? '모든 물건을 선택했습니다.' : '선택한 물건과 남긴 흔적'}
+      </p>
       <div className="report-stage-04__copy-frame">
         <AnimatePresence mode="wait">
           <motion.p

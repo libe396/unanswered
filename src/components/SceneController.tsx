@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer-motion';
-import { useState, type ComponentType } from 'react';
+import { useCallback, useState, type ComponentType } from 'react';
 import { useExperienceStore } from '../store/experienceStore';
 import { useCrossSceneDebug } from '../hooks/useCrossSceneDebug';
 import { LandingScene } from '../scenes/LandingScene';
@@ -22,6 +22,8 @@ import { PostElevatorSoundManager } from './PostElevatorSoundManager';
 import { ZoneLabel } from './ZoneLabel';
 import { ArchiveHUD } from './ArchiveHUD';
 import { BackButton } from './BackButton';
+import { ZoneExperienceHost } from './ZoneExperienceHost';
+import { ZONE_FILMS } from '../data/zoneFilms';
 
 const SCENE_COMPONENTS: Record<SceneId, ComponentType> = {
   landing: LandingScene,
@@ -76,6 +78,11 @@ const MATCH_CUT_SCENES: ReadonlySet<SceneId> = new Set<SceneId>(['landing', 'int
 
 export function SceneController() {
   const currentScene = useExperienceStore((s) => s.currentScene);
+  const visitId = useExperienceStore((s) => s.visitId);
+  const [readyScene, setReadyScene] = useState<SceneId | null>(null);
+  const handleReady = useCallback((scene: SceneId, ready: boolean) => setReadyScene(ready ? scene : null), []);
+  const isZone = Boolean(ZONE_FILMS[currentScene]);
+  const interactionReady = !isZone || readyScene === currentScene;
   const prefersReducedMotion = useReducedMotion();
   useCrossSceneDebug();
   const ActiveScene = SCENE_COMPONENTS[currentScene];
@@ -100,12 +107,12 @@ export function SceneController() {
 
   return (
     <>
-      <PostElevatorSoundManager currentScene={currentScene} />
+      <PostElevatorSoundManager currentScene={currentScene} suspended={!interactionReady} />
       <AnimatePresence
         mode="wait"
         onExitComplete={() => setDisplayedScene(useExperienceStore.getState().currentScene)}
       >
-        <motion.div
+        {!isZone && <motion.div
           key={currentScene}
           className="scene-frame"
           initial="initial"
@@ -115,12 +122,13 @@ export function SceneController() {
           transition={transition}
         >
           <ActiveScene />
-        </motion.div>
+        </motion.div>}
       </AnimatePresence>
-      <ZoneLabel />
-      <BackButton />
+      <ZoneExperienceHost key={visitId} currentScene={currentScene} components={SCENE_COMPONENTS} onReady={handleReady} />
+      {interactionReady && <ZoneLabel />}
+      {interactionReady && <BackButton />}
       {/* Decides for itself which Zones it belongs on — see ArchiveHUD. */}
-      <ArchiveHUD scene={displayedScene} />
+      {interactionReady && <ArchiveHUD scene={isZone ? currentScene : displayedScene} />}
       {/* Above every Scene and below nothing. Static, decorative, never
           interactive — see .grain-overlay in styles/global.css. */}
       <div className="grain-overlay" aria-hidden="true" />

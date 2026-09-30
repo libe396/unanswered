@@ -3,12 +3,11 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { useExperienceStore } from '../store/experienceStore';
 import { MemoryField } from '../components/MemoryField';
 import wordmarkUrl from '../assets/wordmark.svg';
+import { activateFilmSound } from '../hooks/useFilmSound';
 import './LandingScene.css';
 
-/** Nothing can enter until the field has actually arrived. Without it, a click
- *  landing during the reveal drops the audience into a room they never saw the
- *  door of — and Elevator Entry opens on near-black, so it reads as a failure. */
-const ENTRY_ARMED_AFTER_MS = 2600;
+// Keep the entry available as soon as the short reveal finishes.
+const ENTRY_ARMED_AFTER_MS = 600;
 const FIGURE_PROXIMITY_PX = 320;
 
 export function LandingScene() {
@@ -20,6 +19,7 @@ export function LandingScene() {
   const [entryArmed, setEntryArmed] = useState(false);
   const [fieldActive, setFieldActive] = useState(false);
   const [entering, setEntering] = useState(false);
+  const startEntryRef = useRef<(() => void) | null>(null);
   const figureWrapRef = useRef<HTMLDivElement>(null);
   const mountedAtRef = useRef(0);
   const dwellRef = useRef(0);
@@ -102,6 +102,7 @@ export function LandingScene() {
   }
 
   function handleCollapseStart() {
+    activateFilmSound();
     setFieldActive(false);
     setEntering(true);
   }
@@ -122,16 +123,16 @@ export function LandingScene() {
     <div className={sceneClass}>
       <div className="landing-scene__room" />
 
-      {/* The mass arrives first and alone — the space introduces its subject
-          before it names itself. */}
+      {/* Preserve the particle field and its transition into the elevator. */}
       <motion.div
         ref={figureWrapRef}
         className="landing-scene__figure"
-        initial={{ opacity: 0, scale: 1.04 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: d(2.6), ease: [0.22, 1, 0.36, 1] }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: d(0.6), ease: [0.22, 1, 0.36, 1] }}
       >
         <MemoryField
+          startEntryRef={startEntryRef}
           onEnter={handleEnter}
           onCollapseStart={handleCollapseStart}
           onHoverChange={handleFieldHoverChange}
@@ -139,33 +140,40 @@ export function LandingScene() {
         />
       </motion.div>
 
-      <div className="landing-scene__mark">
-        <motion.img
-          className="landing-scene__wordmark"
-          src={wordmarkUrl}
-          alt="UNANSWERED"
+      <div className="landing-scene__content" inert={entering}>
+        <p className="landing-scene__title">
+          <img className="landing-scene__wordmark" src={wordmarkUrl} alt="UNANSWERED" />
+        </p>
+        <motion.h1
+          className="landing-scene__headline"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: d(1.6), delay: d(1.4) }}
-        />
-        <motion.p
-          className="landing-scene__subcopy"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: d(1.8), delay: d(2.9) }}
+          transition={{ duration: d(0.45) }}
         >
-          What remains unanswered?
+          <span>한 사람의 기록이</span>
+          <span>발견되었습니다.</span>
+        </motion.h1>
+        <motion.p
+          className="landing-scene__description"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: d(0.45), delay: d(0.12) }}
+        >
+          <span>흩어진 색과 문장, 소리 속에서</span>
+          <span>이름 없는 사람의 단서를 수집해 주세요.</span>
         </motion.p>
+        <motion.button
+          type="button"
+          className="landing-scene__start"
+          disabled={!entryArmed || entering}
+          onClick={() => startEntryRef.current?.()}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: d(0.4), delay: d(0.24) }}
+        >
+          조사 시작하기 <span aria-hidden="true">↗</span>
+        </motion.button>
       </div>
-
-      <motion.p
-        className="landing-scene__start-hint"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: entryArmed && !entering ? 1 : 0 }}
-        transition={{ duration: d(1.2), ease: [0.22, 1, 0.36, 1] }}
-      >
-        CLICK TO START
-      </motion.p>
     </div>
   );
 }

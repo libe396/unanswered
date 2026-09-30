@@ -1,7 +1,9 @@
+import { sentenceDwellNote } from '../../lib/sentenceDwellNote';
 import { useEffect, useRef } from 'react';
 import { renderLightGraphic } from '../../lib/lightRenderer.js';
 import { drawStrokes } from '../../lib/memorySketch';
 import { MemoryRoom } from '../../components/MemoryRoom';
+import { ROOM_WIDTH, ROOM_HEIGHT } from '../../data/memoryRoomGeometry';
 import type { FinalReportPresentation } from '../../lib/finalReportPresentation';
 import type { RecordLayerDerived } from '../../types';
 import './PrintableFullReport.css';
@@ -29,16 +31,22 @@ export function PrintableFullReport({ record, presentation }: Props) {
   const sketchCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    if (!record.light || !lightCanvasRef.current) return;
-    renderLightGraphic(lightCanvasRef.current, record.light.rules, record.light.variation);
-  }, [record.light]);
-
-  useEffect(() => {
-    const canvas = sketchCanvasRef.current;
-    const context = canvas?.getContext('2d');
-    if (!canvas || !context) return;
-    drawStrokes(context, record.memorySketch.strokes, canvas.width, canvas.height);
-  }, [record.memorySketch]);
+    // This 1000px print-only canvas can block the Zone's first crossfade for
+    // several seconds. Prepare it synchronously before print pagination,
+    // preserving its original resolution and the existing report data.
+    const preparePrint = () => {
+      if (record.light && lightCanvasRef.current) {
+        renderLightGraphic(lightCanvasRef.current, record.light.rules, record.light.variation);
+      }
+      const canvas = sketchCanvasRef.current;
+      const context = canvas?.getContext('2d');
+      if (canvas && context) {
+        drawStrokes(context, record.memorySketch.strokes, canvas.width, canvas.height, ROOM_WIDTH / 1200);
+      }
+    };
+    window.addEventListener('beforeprint', preparePrint);
+    return () => window.removeEventListener('beforeprint', preparePrint);
+  }, [record.light, record.memorySketch]);
 
   const { color, sound, sentence, memory } = presentation;
   const hasMemoryTrace = record.memorySketch.strokes.length > 0 || record.memorySketch.selectedObjects.length > 0;
@@ -48,7 +56,7 @@ export function PrintableFullReport({ record, presentation }: Props) {
       <div className="printable-full-report__page">
         <header className="pfr-header">
           <p className="pfr-header__eyebrow">UNANSWERED ARCHIVE / 미응답 보관소</p>
-          <h1 className="pfr-header__title">이름 없는 사람 조사 보고서</h1>
+          <h1 className="pfr-header__title">최종보고서</h1>
           <p className="pfr-header__subtitle">ANONYMOUS PERSON INVESTIGATION REPORT</p>
         </header>
 
@@ -142,6 +150,7 @@ export function PrintableFullReport({ record, presentation }: Props) {
               {sentence.selectedSentences.map((text, i) => (
                 <span key={i} className="pfr-sentence__capsule">
                   {text}
+                  {sentenceDwellNote(record, i) && <small> · {sentenceDwellNote(record, i)}</small>}
                 </span>
               ))}
             </div>
@@ -159,7 +168,7 @@ export function PrintableFullReport({ record, presentation }: Props) {
         </section>
 
         <section className="pfr-section pfr-section--avoid-break">
-          <p className="pfr-section__label">04&nbsp;&nbsp;MEMORY / 기억의 단서</p>
+          <p className="pfr-section__label">04&nbsp;&nbsp;MEMORY / 기억의 흔적</p>
 
           <div className="pfr-memory__bars">
             <div className="pfr-memory__bar-row">
@@ -187,7 +196,7 @@ export function PrintableFullReport({ record, presentation }: Props) {
                 onViewEnd={() => {}}
                 interactive={false}
               />
-              <canvas ref={sketchCanvasRef} width={1200} height={800} className="pfr-memory__sketch" />
+              <canvas ref={sketchCanvasRef} width={ROOM_WIDTH} height={ROOM_HEIGHT} className="pfr-memory__sketch" />
             </div>
           ) : null}
 

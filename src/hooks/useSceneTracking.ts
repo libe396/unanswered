@@ -11,6 +11,7 @@
  * on every render.
  */
 import { useEffect, useMemo, useRef } from 'react';
+import { useInteractionClock } from './useInteractionClock';
 import { createSceneTracker, summarizeScene } from '../lib/behaviorTracking';
 import type { SceneTracker } from '../lib/behaviorTracking';
 import { detectScenePatterns } from '../lib/behaviorPatterns';
@@ -65,6 +66,7 @@ export function useSceneTracking(
   groupModes: Record<string, BehaviorSelectionMode>,
   options: SceneTrackingOptions = {},
 ): SceneTracking {
+  const interactionNow = useInteractionClock();
   const setSceneBehavior = useExperienceStore((s) => s.setSceneBehavior);
 
   // Group modes are written inline at the call site, so a fresh object arrives
@@ -76,7 +78,7 @@ export function useSceneTracking(
   debugViewRef.current = options.debugView;
   const trackerRef = useRef<SceneTracker | null>(null);
   if (trackerRef.current === null) {
-    trackerRef.current = createSceneTracker(sceneId, modesRef.current);
+    trackerRef.current = createSceneTracker(sceneId, modesRef.current, interactionNow);
   }
 
   const tracking = useMemo<SceneTracking>(() => {

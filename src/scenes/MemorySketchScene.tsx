@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
-import { MEMORY_MIN_OBJECT_SELECTION, SKETCH_COLORS } from '../data/content';
+import { MEMORY_MIN_OBJECT_SELECTION, MEMORY_ROOM_OBJECTS, SKETCH_COLORS } from '../data/content';
 import { useExperienceStore } from '../store/experienceStore';
 import { computeEmptyAreaRatio, drawStrokes } from '../lib/memorySketch';
 import { logSceneTracking, useSceneTracking } from '../hooks/useSceneTracking';
@@ -13,22 +13,21 @@ import {
   summarizeMemory,
 } from '../lib/memoryTracking';
 import { MEMORY_THRESHOLDS } from '../lib/memoryThresholds';
-import { TerminalCorners } from '../components/TerminalCorners';
-import { ZoneIntroCard } from '../components/ZoneIntroCard';
-import { ZONE_INFO } from '../data/zones';
+import { StageHeader } from '../components/StageHeader';
 import { MemoryRoom } from '../components/MemoryRoom';
+import { ROOM_WIDTH, ROOM_HEIGHT } from '../data/memoryRoomGeometry';
 import type { SceneBehaviorRecord, Stroke, StrokePoint } from '../types';
 import './MemorySketchScene.css';
 
-const CANVAS_WIDTH = 1200;
-const CANVAS_HEIGHT = 800;
-const BRUSH_WIDTH = 5;
+const CANVAS_WIDTH = ROOM_WIDTH;
+const CANVAS_HEIGHT = ROOM_HEIGHT;
+const BRUSH_WIDTHS = [{ label: '가늘게', width: 2 }, { label: '보통', width: 4 }, { label: '굵게', width: 7 }];
 
 /** The only implement the Zone offers. Named so the record has something to
  *  say when a second one is added, rather than a field that means nothing. */
 const TOOL = 'brush';
 
-type Phase = 'intro' | 'room' | 'drawingChoice' | 'drawing';
+type Phase = 'room' | 'drawingChoice' | 'drawing';
 
 /**
  * How the Zone reads its own record back, in development.
@@ -117,7 +116,7 @@ export function MemorySketchScene() {
     debugView: readMemoryTracking,
   });
 
-  const [phase, setPhase] = useState<Phase>('intro');
+  const [phase, setPhase] = useState<Phase>('room');
   // Seeded from any answer this visit already saved — finishMemory() below
   // always writes whatever these hold, so without this, Back navigation
   // followed by skipping (or finishing without redrawing) would silently
@@ -128,24 +127,41 @@ export function MemorySketchScene() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [strokes, setStrokes] = useState<Stroke[]>(() => storedMemorySketch.strokes);
   const [activeColor, setActiveColor] = useState(SKETCH_COLORS[0]);
+  const [activeWidth, setActiveWidth] = useState(2);
   const [showEmptyConfirm, setShowEmptyConfirm] = useState(false);
   const drawingRef = useRef<Stroke | null>(null);
   const lastInputRef = useRef(Date.now());
   // Marks are numbered in the order they were begun. Sequential rather than
   // random because these ids are read by a person, in a console, next to a
   // canvas they have just drawn on.
-  const strokeSeqRef = useRef(0);
+  const strokeSeqRef = useRef(storedMemorySketch.strokes.reduce((max, stroke) => Math.max(max, Number(stroke.id?.replace('STROKE_', '')) || 0), 0));
 
   function redraw(currentStroke?: Stroke | null) {
     const canvas = canvasRef.current;
     const context = canvas?.getContext('2d');
     if (!canvas || !context) return;
     const strokesToDraw = currentStroke ? [...strokes, currentStroke] : strokes;
-    drawStrokes(context, strokesToDraw, canvas.width, canvas.height);
+    // Smooth only this preview. Stored coordinates and tracking timestamps stay raw.
+    drawStrokes(context, [], canvas.width, canvas.height);
+    for (const stroke of strokesToDraw) {
+      if (stroke.points.length < 2) continue;
+      context.strokeStyle = stroke.color;
+      context.lineWidth = stroke.width * CANVAS_WIDTH / 1200;
+      context.beginPath();
+      context.moveTo(stroke.points[0].x * canvas.width, stroke.points[0].y * canvas.height);
+      for (let i = 1; i < stroke.points.length - 1; i += 1) {
+        const point = stroke.points[i];
+        const next = stroke.points[i + 1];
+        context.quadraticCurveTo(point.x * canvas.width, point.y * canvas.height,
+          (point.x + next.x) / 2 * canvas.width, (point.y + next.y) / 2 * canvas.height);
+      }
+      const end = stroke.points[stroke.points.length - 1];
+      context.lineTo(end.x * canvas.width, end.y * canvas.height);
+      context.stroke();
+    }
   }
 
   useEffect(() => {
-    if (phase !== 'drawing') return;
     redraw();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [strokes, phase]);
@@ -171,6 +187,18 @@ export function MemorySketchScene() {
     tracking.openGroup(SKETCH_GROUP);
     tracking.advanceReady();
   }, [phase, tracking]);
+
+  useEffect(() => {
+    setMemorySketch({ ...useExperienceStore.getState().memorySketch, selectedObjects, strokes,
+      drawingUsed: strokes.length > 0, selectedColors: [...new Set(strokes.map((stroke) => stroke.color))],
+      emptyAreaRatio: computeEmptyAreaRatio(strokes), lastInputAt: lastInputRef.current });
+  }, [selectedObjects, strokes, setMemorySketch]);
+
+  function selectWidth(width: number) {
+    if (width === activeWidth) return;
+    setActiveWidth(width);
+    tracking.toolChange(SKETCH_GROUP, { tool: `${TOOL}:${width}`, color: activeColor });
+  }
 
   function toggleObject(id: string) {
     /*
@@ -211,10 +239,10 @@ export function MemorySketchScene() {
     const point = pointFromEvent(event);
     strokeSeqRef.current += 1;
     const id = `STROKE_${String(strokeSeqRef.current).padStart(2, '0')}`;
-    drawingRef.current = { id, points: [point], color: activeColor, width: BRUSH_WIDTH };
+    drawingRef.current = { id, points: [point], color: activeColor, width: activeWidth };
     lastInputRef.current = Date.now();
     tracking.strokeStart(SKETCH_GROUP, id, point, {
-      tool: TOOL,
+      tool: `${TOOL}:${activeWidth}`,
       color: activeColor,
       // Carried through so a record made with a finger is never compared with
       // one made with a mouse as though the two reported movement alike.
@@ -271,7 +299,7 @@ export function MemorySketchScene() {
     // would turn a visitor confirming their choice into one switching about.
     if (color === activeColor) return;
     setActiveColor(color);
-    tracking.toolChange(SKETCH_GROUP, { tool: TOOL, color });
+    tracking.toolChange(SKETCH_GROUP, { tool: `${TOOL}:${activeWidth}`, color });
   }
 
   /**
@@ -337,137 +365,206 @@ export function MemorySketchScene() {
     finishMemory();
   }
 
-  if (phase === 'intro') {
-    return (
-      <ZoneIntroCard
-        zone={ZONE_INFO.memorySketch.zone}
-        title="복원된 기억의 방."
-        subtitle="수집된 단서를 바탕으로 공간의 일부가 복원되었습니다."
-        ctaLabel="공간으로 들어가기"
-        onContinue={() => setPhase('room')}
+
+  const isRoom = phase === 'room';
+  const isDrawing = phase === 'drawing';
+  const isChoice = phase === 'drawingChoice';
+
+  /*
+    One object across all three phases: the room, with the stroke canvas laid
+    over it. The canvas is `inset: 0` inside the same box the illustration
+    fills, so the two rects are identical by construction and stay identical
+    at any size — no observer needed. Stroke points stay normalized to 0–1; the canvas bitmap and SVG both use
+    the final image dimensions, so display size never changes their alignment.
+  */
+  const surface = (
+    <div className="memory-sketch-scene__surface">
+      <MemoryRoom
+        showSelectionMarkers
+        showAvailableObjects
+        selectedIds={selectedObjects}
+        interactive={isRoom}
+        onSelectToggle={toggleObject}
+        onViewStart={(id) => tracking.viewStart(OBJECT_GROUP, id)}
+        onViewEnd={(id) => tracking.viewEnd(OBJECT_GROUP, id)}
       />
-    );
-  }
-
-  if (phase === 'room') {
-    const canProceed = selectedObjects.length >= MEMORY_MIN_OBJECT_SELECTION;
-    return (
-      <div className="memory-sketch-scene">
-        <p className="memory-sketch-scene__hint">
-          이곳에 남아 있는 흔적을 살펴보고, 최소 {MEMORY_MIN_OBJECT_SELECTION}개를 선택하세요.
-        </p>
-
-        <MemoryRoom
-          selectedIds={selectedObjects}
-          onSelectToggle={toggleObject}
-          onViewStart={(id) => tracking.viewStart(OBJECT_GROUP, id)}
-          onViewEnd={(id) => tracking.viewEnd(OBJECT_GROUP, id)}
+      {isDrawing || strokes.length > 0 ? (
+        <canvas
+          ref={canvasRef}
+          width={CANVAS_WIDTH}
+          height={CANVAS_HEIGHT}
+          className={`memory-sketch-scene__canvas${
+            isDrawing ? '' : ' memory-sketch-scene__canvas--preview'
+          }`}
+          aria-label="방 위에 흔적 덧그리기"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
         />
+      ) : null}
+    </div>
+  );
 
-        <button className="cta cta--primary memory-sketch-scene__confirm" onClick={proceedFromRoom} disabled={!canProceed}>
-          다음으로
-        </button>
-      </div>
-    );
-  }
-
-  // 'drawingChoice' and 'drawing' share the same Room-with-traces backdrop.
-  return (
-    <div className="memory-sketch-scene">
-      <div className="memory-sketch-scene__room-backdrop" aria-hidden="true">
-        <MemoryRoom
-          selectedIds={selectedObjects}
-          onSelectToggle={() => {}}
-          onViewStart={() => {}}
-          onViewEnd={() => {}}
-          interactive={false}
-        />
-      </div>
-
-      {phase === 'drawingChoice' ? (
-        <div className="memory-sketch-scene__choice">
-          <p className="memory-sketch-scene__hint">복원된 공간에서 빠진 흔적이 보인다면, 직접 덧그려 보세요.</p>
-          <div className="memory-sketch-scene__choice-actions">
-            <button className="memory-sketch-scene__mini-btn" onClick={handleSkipDrawing}>
-              그대로 기록하기
-            </button>
-            <button
-              className="cta cta--primary memory-sketch-scene__confirm"
-              onClick={() => setPhase('drawing')}
-            >
-              흔적 덧그리기
-            </button>
-          </div>
-        </div>
+  const collected = (
+    <div className="memory-sketch-scene__collected">
+      <p className="memory-sketch-scene__collected-label">남겨둔 흔적</p>
+      {selectedObjects.length ? (
+        <ol className="memory-sketch-scene__object-list">
+          {selectedObjects.map((id, index) => {
+            const label = MEMORY_ROOM_OBJECTS.find((item) => item.id === id)?.label ?? id;
+            return (
+              <li key={id} className="memory-sketch-scene__object">
+                <span className="memory-sketch-scene__object-number" aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span className="memory-sketch-scene__object-label">{label}</span>
+                {isRoom ? (
+                  <button
+                    type="button"
+                    className="memory-sketch-scene__object-remove"
+                    onClick={() => toggleObject(id)}
+                    aria-label={`${label} 선택 해제`}
+                  >
+                    ×
+                  </button>
+                ) : null}
+              </li>
+            );
+          })}
+        </ol>
       ) : (
-        <>
-          <p className="memory-sketch-scene__hint">기억 속 비어 있는 흔적을 직접 덧그려 보세요.</p>
-
-          <canvas
-            ref={canvasRef}
-            width={CANVAS_WIDTH}
-            height={CANVAS_HEIGHT}
-            className="memory-sketch-scene__canvas"
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerLeave={handlePointerUp}
-          />
-
-          <div className="memory-sketch-scene__controls">
-            <div className="memory-sketch-scene__colors">
-              {SKETCH_COLORS.map((color) => (
-                <button
-                  key={color}
-                  className={`memory-sketch-scene__color${
-                    activeColor === color ? ' memory-sketch-scene__color--active' : ''
-                  }`}
-                  style={{ background: color }}
-                  onClick={() => selectColor(color)}
-                  aria-label={color}
-                />
-              ))}
-            </div>
-            <div className="memory-sketch-scene__actions">
-              <button
-                className="memory-sketch-scene__mini-btn"
-                onClick={handleUndo}
-                disabled={strokes.length === 0}
-              >
-                되돌리기
-              </button>
-              <button
-                className="memory-sketch-scene__mini-btn"
-                onClick={handleClear}
-                disabled={strokes.length === 0}
-              >
-                전체 지우기
-              </button>
-            </div>
-          </div>
-
-          <button className="cta cta--primary memory-sketch-scene__confirm" onClick={handleConfirm}>
-            기록 남기기
-          </button>
-        </>
+        <p className="memory-sketch-scene__object-empty">선택한 사물이 여기에 남아요.</p>
       )}
+    </div>
+  );
+
+  return (
+    <div className="memory-sketch-scene memory-sketch-scene--room">
+      <div className="memory-sketch-scene__workspace">
+        <StageHeader
+          eyebrow="기억의 흔적"
+          title={isDrawing ? '비어 있는 흔적을 덧그려 보세요' : '이곳에 남아 있는 흔적을 살펴보세요'}
+          description={
+            isDrawing
+              ? '동그라미 하나, 짧은 선 하나도 괜찮아요.'
+              : '밝게 채워진 사물을 살펴보고, 마음이 머무는 사물을 선택해 주세요.'
+          }
+        />
+        <div className="memory-sketch-scene__body">
+          {surface}
+          <aside className="memory-sketch-scene__sidebar" aria-label={isDrawing ? '드로잉 도구' : '선택한 흔적과 다음 단계'}>
+            {isDrawing ? (
+              <div className="memory-sketch-scene__controls" aria-label="드로잉 도구">
+                <div className="memory-sketch-scene__colors" role="group" aria-label="선 색상">
+                  {SKETCH_COLORS.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      className={`memory-sketch-scene__color${
+                        activeColor === color ? ' memory-sketch-scene__color--active' : ''
+                      }`}
+                      style={{ background: color }}
+                      onClick={() => selectColor(color)}
+                      aria-label={color}
+                      aria-pressed={activeColor === color}
+                    />
+                  ))}
+                </div>
+
+                <div className="memory-sketch-scene__widths" role="group" aria-label="선 굵기">
+                  {BRUSH_WIDTHS.map(({ label, width }) => (
+                    <button
+                      key={width}
+                      type="button"
+                      className={`cta cta--secondary memory-sketch-scene__mini-btn${
+                        activeWidth === width ? ' memory-sketch-scene__mini-btn--on' : ''
+                      }`}
+                      aria-pressed={activeWidth === width}
+                      onClick={() => selectWidth(width)}
+                    >
+                      <span aria-hidden="true" style={{ height: width }} />
+                      {label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="memory-sketch-scene__actions">
+                  <button
+                    className="cta cta--secondary memory-sketch-scene__mini-btn"
+                    onClick={handleUndo}
+                    disabled={!strokes.length}
+                  >
+                    되돌리기
+                  </button>
+                  <button
+                    className="cta cta--secondary memory-sketch-scene__mini-btn"
+                    onClick={handleClear}
+                    disabled={!strokes.length}
+                  >
+                    전체 지우기
+                  </button>
+                </div>
+
+                <button
+                  className="cta cta--primary memory-sketch-scene__confirm"
+                  onClick={handleConfirm}
+                >
+                  기록 남기기
+                </button>
+              </div>
+            ) : (
+              <>
+                {collected}
+                {isChoice ? (
+                  <div className="memory-sketch-scene__choice">
+                    <p>이 방에 더 남기고 싶은 흔적이 있나요?</p>
+                    <div className="memory-sketch-scene__choice-actions">
+                      <button className="cta cta--secondary" onClick={handleSkipDrawing}>
+                        그대로 기록하기
+                      </button>
+                      <button className="cta cta--primary" onClick={() => setPhase('drawing')}>
+                        흔적 덧그리기
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <p className="metric memory-sketch-scene__count">
+                      <span className="metric__label">
+                        {selectedObjects.length}개 선택
+                        {selectedObjects.length < MEMORY_MIN_OBJECT_SELECTION
+                          ? ` · ${MEMORY_MIN_OBJECT_SELECTION}개 이상 선택해 주세요`
+                          : ''}
+                      </span>
+                    </p>
+                    <button
+                      className="cta cta--primary memory-sketch-scene__confirm"
+                      onClick={proceedFromRoom}
+                      disabled={selectedObjects.length < MEMORY_MIN_OBJECT_SELECTION}
+                    >
+                      다음으로
+                    </button>
+                  </>
+                )}
+              </>
+            )}
+          </aside>
+        </div>
+      </div>
 
       {showEmptyConfirm ? (
         <div className="memory-sketch-scene__modal-veil">
-          <div className="memory-sketch-scene__modal">
-            <TerminalCorners />
+          <div className="memory-sketch-scene__modal glass">
             <p className="memory-sketch-scene__modal-text">
               아무 흔적도 남기지 않고 기록하시겠습니까?
             </p>
             <div className="memory-sketch-scene__modal-actions">
-              <button className="memory-sketch-scene__mini-btn" onClick={finishMemory}>
-                계속하기
-              </button>
-              <button
-                className="memory-sketch-scene__mini-btn"
-                onClick={() => setShowEmptyConfirm(false)}
-              >
+              <button className="cta cta--secondary" onClick={() => setShowEmptyConfirm(false)}>
                 돌아가기
+              </button>
+              <button className="cta cta--primary" onClick={finishMemory}>
+                계속하기
               </button>
             </div>
           </div>

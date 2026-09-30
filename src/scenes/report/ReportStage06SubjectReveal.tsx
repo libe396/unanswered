@@ -1,130 +1,121 @@
-import { useEffect, useState } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import {
-  STAGE_06_BEATS,
-  STAGE_06_CLOSURE,
-  STAGE_06_DETAIL,
-  STAGE_06_FINAL_LINE,
-  STAGE_06_MEANING,
-  STAGE_06_REFRAME,
-  STAGE_06_REVEAL,
-} from '../../lib/reportFindingCopy';
-import { useStageReveal } from './useStageReveal';
+import { useEffect, useRef, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { useShallow } from 'zustand/react/shallow';
+import { selectRecordLayerDerived, useExperienceStore } from '../../store/experienceStore';
+import { useCameraPreference } from '../../store/cameraPreference';
+import { renderLightGraphic } from '../../lib/lightRenderer.js';
+import { drawStrokes } from '../../lib/memorySketch';
+import { CameraOptIn } from '../../components/CameraOptIn';
 import { ReportStageNav } from './ReportStageNav';
 import './ReportStage06SubjectReveal.css';
 
-interface Props {
-  index: number;
-  total: number;
-  locked: boolean;
-  onAdvance: () => void;
-}
+interface Props { index: number; total: number; locked: boolean; onAdvance: () => void }
 
-type Tone = 'reveal' | 'detail' | 'reframe' | 'closure' | 'final';
-
-/** How long each phase holds before the next replaces it. Setup reads fast;
- *  the longest pause sits right before the reveal; the final line outlasts
- *  everything else, and the CTA only appears well after that (see
- *  `useStageReveal` below) — never at the same moment as the reveal itself. */
-const HOLD_MS = [2600, 900, 2800, 2200, 3400, 3200, 3400, 3800, 3800, 1400];
-const REDUCED_HOLD_MS = HOLD_MS.map((ms) => Math.round(ms / 7));
-
-const PHASES: Array<{ text: string | null; tone?: Tone }> = [
-  { text: STAGE_06_BEATS[0] },
-  { text: null },
-  { text: STAGE_06_BEATS[1] },
-  { text: null },
-  { text: STAGE_06_REVEAL, tone: 'reveal' },
-  { text: STAGE_06_DETAIL, tone: 'detail' },
-  { text: STAGE_06_REFRAME, tone: 'reframe' },
-  { text: STAGE_06_MEANING, tone: 'reframe' },
-  { text: STAGE_06_CLOSURE, tone: 'closure' },
-  { text: null },
-  { text: STAGE_06_FINAL_LINE, tone: 'final' },
-];
-const FINAL_PHASE = PHASES.length - 1;
-
-/**
- * REPORT 06 · Subject Reveal.
- *
- * A fixed narrative sequence, not driven by any Finding — Subject Reveal is
- * data-independent by design (the Data / Finding Audit classified it as
- * "READY, narrative layer" precisely because it doesn't need session data to
- * be true). One line replaces the last rather than accumulating.
- *
- * The reveal ("당신도 기록되고 있었습니다.") is not the ending. Pilot
- * testing showed visitors reading it as "이 결과가 나라는 뜻인가?" — a
- * personality reading the project never makes. So the reveal is followed by
- * a Reframe (this is not a reading of who the visitor is), a Meaning (an
- * improvised choice counts the same as a considered one), and a plain
- * Closure stating the project's own thesis — all read before the one poetic
- * line that actually closes the sequence, so no line is left for the
- * visitor to have to interpret alone.
- */
 export function ReportStage06SubjectReveal({ index, total, locked, onAdvance }: Props) {
-  const prefersReducedMotion = useReducedMotion();
-  const holds = prefersReducedMotion ? REDUCED_HOLD_MS : HOLD_MS;
+  const reduced = useReducedMotion();
+  const { enabled, setEnabled } = useCameraPreference();
+  const record = useExperienceStore(useShallow(selectRecordLayerDerived));
+  const video = useRef<HTMLVideoElement>(null);
+  const light = useRef<HTMLCanvasElement>(null);
+  const sketch = useRef<HTMLCanvasElement>(null);
+  const stopCamera = useRef<() => void>(() => {});
+  const [choice, setChoice] = useState<'camera' | 'without' | null>(null);
+  const [ready, setReady] = useState(false);
+  const [live, setLive] = useState(false);
+  const [notice, setNotice] = useState('');
   const [phase, setPhase] = useState(0);
 
+  // Ask again on each entry; a previous session choice is not permission to
+  // start a new stream. The shared preference reflects only this live use.
   useEffect(() => {
-    if (phase >= FINAL_PHASE) return;
-    const timer = window.setTimeout(() => setPhase((p) => p + 1), holds[phase]);
+    setEnabled(false);
+    return () => { setEnabled(false); };
+  }, [setEnabled]);
+
+  function continueWithoutCamera() {
+    stopCamera.current();
+    setEnabled(false);
+    setChoice('without');
+  }
+
+  useEffect(() => {
+    if (choice === null) return;
+    if (!enabled) { setLive(false); setReady(true); return; }
+    let cancelled = false;
+    let stream: MediaStream | null = null;
+    setReady(false);
+    const stop = () => { stream?.getTracks().forEach((track) => track.stop()); if (video.current) video.current.srcObject = null; };
+    stopCamera.current = stop;
+    const fallback = () => {
+      if (cancelled) return;
+      cancelled = true;
+      stop();
+      setLive(false);
+      setEnabled(false);
+      setNotice('카메라를 연결하지 못했습니다. 남겨진 단서로 마지막 장면을 이어갑니다.');
+      setReady(true);
+    };
+    // Permission stays pending until the visitor decides or chooses the fallback.
+    // Only an already-authorized video connection has a readiness deadline.
+    let timeout: number | undefined;
+    async function connect() {
+      try {
+        if (!navigator.mediaDevices?.getUserMedia) { fallback(); return; }
+        const media = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 960 }, height: { ideal: 720 } }, audio: false });
+        if (cancelled) { media.getTracks().forEach((track) => track.stop()); return; }
+        stream = media;
+        timeout = window.setTimeout(fallback, 8000);
+        media.getVideoTracks().forEach((track) => track.addEventListener('ended', fallback));
+        const element = video.current;
+        if (!element) { fallback(); return; }
+        element.srcObject = media;
+        await element.play();
+        if (cancelled) return;
+        // play() resolves when playback starts; the reveal never waits on a permission prompt.
+        window.clearTimeout(timeout);
+        setLive(true);
+        setReady(true);
+      } catch { fallback(); }
+    }
+    const connectTimer = window.setTimeout(() => void connect(), 0);
+    const hide = () => { stop(); setEnabled(false); };
+    window.addEventListener('pagehide', hide);
+    const unsubscribe = useExperienceStore.subscribe((state, previous) => { if (state.currentScene !== previous.currentScene) hide(); });
+    return () => { cancelled = true; window.clearTimeout(timeout); window.clearTimeout(connectTimer); stop(); window.removeEventListener('pagehide', hide); unsubscribe(); };
+  }, [choice, enabled, setEnabled]);
+
+  useEffect(() => {
+    if (!ready || phase >= 3) return;
+    const timer = window.setTimeout(() => setPhase((p) => p + 1), reduced ? 450 : [2200, 1700, 2700][phase]);
     return () => window.clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase]);
+  }, [ready, phase, reduced]);
 
-  // Reaching the final phase, plus a further hold on it alone — the CTA
-  // must never appear at the same moment as the sequence's last line.
-  const msToFinalPhase = holds.reduce((sum, ms) => sum + ms, 0);
-  const revealed = useStageReveal(msToFinalPhase + (prefersReducedMotion ? 300 : 4600));
+  useEffect(() => {
+    if (!ready || live) return;
+    if (light.current && record.light) renderLightGraphic(light.current, record.light.rules, record.light.variation);
+    const context = sketch.current?.getContext('2d');
+    if (context) drawStrokes(context, record.memorySketch.strokes, 600, 400);
+  }, [ready, live, record]);
 
-  const activePhase = PHASES[phase];
-  const isFinal = phase === FINAL_PHASE;
-
-  return (
-    <div className="report-stage report-stage-06">
-      <p className="report-stage__eyebrow report-stage-06__eyebrow">
-        <span className="report-stage__eyebrow-code">REPORT {String(index).padStart(2, '0')}</span>
-        <span className="report-stage__eyebrow-sep" aria-hidden="true">·</span>
-        <span className="report-stage__eyebrow-code">SUBJECT REVEAL</span>
-      </p>
-
-      <div className="report-stage-06__frame">
-        <AnimatePresence mode="wait">
-          {activePhase.text ? (
-            <motion.p
-              key={phase}
-              className={`report-stage-06__line${
-                activePhase.tone ? ` report-stage-06__line--${activePhase.tone}` : ''
-              }`}
-              initial={{ opacity: 0, filter: 'blur(4px)' }}
-              animate={{ opacity: 1, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, filter: 'blur(4px)' }}
-              transition={{ duration: prefersReducedMotion ? 0.15 : isFinal ? 1.7 : 1.1 }}
-            >
-              {activePhase.text}
-            </motion.p>
-          ) : (
-            <motion.span
-              key={`blank-${phase}`}
-              className="report-stage-06__blank"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: prefersReducedMotion ? 0.05 : 0.4 }}
-            />
-          )}
-        </AnimatePresence>
-      </div>
-
-      <ReportStageNav
-        label="최종 기록으로"
-        index={index}
-        total={total}
-        visible={revealed}
-        onAdvance={onAdvance}
-        disabled={locked}
-      />
+  return <div className="report-stage report-stage-06" data-reveal-phase={phase}>
+    <p className="report-stage__eyebrow">마지막 기록</p>
+    {choice === null && <CameraOptIn onUse={() => { setChoice('camera'); setEnabled(true); }} onSkip={continueWithoutCamera} />}
+    {choice !== null && !ready && <div className="camera-consent" role="status"><p>마지막 장면에 내 얼굴을 비추기 위해 카메라를 준비하고 있습니다.</p><button className="cta cta--secondary" onClick={continueWithoutCamera}>카메라 없이 계속하기</button></div>}
+    <div className="identity-reveal" aria-live="polite" hidden={!ready}>
+      <p className="identity-reveal__setup">{ready ? '당신이 찾던 사람은' : '\u00a0'}</p>
+      <motion.div className="identity-reveal__portrait" animate={{ opacity: ready && phase >= 1 ? 1 : 0 }} transition={{ duration: reduced ? .1 : 1.6 }}>
+        <video ref={video} muted playsInline autoPlay className={`identity-reveal__video${live ? ' identity-reveal__video--live' : ''}`} aria-label="저장되지 않는 실시간 거울 화면" />
+        {ready && !live && <div className="identity-reveal__traces">
+          {record.light && <canvas ref={light} width={1000} height={1000} aria-label="당신이 남긴 빛" />}
+          <canvas ref={sketch} width={600} height={400} aria-label="당신이 남긴 스케치" />
+          <div>{record.sentenceClues.selectedSentences.map((text, i) => <p key={i}>{text}</p>)}</div>
+        </div>}
+      </motion.div>
+      <motion.h1 animate={{ opacity: ready && phase >= 2 ? 1 : 0 }} transition={{ duration: reduced ? .1 : 1 }}>당신입니다.</motion.h1>
+      <p className="identity-reveal__closure" style={{ opacity: phase >= 3 ? 1 : 0 }}>당신이 남긴 선택과 망설임이 하나의 기록이 되었습니다.</p>
     </div>
-  );
+    {notice && <p className="identity-reveal__notice" role="status">{notice}</p>}
+    {enabled && ready && <button className="identity-reveal__off" onClick={() => setEnabled(false)}>카메라 끄기</button>}
+    <ReportStageNav label="최종 기록으로" index={index} total={total} visible={ready && phase >= 3} onAdvance={() => { stopCamera.current(); setEnabled(false); onAdvance(); }} disabled={locked} />
+  </div>;
 }

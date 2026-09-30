@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type RefObject } from 'react';
 import { useReducedMotion } from 'framer-motion';
 import { createMemoryField, type MemoryFieldRenderer } from '../lib/memoryField';
 import './MemoryField.css';
@@ -62,6 +62,8 @@ function easeInOutCubic(t: number): number {
 }
 
 interface MemoryFieldProps {
+  /** Landing CTA uses the same entry sequence as the particle canvas. */
+  startEntryRef?: RefObject<(() => void) | null>;
   /** Fires once the mass has finished compressing into the line. */
   onEnter?: () => void;
   /** Fires when the entry collapse begins, while the click still has user activation. */
@@ -86,6 +88,7 @@ interface MemoryFieldProps {
  * lifecycle — sizing, pointer and hover state, the entry timing, and teardown.
  */
 export function MemoryField({
+  startEntryRef,
   onEnter,
   onCollapseStart,
   onHoverChange,
@@ -128,7 +131,12 @@ export function MemoryField({
 
     if (!field) {
       setUnsupported(true);
-      return;
+      if (startEntryRef) startEntryRef.current = () => {
+        if (!interactiveRef.current) return;
+        onCollapseStartRef.current?.();
+        onEnterRef.current?.();
+      };
+      return () => { if (startEntryRef) startEntryRef.current = null; };
     }
 
     const renderer = field;
@@ -201,6 +209,11 @@ export function MemoryField({
       const rect = canvas!.getBoundingClientRect();
       const overMass = isOverMass(event.clientX - rect.left, event.clientY - rect.top);
       if (!interactiveRef.current || collapseStartedAt || !overMass) return;
+      startCollapse();
+    }
+
+    function startCollapse() {
+      if (!interactiveRef.current || collapseStartedAt) return;
       collapseStartedAt = performance.now();
       isOver = false;
       setHovered(false);
@@ -210,6 +223,7 @@ export function MemoryField({
       trace('collapse-start');
     }
 
+    if (startEntryRef) startEntryRef.current = startCollapse;
     applySize();
 
     if (prefersReducedMotion) {
@@ -224,11 +238,16 @@ export function MemoryField({
       staticObserver.observe(host);
       // Entry still has to work; it just does not get an animation. The line is
       // held briefly so the cut to the door seam is still a cut and not a jump.
+      let reducedTimer = 0;
       function handleReducedClick(event: MouseEvent) {
         trace('particle-click');
         const rect = canvas!.getBoundingClientRect();
         if (!interactiveRef.current || entered) return;
         if (!isOverMass(event.clientX - rect.left, event.clientY - rect.top)) return;
+        startReducedEntry();
+      }
+      function startReducedEntry() {
+        if (!interactiveRef.current || entered) return;
         entered = true;
         onHoverChangeRef.current?.(false);
         onCollapseStartRef.current?.();
@@ -236,13 +255,16 @@ export function MemoryField({
         renderer.setCollapse(1);
         renderer.settle(90);
         renderer.draw();
-        window.setTimeout(() => {
+        reducedTimer = window.setTimeout(() => {
           trace('collapse-complete');
           onEnterRef.current?.();
         }, COLLAPSE_MS_REDUCED);
       }
+      if (startEntryRef) startEntryRef.current = startReducedEntry;
       canvas.addEventListener('click', handleReducedClick);
       return () => {
+        if (startEntryRef) startEntryRef.current = null;
+        window.clearTimeout(reducedTimer);
         staticObserver.disconnect();
         canvas.removeEventListener('click', handleReducedClick);
         renderer.dispose();
@@ -279,6 +301,7 @@ export function MemoryField({
     rafId = requestAnimationFrame(tick);
 
     return () => {
+      if (startEntryRef) startEntryRef.current = null;
       cancelled = true;
       observer.disconnect();
       window.removeEventListener('mousemove', handleMove);
@@ -287,7 +310,7 @@ export function MemoryField({
       cancelAnimationFrame(rafId);
       renderer.dispose();
     };
-  }, [prefersReducedMotion]);
+  }, [prefersReducedMotion, startEntryRef]);
 
   return (
     <div

@@ -1,0 +1,315 @@
+[
+  {
+    "name": "landing",
+    "width": 1920,
+    "height": 1080,
+    "root": "16px",
+    "textCount": 5,
+    "small": [],
+    "scrolls": [
+      {
+        "class": "landing-scene",
+        "scroll": false
+      }
+    ],
+    "offscreen": []
+  },
+  {
+    "name": "sound",
+    "width": 1920,
+    "height": 1080,
+    "root": "16px",
+    "textCount": 22,
+    "small": [],
+    "scrolls": [
+      {
+        "class": "sound-clues-scene",
+        "scroll": false
+      }
+    ],
+    "offscreen": []
+  },
+  {
+    "name": "sentence-intro",
+    "width": 1920,
+    "height": 1080,
+    "root": "16px",
+    "textCount": 14,
+    "small": [],
+    "scrolls": [
+      {
+        "class": "sound-clues-scene",
+        "scroll": false
+      }
+    ],
+    "offscreen": []
+  },
+  {
+    "name": "sentence-empty",
+    "width": 1920,
+    "height": 1080,
+    "root": "16px",
+    "textCount": 34,
+    "small": [],
+    "scrolls": [
+      {
+        "class": "sound-clues-scene",
+        "scroll": false
+      },
+      {
+        "class": "sentence-clues-scene sentence-clues-scene--explore",
+        "scroll": false
+      }
+    ],
+    "offscreen": []
+  },
+  {
+    "name": "sentence-full",
+    "width": 1920,
+    "height": 1080,
+    "root": "16px",
+    "textCount": 34,
+    "small": [],
+    "scrolls": [
+      {
+        "class": "sound-clues-scene",
+        "scroll": false
+      },
+      {
+        "class": "sentence-clues-scene sentence-clues-scene--explore",
+        "scroll": false
+      }
+    ],
+    "offscreen": []
+  },
+  {
+    "name": "landing",
+    "width": 1440,
+    "height": 900,
+    "root": "16px",
+    "textCount": 5,
+    "small": [],
+    "scrolls": [
+      {
+        "class": "landing-scene",
+        "scroll": false
+      }
+    ],
+    "offscreen": []
+  },
+  {
+    "name": "sound",
+    "width": 1440,
+    "height": 900,
+    "root": "16px",
+    "textCount": 22,
+    "small": [],
+    "scrolls": [
+      {
+        "class": "sound-clues-scene",
+        "scroll": false
+      }
+    ],
+    "offscreen": []
+  },
+  {
+    "name": "sentence-intro",
+    "width": 1440,
+    "height": 900,
+    "root": "16px",
+    "textCount": 14,
+    "small": [],
+    "scrolls": [
+      {
+        "class": "sound-clues-scene",
+        "scroll": false
+      }
+    ],
+    "offscreen": []
+  },
+  {
+    "name": "sentence-empty",
+    "width": 1440,
+    "height": 900,
+    "root": "16px",
+    "textCount": 34,
+    "small": [],
+    "scrolls": [
+      {
+        "class": "sound-clues-scene",
+        "scroll": false
+      },
+      {
+        "class": "sentence-clues-scene sentence-clues-scene--explore",
+        "scroll": false
+      }
+    ],
+    "offscreen": []
+  },
+  {
+    "name": "sentence-full",
+    "width": 1440,
+    "height": 900,
+    "root": "16px",
+    "textCount": 34,
+    "small": [],
+    "scrolls": [
+      {
+        "class": "sound-clues-scene",
+        "scroll": false
+      },
+      {
+        "class": "sentence-clues-scene sentence-clues-scene--explore",
+        "scroll": false
+      }
+    ],
+    "offscreen": []
+  },
+  {
+    "name": "landing",
+    "width": 1366,
+    "height": 768,
+    "root": "16px",
+    "textCount": 5,
+    "small": [],
+    "scrolls": [
+      {
+        "class": "landing-scene",
+        "scroll": false
+      }
+    ],
+    "offscreen": []
+  },
+  {
+    "name": "sound",
+    "width": 1366,
+    "height": 768,
+    "root": "16px",
+    "textCount": 22,
+    "small": [],
+    "scrolls": [
+      {
+        "class": "sound-clues-scene",
+        "scroll": false
+      }
+    ],
+    "offscreen": []
+  },
+  {
+    "name": "sentence-intro",
+    "width": 1366,
+    "height": 768,
+    "root": "16px",
+    "textCount": 14,
+    "small": [],
+    "scrolls": [
+      {
+        "class": "sound-clues-scene",
+        "scroll": false
+      }
+    ],
+    "offscreen": []
+  },
+  {
+    "name": "sentence-empty",
+    "width": 1366,
+    "height": 768,
+    "root": "16px",
+    "textCount": 33,
+    "small": [],
+    "scrolls": [
+      {
+        "class": "sound-clues-scene",
+        "scroll": false
+      },
+      {
+        "class": "sentence-clues-scene sentence-clues-scene--explore",
+        "scroll": false
+      }
+    ],
+    "offscreen": []
+  },
+  {
+    "name": "sentence-full",
+    "width": 1366,
+    "height": 768,
+    "root": "16px",
+    "textCount": 33,
+    "small": [],
+    "scrolls": [
+      {
+        "class": "sound-clues-scene",
+        "scroll": false
+      },
+      {
+        "class": "sentence-clues-scene sentence-clues-scene--explore",
+        "scroll": false
+      }
+    ],
+    "offscreen": []
+  },
+  {
+    "name": "landing",
+    "width": 390,
+    "height": 844,
+    "root": "16px",
+    "textCount": 5,
+    "small": [],
+    "scrolls": [
+      {
+        "class": "landing-scene",
+        "scroll": false
+      }
+    ],
+    "offscreen": []
+  },
+  {
+    "name": "sound",
+    "width": 390,
+    "height": 844,
+    "root": "16px",
+    "textCount": 22,
+    "small": [],
+    "scrolls": [
+      {
+        "class": "sound-clues-scene",
+        "scroll": true
+      }
+    ],
+    "offscreen": []
+  },
+  {
+    "name": "sentence-intro",
+    "width": 390,
+    "height": 844,
+    "root": "16px",
+    "textCount": 14,
+    "small": [],
+    "scrolls": [
+      {
+        "class": "sound-clues-scene",
+        "scroll": false
+      }
+    ],
+    "offscreen": []
+  },
+  {
+    "name": "sentence-empty",
+    "width": 390,
+    "height": 844,
+    "root": "16px",
+    "textCount": 7,
+    "small": [],
+    "scrolls": [
+      {
+        "class": "sound-clues-scene",
+        "scroll": false
+      },
+      {
+        "class": "sentence-clues-scene sentence-clues-scene--explore",
+        "scroll": false
+      }
+    ],
+    "offscreen": []
+  }
+]

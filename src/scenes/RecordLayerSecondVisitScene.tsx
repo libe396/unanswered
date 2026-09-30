@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useShallow } from 'zustand/react/shallow';
-import { renderLightGraphic } from '../lib/lightRenderer.js';
-import { drawStrokes } from '../lib/memorySketch';
+import { buildSoundWaveform } from '../lib/finalReportPresentation';
+import { MEMORY_ROOM_OBJECTS, SOUND_CLUES } from '../data/content';
 import { selectRecordLayerDerived, useExperienceStore } from '../store/experienceStore';
+import type { RecordLayerDerived } from '../types';
 import './RecordLayerSecondVisitScene.css';
 
 const ARCHIVE_TRACE_MARKS = [
@@ -20,33 +21,109 @@ const ARCHIVE_TRACE_MARKS = [
   { kind: 'segment', width: 72 },
 ] as const;
 
+/** The layer stack opens on entry; confirmation goes straight to the report film. */
+const SPREAD_MS = 900;
+
+const LAYERS = [
+  { n: 1, latin: 'LIGHT', ko: '빛의 흔적' },
+  { n: 2, latin: 'SOUND', ko: '소리의 흔적' },
+  { n: 3, latin: 'MEMORY', ko: '기억의 흔적' },
+  { n: 4, latin: 'SENTENCE', ko: '문장의 흔적' },
+] as const;
+
+const EMPTY_MARK = '기록 없음';
+
+/** "IMAGE_07" → "IMG 07". Presentational only. */
+function imageMark(imageId: string): string {
+  return `IMG ${imageId.replace(/^IMAGE_/, '')}`;
+}
+
+/**
+ * Where in the memory field the sound was put down, in words.
+ *
+ * Same reading of the two axes as the Recovered Context paragraph in
+ * src/lib/sentenceNarrative.ts — x is how clearly it carried, y is how far
+ * away it was — shortened to fit a pane footer.
+ */
+function positionMark(position: { x: number; y: number } | null): string | null {
+  if (!position) return null;
+  const clarity = position.x < 0.4 ? '희미하게' : position.x > 0.6 ? '또렷하게' : '어렴풋이';
+  // Short forms: the footer is one mono line inside a 240px pane, and the
+  // long middle phrase ran into the neighbouring pane's footer.
+  const distance = position.y < 0.4 ? '가까이' : position.y > 0.6 ? '멀리' : '중간 거리에서';
+  return `${distance} ${clarity}`;
+}
+
+/** The five most-weighted colours of the chosen image, heaviest first. */
+function rankedPalette(light: RecordLayerDerived['light']): string[] {
+  const rules = light?.rules;
+  if (!rules?.palette?.length) return [];
+  const weights =
+    rules.paletteWeights?.length === rules.palette.length ? rules.paletteWeights : rules.palette.map(() => 1);
+  return rules.palette
+    .map((hex, index) => ({ hex, weight: weights[index] ?? 0 }))
+    .sort((a, b) => b.weight - a.weight)
+    .slice(0, 5)
+    .map((entry) => entry.hex);
+}
+
 export function RecordLayerSecondVisitScene() {
+  const stackStageRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const stage = stackStageRef.current;
+    if (!stage) return;
+    const panes = [...stage.querySelectorAll<HTMLElement>('.record-layer-second-visit__pane')];
+    const measure = () => {
+      const narrow = window.matchMedia('(max-width: 900px)').matches;
+      const floor = narrow ? 390 : 560;
+      stage.style.height = `${Math.max(floor, ...panes.map(pane => pane.offsetHeight + (narrow ? 55 : 120)))}px`;
+    };
+    const observer = new ResizeObserver(measure);
+    panes.forEach(pane => observer.observe(pane)); measure();
+    return () => observer.disconnect();
+  }, []);
+
   const record = useExperienceStore(useShallow(selectRecordLayerDerived));
   const completeScene = useExperienceStore((s) => s.completeScene);
   const prefersReducedMotion = useReducedMotion();
-  const [isRevealing, setIsRevealing] = useState(false);
+  /* Reduced motion gets the opened stack as its resting state: there is no
+     transition to watch, so there is nothing to wait for either. */
+  const [isOpen, setIsOpen] = useState(() => Boolean(prefersReducedMotion));
+  const [isMoving, setIsMoving] = useState(false);
+  /** The layer a legend row is pointing at, or the one a row has pinned. */
+  const [hoveredLayer, setHoveredLayer] = useState<number | null>(null);
+  const [pinnedLayer, setPinnedLayer] = useState<number | null>(null);
 
-  const lightCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const sketchCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const revealTimerRef = useRef<number | null>(null);
+  const movingTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!record.light || !lightCanvasRef.current) return;
-    renderLightGraphic(lightCanvasRef.current, record.light.rules, record.light.variation);
-  }, [record.light]);
-
-  useEffect(() => {
-    const canvas = sketchCanvasRef.current;
-    const context = canvas?.getContext('2d');
-    if (!canvas || !context) return;
-    drawStrokes(context, record.memorySketch.strokes, canvas.width, canvas.height);
-  }, [record.memorySketch]);
+    setIsOpen(true);
+    if (!prefersReducedMotion) markMoving();
+  }, [prefersReducedMotion]);
 
   useEffect(
-    () => () => {
-      if (revealTimerRef.current !== null) window.clearTimeout(revealTimerRef.current);
+    () => {
+      setIsMoving(false);
+      return () => {
+        if (movingTimerRef.current !== null) window.clearTimeout(movingTimerRef.current);
+      };
     },
     [],
+  );
+
+  const palette = useMemo(() => rankedPalette(record.light), [record.light]);
+  const emotion = record.light?.rules.emotionKeywords?.[0] ?? null;
+
+  const soundId = record.soundClues.selectedSoundId;
+  const soundLabel = SOUND_CLUES.find((clue) => clue.id === soundId)?.label ?? soundId;
+  /* No per-clip amplitude data exists anywhere in the project, so the bars
+     come from the same seeded generator the Final Report already draws with —
+     the same clue always draws the same shape. */
+  const waveform = useMemo(() => (soundId ? buildSoundWaveform(soundId, 16) : []), [soundId]);
+  const soundPosition = positionMark(record.soundClues.memoryPosition);
+
+  const objectLabels = record.memorySketch.selectedObjects.map(
+    (id) => MEMORY_ROOM_OBJECTS.find((object) => object.id === id)?.label ?? id,
   );
 
   const sentenceLines = record.sentenceClues.selectedSentences.length
@@ -54,32 +131,38 @@ export function RecordLayerSecondVisitScene() {
     : record.sentenceClues.customSentence
       ? [record.sentenceClues.customSentence]
       : [];
+  const sentenceMark = sentenceLines.length
+    ? `${sentenceLines.length} FRAGMENTS${
+        record.sentenceClues.noQuestionAvailable
+          ? ''
+          : record.sentenceClues.responseSkipped
+            ? ' · 1 UNANSWERED'
+            : ' · 1 RESTORED'
+      }`
+    : null;
+
+  /** Bring a pane forward without moving it out of the stack. */
+  const liftedLayer = hoveredLayer ?? pinnedLayer;
+
+  function markMoving() {
+    setIsMoving(true);
+    if (movingTimerRef.current !== null) window.clearTimeout(movingTimerRef.current);
+    // will-change is carried only while something is actually in motion.
+    movingTimerRef.current = window.setTimeout(() => setIsMoving(false), SPREAD_MS + 60);
+  }
 
   function handleConfirm() {
-    if (isRevealing) return;
-    setIsRevealing(true);
-    revealTimerRef.current = window.setTimeout(
-      () => completeScene('recordLayerSecondVisit'),
-      prefersReducedMotion ? 1200 : 3000,
-    );
+    completeScene('recordLayerSecondVisit');
+  }
+
+  function paneClass(n: number) {
+    return `record-layer-second-visit__pane record-layer-second-visit__pane--${n}${
+      liftedLayer === n ? ' record-layer-second-visit__pane--lifted' : ''
+    }`;
   }
 
   return (
-    <div className={`record-layer-second-visit${isRevealing ? ' record-layer-second-visit--revealing' : ''}`}>
-      <canvas
-        ref={lightCanvasRef}
-        width={1000}
-        height={1000}
-        className="record-layer-second-visit__light-canvas"
-      />
-
-      <canvas
-        ref={sketchCanvasRef}
-        width={1200}
-        height={800}
-        className="record-layer-second-visit__sketch-canvas"
-      />
-
+    <div className="record-layer-second-visit">
       <div className="record-layer-second-visit__record-veil" />
 
       <div className="record-layer-second-visit__record-traces" aria-hidden="true">
@@ -98,37 +181,151 @@ export function RecordLayerSecondVisitScene() {
         </div>
       </div>
 
-      <div className="record-layer-second-visit__narrative">
-        {sentenceLines.length ? (
-          <motion.p
-            className="record-layer-second-visit__sentence"
-            initial={prefersReducedMotion ? { opacity: 1 } : false}
+      <div className="record-layer-second-visit__layout">
+        {/* ── The stack ─────────────────────────────────────────────────── */}
+        <div ref={stackStageRef} className="record-layer-second-visit__stage3d">
+          {/* The one violet area on this Scene: the light the panes sit in
+              front of. Everything else borrows its edge from --line. */}
+          <div className="record-layer-second-visit__glow" aria-hidden="true" />
+          <div
+            className={`record-layer-second-visit__stack${
+              isOpen ? ' record-layer-second-visit__stack--open' : ''
+            }${isMoving ? ' record-layer-second-visit__stack--moving' : ''}`}
+            aria-hidden="true"
           >
-            {sentenceLines.map((line, index) => (
-              <motion.span
-                key={`${line}-${index}`}
-                className="record-layer-second-visit__sentence-line"
-                initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 4 }}
-                animate={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
-                transition={{ duration: 0.58, delay: prefersReducedMotion ? 0 : 0.34 + index * 0.5 }}
-              >
-                {line}
-              </motion.span>
-            ))}
-          </motion.p>
-        ) : null}
+            <div className={paneClass(1)}>
+              <div className="record-layer-second-visit__pane-head">
+                <b>LAYER 01</b>
+                <span>LIGHT</span>
+              </div>
+              <div className="record-layer-second-visit__pane-body">
+                {palette.length ? (
+                  <div className="record-layer-second-visit__swatches">
+                    {palette.map((hex, index) => (
+                      <i key={`${hex}-${index}`} style={{ background: hex }} />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="record-layer-second-visit__pane-empty">{EMPTY_MARK}</p>
+                )}
+              </div>
+              <div className="record-layer-second-visit__pane-foot">
+                {record.light ? `${imageMark(record.light.imageId)}${emotion ? ` · ${emotion}` : ''}` : null}
+              </div>
+            </div>
 
-        <motion.button
-          className="cta cta--primary record-layer-second-visit__confirm"
-          onClick={handleConfirm}
-          disabled={isRevealing}
-          initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 4 }}
-          animate={prefersReducedMotion ? { opacity: isRevealing ? 0 : 1, y: 0 } : { opacity: isRevealing ? 0 : 1, y: isRevealing ? 4 : 0 }}
-          transition={{ duration: isRevealing ? 0.72 : 0.68, delay: isRevealing || prefersReducedMotion ? 0 : 2.55 }}
-        >
-          <span>기록 확인</span>
-          <span aria-hidden="true">→</span>
-        </motion.button>
+            <div className={paneClass(2)}>
+              <div className="record-layer-second-visit__pane-head">
+                <b>LAYER 02</b>
+                <span>SOUND</span>
+              </div>
+              <div className="record-layer-second-visit__pane-body">
+                {waveform.length ? (
+                  <svg width="200" height="70" viewBox="0 0 200 70" role="presentation">
+                    <g stroke="rgba(237, 236, 242, 0.75)" strokeWidth="2" strokeLinecap="round">
+                      {waveform.map((level, index) => {
+                        const x = 10 + index * 12;
+                        const half = Math.max(1, level * 27);
+                        return <line key={index} x1={x} y1={35 - half} x2={x} y2={35 + half} />;
+                      })}
+                    </g>
+                  </svg>
+                ) : (
+                  <p className="record-layer-second-visit__pane-empty">{EMPTY_MARK}</p>
+                )}
+              </div>
+              <div className="record-layer-second-visit__pane-foot">
+                {soundId ? `${soundLabel}${soundPosition ? ` · ${soundPosition}` : ''}` : null}
+              </div>
+            </div>
+
+            <div className={paneClass(3)}>
+              <div className="record-layer-second-visit__pane-head">
+                <b>LAYER 03</b>
+                <span>MEMORY</span>
+              </div>
+              <div className="record-layer-second-visit__pane-body">
+                {objectLabels.length ? (
+                  <ul className="record-layer-second-visit__objects">
+                    {objectLabels.map((label, index) => (
+                      <li key={`${label}-${index}`}>{label}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="record-layer-second-visit__pane-empty">{EMPTY_MARK}</p>
+                )}
+              </div>
+              <div className="record-layer-second-visit__pane-foot">
+                {objectLabels.length ? `${String(objectLabels.length).padStart(2, '0')} OBJECTS` : null}
+              </div>
+            </div>
+
+            <div className={paneClass(4)}>
+              <div className="record-layer-second-visit__pane-head">
+                <b>LAYER 04</b>
+                <span>SENTENCE</span>
+              </div>
+              <div className="record-layer-second-visit__pane-body record-layer-second-visit__pane-body--top">
+                {sentenceLines.length ? (
+                  <div className="record-layer-second-visit__lines">
+                    {sentenceLines.map((line, index) => (
+                      <p key={`${line}-${index}`}>{line}</p>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="record-layer-second-visit__pane-empty">{EMPTY_MARK}</p>
+                )}
+              </div>
+              <div className="record-layer-second-visit__pane-foot">{sentenceMark}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── The column that reads it back ─────────────────────────────── */}
+        <div className="record-layer-second-visit__content">
+          <p className="record-layer-second-visit__eyebrow">기록의 레이어</p>
+          <h1 className="record-layer-second-visit__title">당신이 수집한 단서들이 여기 모여 있습니다</h1>
+          <p className="record-layer-second-visit__desc">
+            네 겹의 기록은 아직 하나의 사람으로 정리되지 않았습니다.
+          </p>
+
+          <ul className="record-layer-second-visit__legend">
+            {LAYERS.map((layer) => (
+              <li key={layer.n}>
+                <button
+                  type="button"
+                  className={`record-layer-second-visit__legend-row${
+                    liftedLayer === layer.n ? ' record-layer-second-visit__legend-row--on' : ''
+                  }`}
+                  aria-pressed={pinnedLayer === layer.n}
+                  onPointerEnter={() => setHoveredLayer(layer.n)}
+                  onPointerLeave={() => setHoveredLayer(null)}
+                  onFocus={() => setHoveredLayer(layer.n)}
+                  onBlur={() => setHoveredLayer(null)}
+                  onClick={() => setPinnedLayer((current) => (current === layer.n ? null : layer.n))}
+                >
+                  <span className="record-layer-second-visit__legend-no">
+                    {String(layer.n).padStart(2, '0')}
+                  </span>
+                  <span className="record-layer-second-visit__legend-ko">{layer.ko}</span>
+                  <span className="record-layer-second-visit__legend-latin">{layer.latin}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          <motion.button
+            className="cta cta--primary record-layer-second-visit__confirm"
+            onClick={handleConfirm}
+            disabled={false}
+            initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.68, delay: prefersReducedMotion ? 0 : 0.35 }}
+          >
+            <span>기록 확인</span>
+            <span aria-hidden="true">→</span>
+          </motion.button>
+        </div>
       </div>
 
       {record.soundClues.selectedSoundId ? (
@@ -136,8 +333,8 @@ export function RecordLayerSecondVisitScene() {
           className="record-layer-second-visit__archive-trace"
           aria-hidden="true"
           initial={prefersReducedMotion ? { opacity: 0.26 } : { opacity: 0 }}
-          animate={{ opacity: isRevealing ? 0 : 0.3 }}
-          transition={{ duration: isRevealing ? 0.72 : 0.8, delay: isRevealing || prefersReducedMotion ? 0 : 2.25 }}
+          animate={{ opacity: 0.3 }}
+          transition={{ duration: 0.8, delay: prefersReducedMotion ? 0 : 1.1 }}
         >
           {ARCHIVE_TRACE_MARKS.map((mark, index) => (
             <motion.span
@@ -155,7 +352,6 @@ export function RecordLayerSecondVisitScene() {
           BackButton. ArchiveHUD says the same thing along the bottom of every
           Zone from Registration on, and prefixes the name on this Scene
           specifically — so this block was the second copy. */}
-
     </div>
   );
 }

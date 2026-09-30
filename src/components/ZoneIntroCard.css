@@ -29,7 +29,7 @@
 /* Bebas — Latin identity mark. Never below 13px (see .t-eyebrow). */
 .zone-intro-card__zone {
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: var(--type-meta);
   line-height: 1;
   letter-spacing: 0.04em;
   color: var(--trace);
@@ -40,7 +40,7 @@
   margin: var(--sp-16) 0 0;
   max-width: 560px;
   font-family: var(--font-kr);
-  font-size: 32px;
+  font-size: var(--type-title);
   line-height: 1.35;
   font-weight: 600;
   letter-spacing: -0.02em;
@@ -53,7 +53,7 @@
   margin: var(--sp-12) 0 0;
   max-width: 480px;
   font-family: var(--font-kr);
-  font-size: 15px;
+  font-size: var(--type-body);
   line-height: 1.7;
   font-weight: 400;
   letter-spacing: -0.01em;
@@ -74,11 +74,11 @@
   }
 
   .zone-intro-card__title {
-    font-size: 24px;
+    font-size: var(--type-title-sm);
   }
 
   .zone-intro-card__subtitle {
-    font-size: 14px;
+    font-size: var(--type-body);
   }
 
   .zone-intro-card__cta {

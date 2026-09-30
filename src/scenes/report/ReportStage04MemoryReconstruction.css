@@ -1,10 +1,14 @@
 .report-stage-04 {
-  gap: clamp(16px, 3vh, 28px);
+  gap: 16px;
+  overflow-y: auto;
+  justify-content: flex-start;
+  padding-block: 88px;
 }
 
 .report-stage-04__room {
   position: relative;
-  height: min(360px, 42dvh);
+  flex: none;
+  height: min(320px, 36dvh);
   width: auto;
   max-width: 78vw;
   aspect-ratio: 1536 / 1024;
@@ -30,7 +34,8 @@
 .report-stage-04__copy-frame {
   position: relative;
   width: min(620px, 84vw);
-  min-height: clamp(90px, 16dvh, 140px);
+  flex: none;
+  min-height: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -41,14 +46,14 @@
   margin: 0;
   max-width: min(560px, 84vw);
   text-align: center;
-  font-size: clamp(17px, 2.2vw, 23px);
+  font-size: clamp(var(--type-body), 2.2vw, 1.4375rem);
   line-height: 1.7;
   color: rgba(232, 230, 240, 0.9);
   white-space: pre-line;
 }
 
 .report-stage-04__line--final {
-  font-size: clamp(20px, 2.8vw, 29px);
+  font-size: clamp(var(--type-body-lg), 2.8vw, 1.8125rem);
   color: var(--color-accent);
 }
 
@@ -63,6 +68,12 @@
   }
 
   .report-stage-04__line--final {
-    font-size: 20px;
+    font-size: var(--type-body-lg);
   }
 }
+
+.report-stage-04 .report-stage__eyebrow, .report-stage-04 .report-stage-nav { position: static; transform: none; flex: none; }
+.report-stage-04__legend { max-width: 740px; font-size: var(--type-body); line-height: 1.8; color: var(--text-secondary); margin: 0; }
+.report-stage-04__legend span { display: inline-block; width: 10px; height: 10px; margin-right: 8px; background: #c6bce7; opacity: .6; }
+
+.report-stage-04 .report-stage__eyebrow { position: static; transform: none; flex: none; }

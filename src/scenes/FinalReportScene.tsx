@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCameraPreference } from '../store/cameraPreference';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer-motion';
 import { useShallow } from 'zustand/react/shallow';
 import { selectRecordLayerDerived, useExperienceStore } from '../store/experienceStore';
@@ -68,7 +69,10 @@ export function FinalReportScene() {
     [record, report, finalReportMeta],
   );
 
+  const generatedRef = useRef(false);
   useEffect(() => {
+    if (generatedRef.current) return;
+    generatedRef.current = true;
     markFinalReportGenerated();
     completeScene('finalReport');
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -174,7 +178,7 @@ export function FinalReportScene() {
             index={stageNumber}
             total={total}
             onIssueFullReport={() => window.print()}
-            onRestart={reset}
+            onRestart={() => { useCameraPreference.getState().setEnabled(false); reset(); }}
           />
         );
     }

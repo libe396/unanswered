@@ -34,7 +34,7 @@
 .record-layer-first-visit__line {
   position: relative;
   z-index: 1;
-  font-size: 14px;
+  font-size: var(--type-body);
   letter-spacing: 0.05em;
   color: rgba(232, 230, 240, 0.52);
   margin: 0;
@@ -43,7 +43,7 @@
 .record-layer-first-visit__passing {
   position: relative;
   z-index: 1;
-  font-size: 10px;
+  font-size: var(--type-body);
   letter-spacing: 0.18em;
   color: rgba(232, 230, 240, 0.36);
 }

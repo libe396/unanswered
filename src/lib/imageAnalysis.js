@@ -37,6 +37,7 @@ export async function analyzeImage(imageUrl) {
         g: 0,
         b: 0,
         score: 0,
+        source: { x: x / width, y: y / height },
       };
       const saturation = (Math.max(r, g, b) - Math.min(r, g, b)) / 255;
       current.count += 1;
@@ -65,6 +66,7 @@ export async function analyzeImage(imageUrl) {
   return {
     palette: paletteData.colors,
     paletteWeights: paletteData.weights,
+    paletteSources: paletteData.sources || [],
     lightOrigin: {
       x: primaryRegion.x,
       y: primaryRegion.y,
@@ -93,6 +95,7 @@ function detectBrightRegions(pixels, luminance, width, height, averageBrightness
       const startIndex = y * width + x;
       if (visited[startIndex] || luminance[startIndex] < threshold) continue;
 
+      const members = [];
       let count = 0;
       let brightnessTotal = 0;
       let weightedX = 0;
@@ -111,6 +114,7 @@ function detectBrightRegions(pixels, luminance, width, height, averageBrightness
 
       while (queue.length) {
         const current = queue.pop();
+        members.push(current);
         const cx = current % width;
         const cy = Math.floor(current / width);
         const light = luminance[current];
@@ -151,7 +155,18 @@ function detectBrightRegions(pixels, luminance, width, height, averageBrightness
       const size = Math.sqrt((maxX - minX + 1) * (maxY - minY + 1)) / Math.max(width, height);
       const colorWeight = brightnessTotal || 1;
 
+      // Exact boundary of the connected pixels already used by detection.
+      const membership = new Set(members);
+      const contour = members.flatMap((pixel) => {
+        const px = pixel % width, py = Math.floor(pixel / width);
+        const segment = (x1, y1, x2, y2) => `M${x1 / width * 1000},${y1 / height * 1000}L${x2 / width * 1000},${y2 / height * 1000}`;
+        return [!membership.has(pixel - width) ? segment(px, py, px + 1, py) : '',
+          !membership.has(pixel + 1) ? segment(px + 1, py, px + 1, py + 1) : '',
+          !membership.has(pixel + width) ? segment(px + 1, py + 1, px, py + 1) : '',
+          !membership.has(pixel - 1) ? segment(px, py + 1, px, py) : ''];
+      }).join('');
       regions.push({
+        contour,
         brightness: clamp(averageRegionBrightness, 0, 1),
         color: rgbToHex([
           Math.round(rTotal / colorWeight),
@@ -300,6 +315,7 @@ function extractPalette(bucketMap) {
     .map((bucket) => ({
       count: bucket.count,
       score: bucket.score,
+      source: bucket.source,
       rgb: [
         Math.round(bucket.r / bucket.count),
         Math.round(bucket.g / bucket.count),
@@ -343,6 +359,7 @@ function extractPalette(bucketMap) {
   return {
     colors: weightedSelection.map((color) => rgbToHex(color.rgb)),
     weights: weightedSelection.map((color) => color.weight),
+    sources: weightedSelection.map((color) => color.source),
   };
 }
 

@@ -9,14 +9,14 @@
 
 .report-evidence-visual__label {
   text-align: left;
-  font-size: 10px;
+  font-size: var(--type-body);
   letter-spacing: 0.22em;
   color: rgba(232, 230, 240, 0.52);
 }
 
 .report-evidence-visual__caption {
   text-align: center;
-  font-size: 11px;
+  font-size: var(--type-body);
   line-height: 1.4;
   color: rgba(232, 230, 240, 0.68);
 }
@@ -67,7 +67,7 @@
 
 .report-evidence-visual__sound-name {
   max-width: 100%;
-  font-size: clamp(13px, 1.6vw, 16px);
+  font-size: clamp(var(--type-body), 1.6vw, var(--type-body));
   line-height: 1.45;
   color: rgba(242, 240, 247, 0.92);
   overflow-wrap: anywhere;
@@ -104,7 +104,7 @@
   justify-content: center;
   padding: 22px;
   box-sizing: border-box;
-  font-size: clamp(13px, 1.55vw, 16px);
+  font-size: clamp(var(--type-body), 1.55vw, var(--type-body));
   line-height: 1.7;
   color: rgba(242, 240, 247, 0.88);
   text-align: center;

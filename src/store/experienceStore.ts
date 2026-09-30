@@ -45,6 +45,8 @@ function getFurthestAllowedScene(completedScenes: SceneId[]): SceneId {
 }
 
 interface ExperienceState {
+  /** In-memory visit identity: clears only presentation caches on reset. */
+  visitId: number;
   currentScene: SceneId;
   completedScenes: SceneId[];
   /**
@@ -99,6 +101,7 @@ interface ExperienceState {
 }
 
 const initialState = {
+  visitId: 0,
   currentScene: SCENE_ORDER[0],
   completedScenes: [] as SceneId[],
   devFinalReportEntryStage: 'sequence' as 'sequence' | 'summary',
@@ -209,10 +212,12 @@ export const useExperienceStore = create<ExperienceState>()(
         set((state) => {
           const index = SCENE_ORDER.indexOf(state.currentScene);
           if (index <= 0) return {};
-          return { currentScene: SCENE_ORDER[index - 1] };
+          // Stairs is transit, not a work screen to revisit.
+          const previous = SCENE_ORDER[index - 1] === 'zone03Intro' ? index - 2 : index - 1;
+          return { currentScene: SCENE_ORDER[previous] };
         }),
 
-      reset: () => set({ ...initialState }),
+      reset: () => set((state) => ({ ...initialState, visitId: state.visitId + 1 })),
     }),
     {
       name: 'unanswered-experience-v2',

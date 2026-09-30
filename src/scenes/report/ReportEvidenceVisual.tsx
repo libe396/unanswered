@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { renderLightGraphic } from '../../lib/lightRenderer.js';
 import { drawStrokes } from '../../lib/memorySketch';
 import { MemoryRoom } from '../../components/MemoryRoom';
+import { ROOM_WIDTH, ROOM_HEIGHT } from '../../data/memoryRoomGeometry';
 import type { RecordLayerDerived, ReportData, SceneId } from '../../types';
 import './ReportEvidenceVisual.css';
 
@@ -85,7 +86,7 @@ export function ReportEvidenceVisual({
     const canvas = sketchCanvasRef.current;
     const context = canvas?.getContext('2d');
     if (!canvas || !context) return;
-    drawStrokes(context, record.memorySketch.strokes, canvas.width, canvas.height);
+    drawStrokes(context, record.memorySketch.strokes, canvas.width, canvas.height, ROOM_WIDTH / 1200);
   }, [record.memorySketch]);
 
   return (
@@ -126,7 +127,7 @@ export function ReportEvidenceVisual({
               onViewEnd={() => {}}
               interactive={false}
             />
-            <canvas ref={sketchCanvasRef} width={900} height={600} className="report-evidence-visual__sketch" />
+            <canvas ref={sketchCanvasRef} width={ROOM_WIDTH} height={ROOM_HEIGHT} className="report-evidence-visual__sketch" />
           </div>
         ) : null}
       </div>

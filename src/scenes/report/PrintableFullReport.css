@@ -25,7 +25,7 @@
   width: 100%;
   color: var(--pfr-ink);
   background: #fff;
-  font-size: 12px;
+  font-size: var(--type-body);
   line-height: 1.5;
 }
 
@@ -33,7 +33,7 @@
 
 .pfr-header__eyebrow {
   margin: 0 0 6px;
-  font-size: 9px;
+  font-size: var(--type-meta);
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--pfr-ink-dim);
@@ -41,7 +41,7 @@
 
 .pfr-header__title {
   margin: 0 0 6px;
-  font-size: 24px;
+  font-size: var(--type-title-sm);
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--pfr-ink);
@@ -49,7 +49,7 @@
 
 .pfr-header__subtitle {
   margin: 0 0 14px;
-  font-size: 10px;
+  font-size: var(--type-body);
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -70,7 +70,7 @@
 
 .pfr-meta__item dt {
   margin: 0 0 3px;
-  font-size: 8px;
+  font-size: var(--type-body);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--pfr-ink-dim);
@@ -78,7 +78,7 @@
 
 .pfr-meta__item dd {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--type-body);
   font-weight: 600;
 }
 
@@ -99,7 +99,7 @@
 
 .pfr-section__label {
   margin: 0 0 10px;
-  font-size: 10px;
+  font-size: var(--type-body);
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -108,7 +108,7 @@
 
 .pfr-section__body {
   margin: 0 0 6px;
-  font-size: 12px;
+  font-size: var(--type-body);
   line-height: 1.6;
   white-space: pre-line;
 }
@@ -167,7 +167,7 @@
 }
 
 .pfr-color__swatch-hex {
-  font-size: 8px;
+  font-size: var(--type-body);
   letter-spacing: 0.04em;
   color: var(--pfr-ink-dim);
 }
@@ -181,7 +181,7 @@
 
 .pfr-color__facts dt {
   margin: 0 0 2px;
-  font-size: 8px;
+  font-size: var(--type-body);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--pfr-ink-dim);
@@ -189,7 +189,7 @@
 
 .pfr-color__facts dd {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--type-body);
   font-weight: 600;
 }
 
@@ -235,7 +235,7 @@
   padding: 7px 14px;
   border: 1px solid var(--pfr-ink);
   border-radius: 999px;
-  font-size: 11px;
+  font-size: var(--type-body);
 }
 
 /* ── 04 MEMORY ───────────────────────────────────────────────────────────── */
@@ -256,13 +256,13 @@
 
 .pfr-memory__bar-row dt {
   margin: 0;
-  font-size: 10px;
+  font-size: var(--type-body);
   color: var(--pfr-ink-dim);
 }
 
 .pfr-memory__bar-row dd {
   margin: 0;
-  font-size: 11px;
+  font-size: var(--type-body);
   font-weight: 600;
   text-align: right;
 }
@@ -293,7 +293,8 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  mix-blend-mode: multiply;
+  /* The final room is dark; preserve the recorded pen colour over it. */
+  mix-blend-mode: normal;
 }
 
 /* ── 05 AI OBSERVATION ───────────────────────────────────────────────────── */
@@ -306,7 +307,7 @@
 
 .pfr-observation__text {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--type-body);
   line-height: 1.75;
   white-space: pre-line;
 }
@@ -324,7 +325,7 @@
 
 .pfr-footer__label {
   margin: 0 0 4px;
-  font-size: 8px;
+  font-size: var(--type-body);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--pfr-ink-dim);
@@ -332,14 +333,14 @@
 
 .pfr-footer__owner {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--type-body);
   font-weight: 700;
   color: var(--pfr-accent);
 }
 
 .pfr-footer__report-id {
   margin: 0;
-  font-size: 10px;
+  font-size: var(--type-body);
   color: var(--pfr-ink-dim);
 }
 

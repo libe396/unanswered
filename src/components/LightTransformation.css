@@ -1,0 +1,21 @@
+.light-transformation { position: relative; width: 100%; height: 100%; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding: 76px 24px 80px; background: var(--bg-base); text-align: center; gap: 16px; }
+.light-transformation > * { flex-shrink: 0; }
+.light-transformation__eyebrow { font-size: var(--type-meta); color: var(--trace); margin: 0; }
+.light-transformation h1 { font-size: 1.375rem; line-height: 1.5; margin: 0; font-weight: 500; }
+.light-transformation__stage { position: relative; width: min(470px, 78vw, calc(100dvh - 330px)); aspect-ratio: 1; margin: 4px 0; overflow: hidden; isolation: isolate; background: #090a10; }
+.light-transformation__photo { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.light-transformation__photo img, .light-transformation__photo svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.light-transformation__photo img { object-fit: contain; filter: brightness(.5); }
+.light-transformation[data-step="4"] .light-transformation__photo img { filter: none; }
+.light-transformation__layer, .light-transformation__result, .light-transformation__morph, .light-transformation__structure, .light-transformation__result-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.light-transformation__regions { filter: drop-shadow(0 0 5px #ffeaba); }
+.light-transformation__structure { filter: drop-shadow(0 1px 3px #05040b); animation: structure-points 1.5s both; }
+.light-transformation__direction { animation: structure-direction 1.5s both; }
+@keyframes structure-points { 0% { opacity: 0; } 15%,60% { opacity: 1; } 100% { opacity: .2; } }
+@keyframes structure-direction { 0%,25% { opacity: 0; } 45%,100% { opacity: 1; } }
+.light-transformation__tools { display: flex; justify-content: center; flex-wrap: wrap; gap: 16px; }
+.light-transformation__tools button, .light-transformation__skip { border: 0; border-bottom: 1px solid var(--line); padding: 8px 0; color: var(--text-secondary); background: transparent; cursor: pointer; font-size: var(--type-button); }
+.light-transformation button:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 4px; }
+.light-transformation--static * { animation: none !important; transition: none !important; }
+@media(max-width: 600px) { .light-transformation h1 { font-size: var(--type-body); } }
+@media(prefers-reduced-motion: reduce) { .light-transformation * { animation: none !important; transition: none !important; } }

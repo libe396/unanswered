@@ -36,7 +36,7 @@
   margin: 0;
   transform: translateX(-50%);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--type-meta);
   line-height: 1.4;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -63,7 +63,7 @@
 
 .final-record-layer__index {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--type-meta);
   line-height: 1.4;
   letter-spacing: 0.16em;
   font-variant-numeric: tabular-nums;

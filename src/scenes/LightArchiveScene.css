@@ -17,15 +17,14 @@
 /* ── Browse & feeling (stage layout) ─────────────────────────────────────── */
 
 /*
-  The large preview in the object column. Same blur→clear reading the
-  thumbnails have always had, one scale up: unresolved until the visitor puts
-  the pointer on something.
+  The large preview resolves on focus; thumbnails show the source image
+  clearly so visitors can compare its actual brightness and softness.
 */
 .light-archive-scene__preview {
   position: relative;
   width: 100%;
   max-width: 340px;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 1;
   overflow: hidden;
   border: 1px solid var(--line-subtle);
   border-radius: var(--r-8);
@@ -35,14 +34,16 @@
 .light-archive-scene__preview-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
+  display: block;
   filter: blur(14px) brightness(0.6);
-  transform: scale(1.06);
+  transform: scale(1);
   transition: filter 520ms var(--ease-scene), transform 520ms var(--ease-scene);
 }
 
 .light-archive-scene__preview--focused .light-archive-scene__preview-img {
-  filter: blur(0) brightness(0.98);
+  filter: blur(0) brightness(1);
   transform: scale(1);
 }
 
@@ -51,7 +52,7 @@
   left: var(--sp-12);
   bottom: var(--sp-12);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--type-body);
   line-height: 1.4;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -82,15 +83,18 @@
 .light-archive-scene__cell-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  filter: blur(6px) brightness(0.7);
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  filter: brightness(1);
   transition: filter 0.4s ease, transform 0.4s ease;
 }
 
 .light-archive-scene__cell:hover .light-archive-scene__cell-img,
+.light-archive-scene__cell:focus-visible .light-archive-scene__cell-img,
 .light-archive-scene__cell--selected .light-archive-scene__cell-img {
-  filter: blur(0px) brightness(0.92);
-  transform: scale(1.03);
+  filter: brightness(1);
+  transform: scale(1);
 }
 
 /* Selection is the one violet mark in this column. */
@@ -107,7 +111,7 @@
   background: var(--trace);
   color: var(--trace-ink);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--type-body);
   line-height: 1.3;
   letter-spacing: 0.08em;
   font-variant-numeric: tabular-nums;
@@ -134,7 +138,7 @@
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--font-kr);
-  font-size: 13px;
+  font-size: var(--type-body);
   letter-spacing: 0;
   cursor: pointer;
   transition: border-color var(--duration-fast) ease, color var(--duration-fast) ease;
@@ -207,7 +211,7 @@
 
 .light-archive-scene__palette-hex {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--type-body);
   line-height: 1.4;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -302,7 +306,8 @@
 .light-archive-scene__reading-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
   display: block;
 }
 
@@ -355,7 +360,7 @@
 
 .light-archive-scene__rules-heading {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--type-body);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--color-accent);
@@ -364,7 +369,7 @@
 
 .light-archive-scene__rules-progress {
   color: var(--text-tertiary);
-  font-size: 10px;
+  font-size: var(--type-body);
   letter-spacing: 0.18em;
   white-space: nowrap;
 }
@@ -394,14 +399,14 @@
 }
 
 .light-archive-scene__rule-code {
-  font-size: 9px;
+  font-size: var(--type-body);
   line-height: 1;
   letter-spacing: 0.12em;
   color: var(--text-tertiary);
 }
 
 .light-archive-scene__rule-name {
-  font-size: 11px;
+  font-size: var(--type-body);
   line-height: 1.1;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -415,7 +420,7 @@
 .light-archive-scene__rule-value {
   display: block;
   margin-top: 4px;
-  font-size: 12px;
+  font-size: var(--type-body);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
 }
@@ -435,7 +440,7 @@
 
 .light-archive-scene__result-stack strong {
   color: var(--text-primary);
-  font-size: clamp(18px, 1.75vw, 24px);
+  font-size: clamp(var(--type-body), 1.75vw, var(--type-title-sm));
   font-weight: 400;
   line-height: 1.05;
   letter-spacing: 0.02em;
@@ -443,7 +448,7 @@
 
 .light-archive-scene__result-stack small {
   color: var(--text-tertiary);
-  font-size: 10px;
+  font-size: var(--type-body);
   line-height: 1.2;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -500,7 +505,7 @@
   padding: 5px 8px;
   border: 1px solid var(--line);
   color: var(--text-secondary);
-  font-size: 11px;
+  font-size: var(--type-body);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   opacity: 0;
@@ -526,7 +531,7 @@
 
 .light-archive-scene__palette-item small {
   color: var(--text-tertiary);
-  font-size: 9px;
+  font-size: var(--type-body);
 }
 
 .light-archive-scene__palette-swatch {
@@ -587,6 +592,10 @@
 }
 
 @media (max-width: 768px) {
+  /* A tall analysis must start inside the scroll area, not above its top. */
+  .light-archive-scene {
+    align-items: flex-start;
+  }
 
   /* The browse/feeling columns are StageLayout's problem now; only the
      analysis readout still lays itself out here. */

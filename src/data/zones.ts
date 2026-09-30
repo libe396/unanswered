@@ -48,10 +48,10 @@ export const ZONE_INFO: Record<SceneId, { zone: string; label: string }> = {
   // Scene). They must always carry the *same* zone number. Label mirrors
   // soundClues's — this card is what introduces Sound Clues, not a distinct
   // "Zone 03 Intro" space of its own.
-  zone03Intro: { zone: 'ZONE 04', label: 'Sound Clues' },
-  soundClues: { zone: 'ZONE 04', label: 'Sound Clues' },
-  memorySketch: { zone: 'ZONE 05', label: 'Memory Sketch' },
+  zone03Intro: { zone: 'ZONE 04', label: '소리의 흔적' },
+  soundClues: { zone: 'ZONE 04', label: '소리의 흔적' },
+  memorySketch: { zone: 'ZONE 05', label: '기억의 흔적' },
   sentenceClues: { zone: 'ZONE 06', label: 'Sentence Clues' },
-  recordLayerSecondVisit: { zone: 'ZONE 07', label: 'Record Layer' },
-  finalReport: { zone: 'ZONE 08', label: 'Final Report' },
+  recordLayerSecondVisit: { zone: 'ZONE 07', label: '기록의 레이어' },
+  finalReport: { zone: 'ZONE 08', label: '최종보고서' },
 };

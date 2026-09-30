@@ -74,9 +74,10 @@ const BUTTON_CLICK_RETRIGGER_GUARD_MS = 45;
 
 interface PostElevatorSoundManagerProps {
   currentScene: SceneId;
+  suspended?: boolean;
 }
 
-export function PostElevatorSoundManager({ currentScene }: PostElevatorSoundManagerProps) {
+export function PostElevatorSoundManager({ currentScene, suspended = false }: PostElevatorSoundManagerProps) {
   const landingBgmRef = useRef<HTMLAudioElement | null>(null);
   const ambienceRef = useRef<HTMLAudioElement | null>(null);
   const zoneBgmRef = useRef<HTMLAudioElement | null>(null);
@@ -102,6 +103,8 @@ export function PostElevatorSoundManager({ currentScene }: PostElevatorSoundMana
   const [ducked, setDucked] = useState(false);
   const [finalReportBgmArmed, setFinalReportBgmArmed] = useState(false);
 
+  const suspendedRef = useRef(suspended);
+  suspendedRef.current = suspended;
   currentSceneRef.current = currentScene;
   duckedRef.current = ducked;
 
@@ -145,6 +148,20 @@ export function PostElevatorSoundManager({ currentScene }: PostElevatorSoundMana
   }, []);
 
   useEffect(() => {
+    if (suspended) {
+      cancelFrame(landingVolumeFrameRef);
+      cancelFrame(ambienceVolumeFrameRef);
+      cancelFrame(zoneBgmVolumeFrameRef);
+      cancelFrame(finalReportVolumeFrameRef);
+      clearTimer(zoneTransitionTimerRef);
+      clearTimer(memoryReplayTimerRef);
+      zoneTransitionTokenRef.current += 1;
+      landingBgmRef.current?.pause();
+      ambienceRef.current?.pause();
+      zoneBgmRef.current?.pause();
+      finalReportBgmRef.current?.pause();
+      return;
+    }
     const isLanding = currentScene === 'landing';
     const shouldPlayAmbience = POST_ELEVATOR_AMBIENCE_SCENES.has(currentScene);
     const isFinalReportBgmScene =
@@ -190,7 +207,7 @@ export function PostElevatorSoundManager({ currentScene }: PostElevatorSoundMana
 
     playAmbience();
     fadeAmbienceTo(getAmbienceTargetVolume(currentScene, ducked), ducked ? ARCHIVE_DUCK_FADE_MS : ARCHIVE_RESTORE_FADE_MS);
-  }, [currentScene, ducked, finalReportBgmArmed]);
+  }, [currentScene, ducked, finalReportBgmArmed, suspended]);
 
   useEffect(
     () => () => {
@@ -330,6 +347,7 @@ export function PostElevatorSoundManager({ currentScene }: PostElevatorSoundMana
   }
 
   function playCurrentSceneBed(options: { immediateLanding?: boolean } = {}) {
+    if (suspendedRef.current) return;
     const latestScene = currentSceneRef.current;
     if (latestScene === 'landing') {
       if (options.immediateLanding) {
@@ -506,7 +524,8 @@ export function PostElevatorSoundManager({ currentScene }: PostElevatorSoundMana
     }
 
     const step = (now: number) => {
-      const progress = Math.min(1, (now - startedAt) / durationMs);
+      // A frame timestamp can precede an effect started within that same frame.
+      const progress = Math.max(0, Math.min(1, (now - startedAt) / durationMs));
       const eased = 1 - Math.pow(1 - progress, 3);
       audio.volume = fromVolume + (clampedTarget - fromVolume) * eased;
 

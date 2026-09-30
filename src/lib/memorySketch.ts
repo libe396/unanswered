@@ -2,12 +2,15 @@ import type { Stroke } from '../types';
 
 /** Draws normalized (0-1) stroke coordinates onto a canvas sized to `width`x`height`.
  *  Used both for live drawing and for reconstructing the sketch later from stored
- *  stroke data alone (no data URL is ever persisted). */
+ *  stroke data alone (no data URL is ever persisted). The optional width scale
+ *  adapts the original 1200px pen units to the final room bitmap; sampling for
+ *  emptyAreaRatio keeps its existing default and recording semantics. */
 export function drawStrokes(
   context: CanvasRenderingContext2D,
   strokes: Stroke[],
   width: number,
   height: number,
+  strokeWidthScale = 1,
 ) {
   context.clearRect(0, 0, width, height);
   context.lineCap = 'round';
@@ -16,7 +19,7 @@ export function drawStrokes(
   for (const stroke of strokes) {
     if (stroke.points.length < 2) continue;
     context.strokeStyle = stroke.color;
-    context.lineWidth = stroke.width;
+    context.lineWidth = stroke.width * strokeWidthScale;
     context.beginPath();
     context.moveTo(stroke.points[0].x * width, stroke.points[0].y * height);
     for (let i = 1; i < stroke.points.length; i += 1) {

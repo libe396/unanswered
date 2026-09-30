@@ -17,7 +17,7 @@
 .zone-label__zone {
   display: block;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--type-meta);
   line-height: 1.4;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -27,7 +27,7 @@
 .zone-label__name {
   display: block;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--type-meta);
   line-height: 1.4;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -47,10 +47,10 @@
   }
 
   .zone-label__zone {
-    font-size: 10px;
+    font-size: var(--type-meta);
   }
 
   .zone-label__name {
-    font-size: 9px;
+    font-size: var(--type-meta);
   }
 }

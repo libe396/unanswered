@@ -16,6 +16,7 @@ export function ZoneLabel() {
   const currentScene = useExperienceStore((s) => s.currentScene);
   const prefersReducedMotion = useReducedMotion();
   const info = ZONE_INFO[currentScene];
+  const label = currentScene === 'lightArchive' ? '빛의 흔적' : currentScene === 'sentenceClues' ? '문장의 흔적' : currentScene === 'finalReport' ? '최종보고서' : info.label;
 
   if (currentScene === 'landing' || currentScene === 'introFilm' || currentScene === 'investigationStart') {
     return null;
@@ -32,7 +33,7 @@ export function ZoneLabel() {
           transition={{ duration: prefersReducedMotion ? 0.1 : 0.5 }}
         >
           <span className="zone-label__zone">{info.zone}</span>
-          <span className="zone-label__name">{info.label}</span>
+          <span className="zone-label__name">{label}</span>
         </motion.div>
       </AnimatePresence>
     </div>

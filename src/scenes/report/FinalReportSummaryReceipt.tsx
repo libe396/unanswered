@@ -32,7 +32,7 @@ export function FinalReportSummaryReceipt({ record, presentation, onIssueFullRep
   return (
     <div className="summary-receipt">
       <p className="summary-receipt__brand">UNANSWERED ARCHIVE</p>
-      <h2 className="summary-receipt__title">결과 요약본</h2>
+      <h2 className="summary-receipt__title">최종보고서 요약본</h2>
       <p className="summary-receipt__subtitle">SUMMARY RECEIPT</p>
 
       <div className="summary-receipt__divider" role="presentation" />

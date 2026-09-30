@@ -39,11 +39,11 @@
 
   /* ── Text — no violet cast ─────────────────────────────────────────────── */
   --text-primary: #edecf2;
-  --text-secondary: #9a98a6;
-  --text-tertiary: #66646f;
+  --text-secondary: #b8b5c2;
+  --text-tertiary: #aaa6b5;
 
   /* ── Trace — same value, far fewer places ──────────────────────────────── */
-  --trace: #8a6bff;
+  --trace: #ab93ff;
   --trace-ink: #0b0b0e;               /* text ON a --trace fill */
   --trace-glow: rgba(138, 107, 255, 0.18);
   /* --trace-wash removed in Phase 2: a violet fill on an idle control is the
@@ -58,7 +58,16 @@
   /* ── Font ──────────────────────────────────────────────────────────────── */
   --font-kr: 'Pretendard Variable', Pretendard, system-ui, sans-serif;
   --font-display: 'Bebas Neue', var(--font-kr);
-  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-mono: var(--font-kr);
+
+  /* Visitor typography. Never shrink these tokens at mobile breakpoints. */
+  --type-meta: 1rem;
+  --type-body: 1.125rem;
+  --type-body-lg: 1.25rem;
+  --type-button: 1.125rem;
+  --type-title-sm: 1.5rem;
+  --type-title: 2rem;
+  --type-display: 3rem;
 
   /* ── Spacing — 4px base ────────────────────────────────────────────────── */
   --sp-4: 4px;
@@ -84,6 +93,9 @@
   --stage-gap: var(--sp-96);
   --stage-top: 88px;    /* clear of the header */
   --stage-bottom: 72px; /* clear of the HUD */
+  /* The ArchiveHUD's rule sits 48px off the bottom; an action row has to stay
+     40px clear of it or the two read as one band. */
+  --stage-hud-clear: 88px;
 
   /* ── Motion — unchanged. Scene transition timing is out of scope. ──────── */
   --duration-scene: 0.9s;

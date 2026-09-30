@@ -33,19 +33,16 @@ import type {
 } from '../types';
 import { generateReportId } from '../utils/id';
 
-const ARCHIVE_IMAGE_MODULES = import.meta.glob('../assets/archive/*.jpg', {
+const ARCHIVE_IMAGE_MODULES = import.meta.glob('../assets/archive/light-trace-*.png', {
   eager: true,
   query: '?url',
   import: 'default',
 }) as Record<string, string>;
 
 function pickMockArchiveImage(): { id: string; path: string } {
-  const entries = Object.entries(ARCHIVE_IMAGE_MODULES).sort(([a], [b]) => a.localeCompare(b));
-  const [path, url] = entries[Math.min(4, entries.length - 1)] ?? entries[0] ?? [null, null];
-  if (!path || !url) return { id: 'IMAGE_00', path: '' };
-  const slotMatch = path.match(/(\d+)\.[^.]+$/);
-  const slot = slotMatch ? slotMatch[1].padStart(2, '0') : '00';
-  return { id: `IMAGE_${slot}`, path: url };
+  // Keep the developer fixture on its original slot, using the active asset.
+  const slot = '05';
+  return { id: `IMAGE_${slot}`, path: ARCHIVE_IMAGE_MODULES[`../assets/archive/light-trace-${slot}.png`] };
 }
 
 const MOCK_IMAGE = pickMockArchiveImage();

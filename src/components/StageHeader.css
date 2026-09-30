@@ -14,7 +14,7 @@
 .stage-head__eyebrow {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--type-meta);
   line-height: 1.4;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -24,7 +24,7 @@
 .stage-head__title {
   margin: var(--sp-12) 0 0;
   font-family: var(--font-kr);
-  font-size: 24px;
+  font-size: var(--type-title-sm);
   line-height: 1.4;
   font-weight: 600;
   letter-spacing: -0.02em;
@@ -37,7 +37,7 @@
   margin: var(--sp-12) 0 0;
   max-width: 420px;
   font-family: var(--font-kr);
-  font-size: 15px;
+  font-size: var(--type-body);
   line-height: 1.7;
   font-weight: 400;
   letter-spacing: -0.01em;
@@ -88,7 +88,7 @@
   }
 
   .stage-head__title {
-    font-size: 22px;
+    font-size: 1.375rem;
   }
 
   .stage-actions {

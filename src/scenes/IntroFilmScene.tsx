@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useExperienceStore } from '../store/experienceStore';
+import { useFilmSound, setFilmMuted } from '../hooks/useFilmSound';
 import './IntroFilmScene.css';
 
 /**
  * Fade-to-black on the film's last frame, then a short held silence before
  * the next Scene is allowed to mount — see finishFilm. The black-to-frame
- * fade-in on the way in is CSS-driven (IntroFilmScene.css, 400ms).
+ * fade-in on the way in is CSS-driven (IntroFilmScene.css, 800ms).
  */
-const FADE_TO_BLACK_MS = 550;
+const FADE_TO_BLACK_MS = 800;
 const POST_BLACK_HOLD_MS = 500;
 
 /** The film has to be underway before anything is offered on top of it. */
@@ -29,9 +30,8 @@ const VIDEO_SRC = `${import.meta.env.BASE_URL}video/intro-film.mp4`;
  * no volume slider — those would make this a player.
  *
  * Sound matters here, so autoplay is attempted unmuted first. Browsers that
- * block that (no proximate gesture survives the elevator's own departure
- * timers) fall back to starting on the next click/key/touch anywhere on
- * screen, with no visible prompt for it.
+ * block that show an explicit audible-play button. The visitor's mute
+ * preference is shared with every subsequent Zone film.
  */
 export function IntroFilmScene() {
   const completeScene = useExperienceStore((s) => s.completeScene);
@@ -40,7 +40,7 @@ export function IntroFilmScene() {
   const [needsGesture, setNeedsGesture] = useState(false);
   const [ended, setEnded] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [muted, setMuted] = useState(false);
+  const muted = useFilmSound();
   const [skipVisible, setSkipVisible] = useState(false);
   const advancedRef = useRef(false);
   const finishTimersRef = useRef<number[]>([]);
@@ -83,12 +83,12 @@ export function IntroFilmScene() {
 
     function handleLoadedData() {
       if (cancelled) return;
-      setFrameReady(true);
       attemptPlay();
     }
 
     function handlePlaying() {
       if (cancelled) return;
+      setFrameReady(true);
       setNeedsGesture(false);
     }
 
@@ -109,7 +109,7 @@ export function IntroFilmScene() {
       if (cancelled) return;
       // The show must go on even if the file failed to load — hold on black
       // for a beat rather than exposing a broken player, then continue.
-      window.setTimeout(advance, POST_BLACK_HOLD_MS);
+      finishTimersRef.current.push(window.setTimeout(advance, POST_BLACK_HOLD_MS));
     }
 
     video.addEventListener('loadeddata', handleLoadedData);
@@ -127,6 +127,7 @@ export function IntroFilmScene() {
       window.clearTimeout(skipTimer);
       finishTimersRef.current.forEach((id) => window.clearTimeout(id));
       finishTimersRef.current = [];
+      video.pause();
       video.removeEventListener('loadeddata', handleLoadedData);
       video.removeEventListener('playing', handlePlaying);
       video.removeEventListener('timeupdate', handleTimeUpdate);
@@ -135,30 +136,13 @@ export function IntroFilmScene() {
     };
   }, [advance, finishFilm]);
 
-  useEffect(() => {
-    if (!needsGesture) return;
-
-    function handleGesture() {
-      videoRef.current?.play().catch(() => {});
-    }
-
-    window.addEventListener('pointerdown', handleGesture);
-    window.addEventListener('keydown', handleGesture);
-    window.addEventListener('touchstart', handleGesture);
-
-    return () => {
-      window.removeEventListener('pointerdown', handleGesture);
-      window.removeEventListener('keydown', handleGesture);
-      window.removeEventListener('touchstart', handleGesture);
-    };
-  }, [needsGesture]);
 
   function toggleSound() {
     const video = videoRef.current;
     if (!video) return;
     const next = !video.muted;
     video.muted = next;
-    setMuted(next);
+    setFilmMuted(next);
   }
 
   const sceneClass = [
@@ -176,12 +160,13 @@ export function IntroFilmScene() {
         className="intro-film-scene__video"
         src={VIDEO_SRC}
         preload="auto"
+        muted={muted}
         playsInline
         controls={false}
         disablePictureInPicture
         controlsList="nodownload noremoteplayback nofullscreen"
       />
-      {needsGesture ? <div className="intro-film-scene__gesture-catcher" aria-hidden="true" /> : null}
+      {needsGesture && !ended ? <div className="intro-film-scene__gesture-catcher"><button className="cta cta--secondary" onClick={() => { setFilmMuted(false); if (videoRef.current) { videoRef.current.muted = false; void videoRef.current.play().catch(() => setNeedsGesture(true)); } }}>소리 켜고 재생</button></div> : null}
 
       {/* Chrome sits above the gesture catcher so SKIP and the sound toggle
           stay clickable even while playback is waiting on a gesture. */}
@@ -192,7 +177,7 @@ export function IntroFilmScene() {
           onClick={toggleSound}
           aria-pressed={muted}
         >
-          {muted ? 'SOUND OFF' : 'SOUND ON'}
+          {muted ? '소리 켜기' : '소리 끄기'}
         </button>
 
         <button

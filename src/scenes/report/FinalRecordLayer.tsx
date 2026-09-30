@@ -33,7 +33,7 @@ export function FinalRecordLayer({ record, presentation, index, total, onIssueFu
     <div className="final-record-layer">
       <div className="final-record-layer__veil" />
 
-      <p className="final-record-layer__eyebrow">RESPONSE RECORD</p>
+      <p className="final-record-layer__eyebrow">최종보고서</p>
 
       <div className="final-record-layer__narrative">
         <motion.div

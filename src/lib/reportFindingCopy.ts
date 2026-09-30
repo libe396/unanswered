@@ -37,7 +37,7 @@ export const STAGE_06_BEATS = [
 ];
 
 /** The reveal itself — the strongest single beat before the closing line. */
-export const STAGE_06_REVEAL = '당신도\n기록되고 있었습니다.';
+export const STAGE_06_REVEAL = '당신입니다.';
 
 export const STAGE_06_DETAIL = '무엇을 고르고,\n다시 돌아보고,\n어디에서 쉽게 지나가지 못했는지까지.';
 

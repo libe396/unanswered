@@ -1,138 +1,237 @@
+/* Memory Sketch owns this layout; shared stages and report frames are untouched. */
+
 .memory-sketch-scene {
   position: relative;
   width: 100%;
-  height: 100%;
-  min-height: 100%;
+  /* The scroll viewport ends above the fixed HUD, even mid-scroll. */
+  height: calc(100% - 64px);
+  min-height: 0;
   background: var(--bg-base);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(14px, 2.5vh, 20px);
-  padding: clamp(22px, 5vh, 38px) 6vw;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  padding: 80px 32px 32px;
   box-sizing: border-box;
+  scroll-padding-block: 24px 32px;
 }
 
-.memory-sketch-scene > .memory-room {
-  width: min(900px, 88vw, calc((100dvh - 168px) * 1.5));
+.memory-sketch-scene__workspace {
+  width: 100%;
+  max-width: min(1600px, max(1072px, calc((100dvh - 288px) * 1.776833 + 312px)));
+  margin-inline: auto;
 }
 
-/*
-  STEP 3's backdrop: the same Room, with the same objects still washed in
-  the colors chosen for them, now standing still behind the drawing-or-skip
-  choice and the canvas. Dimmed and blurred rather than removed — the
-  traces already found are still there while a visitor decides whether to
-  add to them, not swapped out for a blank page.
-*/
-.memory-sketch-scene__room-backdrop {
+.memory-sketch-scene__workspace > .stage-head {
+  max-width: none;
+}
+
+.memory-sketch-scene__workspace .stage-head__description {
+  max-width: none;
+  font-size: var(--type-body);
+}
+
+.memory-sketch-scene__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 32px;
+  align-items: start;
+  margin-top: 24px;
+}
+
+.memory-sketch-scene__sidebar {
+  min-width: 0;
+}
+
+/* ── The object: room + stroke canvas, one rect ──────────────────────────── */
+
+.memory-sketch-scene__surface {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1672 / 941;
+  border-radius: var(--r-4);
+  overflow: hidden;
+}
+
+.memory-sketch-scene__surface .memory-room {
+  width: 100%;
+  height: 100%;
+}
+
+/* Same box as the illustration, so a stroke lands where it was drawn at any
+   display size. */
+.memory-sketch-scene__canvas {
   position: absolute;
   inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  filter: blur(3px) brightness(0.55) saturate(0.85);
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-.memory-sketch-scene__choice {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: clamp(18px, 3.2vh, 28px);
-}
-
-.memory-sketch-scene__choice-actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.memory-sketch-scene__hint {
-  position: relative;
-  z-index: 1;
-  font-size: 13px;
-  color: var(--color-text-dim);
-  margin: 0;
-}
-
-.memory-sketch-scene__canvas {
-  position: relative;
-  z-index: 1;
-  width: min(860px, 88vw, calc((100dvh - 186px) * 1.5));
-  aspect-ratio: 1200 / 800;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(0, 0, 0, 0.1);
+  z-index: 2;
+  width: 100%;
+  height: 100%;
   touch-action: none;
   cursor: crosshair;
 }
 
-.memory-sketch-scene__controls {
-  position: relative;
-  z-index: 1;
+.memory-sketch-scene__canvas--preview {
+  pointer-events: none;
+}
+
+/* ── Collected traces ────────────────────────────────────────────────────── */
+
+.memory-sketch-scene__collected {
+  margin: 0;
+}
+
+.memory-sketch-scene__collected-label {
+  margin: 0 0 var(--sp-12);
+  font-family: var(--font-mono);
+  font-size: var(--type-body);
+  line-height: 1.4;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.memory-sketch-scene__object-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.memory-sketch-scene__object {
   display: flex;
   align-items: center;
-  gap: clamp(14px, 2.8vw, 24px);
+  gap: var(--sp-8);
+  font-family: var(--font-kr);
+  font-size: var(--type-body);
+  line-height: 1.6;
+  color: var(--text-primary);
+  min-height: 28px;
 }
 
-.memory-sketch-scene__colors {
-  display: flex;
-  gap: 10px;
+.memory-sketch-scene__object-number {
+  flex: 0 0 auto;
+  min-width: 24px;
+  font-family: var(--font-mono);
+  font-size: var(--type-body);
+  color: var(--trace);
 }
 
-.memory-sketch-scene__color {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  cursor: pointer;
+.memory-sketch-scene__object-label {
+  min-width: 0;
 }
 
-.memory-sketch-scene__color--active {
-  border-color: var(--color-text);
-}
-
-.memory-sketch-scene__actions {
-  display: flex;
-  gap: 8px;
-}
-
-.memory-sketch-scene__mini-btn {
-  padding: 8px 16px;
+.memory-sketch-scene__object-remove {
+  margin-left: auto;
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0 var(--sp-4);
+  border: none;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  color: var(--color-text-dim);
-  font-size: 11px;
-  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  font-size: var(--type-body);
+  line-height: 1;
   cursor: pointer;
-  transition: border-color var(--duration-fast) ease, color var(--duration-fast) ease;
+  transition: color var(--duration-fast) ease;
 }
 
-.memory-sketch-scene__mini-btn:hover:not(:disabled) {
-  border-color: var(--color-accent);
-  color: var(--color-text);
+.memory-sketch-scene__object-remove:hover {
+  color: var(--text-primary);
 }
 
-.memory-sketch-scene__mini-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
+.memory-sketch-scene__object-empty {
+  margin: 0;
+  font-family: var(--font-kr);
+  font-size: var(--type-body);
+  color: var(--text-tertiary);
+}
+
+.memory-sketch-scene__count {
+  margin: var(--sp-24) 0 0;
+  color: var(--text-tertiary);
 }
 
 .memory-sketch-scene__confirm {
-  /* Placement only — appearance comes from .cta .cta--primary. */
-  z-index: 1;
-  margin-top: var(--sp-4);
+  width: 100%;
+  margin-top: var(--sp-24);
 }
 
-/*
-  A disabled NEXT used to look pixel-identical to an enabled one, so a visitor
-  under MEMORY_MIN_OBJECT_SELECTION had no way to tell a click was ever going
-  to do nothing. That now comes from the shared `.cta:disabled` rule (0.35,
-  border kept, not-allowed), so there is nothing to declare here.
-*/
+/* ── Drawing tools ───────────────────────────────────────────────────────── */
+
+.memory-sketch-scene__controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-16);
+  margin-top: 0;
+}
+
+.memory-sketch-scene__choice {
+  margin-top: var(--sp-24);
+  font-size: var(--type-body);
+  line-height: 1.7;
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.memory-sketch-scene__choice p { margin: 0; }
+.memory-sketch-scene__choice-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-12);
+  margin-top: var(--sp-16);
+}
+.memory-sketch-scene__choice-actions .cta { width: 100%; }
+
+.memory-sketch-scene__colors {
+  display: flex;
+  gap: var(--sp-12);
+}
+
+/* The palette is data (SKETCH_COLORS) — the chip shows it, the ring marks
+   which one is in hand. */
+.memory-sketch-scene__color {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-4);
+  cursor: pointer;
+  transition: box-shadow var(--duration-fast) ease, border-color var(--duration-fast) ease;
+}
+
+.memory-sketch-scene__color--active {
+  border-color: transparent;
+  box-shadow: 0 0 0 2px var(--trace);
+}
+
+.memory-sketch-scene__widths,
+.memory-sketch-scene__actions {
+  display: flex;
+  gap: var(--sp-8);
+}
+
+.memory-sketch-scene__mini-btn {
+  flex: 1 1 0;
+  height: 40px;
+  padding: 0 var(--sp-12);
+  font-size: var(--type-button);
+}
+
+.memory-sketch-scene__mini-btn--on {
+  border-color: var(--trace);
+  color: var(--text-primary);
+}
+
+/* The width swatch inside the button. */
+.memory-sketch-scene__mini-btn span[aria-hidden='true'] {
+  display: block;
+  width: 18px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+/* ── Modals ──────────────────────────────────────────────────────────────
+   The drawing question and the empty-record confirm share one shape. */
 
 .memory-sketch-scene__modal-veil {
   position: fixed;
@@ -141,30 +240,58 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.7);
+  padding: var(--sp-24);
+  background: rgba(7, 7, 9, 0.72);
 }
 
 .memory-sketch-scene__modal {
-  position: relative;
-  width: min(360px, 84vw);
-  padding: 32px 28px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-  text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: #0a0a0d;
+  width: min(400px, 100%);
+  padding: var(--sp-32);
+  border-radius: var(--r-8);
 }
 
 .memory-sketch-scene__modal-text {
   margin: 0;
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--color-text);
+  font-family: var(--font-kr);
+  font-size: var(--type-body);
+  line-height: 1.5;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  word-break: keep-all;
 }
 
 .memory-sketch-scene__modal-actions {
+  margin-top: var(--sp-24);
   display: flex;
-  gap: 10px;
+  gap: var(--sp-12);
+}
+
+.memory-sketch-scene__modal-actions .cta {
+  flex: 1 1 0;
+  height: 48px;
+  padding: 0 var(--sp-12);
+}
+
+@media (max-width: 1100px) {
+  .memory-sketch-scene { padding-inline: 24px; }
+  .memory-sketch-scene__workspace { max-width: none; }
+  .memory-sketch-scene__body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+  .memory-sketch-scene__sidebar { width: 100%; }
+  .memory-sketch-scene__object-remove { min-width: 40px; min-height: 40px; }
+  .memory-sketch-scene__modal-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .memory-sketch-scene { padding: 76px 16px 32px; }
+  .memory-sketch-scene__workspace .stage-head__title { font-size: var(--type-body-lg); }
+}
+
+@media (max-width: 1100px) {
+  .memory-sketch-scene { top: var(--stage-top); height: calc(100% - var(--stage-top) - var(--stage-hud-clear)); padding: 0 20px 24px; }
 }

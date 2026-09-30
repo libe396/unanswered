@@ -1,15 +1,8 @@
-/*
-  The scene box is exactly one viewport and never scrolls itself. Any scroll
-  belongs to one named box inside a phase (the card grid, the record panel),
-  so nothing can slide the heading under BackButton/ZoneLabel — which is what
-  the 84px the Scene used to open scrolled by actually was.
-*/
 .sentence-clues-scene {
   position: relative;
   width: 100%;
-  height: 100dvh;
-  max-height: 100dvh;
-  overflow: hidden;
+  height: 100%;
+  min-height: 100%;
   background: var(--bg-base);
   display: flex;
   flex-direction: column;
@@ -21,7 +14,7 @@
 }
 
 .sentence-clues-scene__hint {
-  font-size: 14px;
+  font-size: var(--type-body);
   color: var(--color-text-dim);
   margin: 0;
   text-align: center;
@@ -32,7 +25,7 @@
    progress bar: this project's own ban on gamification applies here first. */
 .sentence-clues-scene__count {
   margin: 2px 0 4px;
-  font-size: 13px;
+  font-size: var(--type-meta);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.12em;
   color: var(--color-text-dim);
@@ -45,6 +38,7 @@
    no border around the text — the archive tone stays in the type itself. */
 
 .sentence-clues-scene--context {
+  overflow-y: auto;
   gap: 28px;
   max-width: 560px;
   margin: 0 auto;
@@ -56,7 +50,7 @@
 .sentence-clues-scene__kicker {
   margin: 0;
   font-family: var(--font-kr);
-  font-size: 12px;
+  font-size: var(--type-meta);
   line-height: 1.4;
   font-weight: 500;
   letter-spacing: 0;
@@ -67,7 +61,7 @@
 .sentence-clues-scene__reading-eyebrow {
   margin: 0 0 var(--sp-16);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--type-meta);
   line-height: 1.4;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -78,7 +72,7 @@
   flex: 0 0 auto;
   width: var(--sp-32);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--type-body);
   line-height: 2.6;
   letter-spacing: 0.16em;
   font-variant-numeric: tabular-nums;
@@ -90,16 +84,16 @@
 }
 
 .sentence-clues-scene__context-paragraphs {
-  padding: var(--sp-24);
+  padding: var(--sp-32);
   border-radius: var(--r-8);
   display: flex;
   flex-direction: column;
-  gap: var(--sp-12);
+  gap: 14px;
 }
 
 .sentence-clues-scene__context-p {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--type-body);
   line-height: 1.75;
   color: var(--color-text);
   opacity: 0;
@@ -117,9 +111,8 @@
   }
 }
 
-/* The break in the record. Two dashed rules and the line between them — the
-   interrupted solid rule that used to sit above this text read as a second,
-   competing divider, so it is gone. */
+/* A single interrupted rule stands in for the break in the record — a gap in
+   the line itself rather than any glitch or scan effect. */
 .sentence-clues-scene__missing {
   display: flex;
   flex-direction: column;
@@ -129,9 +122,24 @@
   text-align: center;
 }
 
+.sentence-clues-scene__missing-mark {
+  width: 100%;
+  max-width: 220px;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.16) 42%,
+    transparent 42%,
+    transparent 58%,
+    rgba(255, 255, 255, 0.16) 58%,
+    rgba(255, 255, 255, 0.16) 100%
+  );
+}
+
 .sentence-clues-scene__missing-text {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--type-body);
   line-height: 1.7;
   color: var(--color-text-dim);
   letter-spacing: 0.02em;
@@ -143,7 +151,7 @@
 .sentence-clues-scene__prompt {
   margin: 0;
   text-align: center;
-  font-size: 15px;
+  font-size: var(--type-body);
   color: var(--color-text);
   opacity: 0.85;
 }
@@ -151,7 +159,7 @@
 .sentence-clues-scene__instruction {
   margin: -6px 0 0;
   text-align: center;
-  font-size: 14px;
+  font-size: var(--type-body);
   line-height: 1.6;
   color: var(--color-text-dim);
 }
@@ -164,43 +172,20 @@
    either. */
 
 /*
-  Explore. Three bands on one 800-tall screen, and only the middle one moves:
-
-    --stage-top (88)   clear of BackButton / ZoneLabel
-    StageHeader        fixed
-    the card grid      flex: 1, min-height: 0 — the one scroller
-    the foot           slot row + action row, fixed
-    --stage-hud-clear  (88) — 40px clear of the ArchiveHUD's rule
-
-  Header, grid, slot row and action row are all --stage-max wide and share one
-  left and right edge; the grid used to be 1440 and the chip row --stage-max,
-  so the two blocks stepped in and out.
+  Explore. Header, card grid, slot row and action row are all --stage-max
+  wide and share one left and right edge; the grid used to be 920px and the
+  slot row a different width, so the two blocks stepped in and out.
 */
 .sentence-clues-scene--explore {
-  justify-content: flex-start;
-  align-items: center;
-  gap: 0;
-  padding: var(--stage-top) var(--sp-32) var(--stage-hud-clear);
+  justify-content: center;
+  padding: 72px var(--sp-32) 72px;
 }
 
 .sentence-clues-scene__wall {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  /* Rows take the height their records need; items stretch, so every card in
-     a row is the same height without any card carrying a fixed one. */
-  grid-auto-rows: min-content;
-  align-content: start;
-  gap: var(--sp-8);
   width: 100%;
-  max-width: var(--stage-max);
-  flex: 1 1 auto;
   min-height: 0;
-  margin-top: var(--sp-12);
-  /* All twenty records are on the screen at once — no scroller, so no fade
-     at a cut and no edge for a card to be caught on. The card measures below
-     are what keep four rows inside 800px. */
-  overflow: visible;
-  padding: 0;
+  margin: 0;
 }
 
 /* A translucent surface with real depth behind it — not a flat button, not
@@ -228,7 +213,7 @@
 }
 
 .sentence-clues-scene__card-code {
-  font-size: 11px;
+  font-size: var(--type-meta);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.1em;
   color: var(--color-text-dim);
@@ -237,7 +222,7 @@
 
 .sentence-clues-scene__card-text {
   flex: 1;
-  font-size: 13px;
+  font-size: var(--type-body);
   line-height: 1.5;
 }
 
@@ -266,7 +251,7 @@
 
 .sentence-clues-scene__card-hint {
   margin-top: auto;
-  font-size: 10px;
+  font-size: var(--type-body);
   letter-spacing: 0.04em;
   color: var(--color-text-dim);
   opacity: 0.7;
@@ -304,10 +289,55 @@
   }
 }
 
+/* ── The account: Reconstruction and Restored Record share one reading
+   layout — a short, numbered list of lines, ENDING fragments always last.
+   Reconstruction shows the fragments as drawn; Restored Record shows the
+   same list with the one answered line folded back in. */
 
+.sentence-clues-scene__account {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(560px, 92vw);
+  max-height: min(52vh, 440px);
+  overflow-y: auto;
+  padding: 4px 2px;
+}
 
+.sentence-clues-scene__account-line {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  margin: 0;
+  font-size: var(--type-body);
+  line-height: 1.65;
+  color: var(--color-text);
+}
 
+.sentence-clues-scene__account-index {
+  flex: none;
+  font-size: var(--type-body);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  color: var(--color-text-dim);
+  opacity: 0.55;
+  padding-top: 2px;
+}
 
+.sentence-clues-scene__account--final .sentence-clues-scene__account-line {
+  color: var(--color-text);
+}
+
+/* The one mark for an unanswered question — a small trailing note, never a
+   red flag, never phrased as an error. It sits on the line it belongs to,
+   nowhere else. */
+.sentence-clues-scene__unanswered-mark {
+  margin-left: 6px;
+  font-size: var(--type-body);
+  color: var(--color-text-dim);
+  opacity: 0.5;
+  white-space: nowrap;
+}
 
 /* ── Discovering ──────────────────────────────────────────────────────────
    One quiet line, alone on the screen. No card, no gap left waiting to be
@@ -321,7 +351,7 @@
   margin: 0;
   max-width: 380px;
   text-align: center;
-  font-size: 15px;
+  font-size: var(--type-body);
   line-height: 1.7;
   color: var(--color-text-dim);
   opacity: 0;
@@ -339,8 +369,37 @@
   }
 }
 
+/* ── Question: one fragment, one gap in it, one line to fill it ──────────
+   Exactly one card — the fragment the question is about — with the question
+   itself sitting just under it, a small gap of its own space and nothing
+   more. Not two cards with a blank between them: the visitor is filling in
+   *this* record, not connecting two. */
 
+.sentence-clues-scene--question {
+  gap: 22px;
+}
 
+.sentence-clues-scene__target-card {
+  margin: 0;
+  width: min(480px, 92vw);
+  padding: 16px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--color-text-dim);
+  font-size: var(--type-body);
+  line-height: 1.6;
+  text-align: center;
+}
+
+.sentence-clues-scene__question {
+  margin: 0;
+  max-width: 400px;
+  text-align: center;
+  font-size: var(--type-body);
+  line-height: 1.6;
+  color: var(--color-text);
+}
 
 .sentence-clues-scene__response-field {
   display: flex;
@@ -357,7 +416,7 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.24);
   background: transparent;
   color: var(--color-text);
-  font-size: 14px;
+  font-size: var(--type-body);
   text-align: center;
   transition: border-color var(--duration-fast) ease;
 }
@@ -373,7 +432,7 @@
 }
 
 .sentence-clues-scene__response-count {
-  font-size: 11px;
+  font-size: var(--type-body);
   font-variant-numeric: tabular-nums;
   color: var(--color-text-dim);
   opacity: 0.55;
@@ -392,21 +451,46 @@
 
 .sentence-clues-scene__trace-message {
   margin: 0;
-  font-size: 15px;
+  font-size: var(--type-body);
   line-height: 1.7;
   color: var(--color-text);
 }
 
 .sentence-clues-scene__trace-fragment {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--type-body);
   line-height: 1.6;
   color: var(--color-text-dim);
   opacity: 0.55;
 }
 
+/* ── Shared bottom bar ───────────────────────────────────────────────────── */
 
+.sentence-clues-scene__submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: min(920px, 94vw);
+  min-height: 48px;
+  margin-top: 4px;
+}
 
+.sentence-clues-scene__edit {
+  padding: 10px 18px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--color-text-dim);
+  font-size: var(--type-body);
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) ease, color var(--duration-fast) ease;
+}
+
+.sentence-clues-scene__edit:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
 
 /* ── Shared confirm control ──────────────────────────────────────────────── */
 
@@ -425,142 +509,35 @@
 
   .sentence-clues-scene__wall {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-height: 50vh;
   }
 
+  .sentence-clues-scene__tray {
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 68px;
+  }
+
+  .sentence-clues-scene__submit {
+    flex-direction: column;
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .sentence-clues-scene__edit,
   .sentence-clues-scene__confirm {
     width: 100%;
   }
 }
 
-/* Full archive view: all twenty records stay readable, drawn and locked ones
-   included. Only this Scene's explore phase uses these measures. */
-.sentence-clues-scene--explore {
-  /* 12px, not 13. Measured at 1094x800 with the description line already
-     dropped: three clamped lines at 13px put the fourth row of cards 15px
-     into the slot row. 12px clears it by 39px. */
-  --sentence-body-size: 12px;
-  --sentence-caption-size: 10px;
-}
-
-/* One extra column of room once the viewport can pay for it. Set on the Scene
-   so StageHeader, the wall, the slot row and the action row all move together
-   and keep the one left and right edge. */
-@media (min-width: 1280px) {
-  .sentence-clues-scene--explore {
-    --stage-max: 1040px;
-  }
-}
-
-.sentence-clues-scene--explore .sentence-clues-scene__card {
-  min-height: 0;
-  padding: var(--sp-12);
-  gap: 6px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-4);
-  background: var(--glass-1);
-  color: var(--text-primary);
-  box-shadow: none;
-  backdrop-filter: none;
-  transform: none;
-  animation: none;
-  opacity: 1;
-  transition: border-color var(--duration-fast) ease, background-color var(--duration-fast) ease,
-    color var(--duration-fast) ease;
-}
-
-.sentence-clues-scene--explore .sentence-clues-scene__card-code {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-8);
-  font-family: var(--font-mono);
-  font-size: var(--sentence-caption-size);
-  line-height: 1.4;
-  letter-spacing: 0.14em;
-  color: var(--text-tertiary);
-  opacity: 1;
-}
-
-/* Three lines at most. A record that runs longer is cut rather than allowed
-   to set a taller row — four rows have to land inside one 800px screen, and
-   the full sentence is one click away in the slot row and in the account. */
-.sentence-clues-scene--explore .sentence-clues-scene__card-text {
-  font-size: var(--sentence-body-size);
-  line-height: 1.5;
-  word-break: keep-all;
-  overflow-wrap: break-word;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  overflow: hidden;
-}
-
-.sentence-clues-scene--explore .sentence-clues-scene__card:hover:not(:disabled):not(.sentence-clues-scene__card--drawn) {
-  transform: none;
-  background: var(--glass-2);
-  border-color: var(--text-secondary);
-  box-shadow: none;
-}
-
-.sentence-clues-scene--explore .sentence-clues-scene__card:focus-visible {
-  outline: 2px solid var(--text-primary);
-  outline-offset: 2px;
-}
-
-/* Drawn — the gap the record left in the wall. A dashed outline and tertiary
-   text, nothing else: the slot row below is what shows the order, so there is
-   no badge and no violet edge competing with it here. */
-.sentence-clues-scene--explore .sentence-clues-scene__card--drawn {
-  border: 1px dashed var(--line);
-  background: transparent;
-  box-shadow: none;
-  color: var(--text-tertiary);
-  opacity: 1;
-  cursor: pointer;
-}
-
-.sentence-clues-scene--explore .sentence-clues-scene__card--drawn:hover {
-  opacity: 1;
-  border-color: var(--line-strong);
-  color: var(--text-secondary);
-}
-
-/* Locked — an ENDING record (17–20) before enough of the account exists to
-   close it. Still legible, still listed: the archive shows what it holds, it
-   just is not ready to be drawn yet. Unlocking is the same 200ms as every
-   other state change on a card. */
-.sentence-clues-scene--explore .sentence-clues-scene__card--locked,
-.sentence-clues-scene--explore .sentence-clues-scene__card--locked:hover {
-  border: 1px dashed var(--line-subtle);
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: not-allowed;
-  opacity: 1;
-}
-
-.sentence-clues-scene__card-lock {
-  flex: 0 0 auto;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  line-height: 1.4;
-  letter-spacing: 0.16em;
-  color: var(--text-tertiary);
-}
-
-/* A full tray dims nothing — the records are simply not clickable. */
-.sentence-clues-scene--explore .sentence-clues-scene__card:disabled {
-  opacity: 1;
-  cursor: not-allowed;
-}
-
 /* ── The foot: slot row + action row, fixed under the grid ────────────────── */
 
 .sentence-clues-scene__foot {
-  flex: 0 0 auto;
+  flex: none;
   width: 100%;
   max-width: var(--stage-max);
-  margin-top: var(--sp-12);
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 /* Five slots on the wall's own five columns — same track widths, same gap,
@@ -602,7 +579,7 @@
 
 .sentence-clues-scene__slot-num {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--type-body);
   line-height: 1.4;
   letter-spacing: 0.16em;
   font-variant-numeric: tabular-nums;
@@ -616,7 +593,7 @@
 /* One line of the record, cut where it runs out of room. */
 .sentence-clues-scene__slot-text {
   font-family: var(--font-kr);
-  font-size: 13px;
+  font-size: var(--type-body);
   line-height: 1.4;
   color: var(--text-primary);
   white-space: nowrap;
@@ -638,7 +615,7 @@
   border-radius: var(--r-4);
   background: transparent;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: var(--type-body);
   line-height: 1;
   cursor: pointer;
   transition: color var(--duration-fast) ease, background-color var(--duration-fast) ease;
@@ -657,7 +634,9 @@
 /* ── Action row ───────────────────────────────────────────────────────────── */
 
 .sentence-clues-scene--explore .stage-actions {
-  margin-top: var(--sp-12);
+  flex: 1;
+  margin: 0;
+  min-width: 0;
 }
 
 .sentence-clues-scene--explore .sentence-clues-scene__count {
@@ -672,29 +651,135 @@
   color: var(--text-primary);
 }
 
-/* On narrower screens the grid drops columns and the slot row wraps to two
-   rows — never a shrunken type size, and never the Scene itself scrolling:
-   the grid is still the one box that moves. --stage-top and --stage-hud-clear
-   are never reduced here, since that is exactly what let the heading slide
-   under the BACK / ZONE header. */
-@media (max-width: 1023px) {
-  .sentence-clues-scene--explore .sentence-clues-scene__wall,
-  .sentence-clues-scene__slots {
+
+/* Full archive view: all twenty records remain readable, including drawn
+   and locked records. Only this scene's explore phase uses these measures. */
+.sentence-clues-scene--explore {
+  --stage-max: 1200px;
+  --sentence-body-size: var(--type-body);
+  --sentence-caption-size: var(--type-meta);
+  padding: 72px var(--sp-32);
+  gap: 12px;
+  overflow: visible;
+}
+
+.sentence-clues-scene--explore .sentence-clues-scene__hint {
+  max-width: none;
+  font-size: var(--type-title-sm);
+  line-height: 1.4;
+  font-weight: 500;
+  text-align: left;
+  color: var(--text-primary);
+}
+
+.sentence-clues-scene--explore .sentence-clues-scene__wall {
+  max-width: var(--stage-max);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  overflow: visible;
+  flex: none;
+  align-content: start;
+}
+
+.sentence-clues-scene--explore .sentence-clues-scene__card {
+  min-height: 0;
+  padding: var(--sp-8);
+  gap: var(--sp-4);
+  border-color: var(--line);
+  border-radius: var(--r-4);
+  background: var(--glass-1);
+  color: var(--text-primary);
+  box-shadow: none;
+  backdrop-filter: none;
+  transform: none;
+  animation: none;
+  opacity: 1;
+}
+
+.sentence-clues-scene--explore .sentence-clues-scene__card-code {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: var(--sentence-caption-size);
+  color: var(--text-secondary);
+  opacity: 1;
+}
+
+.sentence-clues-scene__selected-mark {
+  font-family: var(--font-kr);
+  letter-spacing: 0;
+  color: var(--text-primary);
+}
+
+.sentence-clues-scene--explore .sentence-clues-scene__card-text {
+  font-size: var(--sentence-body-size);
+  line-height: 1.55;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.sentence-clues-scene--explore .sentence-clues-scene__card--drawn {
+  border-style: solid;
+  border-color: var(--trace);
+  background: var(--glass-2);
+  box-shadow: inset 3px 0 0 var(--trace);
+}
+
+.sentence-clues-scene--explore .sentence-clues-scene__card:hover:not(:disabled) {
+  transform: none;
+  background: var(--glass-2);
+  border-color: var(--text-secondary);
+  box-shadow: none;
+}
+
+.sentence-clues-scene--explore .sentence-clues-scene__card:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+.sentence-clues-scene--explore .sentence-clues-scene__card:disabled {
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+.sentence-clues-scene--explore .sentence-clues-scene__card-hint {
+  font-size: var(--sentence-caption-size);
+  color: var(--text-secondary);
+  letter-spacing: 0;
+  opacity: 1;
+}
+
+.sentence-clues-scene--explore .sentence-clues-scene__submit {
+  width: 100%;
+  max-width: 1440px;
+  justify-content: space-between;
+  flex: none;
+  border-top: 1px solid var(--line);
+  padding-top: var(--sp-12);
+  margin: 0;
+}
+
+.sentence-clues-scene--explore .sentence-clues-scene__count {
+  color: var(--text-primary);
+  font-size: var(--type-meta);
+  letter-spacing: 0;
+  margin: 0;
+  opacity: 1;
+}
+
+
+
+/* On narrower/zoomed screens let the scene scroll as a whole, never hide
+   records or shrink the type to force twenty sentences into a phone. */
+@media (max-width: 1100px) {
+  .sentence-clues-scene--explore .sentence-clues-scene__wall {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-  .sentence-clues-scene__slots {
-    height: auto;
-    grid-auto-rows: 52px;
   }
 }
 @media (max-width: 800px) {
   .sentence-clues-scene--explore .sentence-clues-scene__wall {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .sentence-clues-scene__slots {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    height: auto;
-    grid-auto-rows: 48px;
   }
 }
 @media (max-width: 480px) {
@@ -706,40 +791,83 @@
   }
 }
 
+@media (min-width: 1101px) and (max-height: 800px) {
+  .sentence-clues-scene--explore {
+    --sentence-body-size: var(--type-body);
+    --sentence-caption-size: var(--type-meta);
+    padding-top: 72px;
+    padding-bottom: 72px;
+    gap: var(--sp-8);
+  }
+  .sentence-clues-scene--explore .sentence-clues-scene__hint { font-size: var(--type-body-lg); }
+  .sentence-clues-scene--explore .sentence-clues-scene__card {
+    padding: var(--sp-8);
+    gap: var(--sp-4);
+  }
+  .sentence-clues-scene--explore .sentence-clues-scene__submit { padding-top: var(--sp-8); }
+}
+
 /* Consistent reading measure across the recovered context and record steps. */
 .sentence-clues-scene--context,
+.sentence-clues-scene--reading {
+  justify-content: flex-start;
+  align-items: stretch;
+  padding: var(--stage-top) 32px var(--stage-bottom);
+  overflow-y: auto;
+  gap: 24px;
+  margin-inline: auto;
+}
 .sentence-clues-scene--context {
   max-width: 992px;
   display: grid;
   grid-template-columns: 250px minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr);
-  align-content: stretch;
+  align-content: start;
   gap: 40px;
-  /* 88 clear of the HUD's rule, matching explore — and hidden, so the whole
-     column can never become the scroller. */
-  padding: var(--stage-top) 32px var(--stage-hud-clear);
-  overflow: hidden;
 }
-
-.sentence-clues-scene__clue-summary { align-self: start; }
 .sentence-clues-scene__clue-summary { padding-right: 24px; border-right: 1px solid var(--line); }
-.sentence-clues-scene__clue-summary h2 { font-size: 16px; font-weight: 500; margin: 0 0 28px; line-height: 1.6; }
-.sentence-clues-scene__clue-summary dt { font-size: 13px; color: var(--text-secondary); margin: 24px 0 10px; }
-.sentence-clues-scene__clue-summary dd { margin: 0; font-size: 14px; line-height: 1.8; }
+.sentence-clues-scene__clue-summary h2 { font-size: var(--type-body); font-weight: 500; margin: 0 0 28px; line-height: 1.6; }
+.sentence-clues-scene__clue-summary dt { font-size: var(--type-body); color: var(--text-secondary); margin: 24px 0 10px; }
+.sentence-clues-scene__clue-summary dd { margin: 0; font-size: var(--type-body); line-height: 1.8; }
 .sentence-clues-scene__clue-summary ul { list-style: none; margin: 0; padding: 0; }
 .sentence-clues-scene__swatches { display: flex; flex-wrap: wrap; gap: 8px; }
 .sentence-clues-scene__swatches span { width: 28px; height: 28px; border: 1px solid var(--line-strong); border-radius: 50%; }
-.sentence-clues-scene__context-reading { display: flex; flex-direction: column; align-items: flex-start; gap: 24px; min-height: 0; }
-.sentence-clues-scene__context-p { font-size: 18px; line-height: 1.8; opacity: 1; animation: none; }
+.sentence-clues-scene__context-reading { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+.sentence-clues-scene__reading-title { margin: 0; font-size: 1.75rem; font-weight: 500; line-height: 1.5; text-align: left; }
+.sentence-clues-scene__context-paragraphs { gap: 22px; }
+.sentence-clues-scene__context-p { font-size: var(--type-body); line-height: 1.8; opacity: 1; animation: none; }
 .sentence-clues-scene--context .sentence-clues-scene__missing { width: 100%; align-items: flex-start; text-align: left; gap: 16px; }
+.sentence-clues-scene--context .sentence-clues-scene__missing-mark { max-width: none; }
 .sentence-clues-scene--context .sentence-clues-scene__prompt,
 .sentence-clues-scene--context .sentence-clues-scene__instruction { text-align: left; line-height: 1.7; }
+.sentence-clues-scene--reading { max-width: 880px; }
+.sentence-clues-scene--reading > * { flex-shrink: 0; }
+.sentence-clues-scene--reading .sentence-clues-scene__account {
+  width: 100%; max-height: none; overflow: visible; gap: 14px; padding: 0;
+}
+.sentence-clues-scene--reading .sentence-clues-scene__account-line {
+  width: 100%; padding: 20px 0; gap: 20px; border-bottom: 1px solid var(--line);
+  font-size: 1.3125rem; line-height: 1.75; overflow-wrap: anywhere;
+}
+.sentence-clues-scene--reading .sentence-clues-scene__account-index { font-size: var(--type-body); color: var(--text-secondary); opacity: 1; font-family: var(--font-mono); }
+.sentence-clues-scene--reading > .sentence-clues-scene__confirm { align-self: flex-start; }
+.sentence-clues-scene--reading .sentence-clues-scene__submit { width: 100%; justify-content: flex-start; }
+.sentence-clues-scene--question .sentence-clues-scene__reading-title { font-size: 1.75rem; }
+.sentence-clues-scene--question .sentence-clues-scene__question { font-size: 1.625rem; font-weight: 500; line-height: 1.6; max-width: none; text-align: left; }
+.sentence-clues-scene--question .sentence-clues-scene__response-field { width: min(100%, 560px); align-items: flex-end; }
+.sentence-clues-scene--question .sentence-clues-scene__response-input {
+  box-sizing: border-box; min-height: 104px; padding: 16px; font-family: inherit;
+  font-size: var(--type-body); line-height: 1.6; text-align: left; resize: vertical;
+  border: 1px solid var(--line-strong); border-radius: var(--r-4); background: var(--glass-1);
+}
+.sentence-clues-scene--question .sentence-clues-scene__response-input::placeholder { opacity: 1; }
+.sentence-clues-scene--question .sentence-clues-scene__submit button { height: 48px; min-height: 48px; font-size: var(--type-button); color: var(--text-primary); }
 .sentence-clues-scene button:focus-visible,
 .sentence-clues-scene textarea:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 3px; }
+.sentence-clues-scene--explore .sentence-clues-scene__submit > button { flex-shrink: 0; }
 @media (max-width: 800px) {
   .sentence-clues-scene--context { grid-template-columns: minmax(0, 1fr); gap: 24px; }
   .sentence-clues-scene__clue-summary { border-right: 0; border-bottom: 1px solid var(--line); padding: 0 0 20px; }
-  .sentence-clues-scene--context { padding-inline: 20px; }
+  .sentence-clues-scene--context, .sentence-clues-scene--reading { padding-inline: 20px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .sentence-clues-scene__context-p, .sentence-clues-scene__discovering-text { animation: none; opacity: 1; }
@@ -750,31 +878,16 @@
 /* ── Restored record (context phase) ──────────────────────────────────────
    One 560 column, everything on the same left edge. */
 
-/* Spacing on this screen is carried by each block's own margin, not by one
-   flat column gap — the record has to land inside 800px without scrolling,
-   and the steps between the blocks are not equal. */
 .sentence-clues-scene--context .sentence-clues-scene__context-reading {
-  width: min(560px, 100%);
-  height: 100%;
-  min-height: 0;
-  gap: 0;
-  text-align: left;
-}
-
-/* The one box on this screen that scrolls, and only if the record is long
-   enough to need it. */
-.sentence-clues-scene--context .sentence-clues-scene__context-paragraphs {
-  flex: 0 1 auto;
-  min-height: 0;
   width: 100%;
-  overflow-y: auto;
+  text-align: left;
 }
 
 .sentence-clues-scene--context .sentence-clues-scene__context-p {
   display: flex;
   gap: 0;
-  font-size: 17px;
-  line-height: 1.7;
+  font-size: var(--type-body);
+  line-height: 1.8;
   text-align: left;
   word-break: keep-all;
 }
@@ -782,7 +895,7 @@
 /* The line that is not there. Dashed above and below so it reads as a gap in
    a record rather than as a quiet sentence. */
 .sentence-clues-scene--context .sentence-clues-scene__missing {
-  margin: var(--sp-24) 0 0;
+  margin: var(--sp-24) 0;
   padding: var(--sp-16) 0;
   border-top: 1px dashed var(--line);
   border-bottom: 1px dashed var(--line);
@@ -791,16 +904,16 @@
 
 .sentence-clues-scene--context .sentence-clues-scene__missing-text {
   font-family: var(--font-kr);
-  font-size: 13px;
+  font-size: var(--type-body);
   line-height: 1.6;
   color: var(--text-tertiary);
   word-break: keep-all;
 }
 
 .sentence-clues-scene--context .sentence-clues-scene__prompt {
-  margin: var(--sp-32) 0 0;
+  margin: 0;
   font-family: var(--font-kr);
-  font-size: 18px;
+  font-size: 1.75rem;
   line-height: 1.5;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -810,9 +923,9 @@
 }
 
 .sentence-clues-scene--context .sentence-clues-scene__instruction {
-  margin: var(--sp-8) 0 0;
+  margin: var(--sp-12) 0 0;
   font-family: var(--font-kr);
-  font-size: 15px;
+  font-size: var(--type-body);
   line-height: 1.7;
   color: var(--text-secondary);
   text-align: left;
@@ -820,7 +933,7 @@
 }
 
 .sentence-clues-scene--context .sentence-clues-scene__confirm {
-  margin-top: var(--sp-24);
+  margin-top: var(--sp-32);
 }
 
 
@@ -840,27 +953,18 @@
   justify-content: center;
   align-items: center;
   gap: 0;
-  padding: var(--stage-top) var(--sp-32) var(--stage-hud-clear);
+  padding: 72px var(--sp-32);
 }
 
 .sentence-clues-scene__record-grid {
   display: grid;
-  /* ~55:45, on a 1040–1120 measure. */
-  grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr);
-  gap: clamp(48px, 5vw, 64px);
-  /* `start`, not `center`: the sheet grows downward as the answer is typed
-     and as the addition lands, and a centred row would move its top edge on
-     every keystroke. The reserved height below keeps the row's own top still
-     while the Scene centres it. */
-  align-items: start;
-  width: 100%;
-  max-width: 1120px;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 40px;
+  width: min(1120px, 100%);
+  height: min(520px, 100%);
+  flex: none;
   min-width: 0;
-  /* The row is at least this tall whatever step it is on, so centring it in
-     the Scene resolves to the same y on all three. Measured: without it the
-     sheet jumped 39px between an empty and a filled answer. */
-  min-height: min(600px, 100%);
-  max-height: 100%;
 }
 
 /* ── The sheet ───────────────────────────────────────────────────────────── */
@@ -871,7 +975,8 @@
   flex-direction: column;
   min-width: 0;
   max-height: 100%;
-  padding: var(--sp-24) var(--sp-32) var(--sp-24);
+  padding: 20px 24px;
+  height: 100%;
   background: var(--glass-1);
   border: 1px solid var(--line-subtle);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.32);
@@ -884,7 +989,7 @@
   justify-content: space-between;
   gap: var(--sp-16);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--type-meta);
   line-height: 1.4;
   letter-spacing: 0.16em;
   /* Secondary, not tertiary: tertiary on --glass-1 over --bg-base does not
@@ -910,7 +1015,7 @@
   padding-bottom: var(--sp-16);
   border-bottom: 1px solid var(--line-subtle);
   font-family: var(--font-kr);
-  font-size: 13px;
+  font-size: var(--type-body);
   line-height: 1.6;
   font-weight: 400;
   letter-spacing: 0;
@@ -922,18 +1027,19 @@
 .sentence-clues-scene__sheet-lines {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-8);
-  min-height: 0;
-  overflow-y: auto;
-  padding: var(--sp-8) 0;
-  margin: 0 calc(var(--sp-16) * -1);
+  justify-content: center;
+  flex: 1;
+  gap: 4px;
+  overflow: visible;
+  padding: 4px 0;
+  margin: 0;
 }
 
 .sentence-clues-scene__record-line {
   display: grid;
   grid-template-columns: 30px minmax(0, 1fr);
   gap: var(--sp-12);
-  padding: var(--sp-12) var(--sp-16);
+  padding: 6px 8px;
   border-left: 1px solid transparent;
   transition: opacity 240ms ease, background-color 240ms ease, border-color 240ms ease;
 }
@@ -951,7 +1057,7 @@
 
 .sentence-clues-scene__record-no {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--type-meta);
   line-height: 2.6;
   letter-spacing: 0.16em;
   font-variant-numeric: tabular-nums;
@@ -965,11 +1071,11 @@
 .sentence-clues-scene__record-text {
   margin: 0;
   font-family: var(--font-kr);
-  font-size: 18px;
-  line-height: 1.75;
+  font-size: var(--type-body);
+  line-height: 1.55;
   color: var(--text-primary);
   word-break: keep-all;
-  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* ── What the visitor added ──────────────────────────────────────────────── */
@@ -987,7 +1093,7 @@
    treatment is for Latin marks only (see global.css's type rules). */
 .sentence-clues-scene__addition-label {
   font-family: var(--font-kr);
-  font-size: 11px;
+  font-size: var(--type-body);
   line-height: 1.4;
   font-weight: 500;
   letter-spacing: 0;
@@ -997,7 +1103,7 @@
 
 .sentence-clues-scene__addition-text {
   font-family: var(--font-kr);
-  font-size: 16px;
+  font-size: var(--type-body);
   line-height: 1.7;
   /* The sentence reads at full strength — what marks it as the visitor's own
      is the violet rule under it, not a colour of its own. */
@@ -1044,7 +1150,7 @@
   padding-top: var(--sp-16);
   border-top: 1px solid var(--line-subtle);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--type-body);
   line-height: 1.4;
   letter-spacing: 0.16em;
   color: var(--text-secondary);
@@ -1068,7 +1174,7 @@
   padding: 0;
   list-style: none;
   font-family: var(--font-kr);
-  font-size: 12px;
+  font-size: var(--type-meta);
   line-height: 1.4;
   color: var(--text-tertiary);
 }
@@ -1086,14 +1192,14 @@
 
 .sentence-clues-scene__step-no {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--type-meta);
   letter-spacing: 0.16em;
 }
 
 .sentence-clues-scene__panel-eyebrow {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--type-meta);
   line-height: 1.4;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1103,8 +1209,8 @@
 .sentence-clues-scene__panel-title {
   margin: var(--sp-16) 0 0;
   font-family: var(--font-kr);
-  font-size: 28px;
-  line-height: 1.4;
+  font-size: var(--type-title-sm);
+  line-height: 1.45;
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--text-primary);
@@ -1115,7 +1221,7 @@
 .sentence-clues-scene__panel-desc {
   margin: var(--sp-12) 0 0;
   font-family: var(--font-kr);
-  font-size: 15px;
+  font-size: var(--type-body);
   line-height: 1.7;
   color: var(--text-secondary);
   word-break: keep-all;
@@ -1124,7 +1230,7 @@
 .sentence-clues-scene__panel-hint {
   margin: var(--sp-12) 0 0;
   font-family: var(--font-kr);
-  font-size: 12px;
+  font-size: var(--type-body);
   line-height: 1.6;
   color: var(--text-tertiary);
   word-break: keep-all;
@@ -1150,7 +1256,7 @@
 
 .sentence-clues-scene__response-label {
   font-family: var(--font-kr);
-  font-size: 12px;
+  font-size: var(--type-body);
   line-height: 1.4;
   font-weight: 500;
   letter-spacing: 0;
@@ -1161,15 +1267,15 @@
 .sentence-clues-scene--record .sentence-clues-scene__response-input {
   box-sizing: border-box;
   width: 100%;
-  min-height: 112px;
-  max-height: 224px;
+  min-height: 96px;
+  max-height: 144px;
   padding: var(--sp-16);
   border: 1px solid var(--line);
   border-radius: var(--r-4);
   background: rgba(255, 255, 255, 0.025);
   color: var(--text-primary);
   font-family: var(--font-kr);
-  font-size: 16px;
+  font-size: var(--type-body);
   line-height: 1.6;
   text-align: left;
   /* Height is set from the content — the drag handle would fight it. */
@@ -1192,7 +1298,7 @@
 .sentence-clues-scene--record .sentence-clues-scene__response-count {
   align-self: flex-end;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--type-body);
   letter-spacing: 0.14em;
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
@@ -1205,7 +1311,7 @@
   margin: var(--sp-16) 0 0;
   max-width: none;
   text-align: left;
-  font-size: 20px;
+  font-size: var(--type-body-lg);
   line-height: 1.6;
   color: var(--text-secondary);
 }
@@ -1236,11 +1342,11 @@
   }
 
   .sentence-clues-scene__record-text {
-    font-size: 16px;
+    font-size: var(--type-body);
   }
 
   .sentence-clues-scene__panel-title {
-    font-size: 22px;
+    font-size: 1.375rem;
   }
 
   .sentence-clues-scene__panel-actions {
@@ -1259,3 +1365,91 @@
     transition: none;
   }
 }
+
+@media (max-width: 1023px) {
+  .sentence-clues-scene__slots { grid-template-columns: repeat(4, minmax(0, 1fr)); height: auto; grid-auto-rows: 52px; }
+}
+@media (max-width: 800px) {
+  .sentence-clues-scene__slots { grid-template-columns: repeat(3, minmax(0, 1fr)); height: auto; grid-auto-rows: 48px; }
+}
+
+.sentence-clues-scene__tray-label { display: flex; justify-content: space-between; margin: 0 0 8px; font-size: var(--type-body); color: var(--text-secondary); }
+.sentence-clues-scene__tray-label span { font-family: var(--font-mono); color: var(--trace); }
+.sentence-clues-scene__preview { width: 100%; min-width: 0; margin-top: 24px; }
+.sentence-clues-scene__preview > p { color: var(--text-tertiary); font-size: var(--type-body); }
+.sentence-clues-scene__preview > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.sentence-clues-scene__preview article { border-top: 1px solid var(--line); padding-top: 12px; }
+.sentence-clues-scene__preview article span { font: var(--type-body) var(--font-mono); color: var(--trace); }
+.sentence-clues-scene__preview article p { overflow-wrap: anywhere; word-break: keep-all; font-size: var(--type-body); line-height: 1.7; margin: 8px 0 0; }
+
+.sentence-clues-scene__context-detail { width: 100%; color: var(--text-secondary); font-size: var(--type-body); line-height: 1.7; }
+.sentence-clues-scene__context-detail summary { cursor: pointer; padding: 12px 0; border-top: 1px solid var(--line); }
+@media (max-width: 800px) {
+  .sentence-clues-scene--context .sentence-clues-scene__context-reading { grid-row: 1; }
+  .sentence-clues-scene__preview > div { grid-template-columns: 1fr; }
+}
+
+.sentence-clues-scene__selection-numbers { display: flex; gap: 6px; flex: none; }
+.sentence-clues-scene__selection-numbers > * { width: 40px; height: 32px; display: grid; place-content: center; font: var(--type-body) var(--font-mono); color: var(--text-tertiary); }
+.sentence-clues-scene__selection-numbers button { display: block; border: 1px solid var(--trace); border-radius: 3px; color: var(--text-primary); background: var(--glass-2); cursor: pointer; }
+.sentence-clues-scene__size-notice { display: none; max-width: 520px; text-align: left; }
+.sentence-clues-scene__size-notice h1 { font-size: 1.375rem; line-height: 1.5; }
+.sentence-clues-scene__size-notice p { font-size: var(--type-body); line-height: 1.8; color: var(--text-secondary); }
+@media (max-width: 1099px), (max-height: 649px) {
+  .sentence-clues-scene--explore, .sentence-clues-scene--record { display: flex; justify-content: center; overflow: visible; padding: 72px 24px; }
+  .sentence-clues-scene--explore > :not(.sentence-clues-scene__size-notice), .sentence-clues-scene--record > :not(.sentence-clues-scene__size-notice) { display: none; }
+  .sentence-clues-scene .sentence-clues-scene__size-notice { display: block; }
+}
+
+/* Intro: only the visitor's collected clues, within the shared header/HUD band. */
+.sentence-clues-scene--context {
+  display: flex; justify-content: center; align-items: center;
+  max-width: none; min-height: 0; top: 80px; height: calc(100% - 160px);
+  padding: 16px 32px; overflow: auto; gap: 0;
+}
+.sentence-clues-scene__intro { width: min(840px, 100%); text-align: center; }
+.sentence-clues-scene__intro-label { margin: 0 0 14px; font-size: var(--type-body); color: var(--trace); }
+.sentence-clues-scene__intro h1 { margin: 0; font-size: 1.625rem; line-height: 1.45; font-weight: 500; word-break: keep-all; text-wrap: balance; }
+.sentence-clues-scene__intro-guide { margin: 16px 0 0; font-size: var(--type-body); line-height: 1.7; color: var(--text-secondary); word-break: keep-all; }
+.sentence-clues-scene__clue-strip { display: flex; align-items: center; justify-content: center; gap: 24px; margin: 28px 0; padding: 20px 0; border-block: 1px solid var(--line); text-align: left; }
+.sentence-clues-scene__clue-strip > div { display: flex; align-items: baseline; gap: 12px; min-width: 0; }
+.sentence-clues-scene__clue-strip > div:last-child { max-width: 45%; }
+.sentence-clues-scene__clue-strip dt { flex: none; font-size: var(--type-body); color: var(--text-tertiary); }
+.sentence-clues-scene__clue-strip dd { margin: 0; font-size: var(--type-body); line-height: 1.7; word-break: keep-all; }
+.sentence-clues-scene__clue-strip .sentence-clues-scene__swatches { flex-wrap: nowrap; gap: 4px; }
+.sentence-clues-scene__clue-strip .sentence-clues-scene__swatches span { width: 18px; height: 18px; border-radius: 50%; }
+@media (min-width: 1100px) and (min-height: 650px) {
+  .sentence-clues-scene--explore { padding: 76px 28px; gap: 12px; min-height: 0; }
+  .sentence-clues-scene--explore .sentence-clues-scene__wall { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .sentence-clues-scene--explore .sentence-clues-scene__card { padding: 8px; gap: 4px; }
+  .sentence-clues-scene--explore .sentence-clues-scene__card-code { line-height: 1.2; }
+  .sentence-clues-scene--explore .sentence-clues-scene__card-text { line-height: 1.45; }
+}
+@media (min-width: 1100px) and (min-height: 650px) and (max-height: 780px) {
+  .sentence-clues-scene--explore { --sentence-body-size: var(--type-body); --sentence-caption-size: var(--type-meta); gap: 8px; }
+  .sentence-clues-scene--explore .stage-head__eyebrow { display: none; }
+  .sentence-clues-scene--explore .stage-head__title { margin: 0; font-size: 1.375rem; }
+  .sentence-clues-scene--explore .sentence-clues-scene__wall { gap: 6px; }
+  .sentence-clues-scene--explore .sentence-clues-scene__foot { gap: 12px; }
+  .sentence-clues-scene--explore .sentence-clues-scene__count { font-size: var(--type-meta); }
+  .sentence-clues-scene--context .sentence-clues-scene__clue-strip { margin-block: 24px; }
+}
+@media (max-width: 700px) {
+  .sentence-clues-scene__clue-strip { flex-wrap: wrap; gap: 12px 20px; }
+  .sentence-clues-scene__clue-strip > div:last-child { max-width: 100%; }
+}
+
+/* Body type is invariant across supported desktop sizes. */
+.sentence-clues-scene--explore { --sentence-body-size: var(--type-body); --sentence-caption-size: var(--type-meta); }
+.sentence-clues-scene__selection-numbers > * { width: 46px; min-height: 40px; font-size: var(--type-button); }
+.sentence-clues-scene--explore .sentence-clues-scene__count { font-size: var(--type-meta); }
+.sentence-clues-scene--explore .sentence-clues-scene__card-code { letter-spacing: 0; }
+@media (min-width: 1100px) and (min-height: 650px) {
+  .sentence-clues-scene--explore { padding: 86px 24px 80px; gap: 8px; }
+  .sentence-clues-scene--explore .sentence-clues-scene__card { padding: 7px 9px; gap: 3px; }
+  .sentence-clues-scene--explore .sentence-clues-scene__card-text { line-height: 1.4; }
+  .sentence-clues-scene--explore .sentence-clues-scene__foot { gap: 16px; }
+  .sentence-clues-scene--explore .metric__label { max-width: 380px; }
+}
+
+.sentence-clues-scene__selection-numbers button { display: flex; align-items: center; justify-content: center; gap: 3px; padding: 0; width: 48px; white-space: nowrap; }

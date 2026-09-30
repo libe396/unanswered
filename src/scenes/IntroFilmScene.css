@@ -45,7 +45,7 @@
   object-fit: contain;
   background: var(--bg-base);
   opacity: 0;
-  transition: opacity 400ms var(--ease-scene, ease);
+  transition: opacity 800ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .intro-film-scene--ready .intro-film-scene__video {
@@ -62,20 +62,20 @@
   background: var(--bg-base);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 550ms ease;
+  transition: opacity 800ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .intro-film-scene--ended .intro-film-scene__curtain {
   opacity: 1;
 }
 
-/* Invisible full-bleed catcher for the autoplay-blocked fallback: any
-   click/key/touch anywhere on screen retries playback with sound. No
-   visible "Play" affordance by design. */
+/* Autoplay-blocked fallback; explicit audible-play control, above the film. */
 .intro-film-scene__gesture-catcher {
   position: absolute;
   inset: 0;
   z-index: 2;
+  display: grid;
+  place-items: center;
   background: transparent;
 }
 
@@ -109,7 +109,7 @@
   border: none;
   background: transparent;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--type-button);
   line-height: 1.4;
   letter-spacing: 0.14em;
   text-transform: uppercase;

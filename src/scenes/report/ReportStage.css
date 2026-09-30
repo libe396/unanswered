@@ -46,7 +46,7 @@
 
 .report-stage__eyebrow-code {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--type-meta);
   line-height: 1.4;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -60,7 +60,7 @@
 
 .report-stage__eyebrow-title {
   font-family: var(--font-kr);
-  font-size: 12px;
+  font-size: var(--type-meta);
   line-height: 1.4;
   font-weight: 500;
   letter-spacing: 0;
@@ -82,7 +82,7 @@
 .report-stage__kicker {
   margin: 0;
   font-family: var(--font-kr);
-  font-size: 12px;
+  font-size: var(--type-meta);
   line-height: 1.4;
   font-weight: 500;
   letter-spacing: 0;
@@ -91,7 +91,7 @@
 
 .report-stage__lede {
   margin: 0;
-  font-size: clamp(15px, 1.7vw, 18px);
+  font-size: clamp(var(--type-body), 1.7vw, var(--type-body));
   line-height: 1.7;
   color: rgba(232, 230, 240, 0.86);
   white-space: pre-line;
@@ -114,7 +114,7 @@
 /* Latin numerals, and the same value each stage's eyebrow now prints. */
 .report-stage-nav__index {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--type-meta);
   line-height: 1.4;
   letter-spacing: 0.16em;
   font-variant-numeric: tabular-nums;
@@ -150,7 +150,7 @@
   }
 
   .report-stage__lede {
-    font-size: 14px;
+    font-size: var(--type-body);
   }
 
   .report-stage-nav {
@@ -163,4 +163,12 @@
   .report-stage-nav__cta span:last-child {
     transition-duration: 1ms;
   }
+}
+
+/* Report titles belong below the shared BACK / Zone navigation. */
+.report-stage__eyebrow { top: 96px; }
+.report-stage { padding-top: 132px; padding-bottom: 116px; }
+@media (max-width: 640px) {
+  .report-stage__eyebrow { top: 88px; }
+  .report-stage__body { max-height: none; }
 }

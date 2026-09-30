@@ -129,6 +129,9 @@ const OBJECT_GROUP_ORDER: readonly ObjectGroup[] = ['activity', 'personal', 'env
  *  single group leads (nothing recognised, or a tie) — a mixed trace claims
  *  no particular character and falls back to the plain, ungrouped phrasing. */
 function dominantObjectGroup(ids: readonly string[]): ObjectGroup | null {
+  // An unmapped memory object keeps the whole trace in the existing neutral
+  // wording, including mixed selections. Do not borrow another object's reading.
+  if (ids.some((id) => !OBJECT_GROUP_BY_ID[id])) return null;
   const counts: Record<ObjectGroup, number> = { activity: 0, personal: 0, environment: 0 };
   ids.forEach((id) => {
     const group = OBJECT_GROUP_BY_ID[id];

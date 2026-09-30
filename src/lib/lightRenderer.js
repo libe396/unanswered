@@ -4,8 +4,23 @@ const WIDTH = 1000;
 const HEIGHT = 1000;
 const CENTER = { x: WIDTH / 2, y: HEIGHT / 2 };
 
-export function renderLightGraphic(canvas, rawRules, variation = 1) {
+// Every later Zone reuses the visitor's same deterministic light. Keep one
+// full-resolution copy so returning to a scene (or entering the record layer)
+// does not synchronously repaint the expensive field during its crossfade.
+let lastRenderKey = null;
+let lastRenderCanvas = null;
+
+/** @param {((canvas: HTMLCanvasElement, index: number, field: any) => void) | null} onLayer */
+export function renderLightGraphic(canvas, rawRules, variation = 1, onLayer = null) {
   if (!canvas) return;
+
+  const renderKey = JSON.stringify([rawRules, variation]);
+  if (!onLayer && lastRenderCanvas && lastRenderKey === renderKey) {
+    canvas.width = WIDTH;
+    canvas.height = HEIGHT;
+    canvas.getContext('2d').drawImage(lastRenderCanvas, 0, 0);
+    return;
+  }
 
   const rules = applyEmotionModifiers(rawRules);
 
@@ -24,13 +39,24 @@ export function renderLightGraphic(canvas, rawRules, variation = 1) {
   const field = createRuleField(rules, palette, colorWeights, origin, seed);
 
   paintCanvas(context, palette, colorWeights, rules, origin);
+  onLayer?.(canvas, 0, field);
   paintMemoryField(context, field.memoryField, rules);
   paintSoftCircles(context, field.circles, rules);
+  onLayer?.(canvas, 1, field);
   paintFaintLines(context, field.lines, rules);
   paintSensoryOrigin(context, palette, field.secondaryLights, rules, origin);
   paintIntersections(context, field.intersections, palette, rules);
+  onLayer?.(canvas, 2, field);
   paintTexture(context, palette, rules, field.memoryField, random);
   applyContrastPass(context, palette, rules);
+
+  onLayer?.(canvas, 3, field);
+  const copy = canvas.ownerDocument.createElement('canvas');
+  copy.width = WIDTH;
+  copy.height = HEIGHT;
+  copy.getContext('2d').drawImage(canvas, 0, 0);
+  lastRenderCanvas = copy;
+  lastRenderKey = renderKey;
 }
 
 function createRuleField(rules, palette, colorWeights, origin, seed) {

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { SOUND_CLUES } from '../data/content';
+import { StageActions, StageHeader } from '../components/StageHeader';
 import { useExperienceStore } from '../store/experienceStore';
 import { logSceneTracking, useSceneTracking } from '../hooks/useSceneTracking';
 import { detectSoundPatterns } from '../lib/soundPatterns';
@@ -46,23 +47,18 @@ function formatClock(seconds: number): string {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-/**
- * One abstract line glyph per glass dome.
- *
- * Deliberately not pictures of rain, a cup, a pencil. The Zone's whole premise
- * (see the note over SOUND_CLUES in content.ts) is that a sound named is a
- * sound answered — so each specimen gets a neutral mark, not an illustration
- * of what it might be. They differ only enough to tell the domes apart.
- */
-const SPECIMEN_GLYPHS: string[] = [
-  'M3 15 Q7 9 11 15 T19 15 M3 9 Q7 4 11 9 T19 9',
-  'M11 3 A8 8 0 1 0 11 19 M11 7 A4 4 0 1 1 11 15',
-  'M4 18 A14 14 0 0 1 18 4 M4 13 A9 9 0 0 1 13 4 M4 8 A4 4 0 0 1 8 4',
-  'M4 18 L16 6 M15 5 L18 8 M6 16 L4 18 L6 16',
-  'M7 3 L7 11 M7 15 L7 19 M14 5 L14 13 M14 17 L14 21',
-  'M6 4 L16 4 L16 18 L6 18 Z M6 11 L16 11 M11 4 L11 18',
-  'M11 3 C5 11 5 15 11 19 C17 15 17 11 11 3 Z',
-];
+// Five reference glyphs traced from zone3_1.png; subway/car share their stroke and scale.
+// Keys follow audio identity, never shelf position.
+const SPECIMEN_GLYPHS = {
+  subway: 'M7 7Q7 3 18 3Q29 3 29 7V26Q29 30 25 30H11Q7 30 7 26Z M11 9H25V19H11Z M18 9V19 M14 6H22 M11 24a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0-3 0 M22 24a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0-3 0 M12 30L8 35 M24 30L28 35 M10 33H26',
+  car: 'M5 18L9 8Q10 6 13 6H23Q26 6 27 8L31 18 M5 18Q3 19 3 22V29H33V22Q33 19 31 18Z M10 10H26L29 17H7Z M3 20L1 17 M33 20L35 17 M7 29V33H11V29 M25 29V33H29V29 M7 23H12 M24 23H29 M15 26H21',
+
+  rain: 'M7 21C2 21 2 13 7 13C7 8 12 6 15 10C19 3 25 7 25 12C32 12 33 21 27 21Z M8 25v2 M14 24v3 M20 25v2 M26 24v3 M11 30v1 M23 30v1',
+  paper: 'M4 24L18 4L29 12L15 31Z M8 23L19 8L25 13L14 27Z M7 28L18 33L30 17 M9 32L30 35L30 22 M12 22L20 12 M15 23L22 14',
+  pencil: 'M3 33L7 24L27 4L32 9L12 29Z M7 24L12 29 M24 7L29 12 M9 26L27 8 M3 33L9 31',
+  elevator: 'M3 5H33V35H3Z M6 8H17V32H6Z M20 8H30V32H20Z M18 2V5 M11 15V23 M8 20L11 23L14 20 M25 15V23 M22 20L25 23L28 20',
+  people: 'M8 9a3.5 3.5 0 1 0 0-7a3.5 3.5 0 1 0 0 7 M18 9a3.5 3.5 0 1 0 0-7a3.5 3.5 0 1 0 0 7 M28 9a3.5 3.5 0 1 0 0-7a3.5 3.5 0 1 0 0 7 M3 23V16Q3 12 8 12Q13 12 13 16V23 M5 17V34H8V25 M8 34H11V17 M14 23V16Q14 12 18 12Q22 12 22 16V23 M16 17V34H18V25 M18 34H20V17 M23 23V16Q23 12 28 12Q33 12 33 16V23 M25 17V34H28V25 M28 34H31V17',
+};
 
 const WAVEFORM_BARS = [
   0.18, 0.34, 0.24, 0.52, 0.38, 0.68, 0.3, 0.46, 0.22, 0.62, 0.36, 0.78,
@@ -70,13 +66,8 @@ const WAVEFORM_BARS = [
   0.26, 0.54, 0.72, 0.4, 0.24, 0.6, 0.34, 0.5,
 ];
 
-function SpecimenGlyph({ index }: { index: number }) {
-  const d = SPECIMEN_GLYPHS[index % SPECIMEN_GLYPHS.length];
-  return (
-    <svg viewBox="0 0 22 22" aria-hidden="true" focusable="false">
-      <path d={d} fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
+function SpecimenGlyph({ clue }: { clue: (typeof SOUND_CLUES)[number] }) {
+  return <svg viewBox="0 0 36 38" aria-hidden="true" focusable="false"><path d={SPECIMEN_GLYPHS[clue.icon]} fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 }
 
 function PlayerWaveform({ active, progress }: { active: boolean; progress: number }) {
@@ -206,6 +197,10 @@ export function SoundCluesScene() {
   // prior answer (Back navigation, forward again) is a different case —
   // restoring it, not pre-answering for a first-time visitor.
   const [position, setPosition] = useState<MemoryPosition | null>(() => storedSoundClues.memoryPosition);
+
+  const [echo, setEcho] = useState<(MemoryPosition & { key: number }) | null>(null);
+  const echoSequence = useRef(0);
+  function pulse(point: MemoryPosition) { setEcho({ ...point, key: ++echoSequence.current }); }
 
   const fieldRef = useRef<HTMLDivElement | null>(null);
   const draggingRef = useRef(false);
@@ -447,6 +442,7 @@ export function SoundCluesScene() {
       pointerType: event.pointerType,
     });
     setPosition(next);
+    pulse(next);
   }
 
   function handleFieldPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
@@ -480,6 +476,7 @@ export function SoundCluesScene() {
       ArrowUp: [0, -step],
       ArrowDown: [0, step],
     };
+    if ((event.key === 'Enter' || event.key === ' ') && position) { event.preventDefault(); pulse(position); return; }
     const move = delta[event.key];
     if (!move) return;
     event.preventDefault();
@@ -497,6 +494,7 @@ export function SoundCluesScene() {
     if (position !== null) tracking.positionMove(POSITION_GROUP, next);
     tracking.positionEnd(POSITION_GROUP, { reason: 'pointerUp' });
     setPosition(next);
+    pulse(next);
   }
 
   // The sound list is on screen from the moment the Zone opens. The field is
@@ -594,7 +592,7 @@ export function SoundCluesScene() {
    * thing that has to read first. Everything else (the number, the glyph, the
    * waveform while it plays) sits quietly inside or below it.
    */
-  function renderCloche(clue: (typeof SOUND_CLUES)[number], index: number) {
+  function renderCloche(clue: (typeof SOUND_CLUES)[number]) {
     const r = getRuntime(clue.id);
     const listened = listenedIds.has(clue.id);
     const state = [
@@ -612,7 +610,7 @@ export function SoundCluesScene() {
         type="button"
         className={`sound-clues-scene__cloche ${state}`}
         aria-pressed={r.isPlaying}
-        aria-label={`${clue.label}${listened ? ', 청취함' : ''}${r.isPlaying ? ', 재생 중' : ''}`}
+        aria-label={`${clue.label}${listened ? ', 청취함' : ''}${r.isPlaying ? ', 현재 재생 중' : ''}${selectedSoundId === clue.id ? ', 최종 선택됨' : ''}`}
         onClick={() => handleClocheClick(clue.id)}
       >
         <span className="sound-clues-scene__cloche-stage">
@@ -621,7 +619,7 @@ export function SoundCluesScene() {
             <span className="sound-clues-scene__cloche-glass" aria-hidden="true" />
             <span className="sound-clues-scene__cloche-fill" aria-hidden="true" />
             <span className="sound-clues-scene__cloche-glyph">
-              <SpecimenGlyph index={index} />
+              <SpecimenGlyph clue={clue} />
             </span>
             <span className="sound-clues-scene__cloche-wave" aria-hidden="true">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -632,21 +630,15 @@ export function SoundCluesScene() {
           <span className="sound-clues-scene__cloche-base" aria-hidden="true" />
           <span className="sound-clues-scene__cloche-glow" aria-hidden="true" />
         </span>
-        {/*
-          One label per specimen. This used to print the number inside the
-          dome, again as a caption number, and a third time as `clue.label` —
-          which is itself only ever "SOUND 01", because SOUND_CLUES carries no
-          names (see content.ts: naming a sound is the one thing this Zone
-          must not do). So there is nothing to pair the number with, and the
-          label stands alone.
-        */}
         <span className="sound-clues-scene__cloche-caption">
           <span className="sound-clues-scene__cloche-caption-label">
             {clue.label}
+            {selectedSoundId === clue.id && <span className="sound-clues-scene__selection-check" aria-hidden="true">✓</span>}
             {listened ? (
               <span className="sound-clues-scene__cloche-heard" aria-hidden="true" />
             ) : null}
           </span>
+          <span className="sound-clues-scene__cloche-status">{r.isPlaying ? '재생 중' : '\u00a0'}</span>
         </span>
       </button>
     );
@@ -655,9 +647,8 @@ export function SoundCluesScene() {
   function renderPlayer(clue: (typeof SOUND_CLUES)[number] | null, runtimeForClue: SoundRuntime | null) {
     if (!clue || !runtimeForClue) {
       return (
-        <div className="sound-clues-scene__player sound-clues-scene__player--empty">
-          <span className="sound-clues-scene__player-empty">소리 단서를 선택해 주세요</span>
-        </div>
+        /* Empty, not captioned: what to do is said once, in the header. */
+        <div className="sound-clues-scene__player sound-clues-scene__player--empty" />
       );
     }
 
@@ -672,18 +663,20 @@ export function SoundCluesScene() {
           <div className="sound-clues-scene__player-actions">
             <button
               type="button"
-              className="sound-clues-scene__mini-btn"
+              className="cta cta--secondary sound-clues-scene__mini-btn"
               onClick={() => handleClocheClick(clue.id)}
             >
               {runtimeForClue.isPlaying ? '일시정지' : runtimeForClue.heardToEnd ? '다시 듣기' : '재생'}
             </button>
             <button
               type="button"
-              className="sound-clues-scene__mini-btn sound-clues-scene__mini-btn--mark"
+              className={`cta cta--secondary sound-clues-scene__mini-btn${
+                selectedSoundId === clue.id ? ' sound-clues-scene__mini-btn--marked' : ''
+              }`}
               onClick={() => selectSound(clue.id)}
               disabled={selectedSoundId === clue.id}
             >
-              {selectedSoundId === clue.id ? '표시됨' : '이 소리로 표시'}
+              {selectedSoundId === clue.id ? '선택한 소리 ✓' : '이 소리 선택'}
             </button>
           </div>
         </div>
@@ -704,18 +697,17 @@ export function SoundCluesScene() {
           the action row below it, both on the same 960 measure and the same
           left edge.
         */}
-        <header className="sound-clues-scene__head">
-          <p className="sound-clues-scene__eyebrow">SOUND CLUES</p>
-          <h1 className="sound-clues-scene__title">
-            그 사람의 기억에선 어떤 소리가 존재했을까요?
-          </h1>
-        </header>
+        <StageHeader
+          eyebrow="소리의 흔적"
+          title="그 사람의 기억에선 어떤 소리가 존재했을까요?"
+          description="유리 아래 놓인 소리 단서를 눌러 들어 보고, 보고서에 남길 소리 하나를 선택해 주세요."
+        />
 
         <div className="sound-clues-scene__shelf-scroll">
           <span className="residue sound-clues-scene__residue" aria-hidden="true" />
           <div className="sound-clues-scene__shelf">
             <div className="sound-clues-scene__shelf-row">
-              {SOUND_CLUES.map((clue, index) => renderCloche(clue, index))}
+              {SOUND_CLUES.map((clue) => renderCloche(clue))}
             </div>
             <div className="sound-clues-scene__shelf-surface" aria-hidden="true" />
           </div>
@@ -723,33 +715,35 @@ export function SoundCluesScene() {
 
         {renderPlayer(focusedClue, focusedRuntime)}
 
-        <div className="sound-clues-scene__action">
-          <p className="metric sound-clues-scene__progress">
-            <span className="metric__value">
-              {listenedIds.size} / {SOUND_CLUES.length}
-            </span>
-            <span className="metric__label">단서 청취</span>
-          </p>
+        <StageActions
+          info={
+            <p className="metric sound-clues-scene__progress">
+              <span className="metric__value">
+                {listenedIds.size} / {SOUND_CLUES.length}
+              </span>
+              <span className="metric__label">단서 청취</span>
+            </p>
+          }
+        >
           <button
-            className="cta cta--primary sound-clues-scene__confirm"
+            className="cta cta--primary"
             onClick={goToPositioning}
             disabled={!selectedSoundId}
           >
             다음으로
           </button>
-        </div>
+        </StageActions>
       </div>
     );
   }
 
   return (
     <div className="sound-clues-scene sound-clues-scene--positioning">
-      <header className="sound-clues-scene__head">
-        <p className="sound-clues-scene__eyebrow">SOUND CLUES</p>
-        <h1 className="sound-clues-scene__title">
-          이 소리가 기억 속 어디쯤 남아 있는지 표시하세요
-        </h1>
-      </header>
+      <StageHeader
+        eyebrow="소리의 흔적"
+        title="이 소리가 기억 속 어디쯤 남아 있는지 표시하세요"
+        description="가로는 흐릿함에서 선명함으로, 세로는 가까이에서 멀리로 읽힙니다."
+      />
 
       {renderPlayer(selectedClue, selectedSoundId ? getRuntime(selectedSoundId) : null)}
 
@@ -786,6 +780,7 @@ export function SoundCluesScene() {
           >
             <span className="sound-clues-scene__field-hair sound-clues-scene__field-hair--v" />
             <span className="sound-clues-scene__field-hair sound-clues-scene__field-hair--h" />
+            {echo && <span key={echo.key} className="sound-clues-scene__echo" style={{ left: `${echo.x * 100}%`, top: `${echo.y * 100}%` }} aria-hidden="true">{[0, 1, 2].map((i) => <i key={i} style={{ animationDelay: `${i * 160}ms` }} />)}</span>}
             {position ? (
               <span
                 className="sound-clues-scene__mark"
@@ -798,16 +793,19 @@ export function SoundCluesScene() {
         </div>
       </div>
 
-      <div className="sound-clues-scene__action">
-        <span />
-        <button
-          className="cta cta--primary sound-clues-scene__confirm"
-          onClick={handleConfirm}
-          disabled={!position}
-        >
+      <StageActions
+        info={
+          <p className="metric sound-clues-scene__progress">
+            <span className="metric__label">
+              {position ? '표시한 위치로 기록됩니다.' : '패드를 눌러 위치를 표시하세요.'}
+            </span>
+          </p>
+        }
+      >
+        <button className="cta cta--primary" onClick={handleConfirm} disabled={!position}>
           다음으로
         </button>
-      </div>
+      </StageActions>
     </div>
   );
 }

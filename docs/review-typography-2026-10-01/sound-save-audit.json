@@ -1,0 +1,254 @@
+[
+  {
+    "width": 1920,
+    "height": 1080,
+    "saved": {
+      "events": [
+        {
+          "soundId": "SOUND_01",
+          "totalPlayedMs": 16,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_02",
+          "totalPlayedMs": 0,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_03",
+          "totalPlayedMs": 0,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_04",
+          "totalPlayedMs": 0,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_05",
+          "totalPlayedMs": 0,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_06",
+          "totalPlayedMs": 18,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_07",
+          "totalPlayedMs": 0,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        }
+      ],
+      "selectedSoundId": "SOUND_01",
+      "memoryPosition": {
+        "x": 0.7033333333333334,
+        "y": 0.3033062744140625
+      },
+      "selectedKeyword": null
+    }
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "saved": {
+      "events": [
+        {
+          "soundId": "SOUND_01",
+          "totalPlayedMs": 28,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_02",
+          "totalPlayedMs": 0,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_03",
+          "totalPlayedMs": 0,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_04",
+          "totalPlayedMs": 0,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_05",
+          "totalPlayedMs": 0,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_06",
+          "totalPlayedMs": 8,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_07",
+          "totalPlayedMs": 0,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        }
+      ],
+      "selectedSoundId": "SOUND_01",
+      "memoryPosition": {
+        "x": 0.7033333333333334,
+        "y": 0.3033062744140625
+      },
+      "selectedKeyword": null
+    }
+  },
+  {
+    "width": 1366,
+    "height": 768,
+    "saved": {
+      "events": [
+        {
+          "soundId": "SOUND_01",
+          "totalPlayedMs": 34,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_02",
+          "totalPlayedMs": 0,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_03",
+          "totalPlayedMs": 0,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_04",
+          "totalPlayedMs": 0,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_05",
+          "totalPlayedMs": 0,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_06",
+          "totalPlayedMs": 14,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_07",
+          "totalPlayedMs": 0,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        }
+      ],
+      "selectedSoundId": "SOUND_01",
+      "memoryPosition": {
+        "x": 0.7033333333333334,
+        "y": 0.3033104451497396
+      },
+      "selectedKeyword": null
+    }
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "saved": {
+      "events": [
+        {
+          "soundId": "SOUND_01",
+          "totalPlayedMs": 32,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_02",
+          "totalPlayedMs": 0,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_03",
+          "totalPlayedMs": 0,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_04",
+          "totalPlayedMs": 0,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_05",
+          "totalPlayedMs": 0,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_06",
+          "totalPlayedMs": 12,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        },
+        {
+          "soundId": "SOUND_07",
+          "totalPlayedMs": 0,
+          "replayCount": 0,
+          "completedFully": false,
+          "skipped": true
+        }
+      ],
+      "selectedSoundId": "SOUND_01",
+      "memoryPosition": {
+        "x": 0.7049233527477078,
+        "y": 0.30488944882117264
+      },
+      "selectedKeyword": null
+    }
+  }
+]
