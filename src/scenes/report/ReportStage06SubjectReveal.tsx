@@ -12,10 +12,7 @@ import './ReportStage06SubjectReveal.css';
 
 interface Props { index: number; total: number; locked: boolean; onAdvance: () => void }
 
-const PREAMBLE = [
-  '당신은 특정한 누군가를 떠올리며\n이 기록을 복원했을지도 모릅니다.',
-  '그렇다면 이 기록에 남은 선택들은\n누구의 것이었을까요?',
-];
+const PREAMBLE = ['당신은 특정한 누군가를 떠올리며\n이 기록을 복원했을지도 모릅니다.'];
 
 export function ReportStage06SubjectReveal({ index, total, locked, onAdvance }: Props) {
   const reduced = useReducedMotion();
@@ -35,8 +32,7 @@ export function ReportStage06SubjectReveal({ index, total, locked, onAdvance }: 
   const [notice, setNotice] = useState('');
   const [phase, setPhase] = useState(0);
 
-  // Two quiet opening beats: the person imagined, then the question of whose
-  // choices these were. The answer is given only by the reveal.
+  // One quiet opening beat; the reveal's setup line answers it.
   useEffect(() => {
     if (preamble >= PREAMBLE.length) return;
     const timer = window.setTimeout(() => setPreamble((value) => value + 1), 4500);
@@ -124,7 +120,7 @@ export function ReportStage06SubjectReveal({ index, total, locked, onAdvance }: 
     {choice === null && preamble >= PREAMBLE.length && <CameraOptIn onUse={() => { setChoice('camera'); setEnabled(true); }} onSkip={continueWithoutCamera} />}
     {choice !== null && !ready && <div className="camera-consent" role="status"><p>마지막 장면에 내 얼굴을 비추기 위해 카메라를 준비하고 있습니다.</p><button className="cta cta--secondary" onClick={continueWithoutCamera}>카메라 없이 계속하기</button></div>}
     <div className="identity-reveal" aria-live="polite" hidden={!ready}>
-      <p className="identity-reveal__setup" hidden={phase >= 3}>{ready ? '이 보고서에 남은 흔적의 주인은,' : '\u00a0'}</p>
+      <p className="identity-reveal__setup" hidden={phase >= 3}>{ready ? '하지만 이 선택들 외의 것들에서\n발견할 수 있던 건 바로,' : '\u00a0'}</p>
       <motion.div className="identity-reveal__portrait" style={{ display: phase >= 3 ? 'none' : undefined }} animate={{ opacity: ready && phase >= 1 ? 1 : 0 }} transition={{ duration: reduced ? .1 : 1.6 }}>
         <video ref={video} muted playsInline autoPlay className={`identity-reveal__video${live ? ' identity-reveal__video--live' : ''}`} aria-label="저장되지 않는 실시간 거울 화면" />
         {ready && !live && <div className="identity-reveal__traces">
@@ -133,7 +129,6 @@ export function ReportStage06SubjectReveal({ index, total, locked, onAdvance }: 
 
         </div>}
       </motion.div>
-      {ready && !live && phase >= 1 && phase < 3 && <p className="identity-reveal__evidence">{evidence[0]?.text ?? '확인할 수 있는 선택 기록이 없습니다.'}</p>}
       <motion.h1 hidden={phase >= 3} animate={{ opacity: ready && phase >= 2 ? 1 : 0 }} transition={{ duration: reduced ? .1 : 1 }}>당신입니다.</motion.h1>
       {phase === 3 && <motion.p className="identity-reveal__closure" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{evidence.length ? `그 사람을 상상하는 동안,\n당신의 ${hasDwell ? '선택과 머무름도' : '선택의 흔적도'} 이곳에 남았습니다.` : '이 보고서는 상상한 사람을 알아맞히는 대신, 이곳에 남은 선택의 흔적을 담습니다.'}</motion.p>}
       {phase >= 4 && <motion.p className="identity-reveal__final" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{RECORD_CLOSING}</motion.p>}

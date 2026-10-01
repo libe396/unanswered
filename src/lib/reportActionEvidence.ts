@@ -8,7 +8,7 @@ export interface ActionEvidence { kind: 'dwell' | 'removed' | 'replay' | 'select
 export type BehaviorRecords = Partial<Record<SceneId, SceneBehaviorRecord>>;
 export const PROCESS_GUIDE = '고른 단서뿐 아니라, 선택에 이르는 과정도 기록에 남았습니다.';
 export const RECORD_MEANING = '누구를 떠올렸든, 선택의 순간에는 당신이 있었습니다.\n이 보고서는 그 순간에 남은 당신의 흔적을 모았습니다.';
-export const RECORD_CLOSING = '보고서에 적히는 것은 결론이 아니라 흔적입니다.';
+export const RECORD_CLOSING = '보고서엔 무의식의 당신이 남아있습니다.';
 
 function objectParticle(label: string): string {
   const code = label.charCodeAt(label.length - 1);
