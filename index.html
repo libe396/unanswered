@@ -4,10 +4,57 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>UNANSWERED</title>
-    <script type="module" crossorigin src="/unanswered/assets/index-DCRqCwPo.js"></script>
-    <link rel="stylesheet" crossorigin href="/unanswered/assets/index-Dl783xIt.css">
+    <script type="module" crossorigin src="/unanswered/assets/index-BaZRYjcK.js"></script>
+    <link rel="stylesheet" crossorigin href="/unanswered/assets/index-CJX1JsnB.css">
   </head>
   <body>
     <div id="root"></div>
+    <!--
+      Temporary debug for the mobile report (#/r/). Plain ES5 and inline, so it
+      still runs when the module bundle fails to load or parse on an older
+      browser. Without ?debug=1 it only replaces a blank screen with one line;
+      with ?debug=1 it shows every error's message and stack.
+    -->
+    <script>
+      (function () {
+        if (location.hash.indexOf('#/r/') !== 0) return;
+        var debug = /[?&]debug=1(&|$)/.test(location.search);
+        var panel = null;
+        function show(message, stack) {
+          var root = document.getElementById('root');
+          var blank = !root || root.childElementCount === 0;
+          if (!debug && !blank) return;
+          if (!panel) {
+            panel = document.createElement('div');
+            panel.setAttribute('style', 'position:fixed;left:0;right:0;bottom:0;max-height:70vh;overflow:auto;z-index:99999;padding:16px;background:#0b0b0e;color:#edecf2;font:14px/1.5 system-ui,sans-serif;border-top:1px solid #444');
+            var title = document.createElement('p');
+            title.style.margin = '0';
+            title.textContent = '기록을 불러오지 못했습니다.';
+            panel.appendChild(title);
+            document.body.appendChild(panel);
+          }
+          if (!debug) return;
+          var pre = document.createElement('pre');
+          pre.setAttribute('style', 'margin:12px 0 0;font-size:12px;white-space:pre-wrap;word-break:break-all;color:#b8b5c2');
+          pre.textContent = String(message) + '\n' + (stack || '(no stack)');
+          panel.appendChild(pre);
+        }
+        window.addEventListener('error', function (event) {
+          var where = event.filename ? event.filename + ':' + event.lineno + ':' + event.colno : '';
+          show(event.message || 'Error', (event.error && event.error.stack) || where);
+        });
+        window.addEventListener('unhandledrejection', function (event) {
+          var reason = event.reason;
+          show('Unhandled rejection: ' + ((reason && reason.message) || reason), reason && reason.stack);
+        });
+        // Nothing rendered after load (e.g. the module never ran): say so.
+        window.addEventListener('load', function () {
+          setTimeout(function () {
+            var root = document.getElementById('root');
+            if (root && root.childElementCount === 0) show('Nothing rendered (module script did not run?)', navigator.userAgent);
+          }, 4000);
+        });
+      })();
+    </script>
   </body>
 </html>
