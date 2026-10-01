@@ -3,55 +3,92 @@
   color: var(--color-text-dim);
 }
 
+/* The components are the subject here, the sentences their captions: a 2×2
+   grid while they arrive one by one, then a single grid cell they all gather
+   into as one layered record (framer `layout` animates between the two). */
 .report-stage-05__composition {
-  position: absolute;
-  inset: clamp(78px, 13vh, 124px) clamp(20px, 5vw, 72px) clamp(118px, 17vh, 160px);
+  position: relative;
+  z-index: 1;
   display: grid;
-  place-items: center;
-  pointer-events: none;
+  grid-template-columns: repeat(2, minmax(0, auto));
+  gap: clamp(16px, 3.2vh, 32px) clamp(20px, 4vw, 56px);
+  align-items: start;
+  justify-items: center;
+  margin-top: clamp(28px, 5vh, 48px);
+}
+
+.report-stage-05__composition--gathered {
+  grid-template-columns: auto;
+  grid-template-areas: 'stack';
+  align-items: center;
 }
 
 .report-stage-05__trace {
-  position: absolute;
+  position: relative;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
   transform-origin: center;
 }
 
+.report-stage-05__composition--gathered .report-stage-05__trace,
+.report-stage-05__composition--gathered .report-stage-05__record-core {
+  grid-area: stack;
+}
+
+.report-stage-05__trace .report-evidence-visual--converge {
+  width: clamp(180px, 22vw, 260px);
+}
+
 .report-stage-05__trace .report-evidence-visual__label {
-  opacity: 0.7;
+  opacity: 0.9;
+  color: rgba(232, 230, 240, 0.86);
 }
 
 .report-stage-05__trace .report-evidence-visual__frame {
-  opacity: 0.78;
+  opacity: 1;
+  background: #0d0c12;
+  border-color: rgba(232, 230, 240, 0.32);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.55);
 }
 
+.report-stage-05__caption {
+  max-width: clamp(180px, 22vw, 260px);
+  min-height: 2.9em;
+  font-size: var(--type-meta);
+  line-height: 1.45;
+  color: rgba(232, 230, 240, 0.86);
+  word-break: keep-all;
+}
+
+/* The gathered record's binding frame: drawn over the stack once it has
+   formed, so the four layers read as one record. */
 .report-stage-05__record-core {
-  position: relative;
-  width: clamp(120px, 16vw, 190px);
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(232, 230, 240, 0.22);
-  background: rgba(5, 5, 6, 0.7);
-  box-shadow: 0 0 70px rgba(164, 144, 255, 0.09);
-}
-
-.report-stage-05__record-core span {
   position: absolute;
-  border: 1px solid rgba(138, 107, 255, 0.24);
+  inset: 50% auto auto 50%;
+  z-index: 10;
+  width: clamp(250px, 27vw, 330px);
+  aspect-ratio: 16 / 11;
+  translate: -50% -50%;
+  border: 1px solid rgba(198, 188, 231, 0.42);
+  box-shadow: 0 0 90px rgba(164, 144, 255, 0.18), inset 0 0 40px rgba(164, 144, 255, 0.08);
+  pointer-events: none;
 }
 
-.report-stage-05__record-core span:nth-child(1) {
-  inset: 18%;
+.report-stage-05__composition--gathered .report-stage-05__record-core {
+  position: relative;
+  inset: auto;
+  translate: 0 2px;
 }
 
-.report-stage-05__record-core span:nth-child(2) {
-  inset: 31% 16%;
-  transform: rotate(34deg);
+.report-stage-05__trace .report-evidence-visual__label {
+  transition: opacity 0.6s ease;
 }
 
-.report-stage-05__record-core span:nth-child(3) {
-  inset: 16% 34%;
-  transform: rotate(-28deg);
+.report-stage-05__composition--gathered .report-evidence-visual__label {
+  opacity: 0;
 }
 
 .report-stage-05__marker {
@@ -79,7 +116,7 @@
   position: relative;
   z-index: 2;
   width: min(680px, 86vw);
-  min-height: clamp(160px, 24dvh, 230px);
+  min-height: clamp(96px, 16dvh, 160px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -107,20 +144,24 @@
 }
 
 @media (max-width: 640px) {
-  .report-stage-05__composition {
-    inset: 92px 18px 138px;
-  }
-
-  .report-stage-05__trace {
-    transform: none;
+  .report-stage-05__trace .report-evidence-visual--converge,
+  .report-stage-05__caption {
+    width: 40vw;
+    max-width: 40vw;
   }
 
   .report-stage-05__record-core {
-    width: 118px;
+    width: 46vw;
+  }
+
+  .report-stage-05__trace .report-evidence-visual__sentence {
+    padding: 10px;
+    font-size: var(--type-meta);
+    line-height: 1.5;
   }
 
   .report-stage-05__copy-frame {
-    min-height: 190px;
+    min-height: 120px;
   }
 
   .report-stage-05__question {
@@ -131,5 +172,4 @@
 .report-stage-05__facts { width: 100%; font-size: var(--type-body); line-height: 1.7; text-align: left; text-shadow: 0 2px 8px #000; }
 .report-stage-05__facts > p { margin: 0 0 20px; color: var(--text-secondary); }
 .report-stage-05__facts ul { padding: 0; margin: 0; list-style: none; display: grid; gap: 16px; }
-.report-stage-05__composition { opacity: .2; }
 @media (max-width: 640px) { .report-stage-05__facts ul { gap: 12px; } }

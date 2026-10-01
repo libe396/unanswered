@@ -1,13 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { drawStrokes } from '../../lib/memorySketch';
 import { MemoryRoom } from '../../components/MemoryRoom';
 import { ROOM_WIDTH, ROOM_HEIGHT, ROOM_OBJECT_GEOMETRY } from '../../data/memoryRoomGeometry';
 import { MEMORY_ROOM_OBJECTS } from '../../data/content';
-import type { RecordLayerDerived, Stroke } from '../../types';
+import type { RecordLayerDerived, SceneBehaviorRecord, Stroke } from '../../types';
 import { useStageReveal } from './useStageReveal';
 import { ReportStageNav } from './ReportStageNav';
 import { REPORT_CONCLUSION } from '../../lib/reportFindingCopy';
+import { HESITATION_VIEW_MS } from '../../lib/reportActionEvidence';
+import { OBJECT_GROUP } from '../../lib/memoryTracking';
+import { useExperienceStore } from '../../store/experienceStore';
 import './ReportStage04MemoryReconstruction.css';
 
 interface Props {
@@ -23,6 +26,17 @@ interface Props {
 }
 
 const CONCLUSION_HOLD_MS = 3800;
+
+/** Total hover time per object in the room, summed from the scene's own
+ *  `view` events. Empty on touch, where nothing can be hovered. */
+function objectDwellMs(events: SceneBehaviorRecord['events']): Record<string, number> {
+  const totals: Record<string, number> = {};
+  for (const event of events) {
+    if (event.type !== 'view' || event.group !== OBJECT_GROUP || !Number.isFinite(event.durationMs)) continue;
+    totals[event.targetId] = (totals[event.targetId] ?? 0) + event.durationMs;
+  }
+  return totals;
+}
 
 /** Slices `strokes` down to its first `revealedPoints` points, in stroke
  *  order — every earlier stroke stays whole, the stroke the count lands
@@ -60,6 +74,45 @@ export function ReportStage04MemoryReconstruction({ record, index, total, locked
   const memory = record.memorySketch;
   const hasRecord = memory.lastInputAt > 0 || memory.selectedObjects.length > 0 || memory.strokes.length > 0;
   const unselected = hasRecord ? MEMORY_ROOM_OBJECTS.filter((object) => ROOM_OBJECT_GEOMETRY.some(({ id }) => id === object.id) && !memory.selectedObjects.includes(object.id)) : [];
+  // Unselected objects the pointer rested on, longest first. Only real `view`
+  // events count; without them (touch, older records) the stage falls back to
+  // marking every unselected object, as before.
+  const memoryEvents = useExperienceStore((state) => state.behavior.memorySketch?.events);
+  const dwellMs = objectDwellMs(memoryEvents ?? []);
+  const dwelled = unselected
+    .filter((object) => (dwellMs[object.id] ?? 0) >= HESITATION_VIEW_MS)
+    .map((object) => ({ ...object, ms: dwellMs[object.id], geometry: ROOM_OBJECT_GEOMETRY.find(({ id }) => id === object.id)! }))
+    .sort((a, b) => b.ms - a.ms);
+  const hasDwell = dwelled.length > 0;
+  const overlayRef = useRef<SVGSVGElement>(null);
+  const [labelScale, setLabelScale] = useState(1);
+  useLayoutEffect(() => {
+    const svg = overlayRef.current;
+    if (!svg) return;
+    const measure = () => {
+      const matrix = svg.getScreenCTM();
+      if (matrix) setLabelScale(1 / Math.max(0.01, Math.hypot(matrix.a, matrix.b)));
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(svg); measure();
+    return () => observer.disconnect();
+  }, [hasDwell]);
+  // Labels sit just below each object, as the room's own hover label does,
+  // and step further down when they would overlap one placed before them.
+  const dwellLabels: { id: string; text: string; width: number; x: number; y: number; top: number; bottom: number }[] = [];
+  for (const [rank, { id, label, ms, geometry }] of dwelled.entries()) {
+    const text = `${label} · ${(ms / 1000).toFixed(1)}초`;
+    const width = Math.max(96, text.length * 15 + 28);
+    const x = geometry.marker[0];
+    let y = geometry.marker[1] + 45 * labelScale;
+    // Box extents in room units; the longest also carries its tag above.
+    const above = (rank === 0 ? 52 : 21) * labelScale;
+    const below = 19 * labelScale;
+    const collides = () => dwellLabels.some((placed) =>
+      Math.abs(placed.x - x) * 2 < (placed.width + width) * labelScale && y - above < placed.bottom && y + below > placed.top);
+    for (let tries = 0; tries < 6 && collides(); tries++) y += 44 * labelScale;
+    dwellLabels.push({ id, text, width, x, y, top: y - above, bottom: y + below });
+  }
   const [showUnselected, setShowUnselected] = useState(Boolean(prefersReducedMotion));
   useEffect(() => {
     if (prefersReducedMotion) { setShowUnselected(true); return; }
@@ -131,6 +184,7 @@ export function ReportStage04MemoryReconstruction({ record, index, total, locked
   const finalCopy = !hasRecord ? '이 공간에 남겨진 선택 기록이 없습니다.'
     : unselected.length === 0 ? '선택할 수 있는 모든 물건을 기록에 남겼습니다.'
     : memory.selectedObjects.length === 0 ? '물건을 선택하지 않고 이 공간을 지나갔습니다.'
+    : hasDwell ? '고르지 않았지만 오래 머문 자리도\n기록에 남았습니다.'
     : '선택하지 않고 남겨둔 자리도\n이번 기록에 함께 남았습니다.';
   const copy = [
     ...(hasStrokes ? ['익숙한 방에 당신의 흔적이 남아 있습니다.', '당신이 남긴 선과 선택한 물건들입니다.', finalCopy]
@@ -153,14 +207,34 @@ export function ReportStage04MemoryReconstruction({ record, index, total, locked
           onViewStart={() => {}}
           onViewEnd={() => {}}
           interactive={false}
-          highlightIds={unselected.map((object) => object.id)}
+          highlightIds={hasDwell ? [] : unselected.map((object) => object.id)}
           highlightsVisible={showUnselected}
         />
         <canvas ref={canvasRef} width={ROOM_WIDTH} height={ROOM_HEIGHT} className="report-stage-04__canvas" />
+        {hasDwell ? (
+          <svg ref={overlayRef} className={`report-stage-04__dwell${showUnselected ? ' report-stage-04__dwell--visible' : ''}`}
+            viewBox={`0 0 ${ROOM_WIDTH} ${ROOM_HEIGHT}`} preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            {dwelled.map(({ id, geometry }) => (
+              <path key={id} d={geometry.path} fillRule={id === 'cup' || id === 'window' ? 'evenodd' : 'nonzero'}
+                className="report-stage-04__dwell-outline" />
+            ))}
+            {dwellLabels.map(({ id, text, width, x, y }, rank) => {
+              return (
+                <g key={id} className={`report-stage-04__dwell-label${rank === 0 ? ' report-stage-04__dwell-label--longest' : ''}`}
+                  transform={`translate(${x} ${y}) scale(${labelScale})`}>
+                  {rank === 0 ? <text className="report-stage-04__dwell-tag" y="-30" textAnchor="middle">가장 오래 머문 곳</text> : null}
+                  <rect x={-width / 2} y="-19" width={width} height="36" rx="4" />
+                  <text y="6" textAnchor="middle">{text}</text>
+                </g>
+              );
+            })}
+          </svg>
+        ) : null}
       </div>
 
       <p className="report-stage-04__legend" aria-live="polite">
-        {showUnselected && hasRecord && unselected.length > 0 ? <><span aria-hidden="true" />선택하지 않고 남겨둔 자리 · {unselected.map((object) => object.label).join(' · ')}</> : !hasRecord ? '선택 기록 없음 · 미선택 영역을 표시하지 않습니다.' : unselected.length === 0 ? '모든 물건을 선택했습니다.' : '선택한 물건과 남긴 흔적'}
+        {hasDwell ? <><span className="report-stage-04__key report-stage-04__key--selected" aria-hidden="true" />고른 것<span className="report-stage-04__key report-stage-04__key--dwell" aria-hidden="true" />머물렀던 것</>
+          : showUnselected && hasRecord && unselected.length > 0 ? <><span aria-hidden="true" />선택하지 않고 남겨둔 자리 · {unselected.map((object) => object.label).join(' · ')}</> : !hasRecord ? '선택 기록 없음 · 미선택 영역을 표시하지 않습니다.' : unselected.length === 0 ? '모든 물건을 선택했습니다.' : '선택한 물건과 남긴 흔적'}
       </p>
       <div className="report-stage-04__copy-frame">
         <AnimatePresence mode="wait">

@@ -1,10 +1,11 @@
 import { buildActionEvidence, RECORD_CLOSING } from '../../lib/reportActionEvidence';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useShallow } from 'zustand/react/shallow';
 import { selectRecordLayerDerived, useExperienceStore } from '../../store/experienceStore';
 import { useCameraPreference } from '../../store/cameraPreference';
 import { renderLightGraphic } from '../../lib/lightRenderer.js';
+import { createFigureRenderer, DESIGN_H, DESIGN_W } from '../../lib/figureLight';
 import { CameraOptIn } from '../../components/CameraOptIn';
 import { ReportStageNav } from './ReportStageNav';
 import './ReportStage06SubjectReveal.css';
@@ -36,6 +37,19 @@ export function ReportStage06SubjectReveal({ index, total, locked, onAdvance }: 
   const video = useRef<HTMLVideoElement>(null);
   const light = useRef<HTMLCanvasElement>(null);
   const [lightUrl, setLightUrl] = useState<string | null>(null);
+  // Landing's HeroFigure, painted once in its intact first frame. Its alpha is
+  // the bust silhouette (head, neck and shoulders in one outline), so it serves
+  // as the reveal's mask; on the turn to front its shading returns as the face.
+  const [figureUrl, setFigureUrl] = useState<string | null>(null);
+  useEffect(() => {
+    try {
+      const canvas = document.createElement('canvas');
+      const renderer = createFigureRenderer(canvas);
+      renderer.resize(DESIGN_W, DESIGN_H, 2);
+      renderer.render({ time: 0, energy: 0, cursorX: 0, cursorY: 0 });
+      setFigureUrl(canvas.toDataURL('image/png'));
+    } catch { /* CSS fallback silhouette stays */ }
+  }, []);
   const investigatorName = useExperienceStore((state) => state.investigator?.investigatorName ?? '');
   const palette = record.light?.rules.palette ?? [];
   const stopCamera = useRef<() => void>(() => {});
@@ -138,6 +152,7 @@ export function ReportStage06SubjectReveal({ index, total, locked, onAdvance }: 
     ].filter(Boolean).join(', ') || undefined,
   };
   const t = (seconds: number) => ({ duration: reduced ? 0 : seconds });
+  const figureStyle = figureUrl ? ({ '--figure-mask': `url(${figureUrl})` } as CSSProperties) : undefined;
 
   return <div className="report-stage report-stage-06" data-reveal-phase={phase}>
     <p className="report-stage__eyebrow">마지막 기록</p>
@@ -148,7 +163,7 @@ export function ReportStage06SubjectReveal({ index, total, locked, onAdvance }: 
       <p className="identity-reveal__setup" style={{ visibility: phase <= 3 ? 'visible' : 'hidden' }}>
         {ready ? '하지만 이 선택들 외의 것들에서\n발견할 수 있던 건 바로,' : '\u00a0'}
       </p>
-      <motion.div className="identity-figure" initial={{ opacity: 0 }} animate={{ opacity: ready ? 1 : 0 }} transition={t(1.4)}>
+      <motion.div className={`identity-figure${figureUrl ? ' identity-figure--hero' : ''}`} style={figureStyle} initial={{ opacity: 0 }} animate={{ opacity: ready ? 1 : 0 }} transition={t(1.4)}>
         {(['side', 'front'] as const).map((pose) => (
           <motion.div
             key={pose}
@@ -165,6 +180,7 @@ export function ReportStage06SubjectReveal({ index, total, locked, onAdvance }: 
               animate={{ opacity: phase >= 1 ? 1 : 0 }}
               transition={t(2.4)}
             />
+            {pose === 'front' && figureUrl ? <span className="identity-figure__face" style={{ backgroundImage: `url(${figureUrl})` }} /> : null}
           </motion.div>
         ))}
         <video

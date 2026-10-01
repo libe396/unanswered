@@ -7,6 +7,7 @@ import { buildReport } from '../utils/report';
 import { buildReportFindings, pickReturnFinding, pickStage03Highlight } from '../lib/reportStageFacts';
 import { buildFinalReportPresentation } from '../lib/finalReportPresentation';
 import { buildReportUrl, encodeReport } from '../lib/reportShare';
+import { hasHesitationEvidence } from '../lib/reportActionEvidence';
 import { isVenueMode } from '../lib/venueMode';
 import { ReportStage01CollectedClues } from './report/ReportStage01CollectedClues';
 import { ReportStage02BehaviorTrace } from './report/ReportStage02BehaviorTrace';
@@ -68,6 +69,10 @@ export function FinalReportScene() {
   const findings = useMemo(() => buildReportFindings(behavior, record), [behavior, record]);
   const returnFinding = useMemo(() => pickReturnFinding(findings), [findings]);
   const stage03Finding = useMemo(() => pickStage03Highlight(findings), [findings]);
+  const conclusion = useMemo(
+    () => (hasHesitationEvidence(findings, record, behavior) ? REPORT_CONCLUSION : REPORT_CONCLUSION_NO_HESITATION),
+    [findings, record, behavior],
+  );
   const presentation = useMemo(
     () => buildFinalReportPresentation(record, report, finalReportMeta?.generatedAt ?? null),
     [record, report, finalReportMeta],
@@ -149,6 +154,7 @@ export function FinalReportScene() {
             total={total}
             locked={locked}
             onAdvance={handleAdvance}
+            conclusion={conclusion}
           />
         );
       case 'memory':
@@ -160,7 +166,7 @@ export function FinalReportScene() {
             locked={locked}
             onAdvance={handleAdvance}
             conclude={!stage03Finding}
-            conclusion={returnFinding || stage03Finding ? REPORT_CONCLUSION : REPORT_CONCLUSION_NO_HESITATION}
+            conclusion={conclusion}
           />
         );
       case 'observation':

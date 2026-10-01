@@ -1,4 +1,4 @@
-import { buildActionEvidence, PROCESS_GUIDE } from '../../lib/reportActionEvidence';
+import { actionEvidenceText, buildActionEvidence, PROCESS_GUIDE } from '../../lib/reportActionEvidence';
 import { useExperienceStore } from '../../store/experienceStore';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
@@ -19,28 +19,42 @@ interface Props {
   onAdvance: () => void;
 }
 
-const LINE_MS = 3200;
+/** Each component and its sentence hold this long before the next appears. */
+const STEP_MS = 2600;
+/** How long the four take to gather into one layered mass. */
+const GATHER_MS = 2400;
 
-const TRACE_LAYOUT: Array<{ sceneId: SceneId; x: number; y: number; delay: number }> = [
-  { sceneId: 'lightArchive', x: -250, y: -120, delay: 0 },
-  { sceneId: 'soundClues', x: 240, y: -88, delay: 0.25 },
-  { sceneId: 'sentenceClues', x: -220, y: 132, delay: 0.5 },
-  { sceneId: 'memorySketch', x: 230, y: 124, delay: 0.75 },
-];
+const TRACE_ORDER: SceneId[] = ['lightArchive', 'soundClues', 'sentenceClues', 'memorySketch'];
+/** Where each card settles in the gathered stack — a slight offset and turn,
+ *  so the four read as layers of one record rather than a single card. */
+const STACK_OFFSET: Record<string, { x: number; y: number; rotate: number }> = {
+  lightArchive: { x: -18, y: -14, rotate: -5 },
+  soundClues: { x: 16, y: -8, rotate: 4 },
+  sentenceClues: { x: -10, y: 12, rotate: 2 },
+  memorySketch: { x: 14, y: 16, rotate: -2 },
+};
 
 export function ReportStage05Observation({ record, report, findings, index, total, locked, onAdvance }: Props) {
   const prefersReducedMotion = useReducedMotion();
   const behavior = useExperienceStore((state) => state.behavior);
   const evidence = buildActionEvidence(record, behavior);
   const hasProcess = evidence.some((item) => item.kind !== 'selection');
-  // One line at a time, like every other stage: the guide, then each piece of
-  // evidence. The traces converge on the last line.
-  const lines = [
-    hasProcess ? PROCESS_GUIDE.replace(', ', ',\n') : '이번 기록에서 확인할 수 있는\n선택입니다.',
-    ...(evidence.length ? evidence.map((item) => item.text) : ['확인할 수 있는 선택 기록이 없습니다.']),
-  ];
-  const finalPhase = lines.length - 1;
-  const [phase, setPhase] = useState(prefersReducedMotion ? finalPhase : 0);
+  // One small sentence per component: this visit's process evidence for that
+  // scene when there is one, otherwise the plain recorded choice.
+  const caption = (sceneId: SceneId): string => {
+    const found = evidence.find((item) => item.sceneId === sceneId && item.text);
+    if (found) return found.text;
+    if (sceneId === 'lightArchive') return record.light ? '이 빛을 골랐습니다.' : '고른 빛이 없습니다.';
+    if (sceneId === 'soundClues') return (record.soundClues.selectedSoundId && actionEvidenceText('selection', 'soundClues', record.soundClues.selectedSoundId)) || '고른 소리가 없습니다.';
+    if (sceneId === 'sentenceClues') return (record.sentenceClues.selectedSentenceIds[0] && actionEvidenceText('selection', 'sentenceClues', record.sentenceClues.selectedSentenceIds[0])) || '고른 문장이 없습니다.';
+    return (record.memorySketch.selectedObjects[0] && actionEvidenceText('selection', 'memorySketch', record.memorySketch.selectedObjects[0])) || '고른 물건이 없습니다.';
+  };
+  const closingLine = hasProcess ? PROCESS_GUIDE.replace(', ', ',\n') : '이번 기록에서 확인할 수 있는\n선택입니다.';
+  // 0–3: components appear one by one · 4: they gather · 5: the closing line.
+  const GATHER_PHASE = TRACE_ORDER.length;
+  const FINAL_PHASE = GATHER_PHASE + 1;
+  const [phase, setPhase] = useState(prefersReducedMotion ? FINAL_PHASE : 0);
+  const gathered = phase >= GATHER_PHASE;
   const hasReturn = findings.some((finding) => finding.kind === 'return' || finding.kind === 'replay');
   const hasHold = findings.some(
     (finding) => finding.kind === 'hesitation' || finding.kind === 'dwell' || finding.kind === 'revision',
@@ -48,18 +62,21 @@ export function ReportStage05Observation({ record, report, findings, index, tota
 
   useEffect(() => {
     if (prefersReducedMotion) {
-      setPhase(finalPhase);
+      setPhase(FINAL_PHASE);
       return;
     }
 
     setPhase(0);
-    const timers = Array.from({ length: finalPhase }, (_, i) =>
-      window.setTimeout(() => setPhase(i + 1), (i + 1) * LINE_MS),
-    );
+    const timers = [
+      ...TRACE_ORDER.slice(1).map((_, i) => window.setTimeout(() => setPhase(i + 1), (i + 1) * STEP_MS)),
+      window.setTimeout(() => setPhase(GATHER_PHASE), TRACE_ORDER.length * STEP_MS),
+      window.setTimeout(() => setPhase(FINAL_PHASE), TRACE_ORDER.length * STEP_MS + GATHER_MS),
+    ];
     return () => timers.forEach((timer) => window.clearTimeout(timer));
-  }, [prefersReducedMotion, finalPhase]);
+  }, [prefersReducedMotion, GATHER_PHASE, FINAL_PHASE]);
 
-  const revealed = useStageReveal(prefersReducedMotion ? 260 : finalPhase * LINE_MS + 3000);
+  const revealed = useStageReveal(prefersReducedMotion ? 260 : TRACE_ORDER.length * STEP_MS + GATHER_MS + 2400);
+  const motionTransition = (seconds: number) => ({ duration: prefersReducedMotion ? 0 : seconds, ease: [0.22, 1, 0.36, 1] as const });
 
   return (
     <div className="report-stage report-stage-05">
@@ -69,49 +86,57 @@ export function ReportStage05Observation({ record, report, findings, index, tota
         <span className="report-stage__eyebrow-title">선택의 과정</span>
       </p>
 
-      <div className="report-stage-05__composition" aria-hidden="true">
-        {TRACE_LAYOUT.map((trace) => (
-          <motion.div
-            key={trace.sceneId}
-            className="report-stage-05__trace"
-            initial={{ opacity: 0, x: trace.x, y: trace.y, scale: 1 }}
-            animate={{
-              opacity: phase >= 0 ? 1 : 0,
-              x: phase >= finalPhase ? 0 : trace.x,
-              y: phase >= finalPhase ? 0 : trace.y,
-              scale: 1,
-            }}
-            transition={{
-              duration: prefersReducedMotion ? 0.15 : phase >= finalPhase ? 2.2 : 1,
-              delay: prefersReducedMotion ? 0 : trace.delay,
-              ease: [0.22, 1, 0.36, 1],
-            }}
-          >
-            <ReportEvidenceVisual sceneId={trace.sceneId} record={record} report={report} mode="converge" />
-          </motion.div>
-        ))}
-
+      <div className={`report-stage-05__composition${gathered ? ' report-stage-05__composition--gathered' : ''}`}>
         <motion.div
           className="report-stage-05__record-core"
-          initial={{ opacity: 0, scale: 0.92 }}
-          animate={{ opacity: phase >= finalPhase ? 1 : 0.18, scale: phase >= finalPhase ? 1 : 0.92 }}
-          transition={{ duration: prefersReducedMotion ? 0.15 : 1.6, ease: [0.22, 1, 0.36, 1] }}
+          aria-hidden="true"
+          initial={false}
+          animate={{ opacity: gathered ? 1 : 0, scale: gathered ? 1 : 0.92 }}
+          transition={motionTransition(1.6)}
         >
-          <span />
-          <span />
-          <span />
           {hasReturn ? <b className="report-stage-05__marker report-stage-05__marker--return">RETURN</b> : null}
           {hasHold ? <b className="report-stage-05__marker report-stage-05__marker--hold">HOLD</b> : null}
         </motion.div>
+        {TRACE_ORDER.map((sceneId, order) => {
+          const offset = STACK_OFFSET[sceneId];
+          return (
+            <motion.figure
+              key={sceneId}
+              layout={!prefersReducedMotion}
+              className="report-stage-05__trace"
+              style={{ zIndex: order + 1 }}
+              initial={false}
+              animate={{
+                opacity: phase >= order ? 1 : 0,
+                y: gathered ? offset.y : phase >= order ? 0 : 14,
+                x: gathered ? offset.x : 0,
+                rotate: gathered ? offset.rotate : 0,
+              }}
+              transition={{ ...motionTransition(gathered ? GATHER_MS / 1000 : 1), layout: motionTransition(GATHER_MS / 1000) }}
+            >
+              <ReportEvidenceVisual sceneId={sceneId} record={record} report={report} mode="converge" />
+              <motion.figcaption
+                className="report-stage-05__caption"
+                initial={false}
+                animate={{ opacity: gathered ? 0 : 1 }}
+                transition={motionTransition(gathered ? 0.6 : 1)}
+              >
+                {caption(sceneId)}
+              </motion.figcaption>
+            </motion.figure>
+          );
+        })}
       </div>
 
       <div className="report-stage-05__copy-frame">
-        <AnimatePresence mode="wait">
-          <motion.p key={phase} className="report-stage-05__line"
-            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: prefersReducedMotion ? .1 : .8 }}>
-            {lines[phase]}
-          </motion.p>
+        <AnimatePresence>
+          {phase >= FINAL_PHASE ? (
+            <motion.p key="closing" className="report-stage-05__line"
+              initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: prefersReducedMotion ? .1 : .8 }}>
+              {closingLine}
+            </motion.p>
+          ) : null}
         </AnimatePresence>
       </div>
 

@@ -20,8 +20,9 @@ import type { SceneId } from '../types';
 
 /** The second layer's conclusion: REPORT 03's last line, or REPORT 04's when
  *  there is no REPORT 03 this visit. */
-export const REPORT_CONCLUSION = '누구를 떠올렸든,\n망설인 손은 당신의 것이었습니다.';
-/** The same conclusion when no return or hesitation was recorded this visit. */
+export const REPORT_CONCLUSION = '누구를 떠올렸든,\n이 순간의 망설임은 당신의 것이었습니다.';
+/** The same conclusion when no hesitation evidence was recorded this visit
+ *  (see `hasHesitationEvidence` in reportActionEvidence.ts). */
 export const REPORT_CONCLUSION_NO_HESITATION = '누구를 떠올렸든,\n고른 손은 당신의 것이었습니다.';
 
 export const STAGE_01_COPY = {

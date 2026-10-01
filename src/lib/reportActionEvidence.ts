@@ -3,6 +3,7 @@ import type { RecordLayerDerived, SceneBehaviorRecord, SceneId } from '../types'
 import { sentenceDwellNote } from './sentenceDwellNote';
 import { OBJECT_GROUP } from './memoryTracking';
 import { summarizeSound } from './soundTracking';
+import type { ReportFinding } from './reportStageFacts';
 
 export type ActionEvidenceKind = 'dwell' | 'removed' | 'replay' | 'selection';
 export type ActionEvidenceScene = 'soundClues' | 'memorySketch' | 'sentenceClues';
@@ -20,7 +21,22 @@ export interface ActionEvidence {
 export type BehaviorRecords = Partial<Record<SceneId, SceneBehaviorRecord>>;
 export const PROCESS_GUIDE = '고른 단서뿐 아니라, 선택에 이르는 과정도 기록에 남았습니다.';
 export const RECORD_MEANING = '누구를 떠올렸든, 선택의 순간에는 당신이 있었습니다.\n이 보고서는 그 순간에 남은 당신의 흔적을 모았습니다.';
-export const RECORD_CLOSING = '이 보고서는 상상한 사람을 알아맞히는 대신, 고르는 동안 남은 흔적을 기록합니다.';
+export const RECORD_CLOSING = '상상한 사람을 알아맞히는 것보다,\n고르는 동안 남은 당신의 흔적을 기록했습니다.';
+
+/** A look this long or longer counts toward the hesitation conclusion. */
+export const HESITATION_VIEW_MS = 1000;
+
+/** Whether the visit left any hesitation evidence: a return, a changed choice,
+ *  a replayed sound, or a look of `HESITATION_VIEW_MS`+. Picks the conclusion
+ *  line; reads existing Findings and raw events only. */
+export function hasHesitationEvidence(findings: readonly ReportFinding[], record: RecordLayerDerived, behavior: BehaviorRecords = {}): boolean {
+  if (findings.some((finding) => finding.kind === 'return' || finding.kind === 'revision' || finding.kind === 'replay')) return true;
+  const replays = behavior.soundClues ? Object.values(summarizeSound(behavior.soundClues).replayCountBySound)
+    : record.soundClues.events.map((event) => event.replayCount);
+  if (replays.some((count) => Number.isInteger(count) && count > 0)) return true;
+  return Object.values(behavior).some((scene) => scene?.events.some((event) =>
+    event.type === 'deselect' || (event.type === 'view' && event.durationMs >= HESITATION_VIEW_MS)));
+}
 
 function objectParticle(label: string): string {
   const code = label.charCodeAt(label.length - 1);

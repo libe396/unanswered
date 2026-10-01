@@ -77,3 +77,18 @@
 .report-stage-04__legend span { display: inline-block; width: 10px; height: 10px; margin-right: 8px; background: #c6bce7; opacity: .6; }
 
 .report-stage-04 .report-stage__eyebrow { position: static; transform: none; flex: none; }
+
+/* Unselected objects the visitor rested on: dashed outline + dwell label.
+   Same viewBox and letterboxing as the MemoryRoom SVG underneath. */
+.report-stage-04__dwell { position: absolute; inset: 0; z-index: 3; width: 100%; height: 100%; overflow: visible; pointer-events: none; opacity: 0; transition: opacity 1800ms ease; }
+.report-stage-04__dwell--visible { opacity: 1; }
+.report-stage-04__dwell-outline { fill: rgba(198, 188, 231, 0.08); stroke: #d9d0f5; stroke-width: 1.5; stroke-dasharray: 5 4; vector-effect: non-scaling-stroke; }
+.report-stage-04__dwell-label rect { fill: rgba(20, 18, 28, 0.88); stroke: rgba(198, 188, 231, 0.5); stroke-width: 1; stroke-dasharray: 3 3; }
+.report-stage-04__dwell-label text { fill: #e8e6f0; font-family: var(--font-kr); font-size: var(--type-body); }
+.report-stage-04__dwell-label--longest rect { fill: #2a2340; stroke: #c6bce7; stroke-dasharray: none; stroke-width: 1.5; }
+.report-stage-04__dwell-label--longest text { fill: #fff; font-weight: 600; }
+.report-stage-04__dwell-label--longest .report-stage-04__dwell-tag { fill: #c6bce7; font-weight: 400; font-size: var(--type-meta, 0.8125rem); letter-spacing: 0.04em; paint-order: stroke; stroke: rgba(5, 5, 6, 0.85); stroke-width: 4px; }
+.report-stage-04__legend .report-stage-04__key { display: inline-block; width: 10px; height: 10px; margin: 0 8px 0 0; vertical-align: baseline; }
+.report-stage-04__legend .report-stage-04__key--selected { background: #8973be; opacity: 1; }
+.report-stage-04__legend .report-stage-04__key--dwell { box-sizing: border-box; margin-left: 20px; background: none; border: 1.5px dashed #d9d0f5; opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .report-stage-04__dwell { transition: none; } }

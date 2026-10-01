@@ -17,6 +17,8 @@ interface Props {
   total: number;
   locked: boolean;
   onAdvance: () => void;
+  /** The conclusion to carry; defaults to the hesitation wording. */
+  conclusion?: string;
 }
 
 /**
@@ -52,7 +54,7 @@ function stage03EvidenceCopy(finding: ReportFinding): string {
   return evidenceCopy(finding.evidence[0]?.sceneId ?? 'lightArchive', 'hold');
 }
 
-export function ReportStage03Hesitation({ finding, record, report, index, total, locked, onAdvance }: Props) {
+export function ReportStage03Hesitation({ finding, record, report, index, total, locked, onAdvance, conclusion = REPORT_CONCLUSION }: Props) {
   const prefersReducedMotion = useReducedMotion();
   const finalPhase = 2;
   const [phase, setPhase] = useState(0);
@@ -149,7 +151,7 @@ export function ReportStage03Hesitation({ finding, record, report, index, total,
               exit={{ opacity: 0 }}
               transition={{ duration: prefersReducedMotion ? 0.2 : 1.1, ease: [0.22, 1, 0.36, 1] }}
             >
-              {REPORT_CONCLUSION}
+              {conclusion}
             </motion.p>
           ) : null}
         </AnimatePresence>
