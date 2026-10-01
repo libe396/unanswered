@@ -1,0 +1,45 @@
+.report-bridge {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-32);
+  padding: var(--sp-32) var(--sp-16);
+  box-sizing: border-box;
+  background: var(--bg-base);
+  text-align: center;
+  font-family: var(--font-kr);
+  word-break: keep-all;
+  cursor: pointer;
+  outline: none;
+}
+
+.report-bridge__line {
+  margin: 0;
+  max-width: min(680px, 88vw);
+  font-size: clamp(var(--type-body), 2.4vw, 1.5625rem);
+  line-height: 1.72;
+  color: var(--text-secondary);
+}
+
+.report-bridge__line--turn {
+  color: var(--text-primary);
+}
+
+.report-bridge__hint {
+  position: absolute;
+  bottom: 48px;
+  font-size: var(--type-meta);
+  color: var(--text-tertiary);
+}
+
+.report-bridge:focus-visible .report-bridge__hint {
+  color: var(--trace);
+}
+
+@media (max-width: 640px) {
+  .report-bridge__line { font-size: var(--type-body); }
+}

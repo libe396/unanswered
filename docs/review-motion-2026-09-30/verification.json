@@ -1,0 +1,22 @@
+[
+  {
+    "label": "bright",
+    "analysisEqual": true,
+    "pixelsEqual": true,
+    "brightness": 0.5669723521181385,
+    "contours": 8,
+    "sources": 5,
+    "skipStable": true,
+    "saveNext": true
+  },
+  {
+    "label": "dark",
+    "analysisEqual": true,
+    "pixelsEqual": true,
+    "brightness": 0.16263180382474593,
+    "contours": 3,
+    "sources": 5,
+    "skipStable": true,
+    "saveNext": true
+  }
+]

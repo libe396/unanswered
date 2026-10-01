@@ -1,0 +1,50 @@
+[
+  {
+    "mode": "allow-off",
+    "calls": 1,
+    "tracksStopped": true,
+    "microphone": false
+  },
+  {
+    "mode": "allow-next",
+    "calls": 1,
+    "tracksStopped": true,
+    "microphone": false
+  },
+  {
+    "mode": "allow-exit",
+    "calls": 1,
+    "tracksStopped": true,
+    "microphone": false
+  },
+  {
+    "mode": "deny",
+    "calls": 1,
+    "tracksStopped": true,
+    "microphone": false
+  },
+  {
+    "mode": "missing",
+    "calls": 1,
+    "tracksStopped": true,
+    "microphone": false
+  },
+  {
+    "mode": "unavailable",
+    "calls": 1,
+    "tracksStopped": true,
+    "microphone": false
+  },
+  {
+    "mode": "pending",
+    "calls": 1,
+    "tracksStopped": true,
+    "microphone": false
+  },
+  {
+    "mode": "off",
+    "calls": 0,
+    "tracksStopped": true,
+    "microphone": false
+  }
+]

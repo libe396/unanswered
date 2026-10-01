@@ -1,0 +1,310 @@
+[
+  {
+    "name": "01_mock_default",
+    "urlLength": 336,
+    "payloadLength": 295,
+    "equal": true,
+    "trimmed": false,
+    "fullFits": true,
+    "droppedEv": false,
+    "droppedObj": false,
+    "evidenceTextMatches": true,
+    "phoneEv": [
+      "‘끝내 전하지 못한 말이 있었다.’ 앞에 9.1초 머물렀습니다."
+    ],
+    "decoded": {
+      "v": 1,
+      "id": "RPT-5EMJ2",
+      "t": 29847098,
+      "n": "테스트 조사자",
+      "img": "IMAGE_05",
+      "var": 3,
+      "kw": [
+        2,
+        9
+      ],
+      "snd": "SOUND_03",
+      "pos": [
+        0.32,
+        0.58
+      ],
+      "obj": [
+        "lamp",
+        "window"
+      ],
+      "sen": [
+        "RECON_A_HESITATED",
+        "RECON_C_UNSPOKEN"
+      ],
+      "ev": [
+        {
+          "kind": "dwell",
+          "sceneId": "sentenceClues",
+          "targetId": "RECON_C_UNSPOKEN",
+          "tenths": 91
+        }
+      ]
+    },
+    "url": "https://libe396.github.io/unanswered/#/r/N4IgbiBcCMA0IEsAmUQCUAKAVAtAVgFEBZAKQCYR4AXKMgTgA4AWAdgAZH4A7VQGUXASocAdSwAJADhOAagcAJ45UQBbAOaoAkkQCCAcQIB9NnhlgAhgCcoAZngBrAO5QA2mVh0AuvADOXFJBABlAPIBVADkAER1TGQAHAHtXOzYAOlMHBLwGFxAogCMAKzsQABsDWQiZKwQPKJt01wBTHkhbdAIAYV9ArVUtAAkCbyUsVSwCYJk0FratZq0g7wxfAGkCQJB0mogG2zZYBybW9qmZucXlx2gnJwBfIA"
+  },
+  {
+    "name": "02_heavy",
+    "urlLength": 459,
+    "payloadLength": 418,
+    "equal": true,
+    "trimmed": false,
+    "fullFits": true,
+    "droppedEv": false,
+    "droppedObj": false,
+    "evidenceTextMatches": true,
+    "phoneEv": [
+      "‘끝내 전하지 못한 말이 있었다.’ 앞에 14.3초 머물렀습니다.",
+      "‘컵’을 선택했다가 해제했습니다."
+    ],
+    "decoded": {
+      "v": 1,
+      "id": "RPT-5EMJ2",
+      "t": 29847098,
+      "n": "아주아주긴이름을가진조사",
+      "img": "IMAGE_08",
+      "var": 3,
+      "kw": [
+        0,
+        9
+      ],
+      "snd": "SOUND_03",
+      "pos": [
+        0.12,
+        0.99
+      ],
+      "obj": [
+        "lamp",
+        "window",
+        "bedsidePlant",
+        "photo",
+        "duvet"
+      ],
+      "sen": [
+        "RECON_A_HESITATED",
+        "RECON_B_LEFT_ON_PURPOSE",
+        "RECON_C_UNSPOKEN",
+        "RECON_E_CONTINUES_ELSEWHERE"
+      ],
+      "ev": [
+        {
+          "kind": "dwell",
+          "sceneId": "sentenceClues",
+          "targetId": "RECON_C_UNSPOKEN",
+          "tenths": 143
+        },
+        {
+          "kind": "removed",
+          "sceneId": "memorySketch",
+          "targetId": "cup"
+        }
+      ]
+    },
+    "url": "https://libe396.github.io/unanswered/#/r/N4IgbiBcCMA0IEsAmUQCUAKAVAtAVgFEBZAKQCYR4AXKMgTgA4AWAdgAZH4A7VQEVHAfiYGAWOsAu44BDOwCLjgABrAI5OAHCcA1A5UQBbAOaoAkkQCCAcQIB9Ng2VgAhgCcoAZngBrAO5QA2m1h0AuvADOXFJAgAMoA8gCqAHIAIsY2ygAOAPY+rmwAdNBksOl0XvCJAEYAVq4gADbmKvHKjgj+ic7wBQCmSD7IzRgVXDTw8QAWiVSJykgArmDNNN4gPs08kC7oBADCIRGGOoYAEgRBmlg6WARRymir64YAQoYAMgQAYliGlxhhmCFBBGcXGyuGkSCGBCAGkCBEfmsNkYoVhNBEwntDARbl8AOq7c4gGbNCCLNywLLLKGGf6A4FgiGwaBMGzeFxwOAgADGY2qnk8AF8gA"
+  },
+  {
+    "name": "03_empty",
+    "urlLength": 85,
+    "payloadLength": 44,
+    "equal": true,
+    "trimmed": false,
+    "fullFits": true,
+    "droppedEv": false,
+    "droppedObj": false,
+    "evidenceTextMatches": true,
+    "phoneEv": [],
+    "decoded": {
+      "v": 1,
+      "id": "-",
+      "t": 29847098,
+      "n": "",
+      "img": null,
+      "var": 1,
+      "kw": [],
+      "snd": null,
+      "pos": null,
+      "obj": [],
+      "sen": [],
+      "ev": []
+    },
+    "url": "https://libe396.github.io/unanswered/#/r/N4IgbiBcCMA0IEsAmUQFoTwC5QEwE4AOAFgHYAGIgXyA"
+  },
+  {
+    "name": "04_selection_only",
+    "urlLength": 314,
+    "payloadLength": 273,
+    "equal": true,
+    "trimmed": false,
+    "fullFits": true,
+    "droppedEv": false,
+    "droppedObj": false,
+    "evidenceTextMatches": true,
+    "phoneEv": [
+      "‘떠나려 했지만, 한동안 방을 나서지 못했다.’을 골랐습니다.",
+      "‘사람들 웃고 떠드는 소리’를 골랐습니다.",
+      "‘스탠드’를 골랐습니다."
+    ],
+    "decoded": {
+      "v": 1,
+      "id": "RPT-5EMJ2",
+      "t": 29847098,
+      "n": "",
+      "img": "IMAGE_01",
+      "var": 1,
+      "kw": [
+        7
+      ],
+      "snd": "SOUND_03",
+      "pos": [
+        0.32,
+        0.58
+      ],
+      "obj": [
+        "lamp",
+        "window"
+      ],
+      "sen": [
+        "RECON_A_HESITATED",
+        "RECON_C_UNSPOKEN"
+      ],
+      "ev": [
+        {
+          "kind": "selection",
+          "sceneId": "sentenceClues",
+          "targetId": "RECON_A_HESITATED"
+        },
+        {
+          "kind": "selection",
+          "sceneId": "soundClues",
+          "targetId": "SOUND_03"
+        },
+        {
+          "kind": "selection",
+          "sceneId": "memorySketch",
+          "targetId": "lamp"
+        }
+      ]
+    },
+    "url": "https://libe396.github.io/unanswered/#/r/N4IgbiBcCMA0IEsAmUQCUAKAVAtAVgFEBZAKQCYR4AXKMgTgA4AWAdgAZH4EBbAc1QCSRAIIBxAgH020SiADWAdygBtFgF14AZwB2KSCADKAeQCqAOQAiUgMyyADgHtNKtgDprZWG7wMNIBwBGAFYqIAA2AIbcdrIKCLoOSn6aAKbaoWgEAMJGZhLCEgASBAYCWMJYBBaymTl5WRLmBhhGANIEZiB+KRCQysrWsJ7o2bn5RSVlFVVdsANe8MbmVmy2GvNw4VExamoAvkA"
+  },
+  {
+    "name": "05_stress_trim",
+    "urlLength": 528,
+    "payloadLength": 487,
+    "equal": true,
+    "trimmed": false,
+    "fullFits": true,
+    "droppedEv": false,
+    "droppedObj": false,
+    "evidenceTextMatches": true,
+    "phoneEv": [
+      "‘컵’을 선택했다가 해제했습니다."
+    ],
+    "decoded": {
+      "v": 1,
+      "id": "RPT-5EMJ2",
+      "t": 29847098,
+      "n": "아주아주긴이름을가진조사",
+      "img": "IMAGE_08",
+      "var": 3,
+      "kw": [
+        0,
+        9
+      ],
+      "snd": "SOUND_03",
+      "pos": [
+        0.12,
+        0.99
+      ],
+      "obj": [
+        "window",
+        "lamp",
+        "book",
+        "photo",
+        "cup",
+        "chair",
+        "pillow",
+        "duvet",
+        "bedsidePlant",
+        "bag",
+        "bedside"
+      ],
+      "sen": [
+        "RECON_A_LEFT_CALM",
+        "RECON_A_HESITATED",
+        "RECON_A_RETURNED_FOR",
+        "RECON_A_WAITED",
+        "RECON_B_LEFT_BEHIND",
+        "RECON_B_PUT_DOWN_AGAIN",
+        "RECON_B_LEFT_ON_PURPOSE",
+        "RECON_B_DISPLACED"
+      ],
+      "ev": [
+        {
+          "kind": "removed",
+          "sceneId": "memorySketch",
+          "targetId": "cup"
+        }
+      ]
+    },
+    "url": "https://libe396.github.io/unanswered/#/r/N4IgbiBcCMA0IEsAmUQCUAKAVAtAVgFEBZAKQCYR4AXKMgTgA4AWAdgAZH4A7VQEVHAfiYGAWOsAu44BDOwCLjgABrAI5OAHCcA1A5UQBbAOaoAkkQCCAcQIB9Ng2VgAhgCcoAZngBrAO5QA2m1h0AuvADOXFJAgAMoA8gCqAHIAIsY2ygAOAPY+rmwAdNBksOl0XvCJAEYAVq4gjgj+ic7wADbmKvHKBYmJ9gkAFolUicoAxgCujfC97eYI1vDxCDU1VcpI-WAApjTwBUtIPshLGHVcqyAF5hprG1tISyDeID5LPJAu6AQAwiERhjqGADIEAGJYhmeOi+RGUaBebw+hgAEgQgposDosAQomCIe9PuCsGE0BEUYZfiE0GjXhjDAB1HQIlEkyEAIW+fwBdII0M00Vp7wZGDCAKiIXJGL0VIinMMDJ+-0MkJ5mBCQQIYoZUU0QQwXx0zxp1yWEAeLjgcBAA0ank8AF8gA"
+  },
+  {
+    "name": "06_over_budget",
+    "urlLength": 582,
+    "payloadLength": 541,
+    "equal": true,
+    "trimmed": true,
+    "fullFits": false,
+    "droppedEv": true,
+    "droppedObj": true,
+    "evidenceTextMatches": true,
+    "phoneEv": [],
+    "decoded": {
+      "v": 1,
+      "id": "RPT-5EMJ2",
+      "t": 29847098,
+      "n": "아주아주긴이름을가진조사",
+      "img": "IMAGE_08",
+      "var": 3,
+      "kw": [
+        0,
+        9
+      ],
+      "snd": "SOUND_03",
+      "pos": [
+        0.12,
+        0.99
+      ],
+      "obj": [],
+      "sen": [
+        "RECON_A_LEFT_CALM",
+        "RECON_A_HESITATED",
+        "RECON_A_RETURNED_FOR",
+        "RECON_A_WAITED",
+        "RECON_B_LEFT_BEHIND",
+        "RECON_B_PUT_DOWN_AGAIN",
+        "RECON_B_LEFT_ON_PURPOSE",
+        "RECON_B_DISPLACED",
+        "RECON_C_UNSPOKEN",
+        "RECON_C_UNDONE_ACTION",
+        "RECON_C_UNWRITTEN_RECORD",
+        "RECON_C_UNDECIDED",
+        "RECON_D_REVISITED",
+        "RECON_D_UNCHANGED",
+        "RECON_D_VANISHED_LATER",
+        "RECON_D_DOOR_LEFT_OPEN",
+        "RECON_E_NEVER_RETURNED",
+        "RECON_E_RECORD_ENDS",
+        "RECON_E_CONTINUES_ELSEWHERE",
+        "RECON_E_LAST_RECORD_HERE"
+      ],
+      "ev": []
+    },
+    "url": "https://libe396.github.io/unanswered/#/r/N4IgbiBcCMA0IEsAmUQCUAKAVAtAVgFEBZAKQCYR4AXKMgTgA4AWAdgAZH4A7VQEVHAfiYGAWOsAu44BDOwCLjgABrAI5OAHCcA1A5UQBbAOaoAkkQCCAcQIB9Ng2VgAhgCcoAZngBrAO5QA2m1h0AuvADOXFJAgAMoA8gCqAHIAIsY2ygAOAPY+rmwAdNBksOl0Xr4ApjyQLugEAMIhEYY6hgAyBABiWIZlOrVEymjlldWGABIEQZpYOlgEUZ3dVTVdWGFoEeOGDSFokxXThgDqOsPj6z0AQnWNzYcEfZrRB1XHGGHNUSFb03q7ETeGx-VNhj33mBCQQIn2OUU0QQwtR0ZX28C6GxahkikJCAGkCB94VMkZEnotqmUsJpKp8ysiIls0MMxlUEasJtjEeS8eVNFE4aVETEugA1CF7RlcnoxSJlPo6CIGIX0qoxXmSiEDGLQsZrJkiwxPVYnX4hDCYz5GRa8ghoQyzeaLGU4oz0tAxTFRIJGlqVYkRMKDQwEWrArYDLqu6FBZr2mKBkGeAC+QA"
+  }
+]

@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import type { ReportFinding } from '../../lib/reportStageFacts';
 import type { RecordLayerDerived, ReportData } from '../../types';
-import { useStageReveal } from './useStageReveal';
+import { useExperienceStore } from '../../store/experienceStore';
 import { ReportStageNav } from './ReportStageNav';
 import { ReportEvidenceVisual, evidenceCopy } from './ReportEvidenceVisual';
+import { TraceReplay, hasTraceReplay } from './TraceReplay';
+import { REPORT_CONCLUSION } from '../../lib/reportFindingCopy';
 import './ReportStage03Hesitation.css';
 
 interface Props {
@@ -53,25 +55,30 @@ function stage03EvidenceCopy(finding: ReportFinding): string {
 export function ReportStage03Hesitation({ finding, record, report, index, total, locked, onAdvance }: Props) {
   const prefersReducedMotion = useReducedMotion();
   const finalPhase = 2;
-  const [phase, setPhase] = useState(prefersReducedMotion ? finalPhase : 0);
+  const [phase, setPhase] = useState(0);
   const evidence = finding.evidence[0];
   const timeLabel = formatEvidenceTime(finding);
+  const record03 = useExperienceStore((s) => (evidence ? s.behavior[evidence.sceneId] : undefined));
+  const replayable = Boolean(evidence && hasTraceReplay(evidence.sceneId, record03));
+  // The evidence beat holds until its replay has finished (and again after
+  // "다시 보기"); without a replay it keeps its original 3.6s.
+  const [replayDone, setReplayDone] = useState(false);
+  const [revealed, setRevealed] = useState(false);
 
   useEffect(() => {
-    if (prefersReducedMotion) {
-      setPhase(finalPhase);
-      return;
-    }
+    if (phase >= finalPhase) return;
+    const waiting = phase === 1 && replayable && !replayDone;
+    if (waiting) return;
+    const hold = phase === 0 ? 2200 : replayable ? 4500 : 3600;
+    const timer = window.setTimeout(() => setPhase((p) => p + 1), prefersReducedMotion ? Math.min(hold, 2000) : hold);
+    return () => window.clearTimeout(timer);
+  }, [phase, replayable, replayDone, prefersReducedMotion]);
 
-    setPhase(0);
-    const timers = [
-      window.setTimeout(() => setPhase(1), 2200),
-      window.setTimeout(() => setPhase(2), 5800),
-    ];
-    return () => timers.forEach((timer) => window.clearTimeout(timer));
-  }, [prefersReducedMotion]);
-
-  const revealed = useStageReveal(prefersReducedMotion ? 260 : 9000);
+  useEffect(() => {
+    if (phase < finalPhase) return;
+    const timer = window.setTimeout(() => setRevealed(true), prefersReducedMotion ? 200 : 3200);
+    return () => window.clearTimeout(timer);
+  }, [phase, prefersReducedMotion]);
 
   return (
     <div className="report-stage report-stage-03">
@@ -105,14 +112,30 @@ export function ReportStage03Hesitation({ finding, record, report, index, total,
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: prefersReducedMotion ? 0.15 : 0.85 }}
             >
-              <ReportEvidenceVisual
-                sceneId={evidence.sceneId}
-                record={record}
-                report={report}
-                mode="hold"
-                label={evidenceLabel(finding)}
-              />
-              {timeLabel ? <span className="report-stage-03__time-label">{timeLabel}</span> : null}
+              {replayable ? (
+                <TraceReplay
+                  sceneId={evidence.sceneId}
+                  onDone={() => setReplayDone(true)}
+                  onRestart={() => setReplayDone(false)}
+                />
+              ) : null}
+              {!replayable || replayDone ? (
+                <motion.div
+                  className={replayable ? 'report-stage-03__after-replay' : 'report-stage-03__visual'}
+                  initial={{ opacity: replayable ? 0 : 1 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: prefersReducedMotion ? 0 : 0.8 }}
+                >
+                  <ReportEvidenceVisual
+                    sceneId={evidence.sceneId}
+                    record={record}
+                    report={report}
+                    mode="hold"
+                    label={evidenceLabel(finding)}
+                  />
+                  {timeLabel ? <span className="report-stage-03__time-label">{timeLabel}</span> : null}
+                </motion.div>
+              ) : null}
               <p className="report-stage-03__variant">{stage03EvidenceCopy(finding)}</p>
             </motion.div>
           ) : null}
@@ -126,7 +149,7 @@ export function ReportStage03Hesitation({ finding, record, report, index, total,
               exit={{ opacity: 0 }}
               transition={{ duration: prefersReducedMotion ? 0.2 : 1.1, ease: [0.22, 1, 0.36, 1] }}
             >
-              무엇을 골랐는지만큼,{'\n'}어디에서 멈춰 섰는지도 남았습니다.
+              {REPORT_CONCLUSION}
             </motion.p>
           ) : null}
         </AnimatePresence>

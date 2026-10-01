@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react';
 import { useExperienceStore } from '../store/experienceStore';
+import { useActivitySignal } from '../store/activitySignal';
 import { ZONE_INFO } from '../data/zones';
 import type { SceneId } from '../types';
 import './ArchiveHUD.css';
@@ -50,7 +52,17 @@ function formatIssueTime(timestamp: number | undefined): string | null {
  */
 export function ArchiveHUD({ scene }: { scene: SceneId }) {
   const investigator = useExperienceStore((s) => s.investigator);
+  const pulseAt = useActivitySignal((s) => s.pulseAt);
+  const [recording, setRecording] = useState(false);
   const currentScene = scene;
+
+  // 0.8s on each deselect / replay / revisit. Display only.
+  useEffect(() => {
+    if (!pulseAt) return;
+    setRecording(true);
+    const timer = window.setTimeout(() => setRecording(false), 800);
+    return () => window.clearTimeout(timer);
+  }, [pulseAt]);
 
   const zone = zoneNumberOf(currentScene);
   if (zone === null || zone < HUD_FIRST_ZONE || zone > HUD_LAST_ZONE) return null;
@@ -84,6 +96,10 @@ export function ArchiveHUD({ scene }: { scene: SceneId }) {
       </span>
 
       <span className="archive-hud__record">
+        <span className={`archive-hud__rec${recording ? ' archive-hud__rec--on' : ''}`}>
+          <i aria-hidden="true" />
+          기록 중
+        </span>
         {name ? (
           <>
             <span className="archive-hud__name">{name}</span>

@@ -42,3 +42,8 @@
     font-size: var(--type-body);
   }
 }
+
+/* The existing evidence visual, kept under the replay once it has finished. */
+.report-stage-02 .report-stage-02__after-replay .report-evidence-visual {
+  width: min(200px, 60vw);
+}

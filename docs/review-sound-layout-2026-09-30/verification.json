@@ -1,0 +1,32 @@
+[
+  {
+    "width": 1440,
+    "height": 900,
+    "topClear": true,
+    "bottomClear": true,
+    "selected": "빗소리, 청취함, 최종 선택됨",
+    "playing": "지하철, 청취함, 현재 재생 중"
+  },
+  {
+    "width": 1280,
+    "height": 720,
+    "topClear": true,
+    "bottomClear": true,
+    "selected": "빗소리, 청취함, 최종 선택됨"
+  },
+  {
+    "width": 900,
+    "height": 600,
+    "topClear": true,
+    "bottomClear": true,
+    "selected": "빗소리, 청취함, 최종 선택됨",
+    "playing": "지하철, 청취함, 현재 재생 중"
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "topClear": true,
+    "bottomClear": true,
+    "selected": "빗소리, 청취함, 최종 선택됨"
+  }
+]

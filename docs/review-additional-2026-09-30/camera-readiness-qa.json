@@ -1,0 +1,14 @@
+[
+  {
+    "mode": "pending",
+    "calls": 1,
+    "tracksStopped": true,
+    "microphone": false
+  },
+  {
+    "mode": "allow-next",
+    "calls": 1,
+    "tracksStopped": true,
+    "microphone": false
+  }
+]

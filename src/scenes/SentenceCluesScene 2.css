@@ -1,0 +1,586 @@
+.sentence-clues-scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  background: var(--bg-base);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 2vh, 20px);
+  padding: clamp(24px, 5vh, 42px) clamp(24px, 6vw, 72px);
+  box-sizing: border-box;
+}
+
+.sentence-clues-scene__hint {
+  font-size: 14px;
+  color: var(--color-text-dim);
+  margin: 0;
+  text-align: center;
+  max-width: 480px;
+}
+
+.sentence-clues-scene__subhint {
+  margin: -6px 0 0;
+  font-size: 13px;
+  color: var(--color-text-dim);
+  opacity: 0.75;
+  text-align: center;
+  max-width: 440px;
+}
+
+/* The "03 / 05" state readout — small and plain on purpose. A number, not a
+   progress bar: this project's own ban on gamification applies here first. */
+.sentence-clues-scene__count {
+  margin: 2px 0 4px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+  color: var(--color-text-dim);
+  opacity: 0.6;
+}
+
+/* ── Recovered Context ───────────────────────────────────────────────────────
+   A reading step, not a form: paragraphs surface one at a time and nothing on
+   this screen is interactive except the single control at the end. No card,
+   no border around the text — the archive tone stays in the type itself. */
+
+.sentence-clues-scene--context {
+  gap: 28px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* Korean ("복원된 기록"). uppercase does nothing to it and the 0.3em alone
+   pulled the three characters apart; Label, no tracking, colour instead of
+   a stacked opacity. */
+.sentence-clues-scene__kicker {
+  margin: 0;
+  font-family: var(--font-kr);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-tertiary);
+}
+
+.sentence-clues-scene__context-paragraphs {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sentence-clues-scene__context-p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--color-text);
+  opacity: 0;
+  animation: sentence-context-reveal 0.9s ease forwards;
+}
+
+@keyframes sentence-context-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* A single interrupted rule stands in for the break in the record — a gap in
+   the line itself rather than any glitch or scan effect. */
+.sentence-clues-scene__missing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-top: 8px;
+  text-align: center;
+}
+
+.sentence-clues-scene__missing-mark {
+  width: 100%;
+  max-width: 220px;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.16) 42%,
+    transparent 42%,
+    transparent 58%,
+    rgba(255, 255, 255, 0.16) 58%,
+    rgba(255, 255, 255, 0.16) 100%
+  );
+}
+
+.sentence-clues-scene__missing-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--color-text-dim);
+  letter-spacing: 0.02em;
+}
+
+/* No italic on these three. Pretendard ships no Korean italic, so the browser
+   synthesises one by shearing the glyphs — which on Hangul reads as a
+   rendering fault rather than as emphasis. */
+.sentence-clues-scene__prompt {
+  margin: 0;
+  text-align: center;
+  font-size: 15px;
+  color: var(--color-text);
+  opacity: 0.85;
+}
+
+.sentence-clues-scene__instruction {
+  margin: -6px 0 0;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text-dim);
+}
+
+/* ── Explore: the archive wall ────────────────────────────────────────────
+   Many translucent record cards kept in one place, the way a physical
+   version of this Zone would have kept them slotted into a wall. Mouse-first:
+   hover is where most of a card's own life happens, so nothing here is
+   designed down for touch, though nothing about it stops working on touch
+   either. */
+
+.sentence-clues-scene--explore {
+  justify-content: flex-start;
+  padding-top: clamp(20px, 4vh, 32px);
+}
+
+.sentence-clues-scene__wall {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(150px, 1fr));
+  gap: 10px;
+  width: min(920px, 94vw);
+  max-height: min(46vh, 420px);
+  overflow-y: auto;
+  padding: 4px 4px 12px;
+  /* A faint fade at the bottom only — the wall reads as continuing past the
+     frame there, which is true. The top edge is the start of the archive,
+     not a cut, so it is left at full strength rather than faded to look
+     like it, too. */
+  mask-image: linear-gradient(to bottom, black 0, black calc(100% - 14px), transparent 100%);
+}
+
+/* A translucent surface with real depth behind it — not a flat button, not
+   a glassmorphism showcase. One soft inset highlight, one very thin border,
+   a background dark enough that the card still reads as "kept in an
+   archive" rather than "lit from within." */
+.sentence-clues-scene__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 108px;
+  padding: 12px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 6px 16px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(2px);
+  color: var(--color-text-dim);
+  text-align: left;
+  cursor: pointer;
+  transform: translateY(0);
+  transition: transform var(--duration-fast) ease, border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease, color var(--duration-fast) ease, opacity var(--duration-fast) ease;
+}
+
+.sentence-clues-scene__card-code {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.1em;
+  color: var(--color-text-dim);
+  opacity: 0.5;
+}
+
+.sentence-clues-scene__card-text {
+  flex: 1;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Hover — a card lifted slightly toward the visitor, sharpened against its
+   neighbours. translateY only; nothing rotates, nothing overshoots. */
+.sentence-clues-scene__card:hover:not(:disabled):not(.sentence-clues-scene__card--drawn),
+.sentence-clues-scene__card:focus-visible:not(.sentence-clues-scene__card--drawn) {
+  transform: translateY(-4px);
+  border-color: var(--color-accent);
+  color: var(--color-text);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 12px 22px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(164, 144, 255, 0.15);
+  outline: none;
+}
+
+.sentence-clues-scene__card:disabled {
+  cursor: default;
+}
+
+/* Locked — an ENDING card before enough of the account exists to close.
+   Dimmed further than an ordinary card, never hidden: the archive still
+   shows what it holds, it just is not ready to be drawn yet. */
+.sentence-clues-scene__card:disabled:not(.sentence-clues-scene__card--drawn) {
+  opacity: 0.4;
+}
+
+.sentence-clues-scene__card-hint {
+  margin-top: auto;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--color-text-dim);
+  opacity: 0.7;
+}
+
+/* Drawn — the card's own slot in the wall, left behind. Not hidden, not
+   filled by a neighbour: a faint dashed outline says a record left from
+   here, on the same terms as an empty tray slot below. Still an ordinary
+   button — clicking it again returns the card, the reverse of drawing it. */
+.sentence-clues-scene__card--drawn {
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.1);
+  background: transparent;
+  box-shadow: none;
+  color: var(--color-text-dim);
+  opacity: 0.32;
+  cursor: pointer;
+  animation: sentence-card-draw 0.45s ease;
+}
+
+.sentence-clues-scene__card--drawn:hover {
+  opacity: 0.55;
+  border-color: rgba(138, 107, 255, 0.35);
+}
+
+@keyframes sentence-card-draw {
+  0% {
+    transform: scale(1) translateY(0);
+  }
+  30% {
+    transform: scale(1.06) translateY(-10px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ── The tray: where a drawn card actually collects ───────────────────────
+   Fixed slots, always SENTENCE_MAX_FRAGMENTS wide, filled left to right in
+   draw order — draw order *is* the continuation's order now, so the tray
+   is also a small, always-visible readout of "01 → 05" as it stands. */
+
+.sentence-clues-scene__tray {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  width: min(920px, 94vw);
+}
+
+.sentence-clues-scene__tray-slot {
+  position: relative;
+  min-height: 68px;
+}
+
+.sentence-clues-scene__tray-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 68px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  font-size: 11px;
+  color: var(--color-text-dim);
+  opacity: 0.3;
+}
+
+.sentence-clues-scene__tray-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  height: 68px;
+  padding: 8px 10px;
+  border: 1px solid var(--trace);
+  border-radius: var(--r-4);
+  background: var(--glass-2);
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.sentence-clues-scene__tray-index {
+  flex: none;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  color: var(--color-accent);
+  opacity: 0.85;
+}
+
+.sentence-clues-scene__tray-text {
+  font-size: 11px;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* ── The account: Reconstruction and Restored Record share one reading
+   layout — a short, numbered list of lines, ENDING fragments always last.
+   Reconstruction shows the fragments as drawn; Restored Record shows the
+   same list with the one answered line folded back in. */
+
+.sentence-clues-scene__account {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(560px, 92vw);
+  max-height: min(52vh, 440px);
+  overflow-y: auto;
+  padding: 4px 2px;
+}
+
+.sentence-clues-scene__account-line {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--color-text);
+}
+
+.sentence-clues-scene__account-index {
+  flex: none;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  color: var(--color-text-dim);
+  opacity: 0.55;
+  padding-top: 2px;
+}
+
+.sentence-clues-scene__account--final .sentence-clues-scene__account-line {
+  color: var(--color-text);
+}
+
+/* The one mark for an unanswered question — a small trailing note, never a
+   red flag, never phrased as an error. It sits on the line it belongs to,
+   nowhere else. */
+.sentence-clues-scene__unanswered-mark {
+  margin-left: 6px;
+  font-size: 11px;
+  color: var(--color-text-dim);
+  opacity: 0.5;
+  white-space: nowrap;
+}
+
+/* ── Discovering ──────────────────────────────────────────────────────────
+   One quiet line, alone on the screen. No card, no gap left waiting to be
+   filled — the question itself is a different screen now. */
+
+.sentence-clues-scene--discovering {
+  gap: 0;
+}
+
+.sentence-clues-scene__discovering-text {
+  margin: 0;
+  max-width: 380px;
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--color-text-dim);
+  opacity: 0;
+  animation: sentence-discovering-reveal 0.7s ease forwards;
+}
+
+@keyframes sentence-discovering-reveal {
+  from {
+    opacity: 0;
+    letter-spacing: 0.02em;
+  }
+  to {
+    opacity: 0.9;
+    letter-spacing: 0;
+  }
+}
+
+/* ── Question: one fragment, one gap in it, one line to fill it ──────────
+   Exactly one card — the fragment the question is about — with the question
+   itself sitting just under it, a small gap of its own space and nothing
+   more. Not two cards with a blank between them: the visitor is filling in
+   *this* record, not connecting two. */
+
+.sentence-clues-scene--question {
+  gap: 22px;
+}
+
+.sentence-clues-scene__target-card {
+  margin: 0;
+  width: min(480px, 92vw);
+  padding: 16px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--color-text-dim);
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.sentence-clues-scene__question {
+  margin: 0;
+  max-width: 400px;
+  text-align: center;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.sentence-clues-scene__response-field {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: min(320px, 80vw);
+}
+
+.sentence-clues-scene__response-input {
+  width: 100%;
+  padding: 6px 2px;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.24);
+  background: transparent;
+  color: var(--color-text);
+  font-size: 14px;
+  text-align: center;
+  transition: border-color var(--duration-fast) ease;
+}
+
+.sentence-clues-scene__response-input::placeholder {
+  color: var(--color-text-dim);
+  opacity: 0.5;
+}
+
+.sentence-clues-scene__response-input:focus {
+  outline: none;
+  border-bottom-color: var(--color-accent);
+}
+
+.sentence-clues-scene__response-count {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-dim);
+  opacity: 0.55;
+}
+
+/* ── Behavioral Trace: one observation, not the story again ─────────────── */
+
+.sentence-clues-scene__trace {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: min(480px, 92vw);
+  text-align: center;
+}
+
+.sentence-clues-scene__trace-message {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--color-text);
+}
+
+.sentence-clues-scene__trace-fragment {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--color-text-dim);
+  opacity: 0.55;
+}
+
+/* ── Shared bottom bar ───────────────────────────────────────────────────── */
+
+.sentence-clues-scene__submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: min(920px, 94vw);
+  min-height: 48px;
+  margin-top: 4px;
+}
+
+.sentence-clues-scene__submit-note {
+  color: var(--color-text-dim);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+}
+
+.sentence-clues-scene__edit {
+  padding: 10px 18px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--color-text-dim);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) ease, color var(--duration-fast) ease;
+}
+
+.sentence-clues-scene__edit:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+/* ── Shared confirm control ──────────────────────────────────────────────── */
+
+.sentence-clues-scene__confirm {
+  /* Placement only — appearance comes from .cta .cta--primary. This carried
+     14px at 0.3em uppercase on Korean labels, the widest Korean tracking
+     left in the project. */
+}
+
+@media (max-width: 640px) {
+  .sentence-clues-scene {
+    justify-content: flex-start;
+    min-height: 100dvh;
+    padding: 26px 18px;
+  }
+
+  .sentence-clues-scene__wall {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-height: 50vh;
+  }
+
+  .sentence-clues-scene__tray {
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 68px;
+  }
+
+  .sentence-clues-scene__submit {
+    flex-direction: column;
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .sentence-clues-scene__edit,
+  .sentence-clues-scene__confirm {
+    width: 100%;
+  }
+}

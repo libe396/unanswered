@@ -146,7 +146,7 @@ export function LightArchiveScene() {
         <StageLayout
           eyebrow="빛의 흔적"
           title="그 사람이 남긴 흔적의 이미지를 선택하세요"
-          description="하나를 고르면, 그 이미지가 품고 있는 빛을 읽습니다."
+          description="끌리는 사진 하나를 골라 주세요."
           object={
             /*
               The grid shows ten uncropped thumbnails; this is the one that is
@@ -232,7 +232,7 @@ export function LightArchiveScene() {
         <StageLayout
           eyebrow="빛의 흔적"
           title="이 이미지에서 어떤 것이 느껴지나요?"
-          description={`가장 가까운 감각을 최대 ${MAX_EMOTION_KEYWORDS}개까지 고를 수 있습니다.`}
+          description={`이 사진에 어울리는 단어를 ${MAX_EMOTION_KEYWORDS}개까지 골라 주세요.`}
           object={
             <div className="light-archive-scene__preview light-archive-scene__preview--focused">
               <img src={selectedImage.src} alt="" className="light-archive-scene__preview-img" />

@@ -1,0 +1,3 @@
+PASS 1440 900 no-preference real analysis, stages, skip, replay identical canvas, details, compare, save { origin: true, palette: true, count: 8 }
+PASS 1366 768 reduce real analysis, stages, skip, replay identical canvas, details, compare, save { origin: true, palette: true, count: 8 }
+PASS 1280 640 no-preference real analysis, stages, skip, replay identical canvas, details, compare, save { origin: true, palette: true, count: 8 }

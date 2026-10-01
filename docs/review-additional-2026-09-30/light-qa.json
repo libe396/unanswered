@@ -1,0 +1,10 @@
+{
+  "equality": {
+    "analysisEqual": true,
+    "pixelsEqual": true,
+    "contours": 8,
+    "sources": 5,
+    "layerCount": 4
+  },
+  "errors": []
+}

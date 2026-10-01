@@ -1,0 +1,62 @@
+[
+  {
+    "slot": "01",
+    "source": "light-trace-01-footprints.png",
+    "asset": "light-trace-01.png",
+    "sha256": "4c1d4f0bfbc512545ae536e67a711ba5d4dbcf0f74b3aa1f0e2435f63914bce3"
+  },
+  {
+    "slot": "02",
+    "source": "light-trace-02-fogged-heart.png",
+    "asset": "light-trace-02.png",
+    "sha256": "7c38034264614cc9bd574db0669c8adf9e4747a9cd46ad237b2a4e77d3c10fc9"
+  },
+  {
+    "slot": "03",
+    "source": "light-trace-03-tea.png",
+    "asset": "light-trace-03.png",
+    "sha256": "a085ff78022fb0e8740a4996ae1801ba8a9febbe88a7446b3accc1416e6b08ea"
+  },
+  {
+    "slot": "04",
+    "source": "light-trace-04-torn-note.png",
+    "asset": "light-trace-04.png",
+    "sha256": "a7946dd40ccde774ec32ee29decc1eb767d0e681e676c07b718d75f0f3d810b7"
+  },
+  {
+    "slot": "05",
+    "source": "light-trace-05-cherry-petals.png",
+    "asset": "light-trace-05.png",
+    "sha256": "97544ca558b423014321863e7ae1ecc9d474a7a7f814d34c277b9922b5e91171"
+  },
+  {
+    "slot": "06",
+    "source": "light-trace-06-curtain-shadow.png",
+    "asset": "light-trace-06.png",
+    "sha256": "a422dc1cc5e7590efcfc769838d0214470e67590a470bed39a283f5ec0a2913c"
+  },
+  {
+    "slot": "07",
+    "source": "light-trace-07-wall-photo.png",
+    "asset": "light-trace-07.png",
+    "sha256": "91c31f772ccb1b945f12bca8786fd5d7b20ab80ba79a2eb8cdfbcbc9cf5d2627"
+  },
+  {
+    "slot": "08",
+    "source": "light-trace-08-wet-pavement.png",
+    "asset": "light-trace-08.png",
+    "sha256": "29b7644cb909d894263c7cadb812c9932ee464228207a28cfcccc2202a3ed597"
+  },
+  {
+    "slot": "09",
+    "source": "light-trace-09-door-handle.png",
+    "asset": "light-trace-09.png",
+    "sha256": "8dc880c2c67ba6ff8616ccb7b070aa6fc14ff98136018eef1cda87cd3398a7fd"
+  },
+  {
+    "slot": "10",
+    "source": "light-trace-10-water-reflection.png",
+    "asset": "light-trace-10.png",
+    "sha256": "f45bc17e29a633ee7b370bc07c6132ceb7442932bb0aec98211bdd2279c51dbd"
+  }
+]

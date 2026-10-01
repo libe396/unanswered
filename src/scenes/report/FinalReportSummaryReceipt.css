@@ -204,6 +204,37 @@
   color: var(--receipt-ink-dim);
 }
 
+.summary-receipt__qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.summary-receipt__qr-code {
+  border: 1px solid var(--receipt-surface-line);
+}
+
+.summary-receipt__copy-btn {
+  padding: 5px 12px;
+  border: 1px solid var(--receipt-surface-line);
+  background: transparent;
+  color: var(--receipt-ink-dim);
+  font-family: inherit;
+  font-size: var(--type-meta);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.summary-receipt__copy-btn:hover,
+.summary-receipt__copy-btn:focus-visible {
+  border-color: var(--receipt-accent);
+  color: var(--receipt-ink);
+  outline: none;
+}
+
 .summary-receipt__issue-btn {
   display: flex;
   flex-direction: column;

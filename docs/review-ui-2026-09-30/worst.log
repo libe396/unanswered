@@ -1,0 +1,42 @@
+1200 640 zero {
+  scroll: false,
+  wallscroll: false,
+  cards: 20,
+  clipped: 0,
+  button: 521.125
+}
+1200 640 five {
+  scroll: false,
+  wallscroll: false,
+  cards: 20,
+  clipped: 0,
+  button: 521.125
+}
+1200 640 removed {
+  scroll: false,
+  wallscroll: false,
+  cards: 20,
+  clipped: 0,
+  button: 521.125
+}
+record 1200 read {
+  top: 72,
+  bottom: 568,
+  scroll: false,
+  sheetScroll: false,
+  clipped: false
+}
+record 1200 input {
+  top: 72,
+  bottom: 568,
+  scroll: false,
+  sheetScroll: false,
+  clipped: false
+}
+record 1200 complete {
+  top: 72,
+  bottom: 568,
+  scroll: false,
+  sheetScroll: false,
+  clipped: false
+}

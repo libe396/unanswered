@@ -1,8 +1,10 @@
 import { buildActionEvidence, PROCESS_GUIDE, RECORD_MEANING, RECORD_CLOSING } from '../../lib/reportActionEvidence';
 import { useExperienceStore } from '../../store/experienceStore';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { renderLightGraphic } from '../../lib/lightRenderer.js';
 import type { FinalReportPresentation } from '../../lib/finalReportPresentation';
+import { copyText } from '../../lib/reportShare';
+import { ReportQr } from './ReportQr';
 import type { RecordLayerDerived } from '../../types';
 import './FinalReportSummaryReceipt.css';
 
@@ -10,6 +12,11 @@ interface Props {
   record: RecordLayerDerived;
   presentation: FinalReportPresentation;
   onIssueFullReport: () => void;
+  /** This visit's mobile report link (src/lib/reportShare.ts). */
+  reportUrl: string;
+  /** `?venue=1`: the large QR lives beside the receipt (FinalRecordLayer), and
+   *  there is no printer or clipboard worth offering on the venue PC. */
+  venue: boolean;
 }
 
 /**
@@ -21,11 +28,19 @@ interface Props {
  * worth a receipt's few lines and how they're laid out — it computes
  * nothing itself.
  */
-export function FinalReportSummaryReceipt({ record, presentation, onIssueFullReport }: Props) {
+export function FinalReportSummaryReceipt({ record, presentation, onIssueFullReport, reportUrl, venue }: Props) {
   const behavior = useExperienceStore((state) => state.behavior);
   const evidence = buildActionEvidence(record, behavior);
   const hasProcess = evidence.some((item) => item.kind !== 'selection');
   const lightCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  async function copyLink() {
+    if (await copyText(reportUrl)) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    }
+  }
 
   useEffect(() => {
     if (!record.light || !lightCanvasRef.current) return;
@@ -93,7 +108,7 @@ export function FinalReportSummaryReceipt({ record, presentation, onIssueFullRep
       <div className="summary-receipt__divider" role="presentation" />
 
       <section className="summary-receipt__section">
-        <p className="summary-receipt__section-label">LIBERO GRAPHIC</p>
+        <p className="summary-receipt__section-label">LIBEO GRAPHIC</p>
         <p className="summary-receipt__color-desc">
           {sound.hasSound || memory.strokeCount > 0 || memory.selectedObjectCount > 0
             ? '빛 위치 · 색 분포 · 구조점을 번역한 시각 기록'
@@ -116,13 +131,23 @@ export function FinalReportSummaryReceipt({ record, presentation, onIssueFullRep
       <div className="summary-receipt__owner">
         <p className="summary-receipt__owner-label">흔적을 남긴 관객</p>
         <p className="summary-receipt__owner-value">{presentation.ownerLabel}</p>
-        <p className="summary-receipt__owner-scan">SCAN FOR FULL A4 REPORT</p>
+        {!venue ? (
+          <div className="summary-receipt__qr">
+            <ReportQr url={reportUrl} size={150} className="summary-receipt__qr-code" />
+            <p className="summary-receipt__owner-scan">폰으로 보고서 받기 / SCAN TO KEEP</p>
+            <button type="button" className="summary-receipt__copy-btn" onClick={copyLink}>
+              {copied ? '복사했습니다' : '링크 복사'}
+            </button>
+          </div>
+        ) : null}
       </div>
 
-      <button type="button" className="summary-receipt__issue-btn" onClick={onIssueFullReport}>
-        전체 조사 기록 발급하기
-        <span className="summary-receipt__issue-btn-en">ISSUE FULL REPORT</span>
-      </button>
+      {!venue ? (
+        <button type="button" className="summary-receipt__issue-btn" onClick={onIssueFullReport}>
+          전체 조사 기록 발급하기
+          <span className="summary-receipt__issue-btn-en">ISSUE FULL REPORT</span>
+        </button>
+      ) : null}
     </div>
   );
 }

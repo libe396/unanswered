@@ -1,0 +1,6 @@
+1440 wall { height: 481, scroll: 481 }
+PASS sentence 1440
+1366 wall { height: 373, scroll: 373 }
+PASS sentence 1366
+390 wall { height: 344, scroll: 1719 }
+PASS sentence 390

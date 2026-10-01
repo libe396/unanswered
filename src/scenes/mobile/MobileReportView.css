@@ -1,0 +1,261 @@
+/* The phone receipt. Same tokens and rhythm as FinalReportSummaryReceipt.css,
+   near-neutral with one violet point (#8A6BFF). The exhibition locks
+   html/body scrolling (styles/global.css), so this view scrolls inside
+   itself instead of changing that global rule. */
+
+.mobile-report {
+  --mr-accent: #8a6bff;
+  --mr-line: rgba(138, 107, 255, 0.16);
+
+  position: fixed;
+  inset: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-kr);
+  cursor: auto;
+}
+
+.mobile-report__receipt {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 32px 16px calc(40px + env(safe-area-inset-bottom));
+}
+
+.mobile-report__brand,
+.mobile-report__subtitle {
+  margin: 0;
+  text-align: center;
+  font-size: var(--type-meta);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.mobile-report__subtitle {
+  margin-top: 3px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  color: var(--mr-accent);
+}
+
+.mobile-report__title {
+  margin: 6px 0 0;
+  text-align: center;
+  font-size: var(--type-body);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.mobile-report__divider {
+  margin: 18px 0;
+  border-top: 1px solid var(--mr-line);
+}
+
+.mobile-report__meta {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mobile-report__meta-label,
+.mobile-report__meta-value,
+.mobile-report__meta-date {
+  margin: 0;
+  font-size: var(--type-meta);
+}
+
+.mobile-report__meta-label {
+  margin-bottom: 3px;
+  letter-spacing: 0.16em;
+  color: var(--text-secondary);
+}
+
+.mobile-report__meta-value {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.mobile-report__meta-date {
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: pre;
+}
+
+.mobile-report__section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mobile-report__label {
+  margin: 0;
+  font-size: var(--type-meta);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mr-accent);
+}
+
+.mobile-report__light {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--bg-elevated);
+}
+
+.mobile-report__light-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.mobile-report__swatches {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mobile-report__swatch {
+  flex: 1 1 0;
+  height: 22px;
+  border: 1px solid var(--line-subtle);
+}
+
+.mobile-report__hex {
+  margin: 0;
+  font-size: var(--type-meta);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.mobile-report__desc,
+.mobile-report__observation {
+  margin: 0;
+  font-size: var(--type-body);
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.mobile-report__observation {
+  white-space: pre-line;
+}
+
+.mobile-report__clues {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mobile-report__clue {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.mobile-report__clue-index,
+.mobile-report__clue-tag {
+  font-size: var(--type-meta);
+  color: var(--text-secondary);
+}
+
+.mobile-report__clue-tag {
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+.mobile-report__clue-text {
+  font-size: var(--type-body);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.mobile-report__clue--empty .mobile-report__clue-text {
+  color: var(--text-secondary);
+}
+
+.mobile-report__owner {
+  text-align: center;
+}
+
+.mobile-report__owner-label {
+  margin: 0;
+  font-size: var(--type-meta);
+  letter-spacing: 0.16em;
+  color: var(--text-secondary);
+}
+
+.mobile-report__owner-value {
+  margin: 6px 0 0;
+  font-size: var(--type-title-sm);
+  font-weight: 700;
+  color: var(--mr-accent);
+  overflow-wrap: anywhere;
+}
+
+.mobile-report__actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.mobile-report__btn {
+  min-height: 48px;
+  padding: 12px;
+  border: 1px solid var(--line-strong);
+  background: var(--glass-1);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: var(--type-button);
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-report__btn:active,
+.mobile-report__btn:focus-visible {
+  border-color: var(--mr-accent);
+  outline: none;
+}
+
+.mobile-report__btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.mobile-report__note {
+  margin: 20px 0 0;
+  text-align: center;
+  font-size: var(--type-meta);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.mobile-report--error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+}
+
+.mobile-report__error {
+  margin: 0;
+  text-align: center;
+  font-size: var(--type-body);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}

@@ -1,11 +1,13 @@
 import { useCameraPreference } from '../store/cameraPreference';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer-motion';
 import { useShallow } from 'zustand/react/shallow';
 import { selectRecordLayerDerived, useExperienceStore } from '../store/experienceStore';
 import { buildReport } from '../utils/report';
 import { buildReportFindings, pickReturnFinding, pickStage03Highlight } from '../lib/reportStageFacts';
 import { buildFinalReportPresentation } from '../lib/finalReportPresentation';
+import { buildReportUrl, encodeReport } from '../lib/reportShare';
+import { isVenueMode } from '../lib/venueMode';
 import { ReportStage01CollectedClues } from './report/ReportStage01CollectedClues';
 import { ReportStage02BehaviorTrace } from './report/ReportStage02BehaviorTrace';
 import { ReportStage03Hesitation } from './report/ReportStage03Hesitation';
@@ -13,6 +15,8 @@ import { ReportStage04MemoryReconstruction } from './report/ReportStage04MemoryR
 import { ReportStage05Observation } from './report/ReportStage05Observation';
 import { ReportStage06SubjectReveal } from './report/ReportStage06SubjectReveal';
 import { FinalRecordLayer } from './report/FinalRecordLayer';
+import { ReportBridgeBeat } from './report/ReportBridgeBeat';
+import { REPORT_CONCLUSION, REPORT_CONCLUSION_NO_HESITATION } from '../lib/reportFindingCopy';
 import { PrintableFullReport } from './report/PrintableFullReport';
 import './report/ReportStage.css';
 import './FinalReportScene.css';
@@ -69,6 +73,12 @@ export function FinalReportScene() {
     [record, report, finalReportMeta],
   );
 
+  const reportUrl = useMemo(
+    () => buildReportUrl(encodeReport(record, behavior, presentation)),
+    [record, behavior, presentation],
+  );
+  const [venue] = useState(isVenueMode);
+
   const generatedRef = useRef(false);
   useEffect(() => {
     if (generatedRef.current) return;
@@ -101,6 +111,8 @@ export function FinalReportScene() {
     setLocked(true);
     setStageIndex((i) => i + 1);
   }
+
+  const handleRestart = useCallback(() => { useCameraPreference.getState().setEnabled(false); reset(); }, [reset]);
 
   function renderStage(key: StageKey, stageNumber: number, total: number) {
     switch (key) {
@@ -147,6 +159,8 @@ export function FinalReportScene() {
             total={total}
             locked={locked}
             onAdvance={handleAdvance}
+            conclude={!stage03Finding}
+            conclusion={returnFinding || stage03Finding ? REPORT_CONCLUSION : REPORT_CONCLUSION_NO_HESITATION}
           />
         );
       case 'observation':
@@ -178,7 +192,9 @@ export function FinalReportScene() {
             index={stageNumber}
             total={total}
             onIssueFullReport={() => window.print()}
-            onRestart={() => { useCameraPreference.getState().setEnabled(false); reset(); }}
+            onRestart={handleRestart}
+            reportUrl={reportUrl}
+            venue={venue}
           />
         );
     }
@@ -191,6 +207,15 @@ export function FinalReportScene() {
 
   const activeKey = stageKeys[stageIndex];
 
+  /*
+    The turn from the person's record to the visitor's, once, in front of
+    whichever of return / hesitation / memory comes first. 'memory' is always
+    in the sequence, so the beat always appears exactly once.
+  */
+  const bridgeKey = stageKeys.find((key) => key === 'return' || key === 'hesitation' || key === 'memory');
+  const [bridgeDone, setBridgeDone] = useState(false);
+  const showBridge = activeKey === bridgeKey && !bridgeDone;
+
   return (
     <div
       className={`final-report-scene${
@@ -200,14 +225,18 @@ export function FinalReportScene() {
 
       <AnimatePresence mode="wait" onExitComplete={() => setLocked(false)}>
         <motion.div
-          key={activeKey}
+          key={showBridge ? 'bridge' : activeKey}
           initial="initial"
           animate="animate"
           exit="exit"
           variants={variants}
           transition={transition}
         >
-          {renderStage(stageKeys[stageIndex], stageIndex + 1, stageKeys.length)}
+          {showBridge ? (
+            <ReportBridgeBeat onContinue={() => setBridgeDone(true)} />
+          ) : (
+            renderStage(stageKeys[stageIndex], stageIndex + 1, stageKeys.length)
+          )}
         </motion.div>
       </AnimatePresence>
       <PrintableFullReport record={record} presentation={presentation} />

@@ -1,0 +1,168 @@
+1440 900 zero {
+  scroll: false,
+  wallscroll: false,
+  cards: 20,
+  clipped: 0,
+  button: 664.078125
+}
+1440 900 five {
+  scroll: false,
+  wallscroll: false,
+  cards: 20,
+  clipped: 0,
+  button: 664.078125
+}
+1440 900 removed {
+  scroll: false,
+  wallscroll: false,
+  cards: 20,
+  clipped: 0,
+  button: 664.078125
+}
+record 1440 read {
+  top: 190,
+  bottom: 710,
+  scroll: false,
+  sheetScroll: false,
+  clipped: false
+}
+record 1440 input {
+  top: 190,
+  bottom: 710,
+  scroll: false,
+  sheetScroll: false,
+  clipped: false
+}
+record 1440 complete {
+  top: 190,
+  bottom: 710,
+  scroll: false,
+  sheetScroll: false,
+  clipped: false
+}
+1366 768 zero {
+  scroll: false,
+  wallscroll: false,
+  cards: 20,
+  clipped: 0,
+  button: 573.484375
+}
+1366 768 five {
+  scroll: false,
+  wallscroll: false,
+  cards: 20,
+  clipped: 0,
+  button: 573.484375
+}
+1366 768 removed {
+  scroll: false,
+  wallscroll: false,
+  cards: 20,
+  clipped: 0,
+  button: 573.484375
+}
+record 1366 read {
+  top: 124,
+  bottom: 644,
+  scroll: false,
+  sheetScroll: false,
+  clipped: false
+}
+record 1366 input {
+  top: 124,
+  bottom: 644,
+  scroll: false,
+  sheetScroll: false,
+  clipped: false
+}
+record 1366 complete {
+  top: 124,
+  bottom: 644,
+  scroll: false,
+  sheetScroll: false,
+  clipped: false
+}
+1280 640 zero {
+  scroll: false,
+  wallscroll: false,
+  cards: 20,
+  clipped: 0,
+  button: 509.484375
+}
+1280 640 five {
+  scroll: false,
+  wallscroll: false,
+  cards: 20,
+  clipped: 0,
+  button: 509.484375
+}
+1280 640 removed {
+  scroll: false,
+  wallscroll: false,
+  cards: 20,
+  clipped: 0,
+  button: 509.484375
+}
+record 1280 read {
+  top: 72,
+  bottom: 568,
+  scroll: false,
+  sheetScroll: false,
+  clipped: false
+}
+record 1280 input {
+  top: 72,
+  bottom: 568,
+  scroll: false,
+  sheetScroll: false,
+  clipped: false
+}
+record 1280 complete {
+  top: 72,
+  bottom: 568,
+  scroll: false,
+  sheetScroll: false,
+  clipped: false
+}
+390 844 zero {
+  scroll: false,
+  wallscroll: false,
+  cards: 20,
+  clipped: 0,
+  button: 509.484375
+}
+390 844 five {
+  scroll: false,
+  wallscroll: false,
+  cards: 20,
+  clipped: 0,
+  button: 509.484375
+}
+390 844 removed {
+  scroll: false,
+  wallscroll: false,
+  cards: 20,
+  clipped: 0,
+  button: 509.484375
+}
+record 390 read {
+  top: 72,
+  bottom: 568,
+  scroll: false,
+  sheetScroll: false,
+  clipped: false
+}
+record 390 input {
+  top: 72,
+  bottom: 568,
+  scroll: false,
+  sheetScroll: false,
+  clipped: false
+}
+record 390 complete {
+  top: 72,
+  bottom: 568,
+  scroll: false,
+  sheetScroll: false,
+  clipped: false
+}

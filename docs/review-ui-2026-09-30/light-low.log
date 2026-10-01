@@ -1,0 +1,1 @@
+PASS 1280 640 no-preference real analysis, stages, skip, replay identical canvas, details, compare, save { origin: true, palette: true, count: 8 }

@@ -1,0 +1,22 @@
+/* Bottom centre, above the ArchiveHUD's rule (48px) with clearance. */
+.hesitation-nudge {
+  position: fixed;
+  z-index: 6;
+  left: 50%;
+  bottom: 76px;
+  transform: translateX(-50%);
+  margin: 0;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  padding: 12px 20px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: rgba(11, 11, 14, 0.82);
+  font-family: var(--font-kr);
+  font-size: var(--type-body);
+  line-height: 1.7;
+  text-align: center;
+  color: var(--text-secondary);
+  word-break: keep-all;
+  pointer-events: none;
+}

@@ -295,3 +295,65 @@
     height: 112px;
   }
 }
+
+/* ── Rules beat ──────────────────────────────────────────────────────────
+   After the pass, before the first Zone. Centred text on the bare ground,
+   the same kind of screen as ZoneIntroCard. */
+
+.registration-rules {
+  width: 100%;
+  height: 100%;
+  padding: var(--sp-40) var(--sp-32);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: var(--font-kr);
+  word-break: keep-all;
+}
+
+.registration-rules__lead {
+  margin: 0;
+  font-size: var(--type-body);
+  line-height: 1.72;
+  color: var(--text-secondary);
+}
+
+/* An investigation document: numbers and lines share one left edge, while
+   the block itself stays centred in the Scene. */
+.registration-rules__body {
+  margin: var(--sp-32) 0 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+  font-size: clamp(var(--type-body), 2.4vw, 1.5625rem);
+  line-height: 1.72;
+  color: var(--text-primary);
+}
+
+.registration-rules__line {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: var(--sp-24);
+  align-items: baseline;
+}
+
+.registration-rules__line + .registration-rules__line {
+  margin-top: var(--sp-8);
+}
+
+.registration-rules__index {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: var(--type-meta);
+  color: rgba(237, 236, 242, 0.4);
+}
+
+.registration-rules__line--accent {
+  color: #8a6bff;
+}
+
+.registration-rules__cta {
+  margin-top: var(--sp-40);
+}

@@ -113,37 +113,37 @@ const MAX_QUESTION_LENGTH = 40;
  * being true.
  */
 const FRAGMENT_QUESTIONS: Readonly<Record<string, string>> = {
-  RECON_A_RETURNED_FOR: '그 사람이 다시 확인하려 했던 것은 무엇이었을까요?',
-  RECON_A_WAITED: '그 사람이 기다리던 사람은 누구였을까요?',
-  RECON_B_LEFT_BEHIND: '미처 챙기지 못한 물건은 무엇이었을까요?',
-  RECON_B_PUT_DOWN_AGAIN: '몇 번이고 챙겼다가 다시 내려놓은 물건은 무엇이었을까요?',
-  RECON_B_LEFT_ON_PURPOSE: '일부러 남겨두고 간 물건은 무엇이었을까요?',
+  RECON_A_RETURNED_FOR: '다시 확인하려 했던 것, 뭐였을 것 같나요?',
+  RECON_A_WAITED: '기다리던 사람은 누구였을 것 같나요?',
+  RECON_B_LEFT_BEHIND: '챙기지 못한 물건, 뭐였을 것 같나요?',
+  RECON_B_PUT_DOWN_AGAIN: '챙겼다가 다시 내려놓은 물건, 뭐였을 것 같나요?',
+  RECON_B_LEFT_ON_PURPOSE: '일부러 두고 간 물건, 뭐였을 것 같나요?',
   // Final Logic Patch: RECON_B_DISPLACED gained an openSlots entry — "몇몇
   // 물건" already names an unspecified plural, this only asks which one.
-  RECON_B_DISPLACED: '어떤 물건의 자리가 달라져 있었을까요?',
-  RECON_C_UNSPOKEN: '그 사람이 끝내 전하지 못한 말은 무엇이었을까요?',
-  RECON_C_UNDONE_ACTION: '하려다 그만둔 행동은 무엇이었을까요?',
-  RECON_C_UNWRITTEN_RECORD: '남기려 했던 기록에는 무엇이 적혀 있었을까요?',
-  RECON_C_UNDECIDED: '마지막까지 결정하지 못한 것은 무엇이었을까요?',
-  RECON_D_VANISHED_LATER: '나중에 사라진 물건은 무엇이었을까요?',
+  RECON_B_DISPLACED: '어떤 물건의 자리가 바뀌었을 것 같나요?',
+  RECON_C_UNSPOKEN: '끝내 전하지 못한 말, 뭐였을 것 같나요?',
+  RECON_C_UNDONE_ACTION: '하려다 그만둔 일, 뭐였을 것 같나요?',
+  RECON_C_UNWRITTEN_RECORD: '남기려다 만 메모에는 뭐라고 적혀 있었을 것 같나요?',
+  RECON_C_UNDECIDED: '끝까지 정하지 못한 일, 뭐였을 것 같나요?',
+  RECON_D_VANISHED_LATER: '나중에 사라진 물건, 뭐였을 것 같나요?',
 };
 
 /** Defensive only — every fragment with an `openSlots` entry has a specific
  *  question above. Reached only if that ever stops being true. */
 const SLOT_TYPE_FALLBACK: Readonly<Record<string, string>> = {
-  object: '남아 있던 물건은 무엇이었을까요?',
-  message: '전하지 못한 말은 무엇이었을까요?',
-  record: '남기려 했던 기록에는 무엇이 담겨 있었을까요?',
-  decision: '결정하지 못한 것은 무엇이었을까요?',
-  action: '하려다 그만둔 것은 무엇이었을까요?',
-  person: '기다리던 사람은 누구였을까요?',
-  purpose: '다시 확인하려 했던 것은 무엇이었을까요?',
+  object: '남아 있던 물건, 뭐였을 것 같나요?',
+  message: '전하지 못한 말, 뭐였을 것 같나요?',
+  record: '남기려 했던 메모에는 뭐가 담겨 있었을 것 같나요?',
+  decision: '정하지 못한 일, 뭐였을 것 같나요?',
+  action: '하려다 그만둔 일, 뭐였을 것 같나요?',
+  person: '기다리던 사람은 누구였을 것 같나요?',
+  purpose: '다시 확인하려 했던 것, 뭐였을 것 같나요?',
 };
 
 /** Shown — briefly, as part of the `discovering` beat — when nothing the
  *  visitor drew has anything left to ask about. Not an error: some
  *  accounts are already whole. */
-export const NO_TARGET_MESSAGE = '추가로 복원할 수 있는 정보가 확인되지 않았습니다.';
+export const NO_TARGET_MESSAGE = '더 남은 기록은 없습니다.';
 
 /**
  * How concrete and answerable a kind of gap is, on its own — see the module
@@ -349,12 +349,8 @@ export async function generateFragmentQuestion(
    정보를 보완하는 값입니다." One template per fragment that carries an
    `openSlots` entry, each written against that fragment's own grammar, so
    the visitor's word is inserted rather than a new sentence assembled
-   around it. The closing register shifts from the fragment's own hedge
-   ("~듯하다", "~것으로 보인다") to "~것으로 기록되었다" — not because the
-   visitor's word makes the case more certain, but because *this specific
-   detail*, once written down, is now part of the record the way the rest
-   of an answered question is; the hedge belongs to what stays unconfirmed,
-   not to the one thing this step exists to let the visitor confirm. */
+   around it. Plain past tense, the same register as the fragments
+   themselves — no hedge and no "~것으로 기록되었다". */
 
 /** True when the last syllable of `word` carries a trailing consonant
  *  (받침) — batchim-aware particle selection for text a visitor typed, not
@@ -374,21 +370,17 @@ function josa(word: string, withBatchim: string, withoutBatchim: string): string
 type ResponseTemplate = (response: string) => string;
 
 const RESPONSE_TEMPLATES: Readonly<Record<string, ResponseTemplate>> = {
-  RECON_A_RETURNED_FOR: (r) =>
-    `한번 떠났다가, ${r}${josa(r, '을', '를')} 확인하기 위해 다시 돌아온 것으로 기록되었다.`,
-  RECON_A_WAITED: (r) => `그 사람은 ${r}${josa(r, '을', '를')} 기다리며 그 자리에 머물러 있었던 것으로 기록되었다.`,
-  RECON_B_LEFT_BEHIND: (r) => `미처 챙기지 못한 ${r}${josa(r, '이', '가')} 그 자리에 남아 있었던 것으로 기록되었다.`,
-  RECON_B_PUT_DOWN_AGAIN: (r) =>
-    `그 사람이 몇 번이고 챙겼다가 다시 내려놓은 것은 ${r}${josa(r, '이었던', '였던')} 것으로 기록되었다.`,
-  RECON_B_LEFT_ON_PURPOSE: (r) =>
-    `가져갈 수 있었지만, ${r}${josa(r, '을', '를')} 일부러 남겨둔 것으로 기록되었다.`,
-  RECON_B_DISPLACED: (r) => `${r}${josa(r, '이', '가')} 이전과 다른 자리에 놓여 있었던 것으로 기록되었다.`,
-  RECON_C_UNSPOKEN: (r) => `그 사람이 끝내 전하지 못한 말은 "${r}"${josa(r, '이었던', '였던')} 것으로 기록되었다.`,
-  RECON_C_UNDONE_ACTION: (r) => `하려다 그만둔 행동은 ${r}${josa(r, '이었을', '였을')} 가능성으로 기록되었다.`,
-  RECON_C_UNWRITTEN_RECORD: (r) =>
-    `누군가에게 남기려던 기록에는 "${r}"${josa(r, '이', '가')} 적혀 있었던 것으로 기록되었다.`,
-  RECON_C_UNDECIDED: (r) => `마지막까지 결정하지 못한 것은 ${r}${josa(r, '이었던', '였던')} 것으로 기록되었다.`,
-  RECON_D_VANISHED_LATER: (r) => `시간이 지난 뒤, 남겨져 있던 ${r}${josa(r, '이', '가')} 사라진 것으로 기록되었다.`,
+  RECON_A_RETURNED_FOR: (r) => `떠났다가, ${r}${josa(r, '을', '를')} 보러 다시 돌아왔다.`,
+  RECON_A_WAITED: (r) => `${r}${josa(r, '을', '를')} 기다리며 그 자리에 있었다.`,
+  RECON_B_LEFT_BEHIND: (r) => `챙기지 못한 ${r}${josa(r, '이', '가')} 남아 있다.`,
+  RECON_B_PUT_DOWN_AGAIN: (r) => `몇 번이고 챙겼다가 다시 내려놓은 것은 ${r}${josa(r, '이었다', '였다')}.`,
+  RECON_B_LEFT_ON_PURPOSE: (r) => `가져갈 수 있었지만, ${r}${josa(r, '을', '를')} 일부러 두고 갔다.`,
+  RECON_B_DISPLACED: (r) => `${r}의 자리가 바뀌어 있다.`,
+  RECON_C_UNSPOKEN: (r) => `끝내 전하지 못한 말은 "${r}"${josa(r, '이었다', '였다')}.`,
+  RECON_C_UNDONE_ACTION: (r) => `하려다 그만둔 일은 ${r}${josa(r, '이었다', '였다')}.`,
+  RECON_C_UNWRITTEN_RECORD: (r) => `누군가에게 남기려다 만 메모에는 "${r}"${josa(r, '이', '가')} 적혀 있었다.`,
+  RECON_C_UNDECIDED: (r) => `끝까지 정하지 못한 일은 ${r}${josa(r, '이었다', '였다')}.`,
+  RECON_D_VANISHED_LATER: (r) => `얼마 뒤, 남아 있던 ${r}${josa(r, '이', '가')} 사라졌다.`,
 };
 
 /**

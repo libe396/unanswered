@@ -1,0 +1,29 @@
+.venue-idle {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  background: rgba(7, 7, 9, 0.78);
+}
+
+.venue-idle__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-24);
+  padding: var(--sp-40) var(--sp-32);
+  border: 1px solid var(--line);
+  background: var(--bg-elevated);
+  box-shadow: var(--glass-shadow);
+  text-align: center;
+}
+
+.venue-idle__title {
+  margin: 0;
+  font-size: var(--type-title-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}

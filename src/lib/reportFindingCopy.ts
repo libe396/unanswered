@@ -18,8 +18,14 @@ import type { SceneId } from '../types';
 
 /* ── STAGE 01 · 당신이 남긴 것 ───────────────────────────────────────────── */
 
+/** The second layer's conclusion: REPORT 03's last line, or REPORT 04's when
+ *  there is no REPORT 03 this visit. */
+export const REPORT_CONCLUSION = '누구를 떠올렸든,\n망설인 손은 당신의 것이었습니다.';
+/** The same conclusion when no return or hesitation was recorded this visit. */
+export const REPORT_CONCLUSION_NO_HESITATION = '누구를 떠올렸든,\n고른 손은 당신의 것이었습니다.';
+
 export const STAGE_01_COPY = {
-  closing: '당신이 지나온 경로가\n하나의 기록으로 연결되었습니다.',
+  closing: '이 사람의 빛, 소리, 문장이\n하나의 기록으로 이어졌습니다.',
 };
 
 /* ── STAGE 06 · Subject Reveal ──────────────────────────────────────────── */

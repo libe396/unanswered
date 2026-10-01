@@ -6,7 +6,7 @@ import './LightTransformation.css';
 
 type Point = { x: number; y: number };
 type Field = { circles: Array<Point & { radius: number; color: string; secondaryColor: string }>; lines: Array<{ start: Point; control: Point; end: Point; color: string }> };
-const captions = ['사진에서 밝은 영역이 드러납니다.', '사진 속 색이 빛으로 번집니다.', '구조점과 방향이 선으로 이어집니다.', '빛 위에 선과 질감이 겹쳐집니다.', '사진에서 이어진 빛입니다.'];
+const captions = ['사진에서 밝은 영역이 드러납니다.', '사진 속 색이 빛으로 번집니다.', '사진 속 밝은 곳들을 선으로 잇습니다.', '빛 위에 선과 질감이 겹쳐집니다.', '사진에서 이어진 빛입니다.'];
 const progress = (time: number, start: number, end: number) => Math.max(0, Math.min(1, (time - start) / (end - start)));
 const smooth = (t: number) => t * t * (3 - 2 * t);
 
@@ -87,14 +87,14 @@ export function LightTransformation({ src, rules, onConfirm, saved, startedAt }:
       {[0,1,2,3].map(index=><canvas key={index} ref={node=>{layers.current[index]=node;}} className="light-transformation__layer" style={{opacity: done ? 0 : reducedMotion ? (step===3 && index===3 ? 1 : 0) : progress(time,...([[2600,4650],[3900,4700],[6350,7350],[7500,8400]][index] as [number,number]))}} aria-hidden="true" />)}
       <div className="light-transformation__photo" style={{width:`${Math.min(1,ratio)*100}%`,height:`${Math.min(1,1/ratio)*100}%`,opacity:step===3?0:photoOpacity}}>
         <img src={src} alt="선택한 원본 사진" onLoad={e=>setRatio(e.currentTarget.naturalWidth/e.currentTarget.naturalHeight)} />
-        {!done && <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-label="실제 분석에서 찾은 밝은 영역과 구조점">
+        {!done && <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-label="사진에서 찾은 빛">
           <defs><marker id={arrowId} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0L7 3.5L0 7" fill="#eee5ff" /></marker></defs>
           <g className="light-transformation__regions" opacity={step===0?1:0}>{rules.brightRegions.map((r,i)=>r.contour?<path key={i} d={r.contour} fill="#fff6c412" stroke="#fff4ce" strokeWidth="1.6" vectorEffect="non-scaling-stroke" />:<ellipse key={i} cx={r.x*1000} cy={r.y*1000} rx={r.size*500*Math.max(1,1/ratio)} ry={r.size*500*Math.max(1,ratio)} fill="none" stroke="#fff4ce" strokeWidth="4" />)}</g>
           {reducedMotion && step===1 && rules.paletteSources?.map((p,i)=><rect key={i} x={p.x*1000-33} y={p.y*1000-33} width="66" height="66" fill={rules.palette[i]} stroke="white" strokeWidth="3" />)}
         </svg>}
       </div>
       <canvas ref={transition} width={1000} height={1000} className="light-transformation__morph" aria-hidden="true" />
-      {step===2 && <svg className="light-transformation__structure" viewBox="0 0 1000 1000" aria-label="사진의 구조점과 방향">
+      {step===2 && <svg className="light-transformation__structure" viewBox="0 0 1000 1000" aria-label="빛이 이어지는 방향">
         <g transform={`translate(${(1-Math.min(1,ratio))*500} ${(1-Math.min(1,1/ratio))*500}) scale(${Math.min(1,ratio)} ${Math.min(1,1/ratio)})`}>
           {rules.structureAnchors.map((p,i)=><circle key={i} cx={p.x*1000} cy={p.y*1000} r="9" fill={p.color} stroke="#fff" strokeWidth="3" />)}
           <line className="light-transformation__direction" x1={origin.x*1000} y1={origin.y*1000} x2={(origin.x+Math.cos(angle)*.18)*1000} y2={(origin.y+Math.sin(angle)*.18)*1000} stroke="#eee5ff" strokeWidth="5" markerEnd={`url(#${arrowId})`} />

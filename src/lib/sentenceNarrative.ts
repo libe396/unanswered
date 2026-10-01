@@ -200,9 +200,9 @@ function buildSoundParagraph(sound: SoundCluesData): string {
 
 function buildBridgeLine(memory: MemorySketchData): string {
   const count = memory.selectedObjects.length;
-  if (count >= 4) return '남겨진 흔적으로 보면, 그 사람은 이곳에서 꽤 오랜 시간을 보낸 것처럼 보인다.';
-  if (count <= 2) return '남겨진 흔적은 많지 않았지만, 누군가 이곳에 있었던 것만은 분명해 보인다.';
-  return '남겨진 흔적으로 보아, 그 사람은 이곳에서 한동안 머물렀던 것으로 보인다.';
+  if (count >= 4) return '그 사람은 이곳에서 꽤 오랜 시간을 보냈다.';
+  if (count <= 2) return '흔적은 많지 않았지만, 누군가 이곳에 있었다.';
+  return '그 사람은 이곳에서 한동안 머물렀다.';
 }
 
 /* ── Fixed lines — no clue determines these; they hold the Zone's own voice ── */
@@ -213,7 +213,7 @@ function buildBridgeLine(memory: MemorySketchData): string {
 // module doc and content.ts's module doc on SENTENCE_RECONSTRUCTION_FRAGMENTS.
 const MISSING_SEGMENT_TEXT = '이후의 기록은 남아 있지 않습니다.';
 const PROMPT_TEXT = '그날, 이 방에서는 무슨 일이 있었을까.';
-const INSTRUCTION_TEXT = '남아 있는 문장 조각을 통해 이후의 기록을 복원해 주세요.';
+const INSTRUCTION_TEXT = '이 사람에게 그다음 무슨 일이 있었을 것 같나요?';
 
 /**
  * Builds SENTENCE's Recovered Context from LIGHT/SOUND/MEMORY's final

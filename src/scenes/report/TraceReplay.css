@@ -1,0 +1,247 @@
+/*
+  Evidence replay. Near-monochrome; the one violet point is the active
+  highlight / filled choice.
+*/
+
+.trace-replay {
+  width: min(560px, 86vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.trace-replay__label {
+  margin: 0;
+  font-family: var(--font-kr);
+  font-size: var(--type-meta);
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary);
+}
+
+.trace-replay__panels {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+}
+
+/* ── Choice chips ─────────────────────────────────────────────────────── */
+
+.trace-replay__chips {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.trace-replay__chip {
+  position: relative;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-family: var(--font-kr);
+  font-size: var(--type-meta);
+  line-height: 1.4;
+  color: var(--text-tertiary);
+  background: transparent;
+  transition: border-color 0.18s ease, background 0.25s ease, color 0.18s ease;
+}
+
+.trace-replay__chip--active {
+  border-color: #8a6bff;
+  color: var(--text-primary);
+  box-shadow: 0 0 0 1px rgba(138, 107, 255, 0.35);
+}
+
+.trace-replay__chip--filled {
+  background: rgba(138, 107, 255, 0.28);
+  border-color: rgba(138, 107, 255, 0.7);
+  color: var(--text-primary);
+}
+
+.trace-replay__chip--struck {
+  color: var(--text-tertiary);
+}
+
+.trace-replay__chip--struck::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 50%;
+  height: 1px;
+  background: rgba(237, 236, 242, 0.45);
+}
+
+.trace-replay__chip--striking::after {
+  background: var(--text-primary);
+  animation: trace-replay-strike 0.4s ease both;
+  transform-origin: left center;
+}
+
+@keyframes trace-replay-strike {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* ── Sound bars ───────────────────────────────────────────────────────── */
+
+.trace-replay__bars {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+  width: min(420px, 100%);
+}
+
+.trace-replay__bar-row {
+  display: grid;
+  grid-template-columns: 9.5em 1fr 6em;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-kr);
+  font-size: var(--type-meta);
+  color: var(--text-tertiary);
+  text-align: left;
+}
+
+.trace-replay__bar-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trace-replay__bar-track {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.trace-replay__bar-fill {
+  display: block;
+  height: 100%;
+  background: #8a6bff;
+  transition: width 0.3s ease;
+}
+
+.trace-replay__bar-note {
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+/* ── Position field ───────────────────────────────────────────────────── */
+
+.trace-replay__field {
+  position: relative;
+  width: 150px;
+  padding: 0 0 18px 18px;
+}
+
+.trace-replay__field svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.trace-replay__field-frame {
+  fill: none;
+  stroke: var(--line);
+}
+
+.trace-replay__field-path {
+  fill: none;
+  stroke: rgba(237, 236, 242, 0.7);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.trace-replay__field-dot {
+  fill: #8a6bff;
+}
+
+.trace-replay__axis {
+  position: absolute;
+  font-family: var(--font-kr);
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.trace-replay__axis--x {
+  left: 18px;
+  right: 0;
+  bottom: 0;
+  text-align: center;
+}
+
+.trace-replay__axis--y {
+  left: 0;
+  top: 50%;
+  transform: translate(-42%, -50%) rotate(-90deg);
+}
+
+/* ── Sketch ───────────────────────────────────────────────────────────── */
+
+.trace-replay__sketch {
+  width: min(300px, 76vw);
+  height: auto;
+  border: 1px solid var(--line-subtle);
+}
+
+.trace-replay__stroke {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: opacity 0.5s ease;
+}
+
+.trace-replay__stroke--removed {
+  opacity: 0.15;
+}
+
+/* ── Facts and control ────────────────────────────────────────────────── */
+
+.trace-replay__facts {
+  min-height: 1.7em;
+}
+
+.trace-replay__facts p {
+  margin: 0;
+  font-family: var(--font-kr);
+  font-size: clamp(var(--type-body), 2vw, 1.25rem);
+  line-height: 1.7;
+  color: var(--text-primary);
+  word-break: keep-all;
+}
+
+.trace-replay__again {
+  padding: 6px 4px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  font-family: var(--font-kr);
+  font-size: var(--type-meta);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.trace-replay__again:focus-visible {
+  outline: 2px solid var(--color-signal);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trace-replay__chip,
+  .trace-replay__bar-fill,
+  .trace-replay__stroke { transition: none; }
+  .trace-replay__chip--striking::after { animation: none; }
+}

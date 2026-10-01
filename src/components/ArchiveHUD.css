@@ -117,3 +117,50 @@
     justify-content: space-between;
   }
 }
+
+/* "기록 중": always present and quiet; lit for 0.8s on a deselect, a replay
+   or a revisit. The dot is the one violet point. */
+.archive-hud__rec {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: center;
+  margin-right: 20px;
+  font-family: var(--font-kr);
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+  color: var(--text-tertiary);
+  opacity: 0.55;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.archive-hud__rec i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.archive-hud__rec--on {
+  opacity: 1;
+  color: var(--text-primary);
+}
+
+.archive-hud__rec--on i {
+  background: #8a6bff;
+  box-shadow: 0 0 8px rgba(138, 107, 255, 0.7);
+  animation: archive-hud-blink 0.4s steps(2, jump-none) 2;
+}
+
+@keyframes archive-hud-blink {
+  from { opacity: 1; }
+  to { opacity: 0.25; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-hud__rec,
+  .archive-hud__rec i { transition: none; }
+  .archive-hud__rec--on i { animation: none; }
+}

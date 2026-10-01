@@ -10,12 +10,14 @@
  * these can be dropped straight into JSX without giving anything a new identity
  * on every render.
  */
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useInteractionClock } from './useInteractionClock';
-import { createSceneTracker, summarizeScene } from '../lib/behaviorTracking';
+import { createSceneTracker, MIN_VIEW_MS, summarizeScene } from '../lib/behaviorTracking';
 import type { SceneTracker } from '../lib/behaviorTracking';
 import { detectScenePatterns } from '../lib/behaviorPatterns';
 import { useExperienceStore } from '../store/experienceStore';
+import { openChoiceGroups, playingTargets, useActivitySignal } from '../store/activitySignal';
+import { SOUND_THRESHOLDS } from '../lib/soundThresholds';
 import type { BehaviorSelectionMode, SceneBehaviorRecord, SceneId } from '../types';
 
 /**
@@ -81,42 +83,168 @@ export function useSceneTracking(
     trackerRef.current = createSceneTracker(sceneId, modesRef.current, interactionNow);
   }
 
+  // Held in state, not created inside the memo: StrictMode runs the memo twice
+  // and keeps one result, so sets made there could be the discarded copy.
+  // Registered from an effect so the map always holds the committed sets.
+  const [signalSets] = useState(() => ({ openGroups: new Set<string>(), playing: new Set<string>() }));
+  useEffect(() => {
+    openChoiceGroups.set(sceneId, signalSets.openGroups);
+    playingTargets.set(sceneId, signalSets.playing);
+    return () => {
+      if (openChoiceGroups.get(sceneId) === signalSets.openGroups) openChoiceGroups.delete(sceneId);
+      if (playingTargets.get(sceneId) === signalSets.playing) playingTargets.delete(sceneId);
+    };
+  }, [sceneId, signalSets]);
+
   const tracking = useMemo<SceneTracking>(() => {
     const tracker = trackerRef.current!;
     const save = () => setSceneBehavior(tracker.snapshot());
 
+    /*
+      Display-only signals for the hesitation nudge and the HUD's "기록 중"
+      mark. They sit beside the tracker calls, never inside them: nothing here
+      writes to the event log or the saved record.
+    */
+    const signal = useActivitySignal.getState();
+    const { openGroups, playing } = signalSets;
+    const selections = new Map<string, Set<string>>();
+    const viewed = new Set<string>();
+    const viewStarts = new Map<string, number>();
+    const revisitTimers = new Map<string, number>();
+    const listened = new Map<string, number>();
+    const playFrom = new Map<string, number>();
+    let lastInput = 0;
+    const input = () => {
+      const now = performance.now();
+      if (now - lastInput < 250) return;
+      lastInput = now;
+      signal.input();
+    };
+
     return {
-      openGroup: (group) => tracker.openGroup(group),
-      viewStart: (group, targetId) => tracker.viewStart(group, targetId),
-      viewEnd: (group, targetId) => tracker.viewEnd(group, targetId),
-      select: (group, targetId) => tracker.select(group, targetId),
-      deselect: (group, targetId) => tracker.deselect(group, targetId),
-      setSelection: (group, targetIds) => tracker.setSelection(group, targetIds),
+      openGroup: (group) => {
+        tracker.openGroup(group);
+        openGroups.add(group);
+        signal.input();
+      },
+      viewStart: (group, targetId) => {
+        tracker.viewStart(group, targetId);
+        input();
+        const key = `${group}:${targetId}`;
+        viewStarts.set(key, performance.now());
+        // Back on something already looked at, and staying: a revisit.
+        if (viewed.has(key) && !revisitTimers.has(key)) {
+          revisitTimers.set(key, window.setTimeout(() => {
+            revisitTimers.delete(key);
+            signal.pulse();
+          }, 600));
+        }
+      },
+      viewEnd: (group, targetId) => {
+        tracker.viewEnd(group, targetId);
+        const key = `${group}:${targetId}`;
+        const timer = revisitTimers.get(key);
+        if (timer !== undefined) {
+          window.clearTimeout(timer);
+          revisitTimers.delete(key);
+        }
+        const startedAt = viewStarts.get(key);
+        if (startedAt !== undefined && performance.now() - startedAt >= MIN_VIEW_MS) viewed.add(key);
+        viewStarts.delete(key);
+      },
+      select: (group, targetId) => {
+        tracker.select(group, targetId);
+        input();
+      },
+      deselect: (group, targetId) => {
+        tracker.deselect(group, targetId);
+        input();
+        signal.pulse();
+      },
+      setSelection: (group, targetIds) => {
+        tracker.setSelection(group, targetIds);
+        input();
+        const previous = selections.get(group) ?? new Set<string>();
+        if ([...previous].some((id) => !targetIds.includes(id))) signal.pulse();
+        selections.set(group, new Set(targetIds));
+      },
       advanceReady: () => tracker.advanceReady(),
-      playStart: (group, targetId, positionMs) => tracker.playStart(group, targetId, positionMs),
-      playStop: (group, targetId, stop) => tracker.playStop(group, targetId, stop),
-      strokeStart: (group, strokeId, point, meta) =>
-        tracker.strokeStart(group, strokeId, point, meta),
-      strokePoint: (group, point) => tracker.strokePoint(group, point),
-      strokeEnd: (group, end) => tracker.strokeEnd(group, end),
-      removeStrokes: (group, strokeIds, reason) =>
-        tracker.removeStrokes(group, strokeIds, reason),
-      toolChange: (group, next) => tracker.toolChange(group, next),
-      positionStart: (group, point, meta) => tracker.positionStart(group, point, meta),
-      positionMove: (group, point) => tracker.positionMove(group, point),
-      positionEnd: (group, end) => tracker.positionEnd(group, end),
-      fragmentAdd: (group, fragmentId, index) => tracker.fragmentAdd(group, fragmentId, index),
-      fragmentRemove: (group, fragmentId, index) =>
-        tracker.fragmentRemove(group, fragmentId, index),
-      fragmentReorder: (group, fragmentId, fromIndex, toIndex) =>
-        tracker.fragmentReorder(group, fragmentId, fromIndex, toIndex),
+      playStart: (group, targetId, positionMs) => {
+        tracker.playStart(group, targetId, positionMs);
+        input();
+        playing.add(targetId);
+        playFrom.set(targetId, performance.now());
+        // From the top, after having already heard a fair amount: listening again.
+        if (positionMs < 250 && (listened.get(targetId) ?? 0) >= SOUND_THRESHOLDS.replayMinPriorListenMs) {
+          signal.pulse();
+        }
+      },
+      playStop: (group, targetId, stop) => {
+        tracker.playStop(group, targetId, stop);
+        signal.input();
+        playing.delete(targetId);
+        const startedAt = playFrom.get(targetId);
+        if (startedAt !== undefined) {
+          listened.set(targetId, (listened.get(targetId) ?? 0) + (performance.now() - startedAt));
+          playFrom.delete(targetId);
+        }
+      },
+      strokeStart: (group, strokeId, point, meta) => {
+        tracker.strokeStart(group, strokeId, point, meta);
+        input();
+      },
+      strokePoint: (group, point) => {
+        tracker.strokePoint(group, point);
+        input();
+      },
+      strokeEnd: (group, end) => {
+        tracker.strokeEnd(group, end);
+        input();
+      },
+      removeStrokes: (group, strokeIds, reason) => {
+        tracker.removeStrokes(group, strokeIds, reason);
+        input();
+      },
+      toolChange: (group, next) => {
+        tracker.toolChange(group, next);
+        input();
+      },
+      positionStart: (group, point, meta) => {
+        tracker.positionStart(group, point, meta);
+        input();
+      },
+      positionMove: (group, point) => {
+        tracker.positionMove(group, point);
+        input();
+      },
+      positionEnd: (group, end) => {
+        tracker.positionEnd(group, end);
+        input();
+      },
+      fragmentAdd: (group, fragmentId, index) => {
+        tracker.fragmentAdd(group, fragmentId, index);
+        input();
+      },
+      fragmentRemove: (group, fragmentId, index) => {
+        tracker.fragmentRemove(group, fragmentId, index);
+        input();
+        signal.pulse();
+      },
+      fragmentReorder: (group, fragmentId, fromIndex, toIndex) => {
+        tracker.fragmentReorder(group, fragmentId, fromIndex, toIndex);
+        input();
+      },
       commit: (group) => {
         tracker.commit(group);
+        openGroups.delete(group);
+        signal.input();
         save();
       },
       snapshot: () => tracker.snapshot(),
       save,
     };
+    // sceneId is fixed for the life of a Zone's mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setSceneBehavior]);
 
   useEffect(() => {

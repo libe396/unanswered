@@ -1,0 +1,40 @@
+{
+  "sceneFlow": {
+    "IMAGE_01": "identical",
+    "IMAGE_02": "identical",
+    "IMAGE_03": "identical",
+    "IMAGE_04": "identical",
+    "IMAGE_05": "identical",
+    "IMAGE_06": "identical",
+    "IMAGE_07": "identical",
+    "IMAGE_08": "identical",
+    "IMAGE_09": "identical",
+    "IMAGE_10": "identical"
+  },
+  "variants": {
+    "default": {
+      "IMAGE_01": "identical",
+      "IMAGE_02": "identical",
+      "IMAGE_03": "identical",
+      "IMAGE_04": "identical",
+      "IMAGE_05": "identical",
+      "IMAGE_06": "identical",
+      "IMAGE_07": "identical",
+      "IMAGE_08": "identical",
+      "IMAGE_09": "identical",
+      "IMAGE_10": "identical"
+    },
+    "disable-gpu": {
+      "IMAGE_01": "identical",
+      "IMAGE_02": "identical",
+      "IMAGE_03": "identical",
+      "IMAGE_04": "identical",
+      "IMAGE_05": "identical",
+      "IMAGE_06": "identical",
+      "IMAGE_07": "identical",
+      "IMAGE_08": "identical",
+      "IMAGE_09": "identical",
+      "IMAGE_10": "identical"
+    }
+  }
+}

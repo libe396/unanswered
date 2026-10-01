@@ -1,0 +1,68 @@
+[
+  {
+    "facts": {
+      "full": [
+        {
+          "kind": "dwell",
+          "text": "‘그 사람은 필요한 것만 챙겨 방을 나선 듯하다.’ 앞에 5.0초 머물렀습니다."
+        },
+        {
+          "kind": "removed",
+          "text": "‘책’을 선택했다가 해제했습니다."
+        },
+        {
+          "kind": "replay",
+          "text": "‘빗소리’를 다시 들었습니다."
+        }
+      ],
+      "empty": [],
+      "tie": [
+        {
+          "kind": "selection",
+          "text": "‘그 사람은 필요한 것만 챙겨 방을 나선 듯하다.’을 골랐습니다."
+        }
+      ],
+      "missing": [
+        {
+          "kind": "selection",
+          "text": "‘그 사람은 필요한 것만 챙겨 방을 나선 듯하다.’을 골랐습니다."
+        }
+      ],
+      "stray": [],
+      "repeated": [],
+      "resume": [],
+      "short": []
+    }
+  },
+  {
+    "wall": {
+      "height": 768,
+      "scroll": 768,
+      "cards": 20
+    }
+  },
+  {
+    "width": 1366,
+    "mode": "without",
+    "calls": 0,
+    "stopped": true
+  },
+  {
+    "width": 390,
+    "mode": "without",
+    "calls": 0,
+    "stopped": true
+  },
+  {
+    "width": 1366,
+    "mode": "camera",
+    "calls": 1,
+    "stopped": true
+  },
+  {
+    "width": 390,
+    "mode": "deny",
+    "calls": 1,
+    "stopped": true
+  }
+]

@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import type { ReportFinding } from '../../lib/reportStageFacts';
 import type { RecordLayerDerived, ReportData } from '../../types';
-import { useStageReveal } from './useStageReveal';
+import { useExperienceStore } from '../../store/experienceStore';
 import { ReportStageNav } from './ReportStageNav';
 import { ReportEvidenceVisual, evidenceCopy } from './ReportEvidenceVisual';
+import { TraceReplay, hasTraceReplay } from './TraceReplay';
 import './ReportStage02BehaviorTrace.css';
 
 interface Props {
@@ -41,27 +42,37 @@ export function ReportStage02BehaviorTrace({ finding, record, report, index, tot
   const isCrossScene = finding.zoneCount >= 2;
   const evidence = useMemo(() => finding.evidence.slice(0, isCrossScene ? 2 : 1), [finding.evidence, isCrossScene]);
   const finalPhase = evidence.length + 1;
-  const [phase, setPhase] = useState(prefersReducedMotion ? finalPhase : 0);
+  const [phase, setPhase] = useState(0);
+  const behavior = useExperienceStore((s) => s.behavior);
+  const replayable = useMemo(
+    () => evidence.map((item) => hasTraceReplay(item.sceneId, behavior[item.sceneId])),
+    [evidence, behavior],
+  );
+  // An evidence beat with a replay holds until the replay has finished, and
+  // again after "다시 보기"; without one it keeps its original 3s.
+  const [replayDone, setReplayDone] = useState(false);
+  const [revealed, setRevealed] = useState(false);
 
   useEffect(() => {
-    if (prefersReducedMotion) {
-      setPhase(finalPhase);
-      return;
-    }
+    if (phase >= finalPhase) return;
+    const hasReplay = phase > 0 && replayable[phase - 1];
+    if (hasReplay && !replayDone) return;
+    const hold = phase === 0 ? 2300 : hasReplay ? 4500 : 3000;
+    const timer = window.setTimeout(() => {
+      setReplayDone(false);
+      setPhase((p) => p + 1);
+    }, prefersReducedMotion ? Math.min(hold, 2000) : hold);
+    return () => window.clearTimeout(timer);
+  }, [phase, finalPhase, replayable, replayDone, prefersReducedMotion]);
 
-    setPhase(0);
-    const holds = [2300, ...evidence.map(() => 3000), 2500];
-    let elapsed = 0;
-    const timers = holds.slice(0, -1).map((hold, idx) => {
-      elapsed += hold;
-      return window.setTimeout(() => setPhase(idx + 1), elapsed);
-    });
-    return () => timers.forEach((timer) => window.clearTimeout(timer));
-  }, [evidence, finalPhase, prefersReducedMotion]);
+  useEffect(() => {
+    if (phase < finalPhase) return;
+    const timer = window.setTimeout(() => setRevealed(true), prefersReducedMotion ? 200 : 1300);
+    return () => window.clearTimeout(timer);
+  }, [phase, finalPhase, prefersReducedMotion]);
 
-  const revealDelayMs = prefersReducedMotion ? 260 : 2300 + evidence.length * 3000 + 3800;
-  const revealed = useStageReveal(revealDelayMs);
   const activeEvidence = evidence[Math.max(0, Math.min(evidence.length - 1, phase - 1))];
+  const activeReplayable = phase > 0 && phase <= evidence.length && replayable[phase - 1];
 
   return (
     <div className="report-stage report-stage-02">
@@ -95,10 +106,28 @@ export function ReportStage02BehaviorTrace({ finding, record, report, index, tot
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: prefersReducedMotion ? 0.15 : 0.75 }}
             >
-              <ReportEvidenceVisual sceneId={activeEvidence.sceneId} record={record} report={report} mode="return" />
+              {activeReplayable ? (
+                <TraceReplay
+                  sceneId={activeEvidence.sceneId}
+                  onDone={() => setReplayDone(true)}
+                  onRestart={() => setReplayDone(false)}
+                />
+              ) : (
+                <ReportEvidenceVisual sceneId={activeEvidence.sceneId} record={record} report={report} mode="return" />
+              )}
               <span className="report-stage-02__line report-stage-02__line--evidence">
                 {evidenceCopy(activeEvidence.sceneId, 'return')}
               </span>
+              {activeReplayable && replayDone ? (
+                <motion.div
+                  className="report-stage-02__after-replay"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: prefersReducedMotion ? 0 : 0.8 }}
+                >
+                  <ReportEvidenceVisual sceneId={activeEvidence.sceneId} record={record} report={report} mode="return" />
+                </motion.div>
+              ) : null}
             </motion.div>
           ) : null}
 

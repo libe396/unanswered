@@ -1,0 +1,11 @@
+PASS natural end + timing + input gate: 06_Memory [ 3.200033, 3.200033 ]
+PASS stairs → sound on SAME player, both fade in, no play click, one sound title, back skips transit
+PASS duplicate end/skip + reload returns Landing
+PASS failed media → title → interaction
+PASS autoplay denied → inline play button
+PASS sound-blocked autoplay offers explicit audible retry; stairs/sound retain sound
+PASS intro fades in on real playback and still reaches investigation start
+PASS previous Zone restores drawing, objects, phase and behavior history
+PASS mobile contain/title/auto-entry: { width: 390, height: 844 }
+PASS mobile contain/title/auto-entry: { width: 844, height: 390 }
+PASS no uncaught browser errors

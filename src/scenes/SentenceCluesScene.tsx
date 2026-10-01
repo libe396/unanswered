@@ -480,8 +480,8 @@ export function SentenceCluesScene() {
             {narrative.paragraphs.filter((_, index) => index < 3 || selectedObjects.length > 0).map((paragraph, index) => <p key={index}>{paragraph}</p>)}
             <p className="sentence-clues-scene__story-gap">{narrative.missingSegmentText}</p>
           </div>
-          <h1>이 공간에 머물던 사람의 이야기는 어떻게 이어졌을까요?</h1>
-          <p className="sentence-clues-scene__intro-guide">수집한 단서를 떠올리며, 이어졌을 법한 문장을 {SENTENCE_MIN_FRAGMENTS}~{SENTENCE_MAX_FRAGMENTS}개 골라 주세요.</p>
+          <h1>이 공간에 머물던 사람의 이야기는 어떻게 이어졌을 것 같나요?</h1>
+          <p className="sentence-clues-scene__intro-guide">이어질 것 같은 문장을 {SENTENCE_MIN_FRAGMENTS}~{SENTENCE_MAX_FRAGMENTS}개 골라 주세요.</p>
           <dl className="sentence-clues-scene__clue-strip" aria-label="수집한 단서 요약">
             <div><dt>색</dt><dd>{lightArchive?.rules.palette.length ? <div className="sentence-clues-scene__swatches">{lightArchive.rules.palette.map((color, index) => <span key={index} style={{ backgroundColor: color }} role="img" aria-label={color} />)}</div> : '수집한 색 없음'}</dd></div>
             <div><dt>소리</dt><dd>{selectedSound?.label ?? '선택한 소리 없음'}</dd></div>
@@ -504,7 +504,7 @@ export function SentenceCluesScene() {
             row have to land inside one 800px screen without a scroller, and
             the instruction is the one block that can be said somewhere else —
             the action row's label below carries the 3–5 range instead. */}
-        <StageHeader eyebrow="문장의 흔적" title="이 공간에 머물던 사람의 이야기는 어떻게 이어졌을까요?" />
+        <StageHeader eyebrow="문장의 흔적" title="이 공간에 머물던 사람의 이야기는 어떻게 이어졌을 것 같나요?" />
 
         <div className="sentence-clues-scene__wall scroll-quiet" aria-label="전체 문장 기록">
           {SENTENCE_RECONSTRUCTION_FRAGMENTS.map((fragment) => {
@@ -553,7 +553,7 @@ export function SentenceCluesScene() {
                       ? '다른 문장을 고르려면 선택한 기록을 해제하세요.'
                       : isValid
                         ? '선택한 문장을 다시 누르면 해제됩니다.'
-                        : `가능하다고 생각되는 기록을 ${SENTENCE_MIN_FRAGMENTS}–${SENTENCE_MAX_FRAGMENTS}개 골라 주세요.`}
+                        : `이어질 것 같은 문장을 ${SENTENCE_MIN_FRAGMENTS}–${SENTENCE_MAX_FRAGMENTS}개 골라 주세요.`}
                 </span>
               </p>
             }

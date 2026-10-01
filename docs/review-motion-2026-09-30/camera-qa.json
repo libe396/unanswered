@@ -1,0 +1,26 @@
+[
+  {
+    "mode": "allow-exit",
+    "calls": 1,
+    "tracksStopped": true,
+    "microphone": false
+  },
+  {
+    "mode": "deny",
+    "calls": 1,
+    "tracksStopped": true,
+    "microphone": false
+  },
+  {
+    "mode": "missing",
+    "calls": 1,
+    "tracksStopped": true,
+    "microphone": false
+  },
+  {
+    "mode": "off",
+    "calls": 0,
+    "tracksStopped": true,
+    "microphone": false
+  }
+]

@@ -1,0 +1,2 @@
+ENTRY TO RESULT ms 7922
+PASS 1440 900 no-preference real analysis, stages, skip, replay identical canvas, details, compare, save { origin: true, palette: true, count: 8 }

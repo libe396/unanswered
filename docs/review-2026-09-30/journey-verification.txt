@@ -1,0 +1,12 @@
+PASS actual-data crossfade 01_Color 419ms
+PASS actual-data crossfade 03_Sound 417ms
+PASS Light completion → stairs → sound
+PASS actual-data crossfade 05_Memory 415ms
+PASS actual-data crossfade 04_Sentence 404ms
+PASS Sound → Memory drawing → Sentence, original route preserved
+PASS actual-data crossfade 06_Memory 468ms
+PASS actual-data crossfade 07_Final 411ms
+PASS Sentence → Record Layer → Report with all answers/strokes intact
+PASS report reentry retains generatedAt and skips both films
+PASS print canvas prepared at original 1000px resolution
+PASS forward path without browser errors

@@ -1,0 +1,83 @@
+[
+  {
+    "width": 1440,
+    "height": 900,
+    "intro": {
+      "scroll": false,
+      "items": 1,
+      "visible": true,
+      "textFits": true
+    },
+    "empty": {
+      "scroll": false,
+      "items": 21,
+      "visible": true,
+      "textFits": true
+    },
+    "full": {
+      "scroll": false,
+      "items": 21,
+      "visible": true,
+      "textFits": true
+    },
+    "sound": {
+      "scroll": false,
+      "buttonVisible": true,
+      "clearHUD": true
+    }
+  },
+  {
+    "width": 1366,
+    "height": 768,
+    "intro": {
+      "scroll": false,
+      "items": 1,
+      "visible": true,
+      "textFits": true
+    },
+    "empty": {
+      "scroll": false,
+      "items": 21,
+      "visible": true,
+      "textFits": true
+    },
+    "full": {
+      "scroll": false,
+      "items": 21,
+      "visible": true,
+      "textFits": true
+    },
+    "sound": {
+      "scroll": false,
+      "buttonVisible": true,
+      "clearHUD": true
+    }
+  },
+  {
+    "width": 1100,
+    "height": 650,
+    "intro": {
+      "scroll": false,
+      "items": 1,
+      "visible": true,
+      "textFits": true
+    },
+    "empty": {
+      "scroll": false,
+      "items": 21,
+      "visible": true,
+      "textFits": true
+    },
+    "full": {
+      "scroll": false,
+      "items": 21,
+      "visible": true,
+      "textFits": true
+    },
+    "sound": {
+      "scroll": false,
+      "buttonVisible": true,
+      "clearHUD": true
+    }
+  }
+]

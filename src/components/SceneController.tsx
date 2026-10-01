@@ -21,6 +21,7 @@ import { DevSceneNavigator } from './DevSceneNavigator';
 import { PostElevatorSoundManager } from './PostElevatorSoundManager';
 import { ZoneLabel } from './ZoneLabel';
 import { ArchiveHUD } from './ArchiveHUD';
+import { HesitationNudge } from './HesitationNudge';
 import { BackButton } from './BackButton';
 import { ZoneExperienceHost } from './ZoneExperienceHost';
 import { ZONE_FILMS } from '../data/zoneFilms';
@@ -129,6 +130,7 @@ export function SceneController() {
       {interactionReady && <BackButton />}
       {/* Decides for itself which Zones it belongs on — see ArchiveHUD. */}
       {interactionReady && <ArchiveHUD scene={isZone ? currentScene : displayedScene} />}
+      {interactionReady && <HesitationNudge key={`${visitId}-${currentScene}`} scene={currentScene} />}
       {/* Above every Scene and below nothing. Static, decorative, never
           interactive — see .grain-overlay in styles/global.css. */}
       <div className="grain-overlay" aria-hidden="true" />

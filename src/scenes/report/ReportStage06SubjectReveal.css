@@ -156,3 +156,127 @@
   .identity-reveal__closure,
   .identity-reveal__final { font-size: var(--type-body); }
 }
+
+/* ── The ID card's silhouette, returning ───────────────────────────────────
+   The same head-and-shoulders mass as .pass-card__silhouette (Registration),
+   drawn as a mask so it can be filled with the visitor's light. "Side" is
+   the turned-away pose: narrower shoulders, head off-centre. The turn to
+   front is a crossfade between the two. */
+
+.identity-figure {
+  position: relative;
+  height: clamp(180px, 34vh, 340px);
+  aspect-ratio: 5 / 6;
+  --mask-front:
+    radial-gradient(ellipse 21% 19% at 50% 31%, #000 0 72%, transparent 100%),
+    radial-gradient(ellipse 50% 48% at 50% 100%, #000 0 70%, transparent 100%);
+  --mask-side:
+    radial-gradient(ellipse 18% 19% at 45% 31%, #000 0 72%, transparent 100%),
+    radial-gradient(ellipse 36% 48% at 50% 100%, #000 0 70%, transparent 100%);
+  /* The body runs out of light at the bottom instead of being cut off. */
+  -webkit-mask-image: linear-gradient(#000 72%, transparent);
+  mask-image: linear-gradient(#000 72%, transparent);
+}
+
+.identity-figure__pose {
+  position: absolute;
+  inset: 0;
+}
+
+.identity-figure__mass,
+.identity-figure__fill {
+  position: absolute;
+  inset: 0;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+.identity-figure__pose--front .identity-figure__mass,
+.identity-figure__pose--front .identity-figure__fill {
+  -webkit-mask-image: var(--mask-front);
+  mask-image: var(--mask-front);
+}
+
+.identity-figure__pose--side .identity-figure__mass,
+.identity-figure__pose--side .identity-figure__fill {
+  -webkit-mask-image: var(--mask-side);
+  mask-image: var(--mask-side);
+}
+
+.identity-figure__mass {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.identity-figure__fill {
+  background-color: rgba(138, 107, 255, 0.35);
+  background-size: cover, cover;
+  background-position: center, center;
+  background-blend-mode: screen;
+}
+
+/* The live mirror: over the silhouette, softened at the edges so the light
+   underneath still reads. Never recorded — see the camera effect. */
+.identity-figure__mirror {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  opacity: 0;
+  transition: opacity 1.4s ease;
+  -webkit-mask-image: radial-gradient(ellipse 46% 52% at 50% 46%, #000 55%, transparent 100%);
+  mask-image: radial-gradient(ellipse 46% 52% at 50% 46%, #000 55%, transparent 100%);
+}
+
+.identity-figure__mirror--on {
+  opacity: 0.88;
+}
+
+/* Rendered once, then used as the fill's image. */
+.identity-figure__source {
+  display: none;
+}
+
+.identity-card {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.identity-card__label {
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  letter-spacing: 0.16em;
+  color: var(--text-tertiary);
+}
+
+.identity-card__name {
+  font-family: var(--font-kr);
+  font-size: var(--type-body-lg);
+  color: var(--text-tertiary);
+}
+
+.identity-card__name--named {
+  color: var(--text-primary);
+}
+
+.identity-reveal__slot {
+  min-height: clamp(64px, 10vh, 96px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.identity-reveal__slot h1,
+.identity-reveal__slot p {
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .identity-figure__mirror { transition: none; }
+}
+
+@media print {
+  .identity-figure__mirror { display: none !important; }
+}

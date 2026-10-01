@@ -1,0 +1,9 @@
+intro-film.mp4 duration 36.25 audio peak 0.9681698
+zones/02_Stairs_Final.mp4 duration 7.417 audio peak 0.16750354
+zones/04_Sentence_Clues_Final.mp4 duration 9.209 audio peak 0.041271348
+zones/06_Memory_Layers_Entry_3p2s.mp4 duration 3.2000325520833335 audio peak 0.11942316
+zones/07_Final_Report_Final.mp4 duration 8.0 audio peak 0.119265035
+zones/01_Color_Trace_Final.mp4 duration 7.584 audio peak 0.068094015
+zones/05_Memory_Sketch_Final.mp4 duration 7.584 audio peak 0.113260575
+zones/06_Memory_Layers_Final.mp4 duration 9.709 audio peak 0.12905897
+zones/03_Sound_Trace_Final.mp4 duration 7.584 audio peak 0.45454583

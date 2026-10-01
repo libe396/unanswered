@@ -699,8 +699,8 @@ export function SoundCluesScene() {
         */}
         <StageHeader
           eyebrow="소리의 흔적"
-          title="그 사람의 기억에선 어떤 소리가 존재했을까요?"
-          description="유리 아래 놓인 소리 단서를 눌러 들어 보고, 보고서에 남길 소리 하나를 선택해 주세요."
+          title="그 사람 곁에는 어떤 소리가 있었을 것 같나요?"
+          description="유리 돔을 눌러 들어 보고, 하나를 골라 주세요."
         />
 
         <div className="sound-clues-scene__shelf-scroll">
@@ -741,8 +741,8 @@ export function SoundCluesScene() {
     <div className="sound-clues-scene sound-clues-scene--positioning">
       <StageHeader
         eyebrow="소리의 흔적"
-        title="이 소리가 기억 속 어디쯤 남아 있는지 표시하세요"
-        description="가로는 흐릿함에서 선명함으로, 세로는 가까이에서 멀리로 읽힙니다."
+        title="이 소리, 가까웠나요 멀었나요? 선명했나요 흐렸나요?"
+        description="이 소리가 얼마나 가깝고 선명했는지, 점 하나로 찍어 주세요."
       />
 
       {renderPlayer(selectedClue, selectedSoundId ? getRuntime(selectedSoundId) : null)}
@@ -771,7 +771,7 @@ export function SoundCluesScene() {
             */
             role="group"
             tabIndex={0}
-            aria-label="이 소리가 기억 속 어디쯤 남아 있는지 표시하세요. 가로는 흐릿함에서 선명함, 세로는 가까이 남아 있음에서 멀리 남아 있음. 방향키로 표시를 옮길 수 있습니다."
+            aria-label="이 소리, 가까웠나요 멀었나요? 선명했나요 흐렸나요? 가로는 흐릿함에서 선명함, 세로는 가까이 남아 있음에서 멀리 남아 있음. 방향키로 표시를 옮길 수 있습니다."
             onPointerDown={handleFieldPointerDown}
             onPointerMove={handleFieldPointerMove}
             onPointerUp={handleFieldPointerUp}

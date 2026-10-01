@@ -12,7 +12,7 @@
  * session with nothing recorded for a section gets an honest empty/"기록되지
  * 않음" reading here, never a placeholder standing in for real data.
  */
-import type { RecordLayerDerived, ReportData } from '../types';
+import type { LightAnalysisRules, RecordLayerDerived, ReportData } from '../types';
 
 export interface FinalReportColorPresentation {
   dominantHex: string | null;
@@ -68,6 +68,8 @@ export interface FinalReportClueLine {
 
 export interface FinalReportPresentation {
   reportId: string;
+  /** The timestamp `issuedAtLabel` formats; the mobile report link carries it. */
+  issuedAt: number | null;
   issuedAtLabel: string;
   recordStatus: 'COMPLETE' | 'IN PROGRESS';
   ownerLabel: string;
@@ -206,7 +208,12 @@ export function buildSoundWaveform(soundId: string, barCount = 56): number[] {
 /* ── Section builders ───────────────────────────────────────────────────── */
 
 function buildColorPresentation(record: RecordLayerDerived): FinalReportColorPresentation {
-  const rules = record.light?.rules ?? null;
+  return buildColorPresentationFromRules(record.light?.rules ?? null);
+}
+
+/** Same reading from rules alone — the mobile report has no record, only the
+ *  cached analysis for the image (src/lib/reportShare.ts). */
+export function buildColorPresentationFromRules(rules: LightAnalysisRules | null): FinalReportColorPresentation {
   const palette = rules?.palette ?? [];
   const weights = rules && rules.paletteWeights.length === palette.length ? rules.paletteWeights : palette.map(() => 1);
   const ranked = palette.map((hex, i) => ({ hex, weight: weights[i] ?? 0 })).sort((a, b) => b.weight - a.weight);
@@ -303,7 +310,7 @@ function buildClueLines(
   return lines.slice(0, 6);
 }
 
-function formatIssuedAt(timestamp: number | null): string {
+export function formatIssuedAt(timestamp: number | null): string {
   if (timestamp === null) return '-';
   const d = new Date(timestamp);
   const pad = (n: number) => String(n).padStart(2, '0');
@@ -333,9 +340,12 @@ export function buildFinalReportPresentation(
     repeatedKeywords: report.repeatedKeywords,
   };
 
+  const issuedAt = generatedAt ?? record.investigator?.entryTime ?? null;
+
   return {
     reportId: report.reportId,
-    issuedAtLabel: formatIssuedAt(generatedAt ?? record.investigator?.entryTime ?? null),
+    issuedAt,
+    issuedAtLabel: formatIssuedAt(issuedAt),
     recordStatus: record.completedCount >= record.totalCount ? 'COMPLETE' : 'IN PROGRESS',
     ownerLabel: '당신',
     color,

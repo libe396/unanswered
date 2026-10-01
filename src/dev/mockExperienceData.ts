@@ -136,20 +136,20 @@ export const MOCK_MEMORY_SKETCH: MemorySketchData = {
 export const MOCK_SENTENCE_CLUES: SentenceCluesData = {
   selectedSentenceIds: ['RECON_A_HESITATED', 'RECON_C_UNSPOKEN'],
   selectedSentences: [
-    '떠나려 했지만, 한동안 방을 벗어나지 못했을 가능성이 있다.',
-    '그 사람이 끝내 전하지 못한 말이 있었던 것으로 보인다.',
+    '떠나려 했지만, 한동안 방을 나서지 못했다.',
+    '끝내 전하지 못한 말이 있었다.',
   ],
   // Real shape, not a distinct line: SentenceCluesScene.handleComplete()
   // always writes `selectedSentences.join(' ')` here — see
   // SentenceCluesData's own doc. `responseText` below is the field that
   // actually carries a separate, freely-typed answer.
-  customSentence: '떠나려 했지만, 한동안 방을 벗어나지 못했을 가능성이 있다. 그 사람이 끝내 전하지 못한 말이 있었던 것으로 보인다.',
+  customSentence: '떠나려 했지만, 한동안 방을 나서지 못했다. 끝내 전하지 못한 말이 있었다.',
   dwellTimes: { RECON_A_HESITATED: 4200, RECON_C_UNSPOKEN: 9100 },
   selectionOrder: ['RECON_A_HESITATED', 'RECON_C_UNSPOKEN'],
   repeatedKeywords: ['기억'],
   questionTargetFragmentId: 'RECON_C_UNSPOKEN',
   questionOpenSlot: 'message',
-  generatedQuestion: '그 사람이 전하지 못한 말은 무엇이었을까요?',
+  generatedQuestion: '전하지 못한 말, 뭐였을 것 같나요?',
   questionSource: 'fallback',
   responseText: '아마 미안하다는 말이었을 것이다.',
   responseSkipped: false,

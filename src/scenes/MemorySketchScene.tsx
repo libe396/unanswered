@@ -447,8 +447,8 @@ export function MemorySketchScene() {
           title={isDrawing ? '비어 있는 흔적을 덧그려 보세요' : '이곳에 남아 있는 흔적을 살펴보세요'}
           description={
             isDrawing
-              ? '동그라미 하나, 짧은 선 하나도 괜찮아요.'
-              : '밝게 채워진 사물을 살펴보고, 마음이 머무는 사물을 선택해 주세요.'
+              ? '남기고 싶은 곳에 선 하나를 그려 주세요. 그냥 넘어가도 됩니다.'
+              : `방 안의 물건 중 눈에 들어오는 것을 ${MEMORY_MIN_OBJECT_SELECTION}개 이상 골라 주세요.`
           }
         />
         <div className="memory-sketch-scene__body">

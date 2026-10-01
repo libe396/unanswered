@@ -64,3 +64,17 @@
     right: 6px;
   }
 }
+
+/* The existing evidence visual, kept: full size without a replay, smaller
+   under one once it has finished. */
+.report-stage-03__visual,
+.report-stage-03__after-replay {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.report-stage-03 .report-stage-03__after-replay .report-evidence-visual {
+  width: min(200px, 60vw);
+}

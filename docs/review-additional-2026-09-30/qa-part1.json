@@ -1,0 +1,45 @@
+{
+  "sentence": {
+    "selectedSentenceIds": [
+      "RECON_A_LEFT_CALM",
+      "RECON_B_LEFT_BEHIND",
+      "RECON_C_UNSPOKEN"
+    ],
+    "selectedSentences": [
+      "그 사람은 필요한 것만 챙겨 방을 나선 듯하다.",
+      "미처 챙기지 못한 물건 하나가 그 자리에 남아 있는 듯하다.",
+      "그 사람이 끝내 전하지 못한 말이 있었던 것으로 보인다."
+    ],
+    "customSentence": "그 사람은 필요한 것만 챙겨 방을 나선 듯하다. 미처 챙기지 못한 물건 하나가 그 자리에 남아 있는 듯하다. 그 사람이 끝내 전하지 못한 말이 있었던 것으로 보인다.",
+    "dwellTimes": {
+      "RECON_C_UNSPOKEN": 3071
+    },
+    "selectionOrder": [
+      "RECON_A_LEFT_CALM",
+      "RECON_B_LEFT_BEHIND",
+      "RECON_C_UNSPOKEN"
+    ],
+    "repeatedKeywords": [
+      "사람",
+      "듯하다",
+      "못한"
+    ],
+    "questionTargetFragmentId": "RECON_C_UNSPOKEN",
+    "questionOpenSlot": "message",
+    "generatedQuestion": "그 사람이 끝내 전하지 못한 말은 무엇이었을까요?",
+    "questionSource": "fallback",
+    "responseText": "돌아오지 못한 편지",
+    "responseSkipped": false,
+    "noQuestionAvailable": false,
+    "responseEditCount": 1,
+    "responseDeleteCount": 0,
+    "behavioralTrace": {
+      "type": "long_selected_dwell",
+      "fragmentId": "RECON_C_UNSPOKEN",
+      "dwellMs": 3071,
+      "revisitCount": 0
+    },
+    "sceneDurationMs": 5887
+  },
+  "errors": []
+}

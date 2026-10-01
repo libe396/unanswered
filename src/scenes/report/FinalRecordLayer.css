@@ -75,6 +75,70 @@
    receipt above it, which is the one thing on this screen worth pressing.
    Appearance comes from .cta .cta--text — nothing to declare. */
 
+/* ── Venue mode (?venue=1) ─────────────────────────────────────────────
+   The QR is the thing to do on the floor, so it takes the screen's centre
+   and stays there while the receipt beside it scrolls. */
+.final-record-layer--venue {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: clamp(32px, 4.5vw, 64px);
+}
+
+.final-record-layer__venue {
+  /* One viewport tall and pinned, so the QR sits at the vertical centre
+     however far the receipt is scrolled. The negative margin cancels the
+     layer's top padding that would otherwise push it below centre. */
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  order: -1;
+  height: 100dvh;
+  margin-top: calc(-1 * clamp(56px, 10vh, 110px));
+  display: flex;
+  align-items: center;
+}
+
+.final-record-layer__venue-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.final-record-layer__venue-qr {
+  border: 1px solid var(--line);
+}
+
+.final-record-layer__venue-scan {
+  margin: 0;
+  font-size: var(--type-meta);
+  letter-spacing: 0.14em;
+  color: var(--color-accent);
+}
+
+.final-record-layer__venue-guide {
+  margin: 0;
+  max-width: 300px;
+  font-size: var(--type-body);
+  line-height: 1.7;
+  color: var(--text-primary);
+  white-space: pre-line;
+}
+
+@media (max-width: 900px) {
+  .final-record-layer--venue {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .final-record-layer__venue {
+    position: static;
+    height: auto;
+    margin-top: 0;
+  }
+}
+
 @media (max-width: 640px) {
   .final-record-layer__narrative {
     width: 94vw;

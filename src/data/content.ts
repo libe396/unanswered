@@ -118,47 +118,47 @@ export const SENTENCE_MIN_NON_ENDING_BEFORE_ENDING = 2;
 export const SENTENCE_RECONSTRUCTION_FRAGMENTS: SentenceReconstructionFragment[] = [
   // ── A. 떠났는가, 남았는가 — aftermath ─────────────────────────────────────
   { id: 'RECON_A_LEFT_CALM', narrativeRole: 'aftermath', openSlots: [], semanticTags: [],
-    text: '그 사람은 필요한 것만 챙겨 방을 나선 듯하다.' },
+    text: '필요한 것만 챙겨 방을 나섰다.' },
   { id: 'RECON_A_HESITATED', narrativeRole: 'aftermath', openSlots: [], semanticTags: [],
-    text: '떠나려 했지만, 한동안 방을 벗어나지 못했을 가능성이 있다.' },
+    text: '떠나려 했지만, 한동안 방을 나서지 못했다.' },
   { id: 'RECON_A_RETURNED_FOR', narrativeRole: 'aftermath', openSlots: ['purpose'], semanticTags: [],
-    text: '한번 떠났다가, 두고 간 것을 확인하기 위해 다시 돌아온 듯하다.' },
+    text: '떠났다가, 두고 간 것을 보러 다시 돌아왔다.' },
   { id: 'RECON_A_WAITED', narrativeRole: 'aftermath', openSlots: ['person'], semanticTags: ['waiting'],
-    text: '그 사람은 누군가를 기다리듯 그 자리에 머물러 있었던 것으로 보인다.' },
+    text: '누군가를 기다리며 그 자리에 있었다.' },
 
   // ── B. 무엇을 남겼는가 — remains ──────────────────────────────────────────
   { id: 'RECON_B_LEFT_BEHIND', narrativeRole: 'remains', openSlots: ['object'], semanticTags: ['object'],
-    text: '미처 챙기지 못한 물건 하나가 그 자리에 남아 있는 듯하다.' },
+    text: '챙기지 못한 물건 하나가 남아 있다.' },
   { id: 'RECON_B_PUT_DOWN_AGAIN', narrativeRole: 'remains', openSlots: ['object'], semanticTags: ['object'],
-    text: '몇 번이고 챙겼다가 다시 내려놓은 물건이 있었던 것으로 보인다.' },
+    text: '몇 번이고 챙겼다가 다시 내려놓은 물건이 있다.' },
   { id: 'RECON_B_LEFT_ON_PURPOSE', narrativeRole: 'remains', openSlots: ['object'], semanticTags: ['object'],
-    text: '가져갈 수 있었지만 일부러 남겨둔 것으로 보이는 물건이 있다.' },
+    text: '가져갈 수 있었지만 일부러 두고 간 물건이 있다.' },
   // openSlots added in the Final Logic Patch: "몇몇 물건" already names a
   // plural of unnamed objects, so 'object' only makes explicit what the
   // sentence already implies — see src/lib/sentenceQuestionService.ts's
   // FRAGMENT_QUESTIONS for the fallback this unlocks.
   { id: 'RECON_B_DISPLACED', narrativeRole: 'remains', openSlots: ['object'], semanticTags: ['object'],
-    text: '몇몇 물건은 이전과 다른 자리에 놓여 있었던 것으로 보인다.' },
+    text: '몇몇 물건의 자리가 바뀌어 있다.' },
 
   // ── C. 무엇을 하지 못했는가 — unresolved ──────────────────────────────────
   { id: 'RECON_C_UNSPOKEN', narrativeRole: 'unresolved', openSlots: ['message'], semanticTags: [],
-    text: '그 사람이 끝내 전하지 못한 말이 있었던 것으로 보인다.' },
+    text: '끝내 전하지 못한 말이 있었다.' },
   { id: 'RECON_C_UNDONE_ACTION', narrativeRole: 'unresolved', openSlots: ['action'], semanticTags: [],
-    text: '하려다 그만둔 행동이 있었을 가능성이 있다.' },
+    text: '하려다 그만둔 일이 있었다.' },
   { id: 'RECON_C_UNWRITTEN_RECORD', narrativeRole: 'unresolved', openSlots: ['record'], semanticTags: [],
-    text: '누군가에게 남기려다 끝내 남기지 않은 기록이 있었던 것으로 보인다.' },
+    text: '누군가에게 남기려다 만 메모가 있었다.' },
   { id: 'RECON_C_UNDECIDED', narrativeRole: 'unresolved', openSlots: ['decision'], semanticTags: [],
-    text: '마지막까지 결정하지 못한 일이 하나 있었던 듯하다.' },
+    text: '끝까지 정하지 못한 일이 하나 있었다.' },
 
   // ── D. 그 이후에는 — after ────────────────────────────────────────────────
   { id: 'RECON_D_REVISITED', narrativeRole: 'after', openSlots: [], semanticTags: [],
-    text: '그 사람은 그날 이후에도 몇 차례 이곳을 다시 찾은 듯하다.' },
+    text: '그날 이후에도 몇 번 이곳을 다시 찾았다.' },
   { id: 'RECON_D_UNCHANGED', narrativeRole: 'after', openSlots: [], semanticTags: [],
-    text: '한동안 이 공간에는 별다른 변화가 없었던 것으로 보인다.' },
+    text: '한동안 이 방은 그대로였다.' },
   { id: 'RECON_D_VANISHED_LATER', narrativeRole: 'after', openSlots: ['object'], semanticTags: ['object'],
-    text: '시간이 지난 뒤, 남겨져 있던 물건 하나가 사라졌다.' },
+    text: '얼마 뒤, 남아 있던 물건 하나가 사라졌다.' },
   { id: 'RECON_D_DOOR_LEFT_OPEN', narrativeRole: 'after', openSlots: [], semanticTags: [],
-    text: '열린 채 남아 있던 문은 한동안 그대로였던 것으로 보인다.' },
+    text: '열린 문은 한동안 그대로였다.' },
 
   // ── E. 마지막 기록 — ending (gated; always drawn last in a restored record) ─
   // 'absence' — never a candidate itself (no openSlots), but its tag can
@@ -167,13 +167,13 @@ export const SENTENCE_RECONSTRUCTION_FRAGMENTS: SentenceReconstructionFragment[]
   // SEMANTIC_LINKS. No new fact is ever asserted by this: a shared theme
   // nudges *which* open slot gets asked about, never what the answer is.
   { id: 'RECON_E_NEVER_RETURNED', narrativeRole: 'ending', openSlots: [], semanticTags: ['absence'],
-    text: '그 사람은 결국 이곳으로 다시 돌아오지 않은 것으로 보인다.' },
+    text: '그 사람은 다시 돌아오지 않았다.' },
   { id: 'RECON_E_RECORD_ENDS', narrativeRole: 'ending', openSlots: [], semanticTags: ['absence'],
-    text: '이후 그 사람에 대한 기록은 더 이상 확인되지 않는다.' },
+    text: '그 뒤의 기록은 없다.' },
   { id: 'RECON_E_CONTINUES_ELSEWHERE', narrativeRole: 'ending', openSlots: [], semanticTags: ['absence'],
-    text: '다음 기록은 이곳이 아닌 다른 장소에서 이어졌을 가능성이 있다.' },
+    text: '다음 기록은 다른 곳에서 이어진다.' },
   { id: 'RECON_E_LAST_RECORD_HERE', narrativeRole: 'ending', openSlots: [], semanticTags: ['absence'],
-    text: '그날 이후 이 공간에서 확인되는 기록은 여기까지다.' },
+    text: '이 방의 기록은 여기까지다.' },
 ];
 
 /**

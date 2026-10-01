@@ -1,4 +1,3 @@
-import { sentenceDwellNote } from '../../lib/sentenceDwellNote';
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer-motion';
 import { renderLightGraphic } from '../../lib/lightRenderer.js';
@@ -28,13 +27,10 @@ const itemVariantsReduced: Variants = {
   visible: { opacity: 1 },
 };
 
-const INTRO_BEATS = [
-  '조사를 마쳤습니다.',
-  '그런데,\n확인해야 할 것이 하나 남아 있습니다.',
-  '그동안 당신은\n생각보다 많은 흔적을 남겼습니다.',
-];
+// Third person only: this stage is the report on the person, not the visitor.
+const INTRO_BEATS = ['이름 없는 사람에 대한 보고서입니다.', '이 사람이 남긴 빛, 소리, 문장입니다.'];
 
-const INTRO_HOLDS_MS = [1900, 2300, 2500];
+const INTRO_HOLDS_MS = [2300, 2500];
 const MAP_PHASE = INTRO_BEATS.length;
 
 /**
@@ -49,7 +45,7 @@ const MAP_PHASE = INTRO_BEATS.length;
 export function ReportStage01CollectedClues({ record, report, index, total, locked, onAdvance }: Props) {
   const prefersReducedMotion = useReducedMotion();
   const [phase, setPhase] = useState(prefersReducedMotion ? MAP_PHASE : 0);
-  const revealed = useStageReveal(prefersReducedMotion ? 260 : 9800);
+  const revealed = useStageReveal(prefersReducedMotion ? 260 : 8600);
   const lightCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -83,7 +79,7 @@ export function ReportStage01CollectedClues({ record, report, index, total, lock
       <p className="report-stage__eyebrow">
         <span className="report-stage__eyebrow-code">REPORT {String(index).padStart(2, '0')}</span>
         <span className="report-stage__eyebrow-sep" aria-hidden="true">·</span>
-        <span className="report-stage__eyebrow-title">당신이 남긴 것</span>
+        <span className="report-stage__eyebrow-title">이 사람의 단서</span>
       </p>
 
       <AnimatePresence mode="wait">
@@ -150,7 +146,7 @@ export function ReportStage01CollectedClues({ record, report, index, total, lock
             <span className="report-stage-01__trace-label">문장</span>
             <span className="report-stage-01__node" aria-hidden="true" />
             <ol className="report-stage-01__sentences">
-              {(report.selectedSentences.length ? report.selectedSentences : report.customSentence ? [report.customSentence] : []).map((sentence, i) => <li key={i}><span>{String(i + 1).padStart(2, '0')}</span><p>{sentence}{sentenceDwellNote(record, i) && <small className="sentence-dwell-note">{sentenceDwellNote(record, i)}</small>}</p></li>)}
+              {(report.selectedSentences.length ? report.selectedSentences : report.customSentence ? [report.customSentence] : []).map((sentence, i) => <li key={i}><span>{String(i + 1).padStart(2, '0')}</span><p>{sentence}</p></li>)}
               {record.sentenceClues.responseText ? <li><span>+</span><p>{record.sentenceClues.responseText}</p></li> : null}
             </ol>
           </motion.div>
@@ -169,7 +165,7 @@ export function ReportStage01CollectedClues({ record, report, index, total, lock
       </motion.p>
 
       <ReportStageNav
-        label="다음 흔적 확인"
+        label="계속"
         index={index}
         total={total}
         visible={revealed}

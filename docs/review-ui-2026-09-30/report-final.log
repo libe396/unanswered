@@ -1,0 +1,4 @@
+PASS 1440 report01 layout, report03 unselected only [ 'lamp', 'window' ] [ 'book', 'photo', 'cup', 'chair', 'pillow', 'duvet', 'bedsidePlant' ]
+PASS 1366 report01 layout, report03 unselected only [ 'lamp', 'window' ] [ 'book', 'photo', 'cup', 'chair', 'pillow', 'duvet', 'bedsidePlant' ]
+PASS 1280 report01 layout, report03 unselected only [ 'lamp', 'window' ] [ 'book', 'photo', 'cup', 'chair', 'pillow', 'duvet', 'bedsidePlant' ]
+PASS 390 report01 layout, report03 unselected only [ 'lamp', 'window' ] [ 'book', 'photo', 'cup', 'chair', 'pillow', 'duvet', 'bedsidePlant' ]
