@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useReducedMotion } from 'framer-motion';
 import type { ZoneFilm } from '../data/zoneFilms';
 import { useFilmSound, setFilmMuted } from '../hooks/useFilmSound';
 import './ZoneIntroCard.css';
@@ -12,7 +13,119 @@ interface Props {
   onComplete: () => void;
 }
 
-export function ZoneFilmTransition({ film, zone, onReveal, onComplete }: Props) {
+export function ZoneFilmTransition(props: Props) {
+  const mode = props.film.mode ?? 'full';
+  if (mode === 'none') return <ZoneFilmSkip onComplete={props.onComplete} />;
+  if (mode === 'cut') return <ZoneFilmCut key={props.film.file} {...props} />;
+  return <ZoneFilmFull {...props} />;
+}
+
+/** No film: hand straight back before the first paint, so nothing flashes. */
+function ZoneFilmSkip({ onComplete }: Pick<Props, 'onComplete'>) {
+  const callback = useRef(onComplete);
+  callback.current = onComplete;
+  useLayoutEffect(() => { callback.current(); }, []);
+  return null;
+}
+
+const CUT_DEFAULT_MS = 2500;
+// No skip button in cut mode, so a clip that never starts must not hold the visitor.
+const CUT_LOAD_GUARD_MS = 2000;
+
+/**
+ * A short, always-muted excerpt that advances with zero clicks. It never reads
+ * or writes the visitor's film sound preference, which belongs to full films.
+ */
+function ZoneFilmCut({ film, zone, onReveal, onComplete }: Props) {
+  const reducedMotion = useReducedMotion();
+  const [phase, setPhase] = useState<Phase>(() => reducedMotion ? (film.title ? 'titleIn' : 'done') : 'video');
+  const [playing, setPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const finishedRef = useRef(false);
+  const callbacks = useRef({ onReveal, onComplete });
+  callbacks.current = { onReveal, onComplete };
+
+  const finish = useCallback(() => {
+    if (finishedRef.current) return;
+    finishedRef.current = true;
+    videoRef.current?.pause();
+    setPhase('videoOut');
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    let cutTimer = 0;
+    const guard = window.setTimeout(finish, CUT_LOAD_GUARD_MS);
+    const startCut = () => {
+      window.clearTimeout(guard);
+      if (!cutTimer) cutTimer = window.setTimeout(finish, film.cutMs ?? CUT_DEFAULT_MS);
+    };
+    const seek = () => { if (film.cutStartMs) video.currentTime = film.cutStartMs / 1000; };
+    if (video.readyState >= HTMLMediaElement.HAVE_METADATA) seek();
+    else video.addEventListener('loadedmetadata', seek, { once: true });
+    video.addEventListener('playing', startCut);
+    video.muted = true;
+    video.play().catch((error: unknown) => {
+      // AbortError only means cleanup paused this attempt; anything else
+      // (NotAllowedError included) moves on instead of asking for a click.
+      if (!(error instanceof DOMException && error.name === 'AbortError')) finish();
+    });
+    return () => {
+      window.clearTimeout(guard);
+      window.clearTimeout(cutTimer);
+      video.removeEventListener('loadedmetadata', seek);
+      video.removeEventListener('playing', startCut);
+      video.pause();
+    };
+  }, [finish, film.cutMs, film.cutStartMs]);
+
+  useEffect(() => {
+    let delay: number;
+    let next: () => void;
+    switch (phase) {
+      case 'videoOut':
+        delay = 400;
+        next = () => setPhase(film.title ? 'titleIn' : 'done');
+        break;
+      case 'titleIn': delay = 250; next = () => setPhase('titleHold'); break;
+      case 'titleHold':
+        delay = 900;
+        next = () => { callbacks.current.onReveal(); setPhase('reveal'); };
+        break;
+      case 'reveal': delay = 400; next = () => setPhase('done'); break;
+      case 'done': callbacks.current.onComplete(); return;
+      default: return;
+    }
+    const timer = window.setTimeout(next, delay);
+    return () => window.clearTimeout(timer);
+  }, [phase, film.title]);
+
+  const showingVideo = phase === 'video' || phase === 'videoOut';
+  return (
+    <section className={`zone-film zone-film--cut zone-film--${phase}`} aria-label="공간 진입 영상" data-phase={phase}>
+      {!reducedMotion && <video
+        ref={videoRef}
+        className={`zone-film__video${playing ? ' zone-film__video--playing' : ''}`}
+        hidden={!showingVideo && Boolean(film.title)}
+        src={`${import.meta.env.BASE_URL}video/zones/${film.file}`}
+        muted
+        playsInline
+        preload="auto"
+        onEnded={finish}
+        onError={finish}
+        onPlaying={() => { if (!finishedRef.current) setPlaying(true); }}
+      />}
+      {!showingVideo && film.title && <div className="zone-intro-card zone-film__title" role="status">
+        <span className="zone-intro-card__zone">{zone}</span>
+        <h1 className="zone-intro-card__title">{film.title}</h1>
+        {film.subtitle && <p className="zone-intro-card__subtitle">{film.subtitle}</p>}
+      </div>}
+    </section>
+  );
+}
+
+function ZoneFilmFull({ film, zone, onReveal, onComplete }: Props) {
   const [phase, setPhase] = useState<Phase>('video');
   const [phaseFile, setPhaseFile] = useState(film.file);
   const [needsPlay, setNeedsPlay] = useState(false);

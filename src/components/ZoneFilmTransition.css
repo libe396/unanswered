@@ -9,6 +9,7 @@
 .zone-film__video--playing { opacity: 1; }
 .zone-film__video[hidden] { display: none; }
 .zone-film--videoOut .zone-film__video { opacity: 0; }
+.zone-film--cut.zone-film--videoOut .zone-film__video { transition-duration: 400ms; }
 .zone-film__title { background: transparent; }
 .zone-film--titleIn .zone-film__title { animation: zone-film-title-in 250ms linear both; }
 .zone-film--reveal { opacity: 0; transition: opacity 400ms linear; }
