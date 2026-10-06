@@ -21,7 +21,7 @@ const ARCHIVE_TRACE_MARKS = [
   { kind: 'segment', width: 72 },
 ] as const;
 
-/** The layer stack opens on entry; confirmation goes straight to the report film. */
+/** The layer stack opens on entry; confirmation goes straight to the report. */
 const SPREAD_MS = 900;
 
 const LAYERS = [
@@ -283,10 +283,10 @@ export function RecordLayerSecondVisitScene() {
 
         {/* ── The column that reads it back ─────────────────────────────── */}
         <div className="record-layer-second-visit__content">
-          <p className="record-layer-second-visit__eyebrow">기록의 레이어</p>
-          <h1 className="record-layer-second-visit__title">당신이 수집한 단서들이 여기 모여 있습니다</h1>
+          <p className="record-layer-second-visit__eyebrow">모은 기록</p>
+          <h1 className="record-layer-second-visit__title">당신이 고른 단서들입니다</h1>
           <p className="record-layer-second-visit__desc">
-            네 겹의 기록은 아직 하나의 사람으로 정리되지 않았습니다.
+            각 흔적을 눌러 다시 살펴볼 수 있습니다.
           </p>
 
           <ul className="record-layer-second-visit__legend">

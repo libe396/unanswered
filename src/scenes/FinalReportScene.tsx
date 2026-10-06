@@ -4,44 +4,47 @@ import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer
 import { useShallow } from 'zustand/react/shallow';
 import { selectRecordLayerDerived, useExperienceStore } from '../store/experienceStore';
 import { buildReport } from '../utils/report';
-import { buildReportFindings, pickReturnFinding, pickStage03Highlight } from '../lib/reportStageFacts';
 import { buildFinalReportPresentation } from '../lib/finalReportPresentation';
 import { buildReportUrl, encodeReport } from '../lib/reportShare';
-import { hasHesitationEvidence } from '../lib/reportActionEvidence';
 import { isVenueMode } from '../lib/venueMode';
-import { ReportStage01CollectedClues } from './report/ReportStage01CollectedClues';
-import { ReportStage02BehaviorTrace } from './report/ReportStage02BehaviorTrace';
-import { ReportStage03Hesitation } from './report/ReportStage03Hesitation';
-import { ReportStage04MemoryReconstruction } from './report/ReportStage04MemoryReconstruction';
-import { ReportStage05Observation } from './report/ReportStage05Observation';
+import { analyzePersonalFindings } from '../lib/personalFindings';
+import {
+  hasRemoteInterpreter,
+  interpretPersonalFindings,
+  requestRemoteInterpretation,
+  type PersonalFinding,
+} from '../lib/personalFindingInterpretation';
 import { ReportStage06SubjectReveal } from './report/ReportStage06SubjectReveal';
+import { ReportStageMethod } from './report/ReportStageMethod';
+import { ReportStageFinding } from './report/ReportStageFinding';
+import { ReportStageClosing } from './report/ReportStageClosing';
 import { FinalRecordLayer } from './report/FinalRecordLayer';
-import { ReportBridgeBeat } from './report/ReportBridgeBeat';
-import { REPORT_CONCLUSION, REPORT_CONCLUSION_NO_HESITATION } from '../lib/reportFindingCopy';
 import { PrintableFullReport } from './report/PrintableFullReport';
 import './report/ReportStage.css';
 import './FinalReportScene.css';
 
 /**
  * The viewed Final Report — a no-scroll, one-viewport-per-idea Narrative
- * Flow (수집 → 발견 → 관찰 → 재구성 → 수렴 → Reveal → Closure), ending on
+ * Flow: SUBJECT REVEAL → REFRAME / METHOD → PERSONAL FINDINGS (one per
+ * screen, each with its Evidence Layer) → CLOSING, ending on
  * the 'archive' stage's screen receipt (`FinalReportSummaryReceipt`) and the
  * A4 document behind its "전체 조사 기록 발급하기" button
  * (`PrintableFullReport`, print-only) — both built from the same
  * `buildFinalReportPresentation` model so they can never disagree about the
  * same visit.
  *
- * Every behavioural claim in this sequence traces back to
- * `src/lib/reportStageFacts.ts`'s `ReportFinding[]` — itself built entirely
- * from the existing named Scene Patterns via `analyzeCrossScene` — never
- * from a threshold invented for this Scene. Stages whose Finding is null
- * for this session ('return' with nothing to show, 'hesitation' with no
- * HESITATION/REVISION/DWELL/REPLAY evidence at all) are left out of the
- * sequence rather than rendered empty. The convergence stage receives the
- * real Findings only to decide which already-observed trace markers may be
- * shown; it does not introduce another analysis result.
+ * Every behavioural claim in this sequence is a Personal Finding from
+ * `src/lib/personalFindings.ts` — relationships *between* recorded
+ * behaviours, read off the existing Scene Summaries / Scene Patterns and
+ * `analyzeCrossScene` — put into words by
+ * `src/lib/personalFindingInterpretation.ts`. The stages only render those
+ * Findings; none reads raw interaction data. A visit with fewer Findings
+ * gets fewer Finding stages (zero to three), never a filled-in one.
+ *
+ * The earlier one-behaviour-per-screen stages (ReportStage01–05,
+ * ReportBridgeBeat) are no longer in the sequence; their files are kept.
  */
-type StageKey = 'clues' | 'return' | 'hesitation' | 'memory' | 'observation' | 'reveal' | 'archive';
+type StageKey = 'reveal' | 'method' | `finding-${number}` | 'closing' | 'archive';
 
 const stageVariants: Variants = {
   initial: { opacity: 0, scale: 0.985, filter: 'blur(6px)' },
@@ -66,13 +69,22 @@ export function FinalReportScene() {
   const prefersReducedMotion = useReducedMotion();
 
   const report = buildReport(record);
-  const findings = useMemo(() => buildReportFindings(behavior, record), [behavior, record]);
-  const returnFinding = useMemo(() => pickReturnFinding(findings), [findings]);
-  const stage03Finding = useMemo(() => pickStage03Highlight(findings), [findings]);
-  const conclusion = useMemo(
-    () => (hasHesitationEvidence(findings, record, behavior) ? REPORT_CONCLUSION : REPORT_CONCLUSION_NO_HESITATION),
-    [findings, record, behavior],
-  );
+  const analysis = useMemo(() => analyzePersonalFindings(behavior, record), [behavior, record]);
+  const templateFindings = useMemo(() => interpretPersonalFindings(analysis.findings), [analysis]);
+  // Only ever set when VITE_REPORT_INTERPRETATION_ENDPOINT is configured and
+  // its answer passed validation — and only before any Finding is on screen,
+  // so a line never changes while it is being read.
+  const [remoteFindings, setRemoteFindings] = useState<PersonalFinding[] | null>(null);
+  const findingShownRef = useRef(false);
+  const personalFindings = remoteFindings ?? templateFindings;
+  useEffect(() => {
+    if (!hasRemoteInterpreter()) return;
+    let cancelled = false;
+    void requestRemoteInterpretation(templateFindings).then((result) => {
+      if (!cancelled && result && !findingShownRef.current) setRemoteFindings(result);
+    });
+    return () => { cancelled = true; };
+  }, [templateFindings]);
   const presentation = useMemo(
     () => buildFinalReportPresentation(record, report, finalReportMeta?.generatedAt ?? null),
     [record, report, finalReportMeta],
@@ -93,94 +105,64 @@ export function FinalReportScene() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const findingCount = personalFindings.length;
   const stageKeys = useMemo(() => {
-    const keys: StageKey[] = ['clues'];
-    if (returnFinding) keys.push('return');
-    if (stage03Finding) keys.push('hesitation');
-    keys.push('memory', 'observation', 'reveal', 'archive');
+    const keys: StageKey[] = ['reveal', 'method'];
+    for (let i = 0; i < findingCount; i += 1) keys.push(`finding-${i}`);
+    keys.push('closing', 'archive');
     return keys;
-  }, [returnFinding, stage03Finding]);
+  }, [findingCount]);
+
+  const transitionLine =
+    findingCount === 0
+      ? null
+      : analysis.crossScene
+        ? '서로 다른 공간에서\n같은 움직임이 반복되었습니다.'
+        : personalFindings[0]?.id === 'no-convergence'
+          ? '당신이 남긴 답 사이의 움직임을\n서로 맞대어 보았습니다.'
+          : `당신이 남긴 답 사이에서\n${findingCount > 1 ? '몇 가지' : '하나의'} 흔적이 발견되었습니다.`;
 
   // Dev-only shortcut (see experienceStore.ts's `devFinalReportEntryStage`
   // doc): 'summary' starts the sequence already on its last stage — the
-  // Summary Receipt — instead of at 'clues'. Read once, on mount, exactly
+  // Summary Receipt — instead of at 'reveal'. Read once, on mount, exactly
   // like `stageIndex` itself; a real visit's value is always 'sequence',
   // so this is a no-op outside DevSceneNavigator.tsx's shortcut.
-  const [stageIndex, setStageIndex] = useState(() =>
+  const [rawStageIndex, setStageIndex] = useState(() =>
     devFinalReportEntryStage === 'summary' ? stageKeys.length - 1 : 0,
   );
+  // The number of Finding stages follows the record; if it ever shrinks
+  // while the report is open, stay on a stage that still exists.
+  const stageIndex = Math.min(rawStageIndex, stageKeys.length - 1);
   const [locked, setLocked] = useState(false);
 
   function handleAdvance() {
     if (locked || stageIndex >= stageKeys.length - 1) return;
     setLocked(true);
-    setStageIndex((i) => i + 1);
+    setStageIndex(stageIndex + 1);
   }
 
   const handleRestart = useCallback(() => { useCameraPreference.getState().setEnabled(false); reset(); }, [reset]);
 
   function renderStage(key: StageKey, stageNumber: number, total: number) {
+    if (key.startsWith('finding-')) {
+      const order = Number(key.slice('finding-'.length));
+      const finding = personalFindings[order];
+      if (!finding) return null;
+      findingShownRef.current = true;
+      return (
+        <ReportStageFinding
+          finding={finding}
+          order={order + 1}
+          count={findingCount}
+          index={stageNumber}
+          total={total}
+          locked={locked}
+          onAdvance={handleAdvance}
+          nextLabel={order + 1 < findingCount ? '다음 발견' : '기록 마무리'}
+        />
+      );
+    }
     switch (key) {
-      case 'clues':
-        return (
-          <ReportStage01CollectedClues
-            record={record}
-            report={report}
-            index={stageNumber}
-            total={total}
-            locked={locked}
-            onAdvance={handleAdvance}
-          />
-        );
-      case 'return':
-        return (
-          <ReportStage02BehaviorTrace
-            finding={returnFinding!}
-            record={record}
-            report={report}
-            index={stageNumber}
-            total={total}
-            locked={locked}
-            onAdvance={handleAdvance}
-          />
-        );
-      case 'hesitation':
-        return (
-          <ReportStage03Hesitation
-            finding={stage03Finding!}
-            record={record}
-            report={report}
-            index={stageNumber}
-            total={total}
-            locked={locked}
-            onAdvance={handleAdvance}
-            conclusion={conclusion}
-          />
-        );
-      case 'memory':
-        return (
-          <ReportStage04MemoryReconstruction
-            record={record}
-            index={stageNumber}
-            total={total}
-            locked={locked}
-            onAdvance={handleAdvance}
-            conclude={!stage03Finding}
-            conclusion={conclusion}
-          />
-        );
-      case 'observation':
-        return (
-          <ReportStage05Observation
-            record={record}
-            report={report}
-            findings={findings}
-            index={stageNumber}
-            total={total}
-            locked={locked}
-            onAdvance={handleAdvance}
-          />
-        );
       case 'reveal':
         return (
           <ReportStage06SubjectReveal
@@ -190,6 +172,19 @@ export function FinalReportScene() {
             onAdvance={handleAdvance}
           />
         );
+      case 'method':
+        return (
+          <ReportStageMethod
+            index={stageNumber}
+            total={total}
+            locked={locked}
+            onAdvance={handleAdvance}
+            transitionLine={transitionLine}
+            nextLabel={findingCount > 0 ? '발견 보기' : '기록 마무리'}
+          />
+        );
+      case 'closing':
+        return <ReportStageClosing index={stageNumber} total={total} locked={locked} onAdvance={handleAdvance} />;
       case 'archive':
         return (
           <FinalRecordLayer
@@ -204,6 +199,7 @@ export function FinalReportScene() {
           />
         );
     }
+    return null;
   }
 
   const variants = prefersReducedMotion ? reducedStageVariants : stageVariants;
@@ -212,15 +208,6 @@ export function FinalReportScene() {
     : { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const };
 
   const activeKey = stageKeys[stageIndex];
-
-  /*
-    The turn from the person's record to the visitor's, once, in front of
-    whichever of return / hesitation / memory comes first. 'memory' is always
-    in the sequence, so the beat always appears exactly once.
-  */
-  const bridgeKey = stageKeys.find((key) => key === 'return' || key === 'hesitation' || key === 'memory');
-  const [bridgeDone, setBridgeDone] = useState(false);
-  const showBridge = activeKey === bridgeKey && !bridgeDone;
 
   return (
     <div
@@ -231,18 +218,14 @@ export function FinalReportScene() {
 
       <AnimatePresence mode="wait" onExitComplete={() => setLocked(false)}>
         <motion.div
-          key={showBridge ? 'bridge' : activeKey}
+          key={activeKey}
           initial="initial"
           animate="animate"
           exit="exit"
           variants={variants}
           transition={transition}
         >
-          {showBridge ? (
-            <ReportBridgeBeat onContinue={() => setBridgeDone(true)} />
-          ) : (
-            renderStage(stageKeys[stageIndex], stageIndex + 1, stageKeys.length)
-          )}
+          {renderStage(stageKeys[stageIndex], stageIndex + 1, stageKeys.length)}
         </motion.div>
       </AnimatePresence>
       <PrintableFullReport record={record} presentation={presentation} />

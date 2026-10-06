@@ -152,6 +152,9 @@ function warmthRatio(h: number): number {
 function describeColor(hex: string | null): string {
   const hsl = hex ? hexToHsl(hex) : null;
   if (!hsl) return '기록되지 않음';
+  if (hsl.l < 0.08) return '검정에 가까운 색';
+  if (hsl.l > 0.94) return '흰색에 가까운 색';
+  if (hsl.h >= 15 && hsl.h < 65 && hsl.l < 0.4 && hsl.s >= 0.08) return '어두운 갈색';
   if (hsl.s < 0.08) {
     const word = hsl.l > 0.62 ? '밝은' : hsl.l < 0.32 ? '어두운' : '무채색의';
     return `${word} 회색`;
@@ -228,7 +231,7 @@ export function buildColorPresentationFromRules(rules: LightAnalysisRules | null
   const description =
     brightnessWord === null
       ? '기록된 빛의 흔적이 없습니다.'
-      : `${brightnessWord} 화면 위로 ${temperatureLabel} 색이 가장 오래 남았습니다.`;
+      : `${brightnessWord} 화면 위로 ${temperatureLabel}${temperatureLabel.endsWith('색') ? '' : ' 색'}이 가장 오래 남았습니다.`;
 
   return { dominantHex, centerLightHex, residueHex, temperatureLabel, paletteSwatches: palette, description };
 }

@@ -10,11 +10,11 @@ const NUDGE_SCENES: ReadonlySet<SceneId> = new Set<SceneId>([
   'memorySketch',
   'sentenceClues',
 ]);
-const IDLE_MS = 8000;
+const IDLE_MS = 30000;
 const VISIBLE_MS = 4000;
 
 /**
- * Once per choice Zone: after 8s without input while a choice is still open,
+ * Once per choice Zone: after 30s without input while a choice is still open,
  * a quiet line at the bottom centre. Display only — it records nothing.
  */
 export function HesitationNudge({ scene }: { scene: SceneId }) {
@@ -60,9 +60,9 @@ export function HesitationNudge({ scene }: { scene: SceneId }) {
           exit={{ opacity: reduced ? 1 : 0, transition: { duration: reduced ? 0 : 0.8 } }}
           transition={{ duration: reduced ? 0 : 0.8 }}
         >
-          오래 고민하지 않아도 됩니다.
+          천천히 살펴보세요.
           <br />
-          대답하지 못한 것도 기록됩니다.
+          정답을 맞힐 필요는 없습니다.
         </motion.p>
       ) : null}
     </AnimatePresence>

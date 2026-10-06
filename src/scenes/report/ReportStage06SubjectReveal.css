@@ -312,3 +312,12 @@
 @media print {
   .identity-figure__mirror { display: none !important; }
 }
+
+/* The reveal is now the Final Report's opening beat and holds on two lines. */
+.identity-reveal__slot h1.identity-reveal__you {
+  font-size: clamp(1.5rem, 3.2vw, 2.25rem);
+  line-height: 1.5;
+  font-weight: 500;
+  white-space: pre-line;
+  word-break: keep-all;
+}

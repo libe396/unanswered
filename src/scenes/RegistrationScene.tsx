@@ -32,12 +32,12 @@ const STEPS: StageStep[] = [
 /** Shown on the card before an id exists — the same shape, none of the value. */
 const ID_PLACEHOLDER = 'RPT-·····';
 
-type Phase = 'form' | 'issuing' | 'issued' | 'rules';
+type Phase = 'form' | 'issuing' | 'issued';
 
 const RULE_LINES = [
-  { index: '01', text: '이 사람의 기록은 일부만 남아 있습니다.' },
-  { index: '02', text: '비어 있는 부분은 조사원의 첫인상으로 채웁니다.', accent: true },
-  { index: '03', text: '오래 고민하지 않아도 됩니다.' },
+  { index: '01', text: '단서를 골라 그 사람을 떠올려 보세요.' },
+  { index: '02', text: '정답은 없습니다.', accent: true },
+  { index: '03', text: '그림과 마지막 빈칸은 남기지 않아도 됩니다.' },
 ];
 
 /**
@@ -102,7 +102,7 @@ export function RegistrationScene() {
 
   const reportId = investigator?.reportId ?? '';
   const showsId = phase !== 'form' && reportId.length > 0;
-  const isIssued = phase === 'issued' || phase === 'rules';
+  const isIssued = phase === 'issued';
   const activeStep = phase === 'form' ? '01' : phase === 'issuing' ? '02' : '03';
 
   const card = (
@@ -177,73 +177,23 @@ export function RegistrationScene() {
     </div>
   );
 
-  /*
-    The rules, once the pass is issued and before the first Zone: there is
-    nothing to get right. A local beat of this Scene, so the scene flow is
-    unchanged — `completeScene('registration')` still leads to lightArchive.
-  */
-  if (phase === 'rules') {
-    const d = (full: number) => (prefersReducedMotion ? 0 : full);
-    return (
-      <div className="registration-scene registration-scene--rules">
-        <div className="registration-rules">
-          <motion.p
-            className="registration-rules__lead"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: d(0.9) }}
-          >
-            조사 지침
-          </motion.p>
-          <motion.ol
-            className="registration-rules__body"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: d(0.9), delay: d(0.9) }}
-          >
-            {RULE_LINES.map((line) => (
-              <li
-                key={line.index}
-                className={`registration-rules__line${line.accent ? ' registration-rules__line--accent' : ''}`}
-              >
-                <span className="registration-rules__index">{line.index}</span>
-                <span>{line.text}</span>
-              </li>
-            ))}
-          </motion.ol>
-          <motion.button
-            type="button"
-            className="cta cta--primary registration-rules__cta"
-            onClick={() => completeScene('registration')}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: d(0.8), delay: d(1.8) }}
-          >
-            조사 시작
-          </motion.button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="registration-scene">
       <StageLayout
         className="registration-scene__stage"
         object={card}
-        eyebrow="REGISTRATION"
-        title="조사원증을 발급합니다"
-        description={
-          <>
-            이름 없는 사람을 찾는 동안 사용할 임시 조사원증입니다.
-            <br />
-            조사 기록 화면에 표시될 이름을 입력해주세요.
-          </>
-        }
+        eyebrow="조사원 등록"
+        title={isIssued ? '조사원증이 준비되었습니다' : '어떤 이름으로 기록할까요?'}
+        description={isIssued ? undefined : '닉네임도 괜찮습니다.'}
         steps={STEPS}
         activeStep={activeStep}
       >
+        {isIssued && <aside className="registration-scene__brief" aria-label="조사 지침">
+          <p>조사 지침</p>
+          <ol>{RULE_LINES.map(line => <li key={line.index}>{line.text}</li>)}</ol>
+        </aside>}
         <form className="registration-scene__form" onSubmit={handleSubmit}>
+          {!isIssued && <>
           <label className="registration-scene__field-label" htmlFor="registration-name">
             이름
           </label>
@@ -260,14 +210,15 @@ export function RegistrationScene() {
             autoFocus={phase === 'form'}
             disabled={phase !== 'form'}
           />
+          </>}
 
           {isIssued ? (
             <button
               type="button"
               className="cta cta--primary registration-scene__submit"
-              onClick={() => setPhase('rules')}
+              onClick={() => completeScene('registration')}
             >
-              다음으로
+              단서 조사 시작
             </button>
           ) : (
             <button

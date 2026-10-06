@@ -75,6 +75,10 @@
    receipt above it, which is the one thing on this screen worth pressing.
    Appearance comes from .cta .cta--text — nothing to declare. */
 
+.final-record-layer__catalog {
+  text-decoration: none;
+}
+
 /* ── Venue mode (?venue=1) ─────────────────────────────────────────────
    The QR is the thing to do on the floor, so it takes the screen's centre
    and stays there while the receipt beside it scrolls. */

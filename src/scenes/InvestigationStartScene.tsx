@@ -65,7 +65,7 @@ export function InvestigationStartScene() {
         onClick={handleStart}
         disabled={exiting}
       >
-        <span>조사 시작하기</span>
+        <span>조사원 등록하기</span>
         <span className="investigation-start-scene__cta-arrow" aria-hidden="true">
           →
         </span>

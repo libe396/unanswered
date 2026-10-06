@@ -80,7 +80,7 @@ function josa(word: string, withBatchim: string, withoutBatchim: string): string
 function joinNatural(items: readonly string[]): string {
   if (items.length === 0) return '';
   if (items.length === 1) return items[0];
-  if (items.length === 2) return `${items[0]}${josa(items[0], '와', '과')} ${items[1]}`;
+  if (items.length === 2) return `${items[0]}${josa(items[0], '과', '와')} ${items[1]}`;
   return `${items.slice(0, -1).join(', ')}, 그리고 ${items[items.length - 1]}`;
 }
 

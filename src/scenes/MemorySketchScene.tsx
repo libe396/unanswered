@@ -444,11 +444,11 @@ export function MemorySketchScene() {
       <div className="memory-sketch-scene__workspace">
         <StageHeader
           eyebrow="기억의 흔적"
-          title={isDrawing ? '비어 있는 흔적을 덧그려 보세요' : '이곳에 남아 있는 흔적을 살펴보세요'}
+          title={isDrawing ? '남기고 싶은 흔적을 그려 주세요' : '그 사람은 무엇을 두고 갔을까요?'}
           description={
             isDrawing
               ? '남기고 싶은 곳에 선 하나를 그려 주세요. 그냥 넘어가도 됩니다.'
-              : `방 안의 물건 중 눈에 들어오는 것을 ${MEMORY_MIN_OBJECT_SELECTION}개 이상 골라 주세요.`
+              : `물건을 ${MEMORY_MIN_OBJECT_SELECTION}개 이상 골라 주세요.`
           }
         />
         <div className="memory-sketch-scene__body">
@@ -518,10 +518,10 @@ export function MemorySketchScene() {
                 {collected}
                 {isChoice ? (
                   <div className="memory-sketch-scene__choice">
-                    <p>이 방에 더 남기고 싶은 흔적이 있나요?</p>
+                    <p>더 남기고 싶은 흔적이 있나요?</p>
                     <div className="memory-sketch-scene__choice-actions">
                       <button className="cta cta--secondary" onClick={handleSkipDrawing}>
-                        그대로 기록하기
+                        그리지 않고 계속
                       </button>
                       <button className="cta cta--primary" onClick={() => setPhase('drawing')}>
                         흔적 덧그리기

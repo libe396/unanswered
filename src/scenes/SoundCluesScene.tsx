@@ -180,7 +180,7 @@ export function SoundCluesScene() {
   const [selectedSoundId, setSelectedSoundId] = useState<string | null>(
     () => storedSoundClues.selectedSoundId,
   );
-  // Every dome that has been played at least once — drives the "N / 7 단서 청취"
+  // Every dome that has been played at least once — drives the "N / 7 들어 본 소리"
   // readout and the small "heard" mark on a dome. Presentation only; kept
   // separate from selection, which is still a single deliberate choice.
   // Seeded from any dome this visit already recorded a listen for.
@@ -699,7 +699,7 @@ export function SoundCluesScene() {
         */}
         <StageHeader
           eyebrow="소리의 흔적"
-          title="그 사람 곁에는 어떤 소리가 있었을 것 같나요?"
+          title="그 사람 곁에는 어떤 소리가 있었을까요?"
           description="유리 돔을 눌러 들어 보고, 하나를 골라 주세요."
         />
 
@@ -721,7 +721,7 @@ export function SoundCluesScene() {
               <span className="metric__value">
                 {listenedIds.size} / {SOUND_CLUES.length}
               </span>
-              <span className="metric__label">단서 청취</span>
+              <span className="metric__label">들어 본 소리</span>
             </p>
           }
         >
@@ -741,8 +741,8 @@ export function SoundCluesScene() {
     <div className="sound-clues-scene sound-clues-scene--positioning">
       <StageHeader
         eyebrow="소리의 흔적"
-        title="이 소리, 가까웠나요 멀었나요? 선명했나요 흐렸나요?"
-        description="이 소리가 얼마나 가깝고 선명했는지, 점 하나로 찍어 주세요."
+        title="이 소리는 어떻게 기억될까요?"
+        description="그 사람에게 가깝고 또렷했을지, 점으로 남겨 주세요."
       />
 
       {renderPlayer(selectedClue, selectedSoundId ? getRuntime(selectedSoundId) : null)}
@@ -771,7 +771,7 @@ export function SoundCluesScene() {
             */
             role="group"
             tabIndex={0}
-            aria-label="이 소리, 가까웠나요 멀었나요? 선명했나요 흐렸나요? 가로는 흐릿함에서 선명함, 세로는 가까이 남아 있음에서 멀리 남아 있음. 방향키로 표시를 옮길 수 있습니다."
+            aria-label="이 소리는 어떻게 기억될까요? 가로는 흐릿함에서 선명함, 세로는 가까이 남아 있음에서 멀리 남아 있음. 방향키로 표시를 옮길 수 있습니다."
             onPointerDown={handleFieldPointerDown}
             onPointerMove={handleFieldPointerMove}
             onPointerUp={handleFieldPointerUp}

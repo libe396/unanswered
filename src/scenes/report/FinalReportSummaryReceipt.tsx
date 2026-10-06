@@ -1,4 +1,4 @@
-import { buildActionEvidence, PROCESS_GUIDE, RECORD_MEANING, RECORD_CLOSING } from '../../lib/reportActionEvidence';
+import { buildActionEvidence, PROCESS_GUIDE, RECORD_MEANING } from '../../lib/reportActionEvidence';
 import { useExperienceStore } from '../../store/experienceStore';
 import { useEffect, useRef, useState } from 'react';
 import { renderLightGraphic } from '../../lib/lightRenderer.js';
@@ -108,11 +108,11 @@ export function FinalReportSummaryReceipt({ record, presentation, onIssueFullRep
       <div className="summary-receipt__divider" role="presentation" />
 
       <section className="summary-receipt__section">
-        <p className="summary-receipt__section-label">LIBEO GRAPHIC</p>
+        <p className="summary-receipt__section-label">단서가 남긴 빛</p>
         <p className="summary-receipt__color-desc">
           {sound.hasSound || memory.strokeCount > 0 || memory.selectedObjectCount > 0
-            ? '빛 위치 · 색 분포 · 구조점을 번역한 시각 기록'
-            : '번역할 행동 데이터가 아직 기록되지 않았습니다.'}
+            ? '고른 사진의 빛과 색이 남긴 모습입니다.'
+            : '아직 남은 흔적이 없습니다.'}
         </p>
       </section>
 
@@ -123,7 +123,6 @@ export function FinalReportSummaryReceipt({ record, presentation, onIssueFullRep
         <p className="summary-receipt__observation">{hasProcess ? PROCESS_GUIDE : '이번 기록에서 확인할 수 있는 선택입니다.'}</p>
         {evidence.length ? evidence.map((item) => <p className="summary-receipt__observation" key={item.text}>{item.text}</p>) : <p className="summary-receipt__observation">확인할 수 있는 선택 기록이 없습니다.</p>}
         <p className="summary-receipt__observation">{RECORD_MEANING}</p>
-        <p className="summary-receipt__observation">{RECORD_CLOSING}</p>
       </section>
 
       <div className="summary-receipt__divider" role="presentation" />

@@ -357,3 +357,9 @@
 .registration-rules__cta {
   margin-top: var(--sp-40);
 }
+
+/* Issue and briefing share one stage, before entering the first clue zone. */
+.registration-scene__brief { margin-bottom: 20px; border-top: 1px solid var(--line); padding-top: 16px; font-size: var(--type-body); line-height: 1.7; color: var(--text-secondary); word-break: keep-all; }
+.registration-scene__brief p { margin: 0 0 8px; color: var(--trace); }
+.registration-scene__brief ol { margin: 0; padding-left: 1.3em; }
+.registration-scene__brief li + li { margin-top: 6px; }

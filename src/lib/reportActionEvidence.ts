@@ -50,7 +50,7 @@ export function actionEvidenceText(kind: ActionEvidenceKind, sceneId: ActionEvid
     const fragment = SENTENCE_RECONSTRUCTION_FRAGMENTS.find((item) => item.id === targetId);
     if (!fragment) return null;
     if (kind === 'dwell') return `‘${fragment.text}’ 앞에 ${(tenths / 10).toFixed(1)}초 머물렀습니다.`;
-    return kind === 'selection' ? `‘${fragment.text}’을 골랐습니다.` : null;
+    return kind === 'selection' ? `‘${fragment.text}’라는 문장을 골랐습니다.` : null;
   }
   if (sceneId === 'soundClues') {
     const sound = SOUND_CLUES.find((item) => item.id === targetId);

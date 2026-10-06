@@ -83,29 +83,63 @@ const ribbon: Surface = (u, v) => {
     width * Math.sin(twist), rim(Math.min(u, 1 - u, v, 1 - v))];
 };
 
-// A soft bust on the same indexed skin: no eyes or fixed identity. Its outline
-// is briefly legible before the existing cut/fold targets disperse it again.
-// A rounded cranium, a tapered jaw and a continuous neck/shoulder curve.
-// No facial features; the anonymous silhouette remains steady while its skin breathes.
+// Anatomical sections of one anonymous bust, from temple to upper torso.
+// Monotone tangents keep the jaw and shoulder joins smooth without overshoot.
+const PORTRAIT_PROFILE = [
+  [0.72, 0.285], [0.58, 0.274], [0.46, 0.239],
+  [0.34, 0.181], [0.28, 0.125], [0.17, 0.128], [0.11, 0.171],
+  [0.04, 0.30], [-0.03, 0.46], [-0.14, 0.65], [-0.26, 0.724],
+  [-0.50, 0.73], [-1, 0.66],
+] as const;
+const portraitSlopes = PORTRAIT_PROFILE.map(([y, width], i, profile) => {
+  if (i === 0) return 0;
+  if (i === profile.length - 1) return 0.14;
+  const before = (width - profile[i - 1][1]) / (y - profile[i - 1][0]);
+  const after = (profile[i + 1][1] - width) / (profile[i + 1][0] - y);
+  return before * after <= 0 ? 0 : 2 * before * after / (before + after);
+});
+
+function portraitWidth(y: number): number {
+  if (y >= 0.72) {
+    return 0.285 * Math.sqrt(Math.max(0, 1 - ((y - 0.72) / 0.28) ** 2));
+  }
+  let i = 0;
+  while (i < PORTRAIT_PROFILE.length - 2 && y < PORTRAIT_PROFILE[i + 1][0]) i += 1;
+  const [top, a] = PORTRAIT_PROFILE[i];
+  const [bottom, b] = PORTRAIT_PROFILE[i + 1];
+  const span = bottom - top;
+  const t = (y - top) / span;
+  return (2 * t ** 3 - 3 * t ** 2 + 1) * a
+    + (t ** 3 - 2 * t ** 2 + t) * span * portraitSlopes[i]
+    + (-2 * t ** 3 + 3 * t ** 2) * b
+    + (t ** 3 - t ** 2) * span * portraitSlopes[i + 1];
+}
+
+// A turned head and relaxed shoulders give the skin human volume.
+// The face has no eyes or expression; identity remains open to the visitor.
 const portraitTrace: Surface = (u, v) => {
   const y = 1 - 2 * v;
   const ease = (t: number) => { const x = Math.max(0, Math.min(1, t)); return x * x * (3 - 2 * x); };
-  let radius: number;
-  if (y >= 0.36) {
-    radius = 0.30 * Math.sqrt(Math.max(0, 1 - ((y - 0.62) / 0.38) ** 2));
-  } else if (y >= 0.18) {
-    const t = (0.36 - y) / 0.18;
-    radius = (2*t*t*t-3*t*t+1)*0.219 + (t*t*t-2*t*t+t)*-0.133 + (-2*t*t*t+3*t*t)*0.16;
-  } else if (y >= 0.08) {
-    radius = 0.16;
-  } else if (y >= -0.42) {
-    radius = 0.16 + 0.595 * ease((0.08 - y) / 0.50);
-  } else {
-    radius = 0.755 - 0.055 * ease((-0.42 - y) / 0.58);
-  }
-  const depth = y > 0.12 ? radius * 0.86 : 0.16 + 0.11 * ease((0.12 - y) / 0.8);
+  const radius = portraitWidth(y);
   const angle = TAU * u;
-  return [radius * Math.cos(angle), y, depth * Math.sin(angle), 0];
+  const side = Math.cos(angle);
+  const front = Math.sin(angle);
+  const head = ease((y - 0.22) / 0.14);
+  const depth = y > 0.28 ? radius * 0.94 : 0.13 + 0.16 * ease((0.28 - y) / 0.8);
+  const ear = 0.026 * Math.exp(-(((y - 0.53) / 0.07) ** 2)) * Math.abs(side) ** 12;
+  let x = (radius + ear) * side;
+  let z = depth * front;
+  // Broad cheek planes and a small nose ridge, rather than a painted-on face.
+  const face = Math.max(0, front);
+  z += head * (0.07 * Math.exp(-(((y - 0.55) / 0.06) ** 2)) * face ** 28
+    + 0.025 * Math.exp(-(((y - 0.49) / 0.11) ** 2)) * face ** 3
+    + 0.035 * Math.exp(-(((y - 0.35) / 0.055) ** 2)) * face ** 8);
+  const yaw = -1.08 * head;
+  const turnedX = x * Math.cos(yaw) + z * Math.sin(yaw);
+  z = -x * Math.sin(yaw) + z * Math.cos(yaw);
+  x = turnedX - 0.026 * head;
+  const shoulder = ease((0.17 - y) / 0.32);
+  return [x, y + 0.023 * side * shoulder, z, 0];
 };
 
 // Keep the existing surfaces and their continuous crossings, returning to a

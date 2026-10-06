@@ -1,4 +1,3 @@
-import { buildActionEvidence, RECORD_CLOSING } from '../../lib/reportActionEvidence';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useShallow } from 'zustand/react/shallow';
@@ -19,21 +18,18 @@ interface Props { index: number; total: number; locked: boolean; onAdvance: () =
     2  the card's name line: 이름 없음 → the visitor's name
     3  it turns to face front (a crossfade — there is no turning asset);
        with the camera on, the live mirror settles over it
-    4  당신입니다.
-    5  closure (only when there is a recorded choice to speak of)
-    6  the closing line
+    4  우리가 찾고 있던 사람은 당신이었습니다. — held; this is now the
+       Final Report's opening beat, and REFRAME / METHOD follow it as their
+       own stage (ReportStageMethod).
   Hold for each phase before the next, in ms.
 */
-const REVEAL_HOLDS = [2200, 2600, 2200, 1800, 2600, 5200];
+const REVEAL_HOLDS = [2200, 2600, 2200, 1800];
 const FINAL_PHASE = REVEAL_HOLDS.length;
 
 export function ReportStage06SubjectReveal({ index, total, locked, onAdvance }: Props) {
   const reduced = useReducedMotion();
   const { enabled, setEnabled } = useCameraPreference();
   const record = useExperienceStore(useShallow(selectRecordLayerDerived));
-  const behavior = useExperienceStore((state) => state.behavior);
-  const evidence = buildActionEvidence(record, behavior);
-  const hasDwell = evidence.some((item) => item.kind === 'dwell');
   const video = useRef<HTMLVideoElement>(null);
   const light = useRef<HTMLCanvasElement>(null);
   const [lightUrl, setLightUrl] = useState<string | null>(null);
@@ -118,17 +114,12 @@ export function ReportStage06SubjectReveal({ index, total, locked, onAdvance }: 
     return () => { cancelled = true; window.clearTimeout(timeout); window.clearTimeout(connectTimer); stop(); window.removeEventListener('pagehide', hide); unsubscribe(); };
   }, [choice, enabled, setEnabled]);
 
-  const hasClosure = evidence.length > 0;
   useEffect(() => {
     if (!ready || phase >= FINAL_PHASE) return;
     const hold = REVEAL_HOLDS[phase];
-    const timer = window.setTimeout(
-      // Without a recorded choice there is no closure line; go straight on.
-      () => setPhase((p) => (p + 1 === 5 && !hasClosure ? 6 : p + 1)),
-      reduced ? Math.min(hold, 1200) : hold,
-    );
+    const timer = window.setTimeout(() => setPhase((p) => p + 1), reduced ? Math.min(hold, 1200) : hold);
     return () => window.clearTimeout(timer);
-  }, [ready, phase, reduced, hasClosure]);
+  }, [ready, phase, reduced]);
 
   // The control waits until the closing line has settled in.
   const [navReady, setNavReady] = useState(false);
@@ -155,13 +146,13 @@ export function ReportStage06SubjectReveal({ index, total, locked, onAdvance }: 
   const figureStyle = figureUrl ? ({ '--figure-mask': `url(${figureUrl})` } as CSSProperties) : undefined;
 
   return <div className="report-stage report-stage-06" data-reveal-phase={phase}>
-    <p className="report-stage__eyebrow">마지막 기록</p>
+    <p className="report-stage__eyebrow">조사 결과</p>
     {/* The "누군가를 떠올리며" line now opens the second layer (ReportBridgeBeat). */}
     {choice === null && <CameraOptIn onUse={() => { setChoice('camera'); setEnabled(true); }} onSkip={continueWithoutCamera} />}
     {choice !== null && !ready && <div className="camera-consent" role="status"><p>마지막 장면에 내 얼굴을 비추기 위해 카메라를 준비하고 있습니다.</p><button className="cta cta--secondary" onClick={continueWithoutCamera}>카메라 없이 계속하기</button></div>}
     <div className="identity-reveal" aria-live="polite" hidden={!ready}>
       <p className="identity-reveal__setup" style={{ visibility: phase <= 3 ? 'visible' : 'hidden' }}>
-        {ready ? '하지만 이 선택들 외의 것들에서\n발견할 수 있던 건 바로,' : '\u00a0'}
+        {ready ? '수집한 단서에서 당신의 흔적을 찾았습니다.' : '\u00a0'}
       </p>
       <motion.div className={`identity-figure${figureUrl ? ' identity-figure--hero' : ''}`} style={figureStyle} initial={{ opacity: 0 }} animate={{ opacity: ready ? 1 : 0 }} transition={t(1.4)}>
         {(['side', 'front'] as const).map((pose) => (
@@ -183,14 +174,15 @@ export function ReportStage06SubjectReveal({ index, total, locked, onAdvance }: 
             {pose === 'front' && figureUrl ? <span className="identity-figure__face" style={{ backgroundImage: `url(${figureUrl})` }} /> : null}
           </motion.div>
         ))}
-        <video
+        {choice === 'camera' && <video
           ref={video}
           muted
           playsInline
           autoPlay
           className={`identity-figure__mirror${live && phase >= 3 ? ' identity-figure__mirror--on' : ''}`}
           aria-label="저장되지 않는 실시간 거울 화면"
-        />
+          aria-hidden={!live}
+        />}
       </motion.div>
       <div className="identity-card">
         <span className="identity-card__label">NAME</span>
@@ -209,15 +201,13 @@ export function ReportStage06SubjectReveal({ index, total, locked, onAdvance }: 
       </div>
       <div className="identity-reveal__slot">
         <AnimatePresence mode="wait">
-          {phase === 4 && <motion.h1 key="you" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={t(1)}>당신입니다.</motion.h1>}
-          {phase === 5 && <motion.p key="closure" className="identity-reveal__closure" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={t(0.9)}>{`그 사람을 상상하는 동안,\n당신의 ${hasDwell ? '선택과 머무름도' : '선택의 흔적도'} 이곳에 남았습니다.`}</motion.p>}
-          {phase >= FINAL_PHASE && <motion.p key="final" className="identity-reveal__final" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={t(0.9)}>{RECORD_CLOSING}</motion.p>}
+          {phase >= FINAL_PHASE && <motion.h1 key="you" className="identity-reveal__you" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={t(1.2)}>{'그 사람을 바라보는 동안,\n당신의 흔적이 남았습니다.'}</motion.h1>}
         </AnimatePresence>
       </div>
       {record.light ? <canvas ref={light} width={1000} height={1000} className="identity-figure__source" aria-hidden="true" /> : null}
     </div>
     {notice && <p className="identity-reveal__notice" role="status">{notice}</p>}
     {enabled && ready && <button className="identity-reveal__off" onClick={() => setEnabled(false)}>카메라 끄기</button>}
-    <ReportStageNav label="최종 기록으로" index={index} total={total} visible={navReady} onAdvance={() => { stopCamera.current(); setEnabled(false); onAdvance(); }} disabled={locked} />
+    <ReportStageNav label="기록 읽기" index={index} total={total} visible={navReady} onAdvance={() => { stopCamera.current(); setEnabled(false); onAdvance(); }} disabled={locked} />
   </div>;
 }

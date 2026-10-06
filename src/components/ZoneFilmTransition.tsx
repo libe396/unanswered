@@ -15,7 +15,7 @@ interface Props {
 
 export function ZoneFilmTransition(props: Props) {
   const mode = props.film.mode ?? 'full';
-  if (mode === 'none') return <ZoneFilmSkip onComplete={props.onComplete} />;
+  if (mode === 'none') return <ZoneFilmSkip key={props.film.file} onComplete={props.onComplete} />;
   if (mode === 'cut') return <ZoneFilmCut key={props.film.file} {...props} />;
   return <ZoneFilmFull {...props} />;
 }

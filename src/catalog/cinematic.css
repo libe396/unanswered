@@ -1,0 +1,838 @@
+/*
+  웹도록 — the scroll-driven layout ('cine', desktop with motion allowed) and
+  the pieces shared by both layouts (05·04 word chips, RECORD block, side
+  progress). Scoped to .catalog. Animated properties are transform, opacity
+  and filter only; pinned stages are position: sticky on native scroll.
+*/
+
+/* ── Shared: 05 · 04 word chips ───────────────────────────────────────── */
+
+/* The four-image row is print-only now; the chips replace it on screen. */
+@media screen {
+  .catalog .catalog-final--print {
+    display: none;
+  }
+}
+
+.final-viewer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1.6fr);
+  gap: var(--sp-16);
+  align-items: start;
+}
+
+.final-viewer__arrow {
+  position: relative;
+  height: 1px;
+  margin-top: 30%;
+  background: var(--catalog-accent);
+}
+
+.final-viewer__arrow::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  right: 0;
+  width: 7px;
+  height: 7px;
+  border-top: 1px solid var(--catalog-accent);
+  border-right: 1px solid var(--catalog-accent);
+  transform: rotate(45deg);
+}
+
+.final-viewer__result {
+  width: 100%;
+  max-width: min(100%, calc(100svh - 400px));
+}
+
+.final-viewer__stack {
+  position: relative;
+  aspect-ratio: 1 / 1;
+}
+
+/* Crossfade: every result is stacked; only the chosen one is opaque. */
+.final-viewer__layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+
+.final-viewer__layer.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.final-viewer__layer .catalog-image {
+  height: 100%;
+}
+
+.final-viewer__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-8);
+  margin-top: var(--sp-16);
+}
+
+.final-viewer__chip {
+  padding: 6px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-kr);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: color var(--duration-fast) ease, border-color var(--duration-fast) ease;
+}
+
+.final-viewer__chip:hover {
+  color: var(--text-primary);
+}
+
+.final-viewer__chip.is-active {
+  border-color: var(--catalog-accent);
+  color: var(--text-primary);
+}
+
+.final-viewer__notes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-4) 0;
+  margin-top: var(--sp-12);
+  color: var(--text-secondary);
+  font-size: var(--type-meta);
+  line-height: 1.6;
+  animation: catalog-fade 0.5s ease;
+}
+
+.final-viewer__notes li + li::before {
+  content: '·';
+  margin: 0 0.6em;
+  color: var(--text-tertiary);
+}
+
+@keyframes catalog-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── Shared: 07 · RECORD ──────────────────────────────────────────────── */
+
+.catalog-record__body {
+  width: 100%;
+  max-width: var(--catalog-prose);
+  margin: 0 auto;
+}
+
+.catalog-record__title {
+  font-size: var(--type-title);
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+
+.catalog-record__value {
+  min-height: 1.3em;
+  margin-top: var(--sp-32);
+  color: var(--text-primary);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.catalog-record.is-read .catalog-record__value {
+  opacity: 1;
+}
+
+.catalog-record__num {
+  font-variant-numeric: tabular-nums;
+}
+
+.catalog-record__fastest {
+  margin-top: var(--sp-12);
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.catalog-record__closing {
+  margin-top: var(--sp-40);
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.catalog-record__cta {
+  margin-top: var(--sp-40);
+}
+
+/* ── Shared: side progress (desktop, cine only) ───────────────────────── */
+
+.catalog-side {
+  position: fixed;
+  top: 50%;
+  right: 20px;
+  z-index: 40;
+  display: none;
+  transform: translateY(-50%);
+}
+
+@media (min-width: 1024px) {
+  .catalog--cine .catalog-side {
+    display: block;
+  }
+}
+
+.catalog-side__line {
+  position: absolute;
+  top: -8px;
+  right: 0;
+  bottom: -8px;
+  width: 1px;
+  background: var(--line);
+}
+
+.catalog-side ol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-16);
+  padding-right: var(--sp-12);
+}
+
+.catalog-side a {
+  position: relative;
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 11px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  text-decoration: none;
+  opacity: 0.55;
+  transition: color 0.3s ease, opacity 0.3s ease;
+}
+
+.catalog-side a:hover {
+  opacity: 1;
+}
+
+.catalog-side a.is-active {
+  color: var(--catalog-accent);
+  opacity: 1;
+}
+
+/* The current number also marks the rail. */
+.catalog-side a.is-active::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: calc(var(--sp-12) * -1);
+  width: 1px;
+  height: 18px;
+  background: var(--catalog-accent);
+  transform: translateY(-50%);
+}
+
+/* ══ Cine layout ═══════════════════════════════════════════════════════ */
+
+/* ── 01 · Cover ───────────────────────────────────────────────────────── */
+
+.cine-cover {
+  position: relative;
+  height: 280svh; /* 100svh stage + 180svh of scroll; the last third is a hold */
+}
+
+.cine-cover__stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Full-bleed, blurred, slightly enlarged: the first frame. */
+.cine-cover__bg {
+  position: absolute;
+  inset: 0;
+}
+
+.cine-cover__bg .catalog-image {
+  height: 100%;
+  background: transparent;
+  filter: blur(24px);
+  transform: scale(1.08);
+}
+
+/* The record card: right half of the content width, centred in the space
+   under the top bar, sized so it never reaches the bar. */
+.cine-cover__slot {
+  --card: min(calc(100svh - var(--catalog-nav-h) - 200px), 36vw, calc(var(--catalog-wide) / 2 - 48px));
+
+  position: absolute;
+  top: calc(var(--catalog-nav-h) + (100svh - var(--catalog-nav-h) - var(--card)) / 2 - 24px);
+  left: calc(50% + min(var(--catalog-wide), 100% - var(--catalog-gutter) * 2) / 4 - var(--card) / 2);
+  width: var(--card);
+  aspect-ratio: 1 / 1;
+}
+
+.cine-cover__card {
+  position: absolute;
+  inset: 0;
+  will-change: transform, opacity, filter;
+}
+
+.cine-cover__card .catalog-image {
+  height: 100%;
+  background: transparent;
+}
+
+.cine-cover__caption {
+  position: absolute;
+  top: calc(100% + var(--sp-12));
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  color: var(--text-tertiary);
+  font-size: var(--type-meta);
+  line-height: 1.6;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* With the photo: a fade under the clear top bar and a dark one under the title. */
+.cine-cover--has-image .cine-cover__shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(11, 11, 14, 0.6) 0%, transparent 16%),
+    linear-gradient(180deg, transparent 40%, rgba(11, 11, 14, 0.55) 68%, rgba(11, 11, 14, 0.88) 100%);
+  pointer-events: none;
+}
+
+.cine-cover__grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.cine-cover__text {
+  position: absolute;
+  right: 0;
+  bottom: var(--sp-64);
+  left: 0;
+  z-index: 1;
+  padding: 0 var(--catalog-gutter);
+}
+
+.cine-cover__details {
+  position: relative;
+  max-width: var(--catalog-wide);
+  margin: 0 auto;
+}
+
+/* Sits just above the subtitle and shrinks into that corner — at rest it
+   stays inside the left half, clear of the card. */
+.catalog .cine-cover__title {
+  position: absolute;
+  bottom: calc(100% + var(--sp-12));
+  left: 0;
+  margin: 0;
+  font-size: clamp(3rem, 7.4vw, 6.75rem);
+  line-height: 1.05;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+/* ── 02 · Intro ───────────────────────────────────────────────────────── */
+
+.catalog-prose.cine-intro > p {
+  color: var(--text-primary);
+  font-size: var(--type-title-sm);
+  line-height: 1.85;
+  letter-spacing: -0.015em;
+}
+
+.catalog-prose.cine-intro > p + p {
+  margin-top: var(--sp-96);
+}
+
+/* ── 03 · Route ───────────────────────────────────────────────────────── */
+
+.cine-route {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: var(--sp-64);
+  align-items: start;
+}
+
+.cine-route__aside {
+  position: sticky;
+  top: calc(var(--catalog-nav-h) + var(--sp-32));
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-24);
+}
+
+.cine-route__plan {
+  /* Two plans plus the progress line fit one screen height. */
+  width: min(100%, calc((100svh - var(--catalog-nav-h) - 240px) / 2 * 1.6));
+  opacity: 0.28;
+  transition: opacity 0.6s ease;
+}
+
+.cine-route__plan.is-lit {
+  opacity: 1;
+}
+
+.cine-route__plan figcaption {
+  margin-bottom: var(--sp-8);
+}
+
+.cine-route__progress {
+  position: relative;
+  padding-top: var(--sp-8);
+}
+
+.cine-route__track,
+.cine-route__fill {
+  position: absolute;
+  top: 11px;
+  right: 8px;
+  left: 8px;
+  height: 1px;
+}
+
+.cine-route__track {
+  background: var(--line);
+}
+
+.cine-route__fill {
+  background: var(--catalog-accent);
+  transform-origin: left center;
+}
+
+.cine-route__progress ol {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+}
+
+.cine-route__progress li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-8);
+  width: 16px;
+}
+
+.cine-route__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--bg-base);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+  transition: background-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.cine-route__progress li.is-on .cine-route__dot {
+  background: var(--catalog-accent);
+  box-shadow: none;
+}
+
+.cine-route__no {
+  color: var(--text-tertiary);
+  font-size: 11px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.cine-route__progress li.is-on .cine-route__no {
+  color: var(--text-secondary);
+}
+
+.cine-route__zones {
+  display: flex;
+  flex-direction: column;
+  padding: 8svh 0 12svh;
+}
+
+.cine-zone {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: var(--sp-16);
+  align-content: center;
+  min-height: 34svh;
+  opacity: 0.3;
+  transition: opacity 0.5s ease;
+}
+
+.cine-zone.is-past {
+  opacity: 0.55;
+}
+
+.cine-zone.is-active {
+  opacity: 1;
+}
+
+.cine-zone:has(.cine-zone__ambience) {
+  grid-template-columns: 32px minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: var(--sp-24);
+}
+
+.catalog .cine-zone__badge {
+  width: 32px;
+  height: 32px;
+  border-color: var(--line-strong);
+  color: var(--text-tertiary);
+  transition: border-color 0.4s ease, color 0.4s ease;
+}
+
+.catalog .cine-zone.is-active .cine-zone__badge {
+  border-color: var(--catalog-accent);
+  color: var(--catalog-accent);
+}
+
+.cine-zone .catalog-zone__name {
+  font-size: var(--type-title-sm);
+  line-height: 1.4;
+}
+
+.cine-zone .catalog-zone__line {
+  font-size: var(--type-body);
+}
+
+.cine-zone__ambience {
+  align-self: center;
+  padding-left: var(--sp-16);
+  border-left: 1px solid var(--catalog-accent);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.cine-zone__ambience.is-shown {
+  opacity: 1;
+  transform: none;
+}
+
+.cine-zone__ambience p {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+/* ── 04 · Report flow ─────────────────────────────────────────────────── */
+
+.cine-flow {
+  position: relative;
+  height: 250svh;
+}
+
+.cine-flow__stage {
+  position: sticky;
+  top: var(--catalog-nav-h);
+  display: flex;
+  align-items: center;
+  height: calc(100svh - var(--catalog-nav-h));
+}
+
+.cine-flow__steps {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px minmax(0, 1fr) 72px minmax(0, 1fr);
+  gap: var(--sp-16);
+  align-items: start;
+  margin-top: var(--sp-40);
+}
+
+.cine-flow__arrow {
+  position: relative;
+  height: 1px;
+  margin-top: 40px;
+}
+
+.cine-flow__line {
+  position: absolute;
+  inset: 0;
+  background: var(--catalog-accent);
+  transform-origin: left center;
+}
+
+.cine-flow__head {
+  position: absolute;
+  top: -3px;
+  right: 0;
+  width: 7px;
+  height: 7px;
+  border-top: 1px solid var(--catalog-accent);
+  border-right: 1px solid var(--catalog-accent);
+  transform: rotate(45deg);
+}
+
+.cine-flow__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-8);
+  margin-top: var(--sp-16);
+}
+
+.cine-flow__chip {
+  display: inline-block;
+  padding: 6px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.cine-flow__quote {
+  margin-top: var(--sp-64);
+  color: var(--text-primary);
+  font-size: clamp(2rem, 4.2vw, 4rem);
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.03em;
+}
+
+.cine-flow__quote > div + div {
+  margin-top: 0.15em;
+}
+
+/* ── 05 · Process ─────────────────────────────────────────────────────── */
+
+.cine-process {
+  position: relative;
+  height: 520svh;
+}
+
+.cine-process__stage {
+  position: sticky;
+  top: var(--catalog-nav-h);
+  display: flex;
+  flex-direction: column;
+  height: calc(100svh - var(--catalog-nav-h));
+  padding: var(--sp-32) 0 var(--sp-40);
+  overflow: hidden;
+}
+
+.catalog-wide.cine-process__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-32);
+  width: calc(100% - var(--catalog-gutter) * 2);
+}
+
+.cine-process__progress ol {
+  display: flex;
+  gap: var(--sp-24);
+}
+
+.cine-process__progress li {
+  color: var(--text-tertiary);
+  font-size: var(--type-meta);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.3s ease;
+}
+
+.cine-process__progress li.is-past {
+  color: var(--text-secondary);
+}
+
+.cine-process__progress li.is-current {
+  color: var(--catalog-accent);
+}
+
+.cine-process__bar {
+  display: block;
+  height: 1px;
+  margin-top: var(--sp-12);
+  background: var(--line);
+}
+
+.cine-process__bar span {
+  display: block;
+  height: 100%;
+  background: var(--catalog-accent);
+  transform-origin: left center;
+}
+
+.cine-process__viewport {
+  flex: 1;
+  min-height: 0;
+  margin-top: var(--sp-40);
+  overflow: hidden;
+}
+
+.cine-process__track {
+  display: flex;
+  width: 400%;
+  height: 100%;
+  will-change: transform;
+}
+
+.cine-panel {
+  display: grid;
+  flex: 0 0 25%;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+  gap: var(--sp-48);
+  align-content: center;
+  /* % resolves against the track (4 panels): 12.5% - 560px centres a
+     1120px measure in one panel. */
+  padding: 0 max(0px, calc(12.5% - var(--catalog-wide) / 2)) var(--sp-24);
+}
+
+.cine-unused-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.cine-unused {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.cine-unused__line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 141.42%;
+  height: 1px;
+  background: var(--catalog-accent);
+}
+
+.cine-unused__label {
+  position: absolute;
+  top: var(--sp-8);
+  left: var(--sp-8);
+  padding: 2px 8px;
+  border: 1px solid var(--catalog-accent);
+  background: rgba(11, 11, 14, 0.8); /* --bg-base */
+  color: var(--text-primary);
+  font-size: var(--type-meta);
+  line-height: 1.5;
+}
+
+/* ── 06 · Scenes ──────────────────────────────────────────────────────── */
+
+.cine-cut {
+  --cut-h: calc(100svh - var(--catalog-nav-h) - 96px);
+  --cut-w: min(var(--catalog-wide), calc(100vw - var(--catalog-gutter) * 2));
+
+  position: sticky;
+  top: var(--catalog-nav-h);
+  height: calc(100svh - var(--catalog-nav-h));
+  background: var(--bg-base);
+}
+
+.cine-cut__inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-16);
+  height: 100%;
+}
+
+.cine-cut__figure {
+  position: relative;
+  margin: 0;
+}
+
+/* The photo's own ratio, as large as the screen allows. */
+.cine-cut__frame {
+  position: relative;
+  width: min(var(--cut-w), calc(var(--cut-h) * var(--r)));
+  aspect-ratio: var(--r);
+  overflow: hidden;
+  background: var(--bg-elevated);
+}
+
+.cine-cut--pair .cine-cut__frame {
+  width: min(calc((var(--cut-w) - var(--sp-16)) / 2), calc(var(--cut-h) * var(--r)));
+}
+
+/* A little taller than the frame, for the parallax. */
+.cine-cut__media {
+  position: absolute;
+  top: -6%;
+  right: 0;
+  bottom: -6%;
+  left: 0;
+}
+
+.cine-cut__media .catalog-image {
+  height: 100%;
+}
+
+.cine-cut__shade {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-base);
+  pointer-events: none;
+}
+
+/* ── Motion off / print ───────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .final-viewer__layer,
+  .final-viewer__chip,
+  .catalog-record__value,
+  .catalog-side a {
+    transition: none;
+  }
+
+  .final-viewer__notes {
+    animation: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .final-viewer {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .final-viewer__source {
+    width: 50%;
+  }
+
+  .final-viewer__arrow {
+    width: 1px;
+    height: 24px;
+    margin: 0 0 0 12px;
+  }
+
+  .final-viewer__arrow::after {
+    top: auto;
+    right: -3px;
+    bottom: 0;
+    transform: rotate(135deg);
+  }
+
+  .final-viewer__result {
+    max-width: none;
+  }
+}
+
+@media print {
+  .catalog .final-viewer,
+  .catalog-record,
+  .catalog-side {
+    display: none !important;
+  }
+}

@@ -12,6 +12,7 @@ The highest priority is preserving existing work and preventing conflicts or acc
 
 Before modifying any file:
 
+0. Read [EXHIBITION_FEEDBACK.md](./EXHIBITION_FEEDBACK.md) and [UI_IMMERSION_REVIEW.md](./UI_IMMERSION_REVIEW.md). Use their confirmed priorities as the exhibition improvement baseline; record each completed change and verification there. Do not rewrite the baseline without an explicit user request.
 1. Run `git status`.
 2. Inspect the current working tree.
 3. Read the relevant existing files before editing.

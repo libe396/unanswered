@@ -291,7 +291,7 @@ export function IntroScene() {
                   exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.9 * timeScale, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <span>이동하기</span>
+                  <span>발견된 기록 열기</span>
                   <span className="cta__arrow" aria-hidden="true">
                     →
                   </span>

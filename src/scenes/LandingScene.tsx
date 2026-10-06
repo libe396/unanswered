@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useExperienceStore } from '../store/experienceStore';
 import { MemoryField } from '../components/MemoryField';
+import { LandingPortrait } from '../components/LandingPortrait';
 import wordmarkUrl from '../assets/wordmark.svg';
 import { activateFilmSound } from '../hooks/useFilmSound';
+import { isVenueMode } from '../lib/venueMode';
 import './LandingScene.css';
 
 // Keep the entry available as soon as the short reveal finishes.
@@ -18,7 +20,10 @@ export function LandingScene() {
 
   const [entryArmed, setEntryArmed] = useState(false);
   const [fieldActive, setFieldActive] = useState(false);
+  const [entryFocused, setEntryFocused] = useState(false);
   const [entering, setEntering] = useState(false);
+  // The venue PC stays inside the exhibition; the catalogue link is for the web.
+  const [venue] = useState(isVenueMode);
   const startEntryRef = useRef<(() => void) | null>(null);
   const figureWrapRef = useRef<HTMLDivElement>(null);
   const mountedAtRef = useRef(0);
@@ -81,8 +86,7 @@ export function LandingScene() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /** Called once the mass has finished compressing into the line. The elevator
-   *  Scene takes the line from here, so this hands over without a beat of its own. */
+  /** Keep the existing entry timing and recorded traces after the portrait dissolves. */
   function handleEnter() {
     if (advancedRef.current) return;
     advancedRef.current = true;
@@ -113,7 +117,7 @@ export function LandingScene() {
 
   const sceneClass = [
     'landing-scene',
-    fieldActive ? 'landing-scene--field-active' : '',
+    fieldActive || entryFocused ? 'landing-scene--field-active' : '',
     entering ? 'landing-scene--entering' : '',
   ]
     .filter(Boolean)
@@ -122,10 +126,14 @@ export function LandingScene() {
   return (
     <div className={sceneClass}>
       <div className="landing-scene__room" />
+      <p className="landing-scene__title" inert={entering}>
+        <img className="landing-scene__wordmark" src={wordmarkUrl} alt="UNANSWERED" />
+      </p>
 
-      {/* Preserve the particle field and its transition into the elevator. */}
+      {/* The hidden field preserves the existing entry timing and callbacks. */}
+      <div className="landing-scene__visual">
+      <LandingPortrait entering={entering} subjectRef={figureWrapRef} onEnter={() => { if (entryArmed && !entering) startEntryRef.current?.(); }} />
       <motion.div
-        ref={figureWrapRef}
         className="landing-scene__figure"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -139,11 +147,9 @@ export function LandingScene() {
           interactive={entryArmed}
         />
       </motion.div>
+      </div>
 
       <div className="landing-scene__content" inert={entering}>
-        <p className="landing-scene__title">
-          <img className="landing-scene__wordmark" src={wordmarkUrl} alt="UNANSWERED" />
-        </p>
         <motion.h1
           className="landing-scene__headline"
           initial={{ opacity: 0 }}
@@ -159,21 +165,39 @@ export function LandingScene() {
           animate={{ opacity: 1 }}
           transition={{ duration: d(0.45), delay: d(0.12) }}
         >
-          <span>흩어진 색과 문장, 소리 속에서</span>
-          <span>이름 없는 사람의 단서를 수집해 주세요.</span>
+          <span>남겨진 단서로 그 사람을 떠올려 보세요.</span>
         </motion.p>
         <motion.button
           type="button"
           className="landing-scene__start"
           disabled={!entryArmed || entering}
           onClick={() => startEntryRef.current?.()}
+          onPointerEnter={() => setEntryFocused(true)}
+          onPointerLeave={() => setEntryFocused(false)}
+          onFocus={() => setEntryFocused(true)}
+          onBlur={() => setEntryFocused(false)}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: d(0.4), delay: d(0.24) }}
         >
-          조사 시작하기 <span aria-hidden="true">↗</span>
+          단서 따라가기 <span aria-hidden="true">↗</span>
         </motion.button>
       </div>
+      <p className="landing-scene__visit-time" inert={entering}>약 5분의 온라인 전시</p>
+
+      {/* The venue PC stays inside the exhibition; the catalogue link is for the web. */}
+      {!venue && (
+        <motion.a
+          className="landing-scene__catalog"
+          href={`${import.meta.env.BASE_URL}catalog/`}
+          inert={entering}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: d(0.4), delay: d(0.36) }}
+        >
+          전시 소개 <span aria-hidden="true">↗</span>
+        </motion.a>
+      )}
     </div>
   );
 }

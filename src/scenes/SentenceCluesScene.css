@@ -1392,15 +1392,6 @@
 .sentence-clues-scene__selection-numbers { display: flex; gap: 6px; flex: none; }
 .sentence-clues-scene__selection-numbers > * { width: 40px; height: 32px; display: grid; place-content: center; font: var(--type-body) var(--font-mono); color: var(--text-tertiary); }
 .sentence-clues-scene__selection-numbers button { display: block; border: 1px solid var(--trace); border-radius: 3px; color: var(--text-primary); background: var(--glass-2); cursor: pointer; }
-.sentence-clues-scene__size-notice { display: none; max-width: 520px; text-align: left; }
-.sentence-clues-scene__size-notice h1 { font-size: 1.375rem; line-height: 1.5; }
-.sentence-clues-scene__size-notice p { font-size: var(--type-body); line-height: 1.8; color: var(--text-secondary); }
-@media (max-width: 1099px), (max-height: 649px) {
-  .sentence-clues-scene--explore, .sentence-clues-scene--record { display: flex; justify-content: center; overflow: visible; padding: 72px 24px; }
-  .sentence-clues-scene--explore > :not(.sentence-clues-scene__size-notice), .sentence-clues-scene--record > :not(.sentence-clues-scene__size-notice) { display: none; }
-  .sentence-clues-scene .sentence-clues-scene__size-notice { display: block; }
-}
-
 /* Intro: only the visitor's collected clues, within the shared header/HUD band. */
 .sentence-clues-scene--context {
   display: flex; justify-content: center; align-items: center;
@@ -1492,6 +1483,9 @@
   background: linear-gradient(90deg, transparent 22px, rgba(171, 147, 255, .16) 22px, rgba(171, 147, 255, .16) 23px, transparent 23px), linear-gradient(135deg, #1b1b21, #121216);
   box-shadow: 0 14px 32px rgba(0, 0, 0, .24), inset 0 1px rgba(255, 255, 255, .04);
 }
+.sentence-clues-scene__recovered-story summary { cursor: pointer; color: var(--text-secondary); }
+.sentence-clues-scene__recovered-story[open] summary { margin-bottom: 12px; }
+.sentence-clues-scene__recovered-story summary:focus-visible { outline: 2px solid var(--trace); outline-offset: 4px; }
 .sentence-clues-scene__recovered-story::before {
   content: ''; position: absolute; top: -6px; left: calc(50% - 22px);
   width: 44px; height: 10px; border: 1px solid rgba(206, 203, 219, .25);
@@ -1514,4 +1508,88 @@
 @media (max-width: 700px) {
   .sentence-clues-scene__recovered-story { padding: 18px 16px 16px 30px; background: linear-gradient(90deg, transparent 17px, rgba(171, 147, 255, .16) 17px, rgba(171, 147, 255, .16) 18px, transparent 18px), linear-gradient(135deg, #1b1b21, #121216); }
   .sentence-clues-scene__memo-heading { letter-spacing: .03em; }
+}
+
+/* Feedback 01: retain the desktop comparison wall; let smaller or shorter
+   windows read and complete the same investigation without a size gate. */
+@media (max-width: 1099px), (max-height: 649px) {
+  .sentence-clues-scene--explore,
+  .sentence-clues-scene--record {
+    min-height: 0;
+    justify-content: flex-start;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 88px 24px 96px;
+    gap: 20px;
+  }
+
+  .sentence-clues-scene--explore .stage-head {
+    position: static;
+    flex: none;
+  }
+
+  .sentence-clues-scene--explore .sentence-clues-scene__wall {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    max-height: none;
+    overflow: visible;
+  }
+
+  .sentence-clues-scene--explore .sentence-clues-scene__card {
+    min-height: 88px;
+    padding: 12px;
+  }
+
+  .sentence-clues-scene__foot {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .sentence-clues-scene__record-grid {
+    height: auto;
+    max-height: none;
+    align-items: start;
+  }
+
+  .sentence-clues-scene__sheet {
+    height: auto;
+    max-height: none;
+  }
+}
+
+@media (max-width: 800px) {
+  .sentence-clues-scene--explore .sentence-clues-scene__wall {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sentence-clues-scene--record .sentence-clues-scene__record-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sentence-clues-scene--context { justify-content: flex-start; }
+  .sentence-clues-scene__intro { flex: none; }
+}
+
+@media (max-width: 480px) {
+  .sentence-clues-scene--explore,
+  .sentence-clues-scene--record { padding-inline: 16px; }
+
+  .sentence-clues-scene--explore .sentence-clues-scene__wall {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sentence-clues-scene--record .sentence-clues-scene__sheet { padding: 16px; }
+}
+
+/* A compact reading preview, without removing any of the twenty records. */
+.sentence-clues-scene__live-story { flex: none; width: min(var(--stage-max), 100%); font-size: var(--type-body); line-height: 1.65; color: var(--text-secondary); }
+.sentence-clues-scene__live-story summary { cursor: pointer; color: var(--trace); padding: 8px 0; }
+.sentence-clues-scene__live-story ol { margin: 8px 0; padding-left: 1.4em; }
+.sentence-clues-scene__live-story p { margin: 8px 0; }
+.sentence-clues-scene--preview-open { justify-content: flex-start; overflow-y: auto; }
+.sentence-clues-scene--preview-open .stage-head { position: static; }
+@media (min-width: 1100px) and (min-height: 650px) and (max-height: 780px) {
+  .sentence-clues-scene--explore { justify-content: flex-start; overflow-y: auto; }
+  .sentence-clues-scene--explore .stage-head { position: static; }
+  .sentence-clues-scene__live-story summary { padding-block: 2px; font-size: var(--type-meta); }
 }

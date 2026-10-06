@@ -102,6 +102,15 @@ export function FinalRecordLayer({ record, presentation, index, total, onIssueFu
               >
                 처음으로 돌아가기
               </button>
+              {/* The venue PC stays inside the exhibition; the catalogue link is for the web. */}
+              {!venue ? (
+                <a
+                  className="cta cta--text final-record-layer__catalog"
+                  href={`${import.meta.env.BASE_URL}catalog/`}
+                >
+                  전시 소개
+                </a>
+              ) : null}
             </motion.div>
           ) : null}
         </AnimatePresence>

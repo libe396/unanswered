@@ -143,7 +143,7 @@ const RESPONSE_MIN_HEIGHT = 112;
 const RESPONSE_MAX_HEIGHT = 224;
 
 const RESPONSE_MAX_LENGTH = 100;
-const DISCOVERING_MIN_MS = 900;
+const DISCOVERING_MIN_MS = 300;
 const DEFAULT_DISCOVERING_TEXT = '아직 확인되지 않은 부분이 있습니다.';
 
 /**
@@ -220,6 +220,7 @@ export function SentenceCluesScene() {
   });
 
   const [phase, setPhase] = useState<Phase>('context');
+  const [previewOpen, setPreviewOpen] = useState(false);
   const interactionNow = useInteractionClock();
   const enteredAtRef = useRef(interactionNow());
 
@@ -475,12 +476,12 @@ export function SentenceCluesScene() {
     return (
       <div className="sentence-clues-scene sentence-clues-scene--context">
         <div className="sentence-clues-scene__intro">
-          <div className="sentence-clues-scene__recovered-story" aria-label="수집한 단서로 복원한 앞 이야기">
-            <div className="sentence-clues-scene__memo-heading"><span>수집된 기록</span><span>복원 메모</span></div>
+          <details className="sentence-clues-scene__recovered-story">
+            <summary>고른 단서로 앞 이야기 읽기</summary>
             {narrative.paragraphs.filter((_, index) => index < 3 || selectedObjects.length > 0).map((paragraph, index) => <p key={index}>{paragraph}</p>)}
             <p className="sentence-clues-scene__story-gap">{narrative.missingSegmentText}</p>
-          </div>
-          <h1>이 공간에 머물던 사람의 이야기는 어떻게 이어졌을 것 같나요?</h1>
+          </details>
+          <h1>그 뒤의 이야기는 어떻게 이어질까요?</h1>
           <p className="sentence-clues-scene__intro-guide">이어질 것 같은 문장을 {SENTENCE_MIN_FRAGMENTS}~{SENTENCE_MAX_FRAGMENTS}개 골라 주세요.</p>
           <dl className="sentence-clues-scene__clue-strip" aria-label="수집한 단서 요약">
             <div><dt>색</dt><dd>{lightArchive?.rules.palette.length ? <div className="sentence-clues-scene__swatches">{lightArchive.rules.palette.map((color, index) => <span key={index} style={{ backgroundColor: color }} role="img" aria-label={color} />)}</div> : '수집한 색 없음'}</dd></div>
@@ -495,16 +496,15 @@ export function SentenceCluesScene() {
 
   /* ── explore: the archive wall ─────────────────────────────────────────────
      One screen: heading, the entire comparison grid, and a compact footer.
-     Unsupported viewports offer a larger-screen notice without losing state. */
+     Smaller viewports keep the same records in a scrollable layout. */
 
   if (phase === 'explore') {
     return (
-      <div className="sentence-clues-scene sentence-clues-scene--explore"><div className="sentence-clues-scene__size-notice" role="status"><h1>전체 기록을 한눈에 비교할 수 있는 화면이 필요합니다.</h1><p>가로 화면이나 더 큰 창으로 열어 주세요.<br />최소 가로 1100 × 세로 650 크기의 화면을 권장합니다.</p><p>선택한 기록과 작성 중인 문장은 그대로 유지됩니다.</p></div>
-        {/* No description line here. Twenty records, four rows and the slot
-            row have to land inside one 800px screen without a scroller, and
-            the instruction is the one block that can be said somewhere else —
-            the action row's label below carries the 3–5 range instead. */}
-        <StageHeader eyebrow="문장의 흔적" title="이 공간에 머물던 사람의 이야기는 어떻게 이어졌을 것 같나요?" />
+      <div className={`sentence-clues-scene sentence-clues-scene--explore${previewOpen ? ' sentence-clues-scene--preview-open' : ''}`}>
+
+        {/* Keep the full archive and offer a reading guide plus an optional
+            preview of the visitor's current account. */}
+        <StageHeader eyebrow="문장의 흔적" title="그 뒤의 이야기는 어떻게 이어질까요?" description="이어질 이야기 3–5개를 골라 주세요." />
 
         <div className="sentence-clues-scene__wall scroll-quiet" aria-label="전체 문장 기록">
           {SENTENCE_RECONSTRUCTION_FRAGMENTS.map((fragment) => {
@@ -536,6 +536,10 @@ export function SentenceCluesScene() {
           })}
         </div>
 
+        <details className="sentence-clues-scene__live-story" onToggle={event => setPreviewOpen(event.currentTarget.open)}>
+          <summary>이어지는 이야기 보기 · {fragments.length}개 기록</summary>
+          {fragments.length ? <ol>{orderedForReading(fragments).map(id => <li key={id}>{textOf(id)}</li>)}</ol> : <p>고른 문장들이 여기에 이어집니다.</p>}
+        </details>
         <div className="sentence-clues-scene__foot">
           <div className="sentence-clues-scene__selection-numbers" aria-label="선택한 기록 번호">
             {Array.from({ length: SENTENCE_MAX_FRAGMENTS }, (_, i) => fragments[i] ? <button key={fragments[i]} onClick={() => returnFragment(fragments[i])} aria-label={`${archiveCodeOf(fragments[i])}번 기록 선택 해제`}>{archiveCodeOf(fragments[i])}<span aria-hidden="true"> ×</span></button> : <span key={i}>—</span>)}
@@ -590,7 +594,7 @@ export function SentenceCluesScene() {
 
     const stepIndex = phase === 'reconstruction' ? 0 : phase === 'restoredRecord' ? 2 : 1;
 
-    const sheetState = phase === 'restoredRecord' ? (hasAddition ? '복원 완료' : '미응답') : '복원 중';
+    const sheetState = phase === 'restoredRecord' ? (hasAddition ? '복원 완료' : '빈칸') : '복원 중';
     const fragmentCount = `기록 ${ordered.length}개`;
     const blankMark =
       phase !== 'restoredRecord'
@@ -599,10 +603,11 @@ export function SentenceCluesScene() {
           ? '빈칸 없음'
           : hasAddition
             ? '복원 1개'
-            : '미응답 1개';
+            : '빈칸 1개';
 
     return (
-      <div className="sentence-clues-scene sentence-clues-scene--record"><div className="sentence-clues-scene__size-notice" role="status"><h1>전체 기록을 한눈에 비교할 수 있는 화면이 필요합니다.</h1><p>가로 화면이나 더 큰 창으로 열어 주세요.<br />최소 가로 1100 × 세로 650 크기의 화면을 권장합니다.</p><p>선택한 기록과 작성 중인 문장은 그대로 유지됩니다.</p></div>
+      <div className="sentence-clues-scene sentence-clues-scene--record">
+
         <div className="sentence-clues-scene__record-grid">
           {/* ── The sheet ─────────────────────────────────────────────────── */}
           <section
@@ -669,7 +674,7 @@ export function SentenceCluesScene() {
 
                       {isTarget && leftBlank ? (
                         <p className="sentence-clues-scene__addition sentence-clues-scene__addition--blank">
-                          <span className="sentence-clues-scene__addition-label">미응답</span>
+                          <span className="sentence-clues-scene__addition-label">빈칸</span>
                         </p>
                       ) : null}
                     </div>
@@ -707,7 +712,7 @@ export function SentenceCluesScene() {
             {phase === 'reconstruction' ? (
               <>
                 <p className="sentence-clues-scene__panel-eyebrow">선택한 기록</p>
-                <h1 className="sentence-clues-scene__panel-title">선택한 기록이 한 장으로 모였습니다.</h1>
+                <h1 className="sentence-clues-scene__panel-title">고른 문장이 모였습니다.</h1>
                 <p className="sentence-clues-scene__panel-desc">
                   기록 사이에 아직 채워지지 않은 빈칸이 있습니다.
                 </p>
