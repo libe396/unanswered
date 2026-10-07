@@ -220,3 +220,4 @@ Use case: photorealistic-natural. Asset type: finished photographic portrait art
 ### 2026-10-08 변경 묶음 배포
 
 - 사용자 요청으로 상세/QR 보고서 해석과 기록물, 소리 돔/재생/지도 배치, BACK/재진입 수정 및 피드백 기록을 커밋·푸시·배포한다. npm run build 및 git diff --check 통과(기존 번들 경고). 앞선 실제 브라우저 검증 결과를 유지한다. 로컬 archive.zip과 Claude 작업 시트는 배포 커밋에서 제외한다.
+- 완료: 수정 묶음 95d353b 및 공용 아이콘 끝 빈 줄 정리 f9e7c2a를 phase1-foundation에 커밋·origin 푸시했다. npm run deploy Published, GitHub Pages 상태 built 및 공개 HTML의 JS 경로가 이번 dist와 일치함을 확인했다. 기존 큰 번들 경고만 유지. 미추적 archive.zip/Claude 작업 시트는 그대로 보존하고 공개 커밋에서 제외했다.
