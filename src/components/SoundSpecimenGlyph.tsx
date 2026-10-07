@@ -15,4 +15,3 @@ const SPECIMEN_GLYPHS = {
 export function SpecimenGlyph({ clue }: { clue: (typeof SOUND_CLUES)[number] }) {
   return <svg viewBox="0 0 36 38" aria-hidden="true" focusable="false"><path d={SPECIMEN_GLYPHS[clue.icon]} fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 }
-
