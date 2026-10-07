@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ReportStageNav } from './ReportStageNav';
 import './ReportStageFindings.css';
@@ -19,20 +19,17 @@ const LINES = [
   '멈춘 순간, 바꾼 선택,\n끝내 고르지 않은 것까지\n모두 기록으로 남았습니다.',
 ];
 const FINAL_LINE = '답하지 못한 순간도\n당신의 기록이었습니다.';
-const HOLDS = [3200, 3800];
 
 export function ReportStageClosing({ index, total, locked, onAdvance }: Props) {
   const reduced = useReducedMotion();
   const [phase, setPhase] = useState(0);
   const navReady = true;
 
-  useEffect(() => {
-    if (phase >= LINES.length) {
-      return;
-    }
-    const timer = window.setTimeout(() => setPhase((p) => p + 1), reduced ? 1200 : HOLDS[phase]);
-    return () => window.clearTimeout(timer);
-  }, [phase, reduced]);
+  function advanceReading() {
+    if (locked) return;
+    if (phase >= LINES.length) onAdvance();
+    else setPhase((current) => current + 1);
+  }
 
   return (
     <div className="report-stage report-closing">
@@ -52,7 +49,7 @@ export function ReportStageClosing({ index, total, locked, onAdvance }: Props) {
           )}
         </AnimatePresence>
       </div>
-      <ReportStageNav label="최종 기록으로" index={index} total={total} visible={navReady} onAdvance={onAdvance} disabled={locked} />
+      <ReportStageNav label={phase < LINES.length ? '계속 읽기' : '최종 기록으로'} index={index} total={total} visible={navReady} onAdvance={advanceReading} disabled={locked} />
     </div>
   );
 }

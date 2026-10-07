@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ReportStageNav } from './ReportStageNav';
 import './ReportStageFindings.css';
@@ -18,9 +18,6 @@ const METHOD = '당신이 고른 단서와\n고르는 순간을 함께 기록했
 /** What was recorded — the method, not a claim about this visit. */
 const RECORDED = ['바꾼 선택', '머문 시간', '비워 둔 자리'];
 
-/** Hold per phase: reframe · method · method with what was recorded. */
-const HOLDS = [3600, 2600, RECORDED.length * 650 + 2400];
-
 /**
  * REFRAME → METHOD → the turn into the Findings. Text only, one idea at a
  * time, the same slow single-line rhythm as ReportBridgeBeat.
@@ -31,13 +28,11 @@ export function ReportStageMethod({ index, total, locked, onAdvance, transitionL
   const [phase, setPhase] = useState(0);
   const navReady = true;
 
-  useEffect(() => {
-    if (phase >= finalPhase) {
-      return;
-    }
-    const timer = window.setTimeout(() => setPhase((p) => p + 1), reduced ? 1200 : HOLDS[phase]);
-    return () => window.clearTimeout(timer);
-  }, [phase, finalPhase, reduced]);
+  function advanceReading() {
+    if (locked) return;
+    if (phase >= finalPhase) onAdvance();
+    else setPhase((current) => current === 0 ? 2 : current + 1);
+  }
 
   const fade = { duration: reduced ? 0.15 : 0.9 };
 
@@ -82,7 +77,7 @@ export function ReportStageMethod({ index, total, locked, onAdvance, transitionL
         </AnimatePresence>
       </div>
 
-      <ReportStageNav label={nextLabel} index={index} total={total} visible={navReady} onAdvance={onAdvance} disabled={locked} />
+      <ReportStageNav label={phase === 0 ? '기록한 것 보기' : phase < finalPhase ? '발견으로 이어가기' : nextLabel} index={index} total={total} visible={navReady} onAdvance={advanceReading} disabled={locked} />
     </div>
   );
 }

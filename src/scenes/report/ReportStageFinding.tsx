@@ -32,17 +32,52 @@ export function ReportStageFinding({ finding, order, count, index, total, locked
   const [evidenceOpen, setEvidenceOpen] = useState(false);
   const openButton = useRef<HTMLButtonElement | null>(null);
   const closeButton = useRef<HTMLButtonElement | null>(null);
+  const evidenceRef = useRef<HTMLElement | null>(null);
 
   // Reading and the next action are available together; no timed reading gate.
 
   useEffect(() => {
     if (!evidenceOpen) return;
+    const dialog = evidenceRef.current;
+    if (!dialog) return;
+    // Disable only siblings of the dialog's ancestor path; restore their
+    // original state on close so global scene controls remain untouched.
+    const background: { node: HTMLElement; inert: boolean }[] = [];
+    let branch: HTMLElement = dialog;
+    while (branch.parentElement) {
+      const parent = branch.parentElement;
+      Array.from(parent.children).forEach((node) => {
+        if (node !== branch && node instanceof HTMLElement) {
+          background.push({ node, inert: node.inert });
+          node.inert = true;
+        }
+      });
+      if (parent === document.body) break;
+      branch = parent;
+    }
     closeButton.current?.focus();
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setEvidenceOpen(false);
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        closeEvidence();
+      } else if (event.key === 'Tab') {
+        // The evidence currently has one action: close. Keep both Tab
+        // directions here while the scrollable record remains readable.
+        event.preventDefault();
+        closeButton.current?.focus();
+      }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    const keepFocus = (event: FocusEvent) => {
+      if (event.target instanceof Node && !dialog.contains(event.target)) closeButton.current?.focus();
+    };
+    window.addEventListener('keydown', onKey, true);
+    document.addEventListener('focusin', keepFocus);
+    return () => {
+      window.removeEventListener('keydown', onKey, true);
+      document.removeEventListener('focusin', keepFocus);
+      background.forEach(({ node, inert }) => { node.inert = inert; });
+    };
   }, [evidenceOpen]);
 
   function closeEvidence() {
@@ -95,6 +130,7 @@ export function ReportStageFinding({ finding, order, count, index, total, locked
       <AnimatePresence>
         {evidenceOpen ? (
           <motion.section
+            ref={evidenceRef}
             key="evidence"
             className="report-evidence-layer"
             role="dialog"
