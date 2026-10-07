@@ -259,3 +259,8 @@
   line-height: 1.6;
   color: var(--text-secondary);
 }
+
+.mobile-report__finding + .mobile-report__finding { margin-top: 28px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.12); }
+.mobile-report__finding h2 { font-size: 19px; font-weight: 500; line-height: 1.65; white-space: pre-line; word-break: keep-all; margin: 10px 0 16px; }
+.mobile-report__finding .mobile-report__observation { white-space: pre-line; }
+.mobile-report__reflection { color: var(--trace); font-size: 14px; line-height: 1.8; word-break: keep-all; }

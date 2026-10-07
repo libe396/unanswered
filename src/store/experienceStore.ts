@@ -202,7 +202,10 @@ export const useExperienceStore = create<ExperienceState>()(
             : [...state.completedScenes, id];
           return {
             completedScenes,
-            currentScene: getFurthestAllowedScene(completedScenes),
+            // Revisiting a completed scene must not skip its completed neighbours.
+            currentScene: state.completedScenes.includes(id) && state.currentScene === id
+              ? SCENE_ORDER[Math.min(SCENE_ORDER.indexOf(id) + 1, SCENE_ORDER.length - 1)] ?? getFurthestAllowedScene(completedScenes)
+              : getFurthestAllowedScene(completedScenes),
           };
         }),
 

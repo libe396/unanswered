@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { ReportNarrativeGraphic } from './ReportNarrativeGraphic';
 import { ReportStageNav } from './ReportStageNav';
 import './ReportStageFindings.css';
 
@@ -34,6 +35,7 @@ export function ReportStageClosing({ index, total, locked, onAdvance }: Props) {
   return (
     <div className="report-stage report-closing">
       <div className="report-stage__body" aria-live="polite">
+        <ReportNarrativeGraphic variant="closing" phase={phase} />
         <AnimatePresence mode="wait">
           {phase < LINES.length ? (
             <motion.p key={phase} className="report-method__line"

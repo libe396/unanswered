@@ -154,3 +154,13 @@
     transition-duration: 1ms;
   }
 }
+
+/* PC final report is a readable document; the QR keeps the mobile summary. */
+.final-record-layer { padding-top: 132px; }
+.final-record-layer__eyebrow { top: 96px; }
+.final-record-layer__narrative { width: min(920px, 100%); }
+.final-record-layer__narrative > div { width: 100%; }
+.final-record-layer--venue .final-record-layer__narrative { width: min(680px, 65%); }
+.final-record-layer__venue { order: 0; flex-shrink: 0; }
+.final-record-layer__actions { padding: 20px 0; }
+@media (max-width: 900px) { .final-record-layer--venue .final-record-layer__narrative { width: 100%; } }

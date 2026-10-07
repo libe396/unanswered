@@ -38,7 +38,7 @@ export interface PersonalFinding extends PersonalFindingDraft {
   source: 'template' | 'ai';
 }
 
-type Copy = Pick<PersonalFinding, 'headline' | 'interpretation' | 'reflection'>;
+export type Copy = Pick<PersonalFinding, 'headline' | 'interpretation' | 'reflection'>;
 
 /* ── Templates ───────────────────────────────────────────────────────────── */
 
@@ -124,6 +124,10 @@ const TEMPLATES: Record<FindingKind, (context: Record<string, string>) => Copy> 
  */
 export function interpretPersonalFindings(drafts: readonly PersonalFindingDraft[]): PersonalFinding[] {
   return drafts.map((draft) => ({ ...draft, ...TEMPLATES[draft.id](draft.context), source: 'template' }));
+}
+
+export function readFindingCopy(id: string, context: Record<string, string>): Copy | null {
+  return Object.prototype.hasOwnProperty.call(TEMPLATES, id) ? TEMPLATES[id as FindingKind](context) : null;
 }
 
 /* ── Optional remote interpretation ─────────────────────────────────────── */

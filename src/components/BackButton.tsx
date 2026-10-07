@@ -25,7 +25,10 @@ export function BackButton() {
   if (SCENE_ORDER.indexOf(currentScene) <= 0) return null;
 
   return (
-    <button type="button" className="back-button" onClick={goToPreviousScene}>
+    <button type="button" className="back-button" onClick={() => {
+      if (currentScene === 'soundClues' && !window.dispatchEvent(new Event('unanswered:sound-back', { cancelable: true }))) return;
+      goToPreviousScene();
+    }}>
       <span className="back-button__arrow" aria-hidden="true">
         ←
       </span>

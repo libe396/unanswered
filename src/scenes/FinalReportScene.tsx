@@ -91,8 +91,8 @@ export function FinalReportScene() {
   );
 
   const reportUrl = useMemo(
-    () => buildReportUrl(encodeReport(record, behavior, presentation)),
-    [record, behavior, presentation],
+    () => buildReportUrl(encodeReport(record, behavior, presentation, templateFindings)),
+    [record, behavior, presentation, templateFindings],
   );
   const [venue] = useState(isVenueMode);
 
@@ -190,6 +190,7 @@ export function FinalReportScene() {
           <FinalRecordLayer
             record={record}
             presentation={presentation}
+            findings={personalFindings}
             index={stageNumber}
             total={total}
             onIssueFullReport={() => window.print()}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { ReportNarrativeGraphic } from './ReportNarrativeGraphic';
 import { ReportStageNav } from './ReportStageNav';
 import './ReportStageFindings.css';
 
@@ -45,6 +46,7 @@ export function ReportStageMethod({ index, total, locked, onAdvance, transitionL
       </p>
 
       <div className="report-stage__body report-method__body" aria-live="polite">
+        <ReportNarrativeGraphic variant="method" phase={phase} />
         <AnimatePresence mode="wait">
           {phase === 0 ? (
             <motion.p key="reframe" className="report-method__line"

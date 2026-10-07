@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import type { PersonalFinding } from '../../lib/personalFindingInterpretation';
+import { FindingRecordGraphic } from './FindingRecordGraphic';
 import { ReportStageNav } from './ReportStageNav';
 import './ReportStageFindings.css';
 
@@ -16,16 +17,6 @@ interface Props {
   nextLabel: string;
 }
 
-/**
- * One Personal Finding per screen: headline → interpretation → an open
- * question → "왜 이렇게 해석했나요?". The headline is the most important
- * text here; the Evidence Layer is secondary and opens on request, as a
- * page of the investigation record rather than a chart.
- *
- * Renders only what src/lib/personalFindings.ts and
- * personalFindingInterpretation.ts produced — no raw interaction data is
- * read here.
- */
 export function ReportStageFinding({ finding, order, count, index, total, locked, onAdvance, nextLabel }: Props) {
   const reduced = useReducedMotion();
   const step = 3;
@@ -98,21 +89,11 @@ export function ReportStageFinding({ finding, order, count, index, total, locked
       </p>
 
       <div className="report-stage__body report-finding__body" aria-hidden={evidenceOpen}>
-        <motion.p className="report-finding__tension" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fade()}>
-          {finding.tension}
-        </motion.p>
+        <FindingRecordGraphic finding={finding} />
         <motion.h2 className="report-finding__headline" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={fade(0.2)}>
           {finding.headline}
         </motion.h2>
-        <details className="report-finding__reading">
-          <summary>기록 자세히 읽기</summary>
-        <motion.p className="report-finding__interpretation" initial={{ opacity: 0 }} animate={{ opacity: step >= 1 ? 1 : 0 }} transition={fade()}>
-          {finding.interpretation}
-        </motion.p>
-        </details>
-        <motion.p className="report-finding__reflection" initial={{ opacity: 0 }} animate={{ opacity: step >= 2 ? 1 : 0 }} transition={fade()}>
-          {finding.reflection}
-        </motion.p>
+        <p className="report-finding__record-caption">{finding.evidence.map((item) => item.scene).filter((scene, i, scenes) => scenes.indexOf(scene) === i).join(' · ')}</p>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: step >= 3 ? 1 : 0 }} transition={fade()}>
           <button
             ref={openButton}
@@ -122,7 +103,7 @@ export function ReportStageFinding({ finding, order, count, index, total, locked
             tabIndex={step >= 3 ? 0 : -1}
             aria-haspopup="dialog"
           >
-            왜 이렇게 해석했나요?
+            내 기록 살펴보기
           </button>
         </motion.div>
       </div>
@@ -147,6 +128,9 @@ export function ReportStageFinding({ finding, order, count, index, total, locked
                 닫기
               </button>
             </header>
+            <h3 className="report-evidence-layer__headline">{finding.headline}</h3>
+            <p className="report-evidence-layer__pattern">{finding.interpretation}</p>
+            <p className="report-evidence-layer__reflection">{finding.reflection}</p>
             <p className="report-evidence-layer__pattern">{finding.pattern}</p>
             <ol className="report-evidence-layer__list">
               {finding.evidence.map((item, i) => (

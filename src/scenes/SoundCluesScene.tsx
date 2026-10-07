@@ -20,6 +20,7 @@ import type {
   SceneBehaviorRecord,
   SoundPlayEvent,
 } from '../types';
+import { SpecimenGlyph } from '../components/SoundSpecimenGlyph';
 import './SoundCluesScene.css';
 
 /** What the list needs to draw itself. Everything countable is derived from the
@@ -47,28 +48,11 @@ function formatClock(seconds: number): string {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-// Five reference glyphs traced from zone3_1.png; subway/car share their stroke and scale.
-// Keys follow audio identity, never shelf position.
-const SPECIMEN_GLYPHS = {
-  subway: 'M7 7Q7 3 18 3Q29 3 29 7V26Q29 30 25 30H11Q7 30 7 26Z M11 9H25V19H11Z M18 9V19 M14 6H22 M11 24a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0-3 0 M22 24a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0-3 0 M12 30L8 35 M24 30L28 35 M10 33H26',
-  car: 'M5 18L9 8Q10 6 13 6H23Q26 6 27 8L31 18 M5 18Q3 19 3 22V29H33V22Q33 19 31 18Z M10 10H26L29 17H7Z M3 20L1 17 M33 20L35 17 M7 29V33H11V29 M25 29V33H29V29 M7 23H12 M24 23H29 M15 26H21',
-
-  rain: 'M7 21C2 21 2 13 7 13C7 8 12 6 15 10C19 3 25 7 25 12C32 12 33 21 27 21Z M8 25v2 M14 24v3 M20 25v2 M26 24v3 M11 30v1 M23 30v1',
-  paper: 'M4 24L18 4L29 12L15 31Z M8 23L19 8L25 13L14 27Z M7 28L18 33L30 17 M9 32L30 35L30 22 M12 22L20 12 M15 23L22 14',
-  pencil: 'M3 33L7 24L27 4L32 9L12 29Z M7 24L12 29 M24 7L29 12 M9 26L27 8 M3 33L9 31',
-  elevator: 'M3 5H33V35H3Z M6 8H17V32H6Z M20 8H30V32H20Z M18 2V5 M11 15V23 M8 20L11 23L14 20 M25 15V23 M22 20L25 23L28 20',
-  people: 'M8 9a3.5 3.5 0 1 0 0-7a3.5 3.5 0 1 0 0 7 M18 9a3.5 3.5 0 1 0 0-7a3.5 3.5 0 1 0 0 7 M28 9a3.5 3.5 0 1 0 0-7a3.5 3.5 0 1 0 0 7 M3 23V16Q3 12 8 12Q13 12 13 16V23 M5 17V34H8V25 M8 34H11V17 M14 23V16Q14 12 18 12Q22 12 22 16V23 M16 17V34H18V25 M18 34H20V17 M23 23V16Q23 12 28 12Q33 12 33 16V23 M25 17V34H28V25 M28 34H31V17',
-};
-
 const WAVEFORM_BARS = [
   0.18, 0.34, 0.24, 0.52, 0.38, 0.68, 0.3, 0.46, 0.22, 0.62, 0.36, 0.78,
   0.42, 0.58, 0.28, 0.7, 0.32, 0.5, 0.2, 0.44, 0.66, 0.36, 0.82, 0.48,
   0.26, 0.54, 0.72, 0.4, 0.24, 0.6, 0.34, 0.5,
 ];
-
-function SpecimenGlyph({ clue }: { clue: (typeof SOUND_CLUES)[number] }) {
-  return <svg viewBox="0 0 36 38" aria-hidden="true" focusable="false"><path d={SPECIMEN_GLYPHS[clue.icon]} fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" /></svg>;
-}
 
 function PlayerWaveform({ active, progress }: { active: boolean; progress: number }) {
   return (
@@ -172,6 +156,19 @@ export function SoundCluesScene() {
     and a step that could not replay it would make the pattern unobservable.
   */
   const [phase, setPhase] = useState<Phase>('browse');
+  // Activity retains local state; each return to this scene starts at its sound shelf.
+  useEffect(() => { setPhase('browse'); }, []);
+  useEffect(() => {
+    const backToSounds = (event: Event) => {
+      if (phase !== 'positioning') return;
+      event.preventDefault();
+      finalizeRef.current('paused');
+      setPhase('browse');
+    };
+    window.addEventListener('unanswered:sound-back', backToSounds);
+    return () => window.removeEventListener('unanswered:sound-back', backToSounds);
+  }, [phase]);
+
   const [runtime, setRuntime] = useState<Record<string, SoundRuntime>>({});
   // Seeded from an answer this visit already saved (e.g. Back navigation and
   // forward again) so a re-confirm without changes re-saves the same choice
@@ -655,7 +652,7 @@ export function SoundCluesScene() {
     return (
       <div className={`sound-clues-scene__player${runtimeForClue.isPlaying ? ' sound-clues-scene__player--active' : ''}`}>
         <span className="sound-clues-scene__player-title">{clue.label}</span>
-        <PlayerWaveform active={runtimeForClue.isPlaying} progress={runtimeForClue.progress} />
+        {phase === 'browse' && <PlayerWaveform active={runtimeForClue.isPlaying} progress={runtimeForClue.progress} />}
         <div className="sound-clues-scene__player-controls">
           <span className="sound-clues-scene__player-time">
             {formatClock(runtimeForClue.currentSec)} / {formatClock(runtimeForClue.durationSec)}
@@ -704,12 +701,10 @@ export function SoundCluesScene() {
         />
 
         <div className="sound-clues-scene__shelf-scroll">
-          <span className="residue sound-clues-scene__residue" aria-hidden="true" />
           <div className="sound-clues-scene__shelf">
             <div className="sound-clues-scene__shelf-row">
               {SOUND_CLUES.map((clue) => renderCloche(clue))}
             </div>
-            <div className="sound-clues-scene__shelf-surface" aria-hidden="true" />
           </div>
         </div>
 
@@ -745,8 +740,6 @@ export function SoundCluesScene() {
         description="그 사람에게 가깝고 또렷했을지, 점으로 남겨 주세요."
       />
 
-      {renderPlayer(selectedClue, selectedSoundId ? getRuntime(selectedSoundId) : null)}
-
       <div className="sound-clues-scene__field-block">
         <div className="sound-clues-scene__field-frame">
           <span className="sound-clues-scene__axis sound-clues-scene__axis--top">
@@ -778,6 +771,7 @@ export function SoundCluesScene() {
             onPointerCancel={handleFieldPointerUp}
             onKeyDown={handleFieldKeyDown}
           >
+            <span className="sound-clues-scene__map-orbits" aria-hidden="true"><i /><i /><i /></span>
             <span className="sound-clues-scene__field-hair sound-clues-scene__field-hair--v" />
             <span className="sound-clues-scene__field-hair sound-clues-scene__field-hair--h" />
             {echo && <span key={echo.key} className="sound-clues-scene__echo" style={{ left: `${echo.x * 100}%`, top: `${echo.y * 100}%` }} aria-hidden="true">{[0, 1, 2].map((i) => <i key={i} style={{ animationDelay: `${i * 160}ms` }} />)}</span>}
@@ -792,6 +786,8 @@ export function SoundCluesScene() {
           </div>
         </div>
       </div>
+
+      {renderPlayer(selectedClue, selectedSoundId ? getRuntime(selectedSoundId) : null)}
 
       <StageActions
         info={

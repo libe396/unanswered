@@ -25,6 +25,7 @@
  * person did it. The strength score is internal ranking only and is never
  * shown to the visitor.
  */
+import { soundPositionMeaning } from './soundPositionMeaning';
 import { buildCrossSceneInput } from './crossSceneAdapter';
 import { analyzeCrossScene } from './crossSceneAnalysis';
 import type { CrossSceneFinding, CrossSceneInput, CrossSceneTraceId, CrossSceneZoneId } from './crossSceneAnalysis';
@@ -819,6 +820,11 @@ export function analyzePersonalFindings(
     findings = fallback ? [fallback] : [];
   }
 
+  const positionMeaning = soundPositionMeaning(record.soundClues.memoryPosition);
+  if (positionMeaning) findings = findings.map(finding => finding.zones.includes('SOUND') ? {
+    ...finding,
+    evidence: [...finding.evidence, { zone: 'SOUND' as const, scene: '소리의 흔적', description: positionMeaning, metrics: ['관객이 상상해 놓은 위치이며, 실제 소리의 거리나 청력을 측정한 값은 아닙니다.'] }],
+  } : finding);
   return {
     traces,
     candidates,

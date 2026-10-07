@@ -3,6 +3,8 @@ import { renderLightGraphic } from '../../lib/lightRenderer.js';
 import { EMOTION_KEYWORDS, MEMORY_ROOM_OBJECTS, SENTENCE_RECONSTRUCTION_FRAGMENTS, SOUND_CLUES } from '../../data/content';
 import { actionEvidenceText, PROCESS_GUIDE, RECORD_CLOSING, RECORD_MEANING } from '../../lib/reportActionEvidence';
 import { buildColorPresentationFromRules, formatIssuedAt, type FinalReportClueTag } from '../../lib/finalReportPresentation';
+import { soundPositionMeaning } from '../../lib/soundPositionMeaning';
+import { readFindingCopy } from '../../lib/personalFindingInterpretation';
 import { copyText, decodeReport } from '../../lib/reportShare';
 import type { LightAnalysisRules } from '../../types';
 import './MobileReportView.css';
@@ -72,6 +74,7 @@ export function MobileReportView({ payload }: Props) {
     .map((item) => ({ kind: item.kind, text: actionEvidenceText(item.kind, item.sceneId, item.targetId, item.tenths) }))
     .filter((item): item is { kind: typeof item.kind; text: string } => Boolean(item.text))
     .slice(0, 3);
+  const positionMeaning = soundPositionMeaning(report.pos ? { x: report.pos[0], y: report.pos[1] } : null);
   const hasProcess = evidence.some((item) => item.kind !== 'selection');
 
   function saveGraphic() {
@@ -113,6 +116,22 @@ export function MobileReportView({ payload }: Props) {
         </div>
 
         <div className="mobile-report__divider" role="presentation" />
+
+        {report.findings.length > 0 && <>
+          <section className="mobile-report__section" aria-label="이번 기록의 해석">
+            <p className="mobile-report__label">이번 기록의 해석</p>
+            {report.findings.map((finding, index) => {
+              const copy = readFindingCopy(finding.id, finding.context);
+              return copy && <div className="mobile-report__finding" key={finding.id}>
+                <p className="mobile-report__label">{String(index + 1).padStart(2, '0')}</p>
+                <h2>{copy.headline}</h2>
+                <p className="mobile-report__observation">{copy.interpretation}</p>
+                <p className="mobile-report__reflection">{copy.reflection}</p>
+              </div>;
+            })}
+          </section>
+          <div className="mobile-report__divider" role="presentation" />
+        </>}
 
         <section className="mobile-report__section">
           <p className="mobile-report__label">COLOR / 가장 오래 남은 색</p>
@@ -171,6 +190,7 @@ export function MobileReportView({ payload }: Props) {
           ) : (
             <p className="mobile-report__observation">확인할 수 있는 선택 기록이 없습니다.</p>
           )}
+          {positionMeaning && <p className="mobile-report__observation">{positionMeaning}</p>}
           <p className="mobile-report__observation">{RECORD_MEANING}</p>
           <p className="mobile-report__observation">{RECORD_CLOSING}</p>
         </section>

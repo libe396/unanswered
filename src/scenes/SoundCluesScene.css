@@ -919,3 +919,100 @@
   .sound-clues-scene__player-actions { flex-wrap: wrap; }
   .sound-clues-scene .stage-head__title { font-size: var(--type-title-sm); }
 }
+
+/* Exhibition glass: a curved shell, restrained reflections, a thin plinth. */
+.sound-clues-scene .sound-clues-scene__cloche .sound-clues-scene__cloche-dome {
+ border-radius: 50% 50% 5% 5% / 40% 40% 4% 4%;
+ border-color: rgba(218,226,244,.25);
+ background: radial-gradient(ellipse at 24% 13%, #ecf3ff12, transparent 46%), linear-gradient(90deg, #dbe8ff0b, #ffffff02 24%, #ffffff01 72%, #bbc9f512);
+ box-shadow: inset 1px 0 1px #ffffff22, inset -1px 0 1px #dbe4ff14, inset 0 1px 1px #ffffff45, inset 0 -8px 14px -12px #c7bdff60;
+ backdrop-filter: none; -webkit-backdrop-filter: none;
+}
+.sound-clues-scene .sound-clues-scene__cloche .sound-clues-scene__cloche-glass {
+ left: 11%; top: 13%; width: 16%; height: 76%; border-radius: 70% 20% 60% 30%;
+ background: linear-gradient(100deg, #ffffff00 10%, #ffffff28 40%, #ffffff09 55%, transparent 75%);
+ box-shadow: none; opacity: .8; transform: rotate(3deg);
+}
+.sound-clues-scene .sound-clues-scene__cloche .sound-clues-scene__cloche-fill {
+ inset: auto 0 0; width: 100%; height: 68%;
+ background: radial-gradient(ellipse at 50% 100%, #ab98ef38, #ab98ef08 48%, transparent 76%); opacity: .12;
+}
+.sound-clues-scene .sound-clues-scene__cloche-dome::before {
+ content: ''; position: absolute; right: 7%; top: 29%; width: 1px; height: 53%;
+ background: linear-gradient(transparent, #edf2ff42 35%, #edf2ff15 80%, transparent); pointer-events: none;
+}
+.sound-clues-scene .sound-clues-scene__cloche-dome::after {
+ bottom: 1px; left: 2%; width: 96%; height: 9px; background: transparent;
+ border: 1px solid #dce5ff26; box-sizing: border-box; box-shadow: inset 0 -1px 1px #dce5ff18;
+}
+.sound-clues-scene .sound-clues-scene__cloche-handle {
+ width: 8px; height: 8px; top: 2px; border-color: #e5ebff40;
+ background: radial-gradient(circle at 30% 25%, #ffffff45, #b9c3e908 65%); box-shadow: none;
+}
+.sound-clues-scene .sound-clues-scene__cloche-base {
+ bottom: -3px; width: 108%; height: 9px; border-radius: 50%;
+ background: linear-gradient(180deg, #34333f, #121117 45%, #08080c 80%);
+ border: 1px solid #bfc4db21; box-shadow: inset 0 1px 0 #e6e6ff24, 0 6px 9px #0007;
+}
+.sound-clues-scene .sound-clues-scene__cloche .sound-clues-scene__cloche-glyph { width: 38%; color: #dadce8; }
+.sound-clues-scene .sound-clues-scene__cloche:hover .sound-clues-scene__cloche-dome,
+.sound-clues-scene .sound-clues-scene__cloche:focus-visible .sound-clues-scene__cloche-dome { border-color: #e5dcff7a; }
+.sound-clues-scene .sound-clues-scene__cloche:focus-visible { outline: 1px solid #bba4ef; outline-offset: 8px; border-radius: 8px; }
+.sound-clues-scene .sound-clues-scene__cloche--playing .sound-clues-scene__cloche-dome { border-color: #c5b4f58a; box-shadow: inset 1px 0 1px #ffffff30, inset 0 1px 2px #ffffff55, inset 0 -16px 25px -18px #b6a0ff90, 0 0 24px -12px #a58aea50; }
+.sound-clues-scene .sound-clues-scene__cloche--playing .sound-clues-scene__cloche-fill { opacity: 1; }
+.sound-clues-scene .sound-clues-scene__cloche--selected .sound-clues-scene__cloche-base { border-color: #c3acf48a; }
+
+/* Separate listening from placing a remembered sound. */
+.sound-clues-scene .sound-clues-scene__player-wave { height: 36px; gap: 5px; max-width: 240px; width: 100%; align-self: center; }
+.sound-clues-scene .sound-clues-scene__player-wave::before { display: none; }
+.sound-clues-scene .sound-clues-scene__player-wave-bar { width: 2px; border-radius: 4px; background: #c0b4e9; opacity: .55; }
+.sound-clues-scene .sound-clues-scene__player-wave-progress { top: auto; bottom: 0; background: #bda8f7; opacity: .5; }
+.sound-clues-scene--positioning .sound-clues-scene__player { flex-direction: row; align-items: center; justify-content: center; gap: 24px; min-height: 42px; margin: 12px 0; max-width: 560px; }
+.sound-clues-scene--positioning .sound-clues-scene__player-title { letter-spacing: 0; }
+.sound-clues-scene--positioning .sound-clues-scene__field-block { min-height: 270px; padding: 12px 0; }
+.sound-clues-scene--positioning .sound-clues-scene__field-frame { width: min(320px, 42vh); }
+.sound-clues-scene .sound-clues-scene__field { border-radius: 28px; border-color: #b9b3d52b; background: radial-gradient(ellipse at 75% 25%, #d7d0ff16, transparent 65%), linear-gradient(135deg, #111019, #08080e); box-shadow: inset 0 1px 0 #e8e1ff20, 0 20px 50px #0005; }
+.sound-clues-scene__map-orbits { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; pointer-events: none; }
+.sound-clues-scene__map-orbits i { position: absolute; width: 38%; height: 38%; left: 31%; top: 31%; border: 1px solid #bdb1ef12; border-radius: 50%; }
+.sound-clues-scene__map-orbits i:nth-child(2) { inset: 16%; width: 68%; height: 68%; }
+.sound-clues-scene__map-orbits i:nth-child(3) { inset: 1%; width: 98%; height: 98%; }
+.sound-clues-scene .sound-clues-scene__field-hair { opacity: .3; }
+.sound-clues-scene .sound-clues-scene__mark { width: 34px; height: 34px; border: 1px solid #c7b5ff80; background: radial-gradient(circle, #cbb7ff30, transparent 70%); box-shadow: 0 0 28px #b291ef45; }
+
+.sound-clues-scene .sound-clues-scene__mark { border-radius: 50%; transform: translate(-50%, -50%); }
+.sound-clues-scene .sound-clues-scene__mark-dot { left: 50%; top: 50%; }
+
+/* Two clear reading bands: sound objects above, listening controls below. */
+.sound-clues-scene:not(.sound-clues-scene--positioning) .sound-clues-scene__shelf-scroll { flex: 0 0 auto; min-height: 0; margin-top: clamp(32px, 6vh, 56px); overflow: visible; }
+.sound-clues-scene:not(.sound-clues-scene--positioning) .sound-clues-scene__shelf { padding: 0; }
+.sound-clues-scene:not(.sound-clues-scene--positioning) .sound-clues-scene__shelf-row { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 18px; align-items: start; }
+.sound-clues-scene .sound-clues-scene__player-title { letter-spacing: 0; text-indent: 0; line-height: 1.6; }
+.sound-clues-scene:not(.sound-clues-scene--positioning) .sound-clues-scene__player { box-sizing: border-box; display: grid; grid-template-columns: minmax(180px,1fr) 180px auto; align-items: center; column-gap: 24px; width: min(100%,900px); max-width: 900px; min-height: 100px; margin-top: 36px; padding: 20px 0; border-top: 1px solid #d9cdef18; }
+.sound-clues-scene:not(.sound-clues-scene--positioning) .sound-clues-scene__player-title { justify-self: start; align-self: center; }
+.sound-clues-scene:not(.sound-clues-scene--positioning) .sound-clues-scene__player-controls { flex-direction: column; align-items: flex-end; gap: 8px; }
+.sound-clues-scene:not(.sound-clues-scene--positioning) > .stage-actions { margin-top: auto; padding-top: 24px; }
+@media (max-width:1000px) {
+ .sound-clues-scene:not(.sound-clues-scene--positioning) .sound-clues-scene__player { grid-template-columns: 1fr auto; }
+ .sound-clues-scene:not(.sound-clues-scene--positioning) .sound-clues-scene__player-wave { display: none; }
+}
+@media (max-width:700px) {
+ .sound-clues-scene:not(.sound-clues-scene--positioning) .sound-clues-scene__shelf-row { grid-template-columns: repeat(2,minmax(0,1fr)); }
+ .sound-clues-scene:not(.sound-clues-scene--positioning) .sound-clues-scene__player { grid-template-columns: 1fr; gap: 16px; }
+}
+
+/* Shared order: interaction first, listening beneath it. */
+.sound-clues-scene:not(.sound-clues-scene--positioning) .sound-clues-scene__shelf-scroll { max-width: 1000px; }
+.sound-clues-scene:not(.sound-clues-scene--positioning) .sound-clues-scene__shelf-row { gap: 8px; }
+.sound-clues-scene .sound-clues-scene__cloche-caption-label { font-size: 12px; white-space: nowrap; max-width: none; min-height: 18px; width: auto; line-height: 1.5; }
+.sound-clues-scene .sound-clues-scene__selection-check { font-size: 12px; margin-left: 3px; }
+.sound-clues-scene .sound-clues-scene__cloche-caption { min-height: 50px; }
+.sound-clues-scene--positioning .sound-clues-scene__field-block { flex: 0 0 auto; margin-top: 22px; min-height: 0; padding: 0; }
+.sound-clues-scene--positioning .sound-clues-scene__field-frame { width: min(300px, 36vh); }
+.sound-clues-scene--positioning .sound-clues-scene__player { box-sizing: border-box; width: min(100%,900px); max-width: 900px; margin: 24px 0 0; padding: 18px 0; min-height: 72px; border-top: 1px solid #d9cdef18; justify-content: space-between; }
+.sound-clues-scene--positioning > .stage-actions { margin-top: auto; padding-top: 20px; }
+@media (max-height: 760px) {
+ .sound-clues-scene--positioning .sound-clues-scene__field-block { margin-top: 16px; }
+ .sound-clues-scene--positioning .sound-clues-scene__field-frame { width: min(280px,32vh); }
+ .sound-clues-scene--positioning .sound-clues-scene__player { margin-top: 20px; padding: 12px 0; min-height: 60px; }
+ .sound-clues-scene--positioning > .stage-actions { padding-top: 12px; }
+}

@@ -4,13 +4,14 @@
  * Nothing is stored anywhere: the whole record a phone needs to redraw the
  * receipt travels inside `#/r/<payload>`, so GitHub Pages serves the same
  * index.html and the server never sees it (a hash is not sent with the
- * request). Only ids and numbers go in; the phone looks the words back up in
+ * request). Clue ids, numbers and interpretation template context go in; the phone looks the words back up in
  * src/data/content.ts and redraws the light from src/data/lightRulesCache.json.
  *
  * Deliberately left out: SENTENCE's free-typed `responseText` (personal
  * writing), anything from the camera, and the raw behaviour log.
  */
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
+import { readFindingCopy, type PersonalFinding } from './personalFindingInterpretation';
 import { EMOTION_KEYWORDS } from '../data/content';
 import { buildActionEvidence, type ActionEvidenceKind, type ActionEvidenceScene, type BehaviorRecords } from './reportActionEvidence';
 import type { FinalReportPresentation } from './finalReportPresentation';
@@ -45,6 +46,7 @@ export interface SharedReport {
   obj: string[];
   sen: string[];
   ev: SharedEvidence[];
+  findings: Array<{ id: string; context: Record<string, string> }>;
 }
 
 /* Wire form: short codes, empty fields omitted. */
@@ -58,11 +60,13 @@ export function buildSharedReport(
   record: RecordLayerDerived,
   behavior: BehaviorRecords,
   presentation: FinalReportPresentation,
+  findings: readonly PersonalFinding[] = [],
 ): SharedReport {
   const position = record.soundClues.memoryPosition;
   const keywords = record.light?.rules.emotionKeywords ?? [];
   return {
     v: 1,
+    findings: findings.slice(0, 3).map(({ id, context }) => ({ id, context: Object.fromEntries(Object.entries(context).filter(([key]) => ['fragmentAct', 'how', 'single', 'spread', 'topLabel', 'zone', 'zones'].includes(key))) })),
     id: presentation.reportId,
     t: presentation.issuedAt === null ? null : Math.floor(presentation.issuedAt / 60_000),
     n: Array.from(record.investigator?.investigatorName.trim() ?? '').slice(0, NAME_MAX).join(''),
@@ -96,6 +100,7 @@ function compress(report: SharedReport): string {
       return item.tenths === undefined ? head : [...head, item.tenths];
     });
   }
+  if (report.findings.length) wire.fi = report.findings.map(item => [item.id, item.context]);
   return compressToEncodedURIComponent(JSON.stringify(wire));
 }
 
@@ -112,8 +117,9 @@ export function encodeReport(
   record: RecordLayerDerived,
   behavior: BehaviorRecords,
   presentation: FinalReportPresentation,
+  findings: readonly PersonalFinding[] = [],
 ): string {
-  let report = buildSharedReport(record, behavior, presentation);
+  let report = buildSharedReport(record, behavior, presentation, findings);
   let payload = compress(report);
   if (buildReportUrl(payload).length > MAX_REPORT_URL_LENGTH) {
     report = { ...report, ev: [] };
@@ -173,7 +179,19 @@ export function decodeReport(payload: string): SharedReport | null {
     if (w.var !== undefined && typeof w.var !== 'number') return null;
     if (w.snd !== undefined && !isString(w.snd)) return null;
 
+    const findings: SharedReport['findings'] = [];
+    if (w.fi !== undefined) {
+      if (!Array.isArray(w.fi) || w.fi.length > 3) return null;
+      for (const item of w.fi) {
+        if (!Array.isArray(item) || item.length !== 2 || !isString(item[0])) return null;
+        const context = item[1];
+        if (!context || typeof context !== 'object' || Array.isArray(context) || !Object.values(context).every(isString)) return null;
+        if (!readFindingCopy(item[0], context)) return null;
+        findings.push({ id: item[0], context });
+      }
+    }
     return {
+      findings,
       v: 1,
       id: w.id,
       t: (w.t as number | undefined) ?? null,
