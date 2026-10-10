@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useExperienceStore } from '../store/experienceStore';
-import { useFilmSound, setFilmMuted } from '../hooks/useFilmSound';
+import { setFilmMuted } from '../hooks/useFilmSound';
 import './IntroFilmScene.css';
 
 /**
@@ -10,9 +10,6 @@ import './IntroFilmScene.css';
  */
 const FADE_TO_BLACK_MS = 800;
 const POST_BLACK_HOLD_MS = 500;
-
-/** The film has to be underway before anything is offered on top of it. */
-const SKIP_VISIBLE_AFTER_MS = 2000;
 
 const VIDEO_SRC = `${import.meta.env.BASE_URL}video/intro-film.mp4?v=d1f817509c4c`;
 
@@ -24,14 +21,8 @@ const VIDEO_SRC = `${import.meta.env.BASE_URL}video/intro-film.mp4?v=d1f817509c4
  * wrong side of the departure sequence, and it can never advance a beat
  * early either.
  *
- * Three pieces of chrome, and no more: a SKIP, a 2px progress bar with no
- * time readout, and a sound toggle (the film carries narration, and a
- * gallery visitor has to be able to silence it). No scrubber, no play/pause,
- * no volume slider — those would make this a player.
- *
- * Sound matters here, so autoplay is attempted unmuted first. Browsers that
- * block that show an explicit audible-play button. The visitor's mute
- * preference is shared with every subsequent Zone film.
+ * The film must finish before advancing. Only progress and an explicit
+ * audible-play fallback remain; no skip or sound-off control is offered.
  */
 export function IntroFilmScene() {
   const completeScene = useExperienceStore((s) => s.completeScene);
@@ -40,8 +31,7 @@ export function IntroFilmScene() {
   const [needsGesture, setNeedsGesture] = useState(false);
   const [ended, setEnded] = useState(false);
   const [progress, setProgress] = useState(0);
-  const muted = useFilmSound();
-  const [skipVisible, setSkipVisible] = useState(false);
+  const [playbackFailed, setPlaybackFailed] = useState(false);
   const advancedRef = useRef(false);
   const finishTimersRef = useRef<number[]>([]);
 
@@ -51,11 +41,7 @@ export function IntroFilmScene() {
     completeScene('introFilm');
   }, [completeScene]);
 
-  /**
-   * The single exit from this Scene. `ended` and SKIP both come through here,
-   * so skipping lands on exactly the same beat the film's own ending does —
-   * fade to black, hold, then advance — rather than cutting straight out.
-   */
+  /** Fade and hold after the video ends, then enter the letter. */
   const finishFilm = useCallback(() => {
     if (advancedRef.current || finishTimersRef.current.length > 0) return;
     setEnded(true);
@@ -72,6 +58,8 @@ export function IntroFilmScene() {
     if (!video) return;
 
     let cancelled = false;
+    setFilmMuted(false);
+    video.muted = false;
 
     function attemptPlay() {
       if (!video) return;
@@ -88,6 +76,7 @@ export function IntroFilmScene() {
 
     function handlePlaying() {
       if (cancelled) return;
+      setPlaybackFailed(false);
       setFrameReady(true);
       setNeedsGesture(false);
     }
@@ -107,27 +96,28 @@ export function IntroFilmScene() {
 
     function handleError() {
       if (cancelled) return;
-      // The show must go on even if the file failed to load — hold on black
-      // for a beat rather than exposing a broken player, then continue.
-      finishTimersRef.current.push(window.setTimeout(advance, POST_BLACK_HOLD_MS));
+      setPlaybackFailed(true);
+      setNeedsGesture(true);
     }
 
+    function handlePause() {
+      if (!cancelled && video && !video.ended && finishTimersRef.current.length === 0) setNeedsGesture(true);
+    }
+
+    video.addEventListener('pause', handlePause);
     video.addEventListener('loadeddata', handleLoadedData);
     video.addEventListener('playing', handlePlaying);
     video.addEventListener('timeupdate', handleTimeUpdate);
     video.addEventListener('ended', handleEnded);
     video.addEventListener('error', handleError);
-
-    const skipTimer = window.setTimeout(() => {
-      if (!cancelled) setSkipVisible(true);
-    }, SKIP_VISIBLE_AFTER_MS);
+    if (video.readyState >= 2) attemptPlay();
 
     return () => {
       cancelled = true;
-      window.clearTimeout(skipTimer);
       finishTimersRef.current.forEach((id) => window.clearTimeout(id));
       finishTimersRef.current = [];
       video.pause();
+      video.removeEventListener('pause', handlePause);
       video.removeEventListener('loadeddata', handleLoadedData);
       video.removeEventListener('playing', handlePlaying);
       video.removeEventListener('timeupdate', handleTimeUpdate);
@@ -135,15 +125,6 @@ export function IntroFilmScene() {
       video.removeEventListener('error', handleError);
     };
   }, [advance, finishFilm]);
-
-
-  function toggleSound() {
-    const video = videoRef.current;
-    if (!video) return;
-    const next = !video.muted;
-    video.muted = next;
-    setFilmMuted(next);
-  }
 
   const sceneClass = [
     'intro-film-scene',
@@ -160,40 +141,26 @@ export function IntroFilmScene() {
         className="intro-film-scene__video"
         src={VIDEO_SRC}
         preload="auto"
-        muted={muted}
+        muted={false}
         playsInline
         controls={false}
         disablePictureInPicture
         controlsList="nodownload noremoteplayback nofullscreen"
       />
-      {needsGesture && !ended ? <div className="intro-film-scene__gesture-catcher"><button className="cta cta--secondary" onClick={() => { setFilmMuted(false); if (videoRef.current) { videoRef.current.muted = false; void videoRef.current.play().catch(() => setNeedsGesture(true)); } }}>소리 켜고 재생</button></div> : null}
-
-      {/* Chrome sits above the gesture catcher so SKIP and the sound toggle
-          stay clickable even while playback is waiting on a gesture. */}
-      <div className="intro-film-scene__chrome">
-        <button
-          type="button"
-          className="intro-film-scene__sound"
-          onClick={toggleSound}
-          aria-pressed={muted}
-        >
-          {muted ? '소리 켜기' : '소리 끄기'}
-        </button>
-
-        <button
-          type="button"
-          className={`intro-film-scene__skip${
-            skipVisible ? ' intro-film-scene__skip--visible' : ''
-          }`}
-          onClick={finishFilm}
-          tabIndex={skipVisible ? 0 : -1}
-        >
-          <span>SKIP</span>
-          <span className="intro-film-scene__skip-arrow" aria-hidden="true">
-            →
-          </span>
-        </button>
-      </div>
+      {needsGesture && !ended ? (
+        <div className="intro-film-scene__gesture-catcher">
+          <button className="cta cta--secondary" onClick={() => {
+            const video = videoRef.current;
+            if (!video) return;
+            setFilmMuted(false);
+            if (playbackFailed) video.load();
+            video.muted = false;
+            void video.play().catch(() => setNeedsGesture(true));
+          }}>
+            {playbackFailed ? '영상 다시 재생' : '소리 켜고 재생'}
+          </button>
+        </div>
+      ) : null}
 
       {/* No time readout by design: how far in you are is a shape, not a
           number to be counted down. */}

@@ -65,15 +65,15 @@ export function FinalReportDetail({ record, presentation, findings, reportUrl, v
           <p className="report-detail__interpretation">{finding.interpretation}</p>
           <p className="report-detail__question">{finding.reflection}</p>
           {finding.id === 'no-convergence' && <p className="report-detail__date">이번 방문의 움직임은 하나의 반복된 방식으로 묶이지 않았습니다.</p>}
-          <details><summary>이 해석의 근거 살펴보기</summary>
+          <section className="report-detail__record-panel" aria-label="이 해석의 근거"><h4>이 해석의 근거</h4>
             <p>{finding.pattern}</p>
             <ul>{finding.evidence.map((item,i)=><li key={`${item.zone}-${i}`}><strong>{item.scene}</strong><p>{item.description}</p><p className="report-detail__date">{item.metrics.join(' · ')}</p></li>)}</ul>
             <p className="report-detail__date">머문 시간에는 읽기와 조작 시간이 포함되며, 그 이유까지 알 수는 없습니다.</p>
-          </details>
+          </section>
         </div>
         <div className="report-detail__insight-art"><FindingRecordGraphic finding={finding} /></div>
       </article>) : <p className="report-detail__interpretation">남겨진 선택은 기록했지만, 선택들 사이의 관계를 해석할 근거는 충분하지 않았습니다.</p>}
-      <details><summary>실제 행동 기록 살펴보기</summary>{evidence.length ? evidence.map(item=><p key={item.text}>{item.text}</p>) : <p>확인할 수 있는 선택 기록이 없습니다.</p>}</details>
+      <section className="report-detail__record-panel" aria-label="실제 행동 기록"><h3>실제 행동 기록</h3>{evidence.length ? evidence.map(item=><p key={item.text}>{item.text}</p>) : <p>확인할 수 있는 선택 기록이 없습니다.</p>}</section>
     </section>
     <section className="report-detail__light">
       <figure className="report-detail__light-art">
@@ -85,13 +85,13 @@ export function FinalReportDetail({ record, presentation, findings, reportUrl, v
         <h2>단서가 남긴 빛</h2>
         <p>{color.description}</p>
         {color.dominantHex && <p className="report-detail__date">{color.dominantHex.toUpperCase()} · {color.temperatureLabel}</p>}
-        <details className="report-detail__photo-details"><summary>사진과 색 기록 살펴보기</summary>
-          <div className="report-detail__photo-content" tabIndex={0} role="region" aria-label="사진과 색 상세 기록">
+        <section className="report-detail__record-panel report-detail__photo-details" aria-label="사진과 색 기록"><h3>사진과 색 기록</h3>
+          <div className="report-detail__photo-content">
           {record.light?.imagePath && <img className="report-detail__source" src={record.light.imagePath} alt="선택한 원본 사진" />}
           <ul className="report-detail__palette">{color.paletteSwatches.map((hex,i)=><li key={`${hex}-${i}`}><span style={{background:hex}} />{hex.toUpperCase()}</li>)}</ul>
           <p>중심 빛 {color.centerLightHex?.toUpperCase() ?? '기록 없음'} · 배경 잔상 {color.residueHex?.toUpperCase() ?? '기록 없음'}</p>
           </div>
-        </details>
+        </section>
       </div>
     </section>
     <div className="report-detail__clues">

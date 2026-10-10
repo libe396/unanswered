@@ -9,31 +9,13 @@
   and the fade-out are the same colour the next Scene opens on.
 */
 
-/*
-  The film is 1920x1080 shown `object-fit: contain`, so on anything taller
-  than 16:9 there is a band of ground above and below it. The chrome lives in
-  the lower band rather than on top of the picture.
-
-  --film-letterbox is that band's real height: 40px at 1280x800, 45px at
-  1440x900, 66px at 1512x982 — and 0 on a true 16:9 screen, where there is no
-  band at all. --film-chrome-band therefore floors it at 36px so SKIP and the
-  sound toggle can never collapse to nothing; on 16:9 they sit over the very
-  bottom of the frame, which is the only place left for them.
-*/
 .intro-film-scene {
-  --film-height: min(100vh, calc(100vw * 1080 / 1920));
-  --film-letterbox: calc((100vh - var(--film-height)) / 2);
-  --film-chrome-band: max(var(--film-letterbox), 36px);
-
   position: fixed;
   inset: 0;
   width: 100vw;
   height: 100vh;
   background: var(--bg-base);
   overflow: hidden;
-  /* Hidden over the film itself. The two controls below re-declare a visible
-     cursor, so the pointer appears only when it is over something that can
-     actually be used. */
   cursor: none;
 }
 
@@ -79,81 +61,6 @@
   background: transparent;
 }
 
-/* ── Chrome ───────────────────────────────────────────────────────────────
-   Two controls, both Caption mono, both in the bottom corners, both quiet
-   enough to be ignored. Above the gesture catcher so they still work while
-   playback is waiting on a first gesture. */
-
-.intro-film-scene__chrome {
-  position: absolute;
-  z-index: 3;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: var(--film-chrome-band);
-  display: flex;
-  /* Centred on the band, not on the viewport edge. */
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 var(--sp-32);
-  pointer-events: none;
-}
-
-.intro-film-scene__sound,
-.intro-film-scene__skip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6em;
-  padding: var(--sp-8);
-  margin: calc(var(--sp-8) * -1);
-  border: none;
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--type-button);
-  line-height: 1.4;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  cursor: pointer;
-  pointer-events: auto;
-  transition: color var(--duration-fast) ease, opacity 600ms var(--ease-scene);
-}
-
-.intro-film-scene__sound:hover,
-.intro-film-scene__skip:hover,
-.intro-film-scene__sound:focus-visible,
-.intro-film-scene__skip:focus-visible {
-  color: var(--text-primary);
-}
-
-.intro-film-scene__sound:focus-visible,
-.intro-film-scene__skip:focus-visible {
-  outline: 1px solid var(--trace);
-  outline-offset: 3px;
-}
-
-/* Held back until the film is actually underway — see SKIP_VISIBLE_AFTER_MS.
-   `visibility` as well as opacity so it is not a target while invisible. */
-.intro-film-scene__skip {
-  opacity: 0;
-  visibility: hidden;
-}
-
-.intro-film-scene__skip--visible {
-  opacity: 1;
-  visibility: visible;
-}
-
-.intro-film-scene__skip-arrow {
-  display: inline-block;
-  transition: transform var(--duration-fast) ease;
-}
-
-.intro-film-scene__skip:hover .intro-film-scene__skip-arrow,
-.intro-film-scene__skip:focus-visible .intro-film-scene__skip-arrow {
-  transform: translateX(3px);
-}
-
 /* ── Progress ─────────────────────────────────────────────────────────────
    A 2px line on the very bottom edge. Scaled rather than width-animated so
    the fill is a compositor-only change over a 39s runtime. */
@@ -180,11 +87,5 @@
 @media (prefers-reduced-motion: reduce) {
   .intro-film-scene__progress-fill {
     transition-duration: 1ms;
-  }
-}
-
-@media (max-width: 640px) {
-  .intro-film-scene__chrome {
-    padding: 0 var(--sp-24);
   }
 }
