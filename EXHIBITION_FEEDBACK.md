@@ -101,3 +101,5 @@
 ### 2026-10-10 교수님 피드백 수정 배포
 
 - 사용자 요청으로 인트로 전체 관람과 열린 최종 보고서/밝은 기록 면 수정 7개 파일을 커밋·푸시·GitHub Pages 배포한다. npm run build와 git diff --check 통과(기존 큰 번들 경고). 앞선 브라우저 검증 범위 유지. 로컬 archive.zip/Claude 작업 시트는 제외·보존한다.
+
+- 배포 완료: b21dd1d를 phase1-foundation에 커밋·origin 푸시했다. npm run deploy Published, GitHub Pages built 및 공개 HTML의 JS 경로가 이번 dist와 일치함을 확인했다. 빌드 통과(기존 큰 번들 경고). 로컬 ZIP/작업 시트 제외·보존.
