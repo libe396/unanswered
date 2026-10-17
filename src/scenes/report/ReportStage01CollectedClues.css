@@ -5,7 +5,7 @@
   padding: 88px max(24px, 5vw) 88px;
 }
 .report-stage-01 .report-stage__eyebrow { position: static; transform: none; flex: none; }
-.report-stage-01__intro { margin: auto 0; font-size: clamp(1.375rem, 3vw, 2.125rem); line-height: 1.65; white-space: pre-line; }
+.report-stage-01__intro { margin: auto 0; font-size: var(--fs-title); line-height: 1.65; white-space: pre-line; }
 .report-stage-01__trace-map { position: relative; width: min(960px, 100%); display: grid; grid-template-columns: 1fr .85fr 1.65fr; gap: 28px; margin: 0; flex: none; }
 .report-stage-01__trace-map--hidden { position: absolute; opacity: 0; pointer-events: none; visibility: hidden; }
 .report-stage-01__route { position: absolute; top: 23px; left: 0; right: 0; height: 1px; background: var(--line-strong); }
@@ -15,7 +15,7 @@
 .report-stage-01__trace-visual { position: relative; width: 100%; aspect-ratio: 1; background: var(--bg-void); }
 .report-stage-01__light-canvas { display: block; width: 100%; height: 100%; object-fit: contain; }
 .report-stage-01__source-image { position: absolute; width: 48px; height: 48px; object-fit: contain; right: 8px; bottom: 8px; }
-.report-stage-01__tag { font-size: var(--type-meta); line-height: 1.6; color: var(--text-secondary); }
+.report-stage-01__tag { font-size: var(--fs-small); line-height: 1.6; color: var(--text-secondary); }
 .report-stage-01__sound-label { font-size: var(--type-body); line-height: 1.6; }
 .report-stage-01__sound-trace { display: flex; align-items: center; justify-content: center; gap: 3px; height: 100px; border-block: 1px solid var(--line); }
 .report-stage-01__sound-bar { flex: 1; min-width: 2px; max-width: 8px; min-height: 8px; background: var(--trace); opacity: .65; }
@@ -33,4 +33,4 @@
   .report-stage-01__route { display: none; }
 }
 
-.sentence-dwell-note { display: block; color: var(--text-secondary); font-size: var(--type-meta); margin-top: 5px; }
+.sentence-dwell-note { display: block; color: var(--text-secondary); font-size: var(--fs-small); margin-top: 5px; }

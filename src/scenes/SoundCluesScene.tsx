@@ -725,7 +725,7 @@ export function SoundCluesScene() {
             onClick={goToPositioning}
             disabled={!selectedSoundId}
           >
-            다음으로
+            {selectedSoundId ? '다음으로' : '소리를 하나 고르면 이어집니다'}
           </button>
         </StageActions>
       </div>
@@ -799,7 +799,7 @@ export function SoundCluesScene() {
         }
       >
         <button className="cta cta--primary" onClick={handleConfirm} disabled={!position}>
-          다음으로
+          {position ? '다음으로' : '위치를 표시하면 이어집니다'}
         </button>
       </StageActions>
     </div>

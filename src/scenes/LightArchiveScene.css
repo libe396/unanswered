@@ -132,7 +132,8 @@
 }
 
 .light-archive-scene__keyword {
-  padding: 10px var(--sp-8);
+  position: relative;
+  padding: 10px 24px;
   border: 1px solid var(--line);
   border-radius: var(--r-4);
   background: transparent;
@@ -141,17 +142,35 @@
   font-size: var(--type-body);
   letter-spacing: 0;
   cursor: pointer;
-  transition: border-color var(--duration-fast) ease, color var(--duration-fast) ease;
+  transition: border-color var(--duration-fast) ease, color var(--duration-fast) ease,
+    background var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
 }
 
-.light-archive-scene__keyword:hover {
+.light-archive-scene__keyword:hover:not(.light-archive-scene__keyword--selected) {
   border-color: var(--line-strong);
+  background: rgba(255, 255, 255, .04);
   color: var(--text-primary);
 }
 
 .light-archive-scene__keyword--selected {
   border-color: var(--trace);
+  background: rgba(var(--trace-rgb), .14);
+  box-shadow: inset 0 0 0 1px rgba(var(--trace-rgb), .18), 0 0 16px var(--trace-glow);
   color: var(--text-primary);
+}
+
+.light-archive-scene__keyword--selected::after {
+  content: '✓';
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--trace);
+}
+
+.light-archive-scene__keyword:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 3px;
 }
 
 .light-archive-scene__proceed,
@@ -268,7 +287,7 @@
   width: 9px;
   height: 9px;
   translate: -50% -50%;
-  border: 1px solid rgba(232, 230, 240, 0.82);
+  border: 1px solid rgba(var(--text-primary-rgb), 0.82);
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.48);
   pointer-events: none;
 }
@@ -277,7 +296,7 @@
 .light-archive-scene__origin-marker::after {
   content: '';
   position: absolute;
-  background: rgba(232, 230, 240, 0.58);
+  background: rgba(var(--text-primary-rgb), 0.58);
 }
 
 .light-archive-scene__origin-marker::before {
@@ -299,7 +318,7 @@
   width: 74px;
   height: 1px;
   transform-origin: 0 50%;
-  background: linear-gradient(90deg, rgba(232, 230, 240, 0.7), rgba(232, 230, 240, 0));
+  background: linear-gradient(90deg, rgba(var(--text-primary-rgb), 0.7), rgba(var(--text-primary-rgb), 0));
   pointer-events: none;
 }
 
@@ -440,7 +459,7 @@
 
 .light-archive-scene__result-stack strong {
   color: var(--text-primary);
-  font-size: clamp(var(--type-body), 1.75vw, var(--type-title-sm));
+  font-size: var(--fs-heading);
   font-weight: 400;
   line-height: 1.05;
   letter-spacing: 0.02em;

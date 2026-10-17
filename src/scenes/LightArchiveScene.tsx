@@ -223,7 +223,7 @@ export function LightArchiveScene() {
             }}
             disabled={selectedIdx === null}
           >
-            이 단서를 따라간다
+            {selectedIdx === null ? '사진을 하나 고르면 이어집니다' : '이 사진으로 정하기'}
           </button>
         </StageLayout>
       ) : null}
@@ -252,6 +252,8 @@ export function LightArchiveScene() {
             {EMOTION_KEYWORDS.map((kw) => (
               <button
                 key={kw.ko}
+                aria-label={kw.ko}
+                aria-pressed={selectedKeywords.includes(kw.ko)}
                 className={`light-archive-scene__keyword${
                   selectedKeywords.includes(kw.ko) ? ' light-archive-scene__keyword--selected' : ''
                 }`}
@@ -266,7 +268,7 @@ export function LightArchiveScene() {
             onClick={startAnalysis}
             disabled={selectedKeywords.length === 0}
           >
-            다음으로
+            {selectedKeywords.length === 0 ? '단어를 하나 이상 고르면 이어집니다' : '다음으로'}
           </button>
         </StageLayout>
       ) : null}

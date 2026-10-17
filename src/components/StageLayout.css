@@ -100,7 +100,7 @@
 /* Korean step names do not take the Latin tracking. */
 .stage__step-label {
   font-family: var(--font-kr);
-  font-size: var(--type-meta);
+  font-size: var(--fs-small);
   letter-spacing: 0;
   text-transform: none;
 }

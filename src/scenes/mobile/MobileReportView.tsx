@@ -51,7 +51,7 @@ export function MobileReportView({ payload }: Props) {
   if (!report) {
     return (
       <main className="mobile-report mobile-report--error">
-        <p className="mobile-report__error">기록을 읽을 수 없습니다. QR을 다시 찍어주세요.</p>
+        <p className="mobile-report__error">기록을 읽을 수 없습니다. QR을 다시 찍어 주세요.</p>
       </main>
     );
   }

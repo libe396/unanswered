@@ -37,6 +37,7 @@
 }
 
 .memory-room__target:focus { outline: none; }
+.memory-room__target:hover,
 .memory-room__target:focus-visible {
   stroke: #e6dafa;
   stroke-width: 2;

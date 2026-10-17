@@ -11,14 +11,14 @@
   text-align: left;
   font-size: var(--type-body);
   letter-spacing: 0.22em;
-  color: rgba(232, 230, 240, 0.52);
+  color: rgba(var(--text-primary-rgb), 0.52);
 }
 
 .report-evidence-visual__caption {
   text-align: center;
   font-size: var(--type-body);
   line-height: 1.4;
-  color: rgba(232, 230, 240, 0.68);
+  color: rgba(var(--text-primary-rgb), 0.68);
 }
 
 .report-evidence-visual__frame {
@@ -26,7 +26,7 @@
   width: 100%;
   aspect-ratio: 16 / 10;
   overflow: hidden;
-  border: 1px solid rgba(232, 230, 240, 0.16);
+  border: 1px solid rgba(var(--text-primary-rgb), 0.16);
   background: rgba(255, 255, 255, 0.018);
 }
 
@@ -52,7 +52,7 @@
   bottom: 10px;
   width: 42px;
   height: 42px;
-  border: 1px solid rgba(232, 230, 240, 0.34);
+  border: 1px solid rgba(var(--text-primary-rgb), 0.34);
   opacity: 0.82;
 }
 
@@ -67,7 +67,7 @@
 
 .report-evidence-visual__sound-name {
   max-width: 100%;
-  font-size: clamp(var(--type-body), 1.6vw, var(--type-body));
+  font-size: var(--fs-body);
   line-height: 1.45;
   color: rgba(242, 240, 247, 0.92);
   overflow-wrap: anywhere;
@@ -104,7 +104,7 @@
   justify-content: center;
   padding: 22px;
   box-sizing: border-box;
-  font-size: clamp(var(--type-body), 1.55vw, var(--type-body));
+  font-size: var(--fs-body);
   line-height: 1.7;
   color: rgba(242, 240, 247, 0.88);
   text-align: center;
@@ -129,8 +129,8 @@
 }
 
 .report-evidence-visual--hold .report-evidence-visual__frame {
-  border-color: rgba(138, 107, 255, 0.34);
-  box-shadow: 0 0 0 1px rgba(164, 144, 255, 0.06), 0 0 50px rgba(164, 144, 255, 0.08);
+  border-color: rgba(var(--trace-rgb), 0.34);
+  box-shadow: 0 0 0 1px rgba(var(--trace-rgb), 0.06), 0 0 50px rgba(var(--trace-rgb), 0.08);
 }
 
 .report-evidence-visual--converge {

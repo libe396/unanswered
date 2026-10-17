@@ -10,7 +10,7 @@
 .summary-receipt {
   --receipt-ink: var(--color-text);
   --receipt-ink-dim: var(--color-text-dim);
-  --receipt-line: rgba(138, 107, 255, 0.14);
+  --receipt-line: rgba(var(--trace-rgb), 0.14);
   --receipt-accent: var(--color-accent);
   --receipt-surface: rgba(255, 255, 255, 0.025);
   --receipt-surface-line: rgba(255, 255, 255, 0.08);
@@ -192,7 +192,7 @@
 
 .summary-receipt__owner-value {
   margin: 6px 0 10px;
-  font-size: 1.375rem;
+  font-size: var(--fs-heading);
   font-weight: 700;
   color: var(--receipt-accent);
 }
@@ -243,7 +243,7 @@
   width: 100%;
   margin-top: 22px;
   padding: 14px 12px;
-  border: 1px solid rgba(232, 230, 240, 0.32);
+  border: 1px solid rgba(var(--text-primary-rgb), 0.32);
   background: rgba(255, 255, 255, 0.02);
   color: var(--receipt-ink);
   font-family: inherit;

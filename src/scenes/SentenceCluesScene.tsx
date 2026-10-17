@@ -484,9 +484,9 @@ export function SentenceCluesScene() {
           <h1>그 뒤의 이야기는 어떻게 이어질까요?</h1>
           <p className="sentence-clues-scene__intro-guide">이어질 것 같은 문장을 {SENTENCE_MIN_FRAGMENTS}~{SENTENCE_MAX_FRAGMENTS}개 골라 주세요.</p>
           <dl className="sentence-clues-scene__clue-strip" aria-label="수집한 단서 요약">
-            <div><dt>색</dt><dd>{lightArchive?.rules.palette.length ? <div className="sentence-clues-scene__swatches">{lightArchive.rules.palette.map((color, index) => <span key={index} style={{ backgroundColor: color }} role="img" aria-label={color} />)}</div> : '수집한 색 없음'}</dd></div>
-            <div><dt>소리</dt><dd>{selectedSound?.label ?? '선택한 소리 없음'}</dd></div>
-            <div><dt>사물</dt><dd>{selectedObjects.length ? selectedObjects.join(' · ') : '선택한 사물 없음'}</dd></div>
+            <div><dt>색</dt><dd>{lightArchive?.rules.palette.length ? <div className="sentence-clues-scene__swatches">{lightArchive.rules.palette.map((color, index) => <span key={index} style={{ backgroundColor: color }} role="img" aria-label={color} />)}</div> : '기록 없음'}</dd></div>
+            <div><dt>소리</dt><dd>{selectedSound?.label ?? '기록 없음'}</dd></div>
+            <div><dt>물건</dt><dd>{selectedObjects.length ? selectedObjects.join(' · ') : '기록 없음'}</dd></div>
           </dl>
           <button className="cta cta--primary" onClick={() => setPhase('explore')}>문장 고르기</button>
         </div>
@@ -563,7 +563,7 @@ export function SentenceCluesScene() {
             }
           >
             <button className="cta cta--primary" onClick={handleExploreNext} disabled={!isValid}>
-              다음으로
+              {isValid ? '다음으로' : `문장을 ${SENTENCE_MIN_FRAGMENTS}개 이상 고르면 이어집니다`}
             </button>
           </StageActions>
         </div>
@@ -750,7 +750,7 @@ export function SentenceCluesScene() {
                     className="sentence-clues-scene__response-input"
                     value={responseText}
                     maxLength={RESPONSE_MAX_LENGTH}
-                    placeholder="떠오르는 문장을 적어주세요."
+                    placeholder="떠오르는 문장을 적어 주세요."
                     aria-describedby="sentence-response-count sentence-response-hint"
                     onChange={(event) => handleResponseChange(event.target.value)}
                     onCompositionStart={() => {
@@ -791,7 +791,7 @@ export function SentenceCluesScene() {
                     onClick={() => proceedFromQuestion(false)}
                     disabled={!canSubmit}
                   >
-                    기록에 남기기
+                    {canSubmit ? '기록에 남기기' : '문장을 적으면 남길 수 있습니다'}
                   </button>
                 </div>
               </>

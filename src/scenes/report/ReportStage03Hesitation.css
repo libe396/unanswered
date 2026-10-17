@@ -10,7 +10,7 @@
 }
 
 .report-stage-03__opening {
-  font-size: clamp(1.1875rem, 2.5vw, 1.6875rem);
+  font-size: var(--fs-title);
   line-height: 1.7;
   color: rgba(242, 240, 247, 0.92);
 }
@@ -32,16 +32,16 @@
   top: clamp(36px, 7vh, 58px);
   right: clamp(-8px, -1vw, 0px);
   padding: 5px 8px;
-  border: 1px solid rgba(138, 107, 255, 0.34);
+  border: 1px solid rgba(var(--trace-rgb), 0.34);
   background: rgba(5, 5, 6, 0.76);
-  color: rgba(232, 230, 240, 0.72);
+  color: rgba(var(--text-primary-rgb), 0.72);
   font-size: var(--type-meta);
   letter-spacing: 0.14em;
   font-variant-numeric: tabular-nums;
 }
 
 .report-stage-03__variant {
-  font-size: clamp(var(--type-body), 2.1vw, 1.375rem);
+  font-size: var(--fs-heading);
   line-height: 1.7;
   color: var(--color-text);
 }
@@ -49,7 +49,7 @@
 .report-stage-03__closing {
   margin: 0;
   max-width: min(620px, 84vw);
-  font-size: clamp(1.375rem, 3.2vw, 2.125rem);
+  font-size: var(--fs-title);
   line-height: 1.62;
   color: var(--color-accent);
   white-space: pre-line;
@@ -57,7 +57,7 @@
 
 @media (max-width: 640px) {
   .report-stage-03__closing {
-    font-size: 1.375rem;
+    font-size: var(--fs-heading);
   }
 
   .report-stage-03__time-label {

@@ -15,8 +15,8 @@
 .trace-replay__label {
   margin: 0;
   font-family: var(--font-kr);
-  font-size: var(--type-meta);
-  letter-spacing: 0.04em;
+  font-size: var(--fs-small);
+  letter-spacing: 0;
   color: var(--text-tertiary);
 }
 
@@ -47,7 +47,7 @@
   border: 1px solid var(--line);
   border-radius: 4px;
   font-family: var(--font-kr);
-  font-size: var(--type-meta);
+  font-size: var(--fs-small);
   line-height: 1.4;
   color: var(--text-tertiary);
   background: transparent;
@@ -55,14 +55,14 @@
 }
 
 .trace-replay__chip--active {
-  border-color: #8a6bff;
+  border-color: var(--trace);
   color: var(--text-primary);
-  box-shadow: 0 0 0 1px rgba(138, 107, 255, 0.35);
+  box-shadow: 0 0 0 1px rgba(var(--trace-rgb), 0.35);
 }
 
 .trace-replay__chip--filled {
-  background: rgba(138, 107, 255, 0.28);
-  border-color: rgba(138, 107, 255, 0.7);
+  background: rgba(var(--trace-rgb), 0.28);
+  border-color: rgba(var(--trace-rgb), 0.7);
   color: var(--text-primary);
 }
 
@@ -77,7 +77,7 @@
   right: 6px;
   top: 50%;
   height: 1px;
-  background: rgba(237, 236, 242, 0.45);
+  background: rgba(var(--text-primary-rgb), 0.45);
 }
 
 .trace-replay__chip--striking::after {
@@ -108,7 +108,7 @@
   align-items: center;
   gap: 10px;
   font-family: var(--font-kr);
-  font-size: var(--type-meta);
+  font-size: var(--fs-small);
   color: var(--text-tertiary);
   text-align: left;
 }
@@ -127,7 +127,7 @@
 .trace-replay__bar-fill {
   display: block;
   height: 100%;
-  background: #8a6bff;
+  background: var(--trace);
   transition: width 0.3s ease;
 }
 
@@ -157,20 +157,20 @@
 
 .trace-replay__field-path {
   fill: none;
-  stroke: rgba(237, 236, 242, 0.7);
+  stroke: rgba(var(--text-primary-rgb), 0.7);
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
 .trace-replay__field-dot {
-  fill: #8a6bff;
+  fill: var(--trace);
 }
 
 .trace-replay__axis {
   position: absolute;
   font-family: var(--font-kr);
-  font-size: 0.75rem;
+  font-size: var(--fs-small);
   color: var(--text-tertiary);
   white-space: nowrap;
 }
@@ -217,7 +217,7 @@
 .trace-replay__facts p {
   margin: 0;
   font-family: var(--font-kr);
-  font-size: clamp(var(--type-body), 2vw, 1.25rem);
+  font-size: var(--fs-body-lg);
   line-height: 1.7;
   color: var(--text-primary);
   word-break: keep-all;
@@ -229,7 +229,7 @@
   border-bottom: 1px solid var(--line);
   background: none;
   font-family: var(--font-kr);
-  font-size: var(--type-meta);
+  font-size: var(--fs-small);
   color: var(--text-secondary);
   cursor: pointer;
 }

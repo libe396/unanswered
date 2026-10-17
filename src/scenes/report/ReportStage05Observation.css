@@ -44,22 +44,22 @@
 
 .report-stage-05__trace .report-evidence-visual__label {
   opacity: 0.9;
-  color: rgba(232, 230, 240, 0.86);
+  color: rgba(var(--text-primary-rgb), 0.86);
 }
 
 .report-stage-05__trace .report-evidence-visual__frame {
   opacity: 1;
   background: #0d0c12;
-  border-color: rgba(232, 230, 240, 0.32);
+  border-color: rgba(var(--text-primary-rgb), 0.32);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.55);
 }
 
 .report-stage-05__caption {
   max-width: clamp(180px, 22vw, 260px);
   min-height: 2.9em;
-  font-size: var(--type-meta);
+  font-size: var(--fs-small);
   line-height: 1.45;
-  color: rgba(232, 230, 240, 0.86);
+  color: rgba(var(--text-primary-rgb), 0.86);
   word-break: keep-all;
 }
 
@@ -73,7 +73,7 @@
   aspect-ratio: 16 / 11;
   translate: -50% -50%;
   border: 1px solid rgba(198, 188, 231, 0.42);
-  box-shadow: 0 0 90px rgba(164, 144, 255, 0.18), inset 0 0 40px rgba(164, 144, 255, 0.08);
+  box-shadow: 0 0 90px rgba(var(--trace-rgb), 0.18), inset 0 0 40px rgba(var(--trace-rgb), 0.08);
   pointer-events: none;
 }
 
@@ -94,12 +94,12 @@
 .report-stage-05__marker {
   position: absolute;
   padding: 4px 6px;
-  border: 1px solid rgba(232, 230, 240, 0.16);
+  border: 1px solid rgba(var(--text-primary-rgb), 0.16);
   background: rgba(5, 5, 6, 0.82);
   font-size: var(--type-body);
   line-height: 1;
   letter-spacing: 0.12em;
-  color: rgba(232, 230, 240, 0.58);
+  color: rgba(var(--text-primary-rgb), 0.58);
 }
 
 .report-stage-05__marker--return {
@@ -132,13 +132,13 @@
 }
 
 .report-stage-05__line {
-  font-size: clamp(var(--type-body), 2.35vw, 1.5625rem);
+  font-size: var(--fs-title);
   line-height: 1.72;
   color: rgba(242, 240, 247, 0.92);
 }
 
 .report-stage-05__question {
-  font-size: clamp(var(--type-title-sm), 3.8vw, 2.625rem);
+  font-size: var(--fs-title);
   line-height: 1.55;
   color: var(--color-accent);
 }
@@ -165,7 +165,7 @@
   }
 
   .report-stage-05__question {
-    font-size: 1.5625rem;
+    font-size: var(--fs-title);
   }
 }
 

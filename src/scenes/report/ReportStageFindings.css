@@ -22,7 +22,7 @@
 .report-method__line {
   margin: 0;
   max-width: min(680px, 88vw);
-  font-size: clamp(var(--type-body), 2.4vw, 1.5625rem);
+  font-size: var(--fs-title);
   line-height: 1.72;
   color: var(--text-secondary);
   white-space: pre-line;
@@ -89,7 +89,7 @@
 .report-finding__headline {
   margin: 0;
   max-width: min(760px, 90vw);
-  font-size: clamp(1.5rem, 3.4vw, 2.375rem);
+  font-size: var(--fs-title);
   line-height: 1.5;
   font-weight: 500;
   color: var(--text-primary);
@@ -99,7 +99,7 @@
 .report-finding__interpretation {
   margin: 0;
   max-width: min(600px, 86vw);
-  font-size: clamp(var(--type-body), 1.7vw, var(--type-body-lg));
+  font-size: var(--fs-body-lg);
   line-height: 1.9;
   color: var(--text-secondary);
   white-space: pre-line;
@@ -141,6 +141,12 @@
 }
 
 .report-evidence-layer__head {
+  position: sticky;
+  top: calc(-1 * clamp(20px, 3.4vh, 32px));
+  z-index: 1;
+  margin-top: calc(-1 * clamp(20px, 3.4vh, 32px));
+  padding-top: clamp(20px, 3.4vh, 32px);
+  background: #25222d;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -210,7 +216,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 2px 14px;
-  font-size: 0.9375rem;
+  font-size: var(--fs-body);
   line-height: 1.6;
   font-variant-numeric: tabular-nums;
   color: var(--text-secondary);
@@ -220,7 +226,7 @@
   margin: var(--sp-12) 0 0;
   padding-top: var(--sp-12);
   border-top: 1px solid var(--line-subtle);
-  font-size: var(--type-meta);
+  font-size: var(--fs-small);
   color: var(--text-tertiary);
 }
 
@@ -229,7 +235,7 @@
 .report-closing__final {
   margin: 0;
   max-width: min(680px, 88vw);
-  font-size: clamp(1.375rem, 3.2vw, 2.125rem);
+  font-size: var(--fs-title);
   line-height: 1.62;
   color: var(--trace);
   white-space: pre-line;
@@ -238,12 +244,12 @@
 
 @media (max-width: 640px) {
   .report-method__line { font-size: var(--type-body-lg); }
-  .report-finding__headline { font-size: 1.375rem; }
+  .report-finding__headline { font-size: var(--fs-heading); }
   .report-finding__interpretation { font-size: var(--type-body); }
   .report-finding__reflection { font-size: var(--type-body); }
   .report-evidence-layer__item { grid-template-columns: 1fr; }
   .report-evidence-layer__scene { grid-row: auto; }
-  .report-closing__final { font-size: 1.375rem; }
+  .report-closing__final { font-size: var(--fs-heading); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -255,8 +261,8 @@
 .finding-record { width: min(560px, 60vw); height: clamp(150px, 32vh, 300px); flex-shrink: 1; overflow: visible; }
 .finding-record__layer { animation: finding-record-enter 1.1s both cubic-bezier(.22,1,.36,1); }
 @keyframes finding-record-enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.report-finding__headline { max-width: 760px; font-size: clamp(1.375rem, 2.5vw, 2rem); line-height: 1.5; }
-.report-finding__record-caption { margin: 0; color: var(--text-tertiary); font-size: var(--type-meta); line-height: 1.5; }
+.report-finding__headline { max-width: 760px; font-size: var(--fs-title); line-height: 1.5; }
+.report-finding__record-caption { margin: 0; color: var(--text-tertiary); font-size: var(--fs-small); line-height: 1.5; }
 .report-finding__why { font-size: var(--type-body); }
 .report-evidence-layer__headline { margin: 20px 0 0; font-size: var(--type-body-lg); line-height: 1.65; font-weight: 500; white-space: pre-line; }
 .report-evidence-layer__pattern { white-space: pre-line; }
@@ -268,7 +274,7 @@
 .report-narrative-graphic { width: min(480px, 62vw); height: clamp(140px, 27vh, 240px); flex-shrink: 1; overflow: visible; }
 .report-method__body, .report-closing .report-stage__body { gap: clamp(16px, 3vh, 28px); }
 .report-method__group { gap: 18px; }
-.report-finding__headline { max-width: min(760px, 90vw); font-size: clamp(1.25rem, 2.3vw, 1.875rem); }
+.report-finding__headline { max-width: min(760px, 90vw); font-size: var(--fs-title); }
 @media (max-height: 650px) {
   .report-narrative-graphic { height: 120px; }
   .report-method__body, .report-closing .report-stage__body { gap: 12px; }

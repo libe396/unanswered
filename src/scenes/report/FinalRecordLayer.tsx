@@ -25,8 +25,8 @@ const VENUE_GUIDE = `QR을 찍어 보고서를 받아 가세요.
 
 입구에서 받은 조사원증 카드에
 이름과, 아직 대답하지 못한 것 하나를 적어
-벽에 꽂아주세요.
-비워두어도 괜찮습니다.`;
+벽에 꽂아 주세요.
+비워 두어도 괜찮습니다.`;
 
 const IDLE_INPUTS = ['pointerdown', 'pointermove', 'keydown', 'wheel', 'touchstart', 'scroll'] as const;
 

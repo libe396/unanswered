@@ -15,7 +15,7 @@ interface Props { index: number; total: number; locked: boolean; onAdvance: () =
   The reveal, the same with or without the camera:
     0  the ID card's silhouette returns, turned away
     1  it fills with the visitor's light and chosen colours
-    2  the card's name line: 이름 없음 → the visitor's name
+    2  the card's name line: — → the visitor's name
     3  it turns to face front (a crossfade — there is no turning asset);
        with the camera on, the live mirror settles over it
     4  우리가 찾고 있던 사람은 당신이었습니다. — held; this is now the
@@ -195,7 +195,7 @@ export function ReportStage06SubjectReveal({ index, total, locked, onAdvance }: 
             exit={{ opacity: 0 }}
             transition={t(0.6)}
           >
-            {phase >= 2 && investigatorName ? investigatorName : '이름 없음'}
+            {phase >= 2 ? investigatorName || '당신' : '—'}
           </motion.span>
         </AnimatePresence>
       </div>

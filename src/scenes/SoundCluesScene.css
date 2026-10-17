@@ -234,7 +234,7 @@
   transform: translateX(-50%);
   border-radius: 50%;
   border: 1px solid rgba(230, 224, 255, 0.22);
-  background: radial-gradient(circle at 35% 30%, rgba(230, 224, 255, 0.18), rgba(138, 107, 255, 0.04) 70%);
+  background: radial-gradient(circle at 35% 30%, rgba(230, 224, 255, 0.18), rgba(var(--trace-rgb), 0.04) 70%);
   transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
 }
 
@@ -275,7 +275,7 @@
   right: 0;
   bottom: 0;
   height: 70%;
-  background: linear-gradient(180deg, transparent 0%, rgba(138, 107, 255, 0.16) 60%, rgba(138, 107, 255, 0.28) 100%);
+  background: linear-gradient(180deg, transparent 0%, rgba(var(--trace-rgb), 0.16) 60%, rgba(var(--trace-rgb), 0.28) 100%);
   opacity: 0;
   transition: opacity var(--duration-scene) ease;
   pointer-events: none;
@@ -344,7 +344,7 @@
   height: 60px;
   transform: translateX(-50%);
   border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(138, 107, 255, 0.28) 0%, rgba(138, 107, 255, 0.05) 45%, transparent 72%);
+  background: radial-gradient(ellipse at center, rgba(var(--trace-rgb), 0.28) 0%, rgba(var(--trace-rgb), 0.05) 45%, transparent 72%);
   opacity: 0.28;
   transition: opacity var(--duration-fast) ease;
   pointer-events: none;
@@ -358,7 +358,7 @@
 }
 
 .sound-clues-scene__cloche-caption-num {
-  font-size: clamp(var(--type-body), 1.2vh, var(--type-body));
+  font-size: var(--fs-body);
   letter-spacing: 0.14em;
   color: var(--color-text-dim);
   transition: color var(--duration-fast) ease;
@@ -366,7 +366,7 @@
 
 .sound-clues-scene__cloche-caption-label {
   position: relative;
-  font-size: clamp(var(--type-body), 1vh, var(--type-body));
+  font-size: var(--fs-body);
   letter-spacing: 0.12em;
   text-indent: 0.12em;
   color: rgba(139, 137, 156, 0.7);
@@ -438,8 +438,8 @@
   border-color: rgba(216, 206, 245, 0.55);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    inset 0 -20px 30px -18px rgba(164, 144, 255, 0.5),
-    0 0 22px -6px rgba(164, 144, 255, 0.35);
+    inset 0 -20px 30px -18px rgba(var(--trace-rgb), 0.5),
+    0 0 22px -6px rgba(var(--trace-rgb), 0.35);
 }
 
 .sound-clues-scene__cloche--playing .sound-clues-scene__cloche-fill {
@@ -457,7 +457,7 @@
 
 .sound-clues-scene__cloche--playing .sound-clues-scene__cloche-handle {
   border-color: rgba(230, 224, 255, 0.6);
-  box-shadow: 0 0 10px rgba(164, 144, 255, 0.5);
+  box-shadow: 0 0 10px rgba(var(--trace-rgb), 0.5);
 }
 
 .sound-clues-scene__cloche--playing .sound-clues-scene__cloche-wave {
@@ -537,7 +537,7 @@
   top: 50%;
   height: 1px;
   transform: translateY(-50%);
-  background: rgba(232, 230, 240, 0.12);
+  background: rgba(var(--text-primary-rgb), 0.12);
 }
 
 .sound-clues-scene__player-wave-progress {
@@ -670,7 +670,7 @@
 .sound-clues-scene__axis {
   position: absolute;
   font-family: var(--font-kr);
-  font-size: var(--type-meta);
+  font-size: var(--fs-small);
   letter-spacing: 0;
   color: var(--text-tertiary);
   white-space: nowrap;
@@ -775,8 +775,8 @@
   border-radius: 50%;
   background: var(--color-accent);
   box-shadow:
-    0 0 0 3px rgba(164, 144, 255, 0.14),
-    0 0 14px 3px rgba(164, 144, 255, 0.35);
+    0 0 0 3px rgba(var(--trace-rgb), 0.14),
+    0 0 14px 3px rgba(var(--trace-rgb), 0.35);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -830,7 +830,7 @@
   background: linear-gradient(180deg, #ffffff55, #ffffff04, #ffffff22); opacity: .7;
 }
 .sound-clues-scene .sound-clues-scene__cloche .sound-clues-scene__cloche-glyph { opacity: 1; color: #eeedf5; width: 45%; top: 52%; z-index: 2; }
-.sound-clues-scene__source-name { font-size: clamp(var(--type-body), 1vw, var(--type-body)); white-space: nowrap; letter-spacing: .03em; }
+.sound-clues-scene__source-name { font-size: var(--fs-body); white-space: nowrap; letter-spacing: 0; }
 .sound-clues-scene .sound-clues-scene__cloche-handle {
   border-color: #e7edff8c; background: radial-gradient(circle at 30% 25%, #ffffff85, #e6eaff0a 60%); box-shadow: inset -2px -2px 2px #ffffff25;
 }
@@ -840,9 +840,9 @@
 }
 .sound-clues-scene .sound-clues-scene__cloche-glow { width: 98%; height: 8px; bottom: 3px; border: 0; background: radial-gradient(ellipse, #a4a5ed60, #8184d420 55%, transparent 75%); opacity: .4; box-shadow: 0 0 6px #a59bff20; }
 .sound-clues-scene .sound-clues-scene__cloche--playing .sound-clues-scene__cloche-glow { opacity: .95; animation: glass-ring 1.8s ease-in-out infinite; }
-.sound-clues-scene .sound-clues-scene__cloche--selected .sound-clues-scene__cloche-caption-label { color: #cbb4ff; text-shadow: 0 0 8px #a58ad940; }
-.sound-clues-scene .sound-clues-scene__cloche-caption-label { font-size: clamp(var(--type-body), 1vw, var(--type-body)); letter-spacing: 0; color: #c5c3d0; max-width: 110px; line-height: 1.5; }
-.sound-clues-scene__cloche-status { font-size: var(--type-meta); color: #c4b6f7; min-height: 15px; }
+.sound-clues-scene .sound-clues-scene__cloche--selected .sound-clues-scene__cloche-caption-label { color: var(--trace); text-shadow: 0 0 8px rgba(var(--trace-rgb), 0.25); }
+.sound-clues-scene .sound-clues-scene__cloche-caption-label { font-size: var(--fs-body); letter-spacing: 0; color: #c5c3d0; max-width: 110px; line-height: 1.5; }
+.sound-clues-scene__cloche-status { font-size: var(--fs-small); color: #c4b6f7; min-height: 15px; }
 .sound-clues-scene__field { overflow: hidden; }
 .sound-clues-scene__echo { position: absolute; width: 0; height: 0; pointer-events: none; }
 .sound-clues-scene__echo i { position: absolute; width: 180px; height: 180px; margin: -90px; border: 1px solid #c7b6f2; border-radius: 50%; opacity: 0; animation: coordinate-echo 1.35s ease-out both; }
@@ -862,7 +862,7 @@
   .sound-clues-scene__shelf-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 12px; }
   .sound-clues-scene__cloche-stage { width: 58px; height: 90px; }
   .sound-clues-scene .sound-clues-scene__cloche-caption-label { font-size: var(--type-body); }
-  .sound-clues-scene__cloche-status { font-size: var(--type-meta); }
+  .sound-clues-scene__cloche-status { font-size: var(--fs-small); }
   .sound-clues-scene__player { margin-top: 12px; }
 }
 
@@ -870,7 +870,7 @@
 .sound-clues-scene__shelf-scroll { min-height: 220px; }
 .sound-clues-scene__field-block { min-height: 300px; }
 .sound-clues-scene__cloche-status { display: flex; justify-content: center; align-items: center; gap: 6px; }
-.sound-clues-scene__selection-check { margin-left: 5px; color: #cbb4ff; font-size: var(--type-body); font-weight: 600; }
+.sound-clues-scene__selection-check { margin-left: 5px; color: var(--trace); font-size: var(--type-body); font-weight: 600; }
 @media (max-height: 720px) {
   .sound-clues-scene__shelf-scroll { min-height: 180px; margin-top: 16px; }
   .sound-clues-scene__player { margin-top: 16px; }
@@ -1003,11 +1003,13 @@
 /* Shared order: interaction first, listening beneath it. */
 .sound-clues-scene:not(.sound-clues-scene--positioning) .sound-clues-scene__shelf-scroll { max-width: 1000px; }
 .sound-clues-scene:not(.sound-clues-scene--positioning) .sound-clues-scene__shelf-row { gap: 8px; }
-.sound-clues-scene .sound-clues-scene__cloche-caption-label { font-size: 12px; white-space: nowrap; max-width: none; min-height: 18px; width: auto; line-height: 1.5; }
-.sound-clues-scene .sound-clues-scene__selection-check { font-size: 12px; margin-left: 3px; }
+.sound-clues-scene .sound-clues-scene__cloche-caption-label { font-size: var(--fs-small); white-space: nowrap; max-width: none; min-height: 18px; width: auto; line-height: 1.5; }
+.sound-clues-scene .sound-clues-scene__selection-check { font-size: var(--fs-small); margin-left: 3px; }
 .sound-clues-scene .sound-clues-scene__cloche-caption { min-height: 50px; }
 .sound-clues-scene--positioning .sound-clues-scene__field-block { flex: 0 0 auto; margin-top: 22px; min-height: 0; padding: 0; }
-.sound-clues-scene--positioning .sound-clues-scene__field-frame { width: min(300px, 36vh); }
+/* 33vh (was 36vh): the larger --fs-title question and 14px labels cost ~16px,
+   which pushed the confirm button under the scene's bottom edge at 774px tall. */
+.sound-clues-scene--positioning .sound-clues-scene__field-frame { width: min(300px, 33vh); }
 .sound-clues-scene--positioning .sound-clues-scene__player { box-sizing: border-box; width: min(100%,900px); max-width: 900px; margin: 24px 0 0; padding: 18px 0; min-height: 72px; border-top: 1px solid #d9cdef18; justify-content: space-between; }
 .sound-clues-scene--positioning > .stage-actions { margin-top: auto; padding-top: 20px; }
 @media (max-height: 760px) {

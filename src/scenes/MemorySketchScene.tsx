@@ -434,7 +434,7 @@ export function MemorySketchScene() {
           })}
         </ol>
       ) : (
-        <p className="memory-sketch-scene__object-empty">선택한 사물이 여기에 남아요.</p>
+        <p className="memory-sketch-scene__object-empty">고른 물건이 여기에 놓입니다.</p>
       )}
     </div>
   );
@@ -532,10 +532,8 @@ export function MemorySketchScene() {
                   <>
                     <p className="metric memory-sketch-scene__count">
                       <span className="metric__label">
+                        {/* The minimum now lives on the disabled button itself. */}
                         {selectedObjects.length}개 선택
-                        {selectedObjects.length < MEMORY_MIN_OBJECT_SELECTION
-                          ? ` · ${MEMORY_MIN_OBJECT_SELECTION}개 이상 선택해 주세요`
-                          : ''}
                       </span>
                     </p>
                     <button
@@ -543,7 +541,9 @@ export function MemorySketchScene() {
                       onClick={proceedFromRoom}
                       disabled={selectedObjects.length < MEMORY_MIN_OBJECT_SELECTION}
                     >
-                      다음으로
+                      {selectedObjects.length < MEMORY_MIN_OBJECT_SELECTION
+                        ? `물건을 ${MEMORY_MIN_OBJECT_SELECTION}개 이상 고르면 이어집니다`
+                        : '다음으로'}
                     </button>
                   </>
                 )}

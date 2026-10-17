@@ -328,7 +328,7 @@
   padding: 0;
   list-style: none;
   text-align: left;
-  font-size: clamp(var(--type-body), 2.4vw, 1.5625rem);
+  font-size: var(--fs-heading);
   line-height: 1.72;
   color: var(--text-primary);
 }
@@ -347,11 +347,11 @@
 .registration-rules__index {
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
   font-size: var(--type-meta);
-  color: rgba(237, 236, 242, 0.4);
+  color: rgba(var(--text-primary-rgb), 0.4);
 }
 
 .registration-rules__line--accent {
-  color: #8a6bff;
+  color: var(--trace);
 }
 
 .registration-rules__cta {

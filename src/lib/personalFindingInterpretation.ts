@@ -84,9 +84,9 @@ const TEMPLATES: Record<FindingKind, (context: Record<string, string>) => Copy> 
     reflection: '고르기 전, 무엇을 살펴보고 있었을까요?',
   }),
   'after-heavy': (c) => ({
-    headline: '답을 고른 뒤에도,\n그 곁에 한동안 머물렀습니다.',
-    interpretation: `${c.zones}에서 선택을 마친 뒤에도\n고른 답 곁에 머무르는 시간이 이어졌습니다.\n이번 조사에서 결정은 끝이라기보다 확인의 시작이었을 수 있습니다.`,
-    reflection: '이미 고른 답에서, 무엇을 더 확인하고 싶었을까요?',
+    headline: '답을 고른 뒤에도,\n화면에 머문 시간이 있었습니다.',
+    interpretation: `${c.zones}에서 선택을 남긴 뒤에도\n머문 시간이나 조작의 흔적이 이어졌습니다.\n읽기와 조작 시간도 포함되며, 그 이유까지 알 수는 없습니다.`,
+    reflection: '답을 고른 뒤의 순간은 어떻게 기억되나요?',
   }),
   'attention-not-kept': (c) => ({
     headline: '가장 오래 머문 것이,\n당신이 선택한 것은 아니었습니다.',

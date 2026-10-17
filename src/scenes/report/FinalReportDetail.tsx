@@ -67,7 +67,7 @@ export function FinalReportDetail({ record, presentation, findings, reportUrl, v
           {finding.id === 'no-convergence' && <p className="report-detail__date">이번 방문의 움직임은 하나의 반복된 방식으로 묶이지 않았습니다.</p>}
           <section className="report-detail__record-panel" aria-label="이 해석의 근거"><h4>이 해석의 근거</h4>
             <p>{finding.pattern}</p>
-            <ul>{finding.evidence.map((item,i)=><li key={`${item.zone}-${i}`}><strong>{item.scene}</strong><p>{item.description}</p><p className="report-detail__date">{item.metrics.join(' · ')}</p></li>)}</ul>
+            <ul className="report-detail__evidence">{finding.evidence.map((item,i)=><li key={`${item.zone}-${i}`}><strong>{item.scene}</strong><div><p>{item.description}</p>{item.metrics.length > 0 && <p className="report-detail__date">{item.metrics.join(' · ')}</p>}</div></li>)}</ul>
             <p className="report-detail__date">머문 시간에는 읽기와 조작 시간이 포함되며, 그 이유까지 알 수는 없습니다.</p>
           </section>
         </div>

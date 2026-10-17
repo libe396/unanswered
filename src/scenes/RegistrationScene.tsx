@@ -202,7 +202,7 @@ export function RegistrationScene() {
             className="registration-scene__input"
             value={name}
             onChange={(event) => setName(event.target.value)}
-            placeholder="닉네임도 가능합니다"
+            placeholder="예: 밤산책"
             /* The card prints this name at 18px in a 224px-wide field; past
                a dozen characters it is an ellipsis either way. */
             maxLength={12}
@@ -226,7 +226,7 @@ export function RegistrationScene() {
               className="cta cta--primary registration-scene__submit"
               disabled={!name.trim() || phase === 'issuing'}
             >
-              조사원증 발급
+              {name.trim() ? '조사원증 발급' : '이름을 적으면 발급됩니다'}
             </button>
           )}
         </form>

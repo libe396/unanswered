@@ -14,32 +14,32 @@
   align-items: center;
   gap: 16px;
   padding: 11px 0;
-  border-bottom: 1px solid rgba(232, 230, 240, 0.075);
+  border-bottom: 1px solid rgba(var(--text-primary-rgb), 0.075);
 }
 
 .trace-ledger__label {
   font-size: var(--type-body);
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: rgba(232, 230, 240, 0.35);
+  color: rgba(var(--text-primary-rgb), 0.35);
   transition: color var(--duration-fast) ease;
 }
 
 .trace-ledger__row--active .trace-ledger__label {
-  color: rgba(232, 230, 240, 0.86);
+  color: rgba(var(--text-primary-rgb), 0.86);
 }
 
 .trace-ledger__blocks {
   display: flex;
   gap: 8px;
-  color: rgba(232, 230, 240, 0.2);
+  color: rgba(var(--text-primary-rgb), 0.2);
 }
 
 .trace-ledger__block {
   display: inline-block;
   width: 14px;
   height: 14px;
-  border: 1px solid rgba(232, 230, 240, 0.22);
+  border: 1px solid rgba(var(--text-primary-rgb), 0.22);
   background: transparent;
   opacity: 0.82;
   transform: translateY(0) scale(1);
@@ -51,27 +51,27 @@
 }
 
 .trace-ledger__block--filled {
-  border-color: rgba(232, 230, 240, 0.5);
+  border-color: rgba(var(--text-primary-rgb), 0.5);
   opacity: 0;
   transform: translateY(5px) scale(0.92);
   animation: trace-ledger-fragment-in 0.42s var(--ease-scene) forwards;
 }
 
 .trace-ledger__status {
-  font-size: var(--type-meta);
-  letter-spacing: 0.14em;
-  color: rgba(232, 230, 240, 0.25);
+  font-size: var(--fs-small);
+  letter-spacing: 0;
+  color: rgba(var(--text-primary-rgb), 0.25);
   text-align: right;
   white-space: nowrap;
   transition: color var(--duration-fast) ease;
 }
 
 .trace-ledger__row--active .trace-ledger__status {
-  color: rgba(232, 230, 240, 0.72);
+  color: rgba(var(--text-primary-rgb), 0.72);
 }
 
 .trace-ledger__row--archived .trace-ledger__status {
-  color: rgba(232, 230, 240, 0.3);
+  color: rgba(var(--text-primary-rgb), 0.3);
   animation: trace-ledger-status-in 0.42s ease both;
 }
 
@@ -85,11 +85,11 @@
 @keyframes trace-ledger-status-in {
   0%,
   55% {
-    color: rgba(232, 230, 240, 0.3);
+    color: rgba(var(--text-primary-rgb), 0.3);
   }
 
   100% {
-    color: rgba(232, 230, 240, 0.86);
+    color: rgba(var(--text-primary-rgb), 0.86);
   }
 }
 

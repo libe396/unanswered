@@ -1,11 +1,11 @@
 /* The phone receipt. Same tokens and rhythm as FinalReportSummaryReceipt.css,
-   near-neutral with one violet point (#8A6BFF). The exhibition locks
+   near-neutral with one violet point (var(--trace)). The exhibition locks
    html/body scrolling (styles/global.css), so this view scrolls inside
    itself instead of changing that global rule. */
 
 .mobile-report {
-  --mr-accent: #8a6bff;
-  --mr-line: rgba(138, 107, 255, 0.16);
+  --mr-accent: var(--trace);
+  --mr-line: rgba(var(--trace-rgb), 0.16);
 
   position: fixed;
   inset: 0;
@@ -261,6 +261,6 @@
 }
 
 .mobile-report__finding + .mobile-report__finding { margin-top: 28px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.12); }
-.mobile-report__finding h2 { font-size: 19px; font-weight: 500; line-height: 1.65; white-space: pre-line; word-break: keep-all; margin: 10px 0 16px; }
+.mobile-report__finding h2 { font-size: var(--fs-body-lg); font-weight: 500; line-height: 1.65; white-space: pre-line; word-break: keep-all; margin: 10px 0 16px; }
 .mobile-report__finding .mobile-report__observation { white-space: pre-line; }
-.mobile-report__reflection { color: var(--trace); font-size: 14px; line-height: 1.8; word-break: keep-all; }
+.mobile-report__reflection { color: var(--trace); font-size: var(--fs-small); line-height: 1.8; word-break: keep-all; }

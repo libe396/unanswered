@@ -51,10 +51,16 @@
   gap: 0;
 }
 
+/* The " · " separator is a flex item, so its edge spaces were trimmed and the
+   name ran into the report ID once it grew to 14px. */
+.archive-hud__record > span[aria-hidden='true'] {
+  white-space: pre;
+}
+
 /* Korean: its own face, its own tracking. */
 .archive-hud__name {
   font-family: var(--font-kr);
-  font-size: var(--type-meta);
+  font-size: var(--fs-small);
   font-weight: 500;
   letter-spacing: 0;
   text-transform: none;
@@ -127,6 +133,7 @@
   align-self: center;
   margin-right: 20px;
   font-family: var(--font-kr);
+  font-size: var(--fs-small);
   letter-spacing: 0;
   text-transform: none;
   white-space: nowrap;
@@ -149,8 +156,8 @@
 }
 
 .archive-hud__rec--on i {
-  background: #8a6bff;
-  box-shadow: 0 0 8px rgba(138, 107, 255, 0.7);
+  background: var(--trace);
+  box-shadow: 0 0 8px rgba(var(--trace-rgb), 0.7);
   animation: archive-hud-blink 0.4s steps(2, jump-none) 2;
 }
 

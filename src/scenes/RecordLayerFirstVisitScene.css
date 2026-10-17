@@ -36,7 +36,7 @@
   z-index: 1;
   font-size: var(--type-body);
   letter-spacing: 0.05em;
-  color: rgba(232, 230, 240, 0.52);
+  color: rgba(var(--text-primary-rgb), 0.52);
   margin: 0;
 }
 
@@ -45,5 +45,5 @@
   z-index: 1;
   font-size: var(--type-body);
   letter-spacing: 0.18em;
-  color: rgba(232, 230, 240, 0.36);
+  color: rgba(var(--text-primary-rgb), 0.36);
 }

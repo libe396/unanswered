@@ -640,7 +640,7 @@ function sequenceCandidates(traces: ZoneTrace[]): PersonalFindingDraft[] {
       id: 'after-heavy',
       patternType: 'sequence',
       tension: '결정 ↔ 확인',
-      pattern: '여러 공간에서 답을 정한 뒤에도, 그 답을 유지한 채 다시 확인하거나 머무르는 시간이 이어졌다.',
+      pattern: '여러 공간에서 선택을 남긴 뒤에도 머문 시간이나 조작이 기록되었다.',
       evidence: after.map((trace) =>
         trace.afterMetric
           ? evidenceFor(trace, trace.afterDetail ?? '고른 뒤에도 머묾', [trace.afterMetric], false)

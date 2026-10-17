@@ -5,9 +5,9 @@
 .report-stage-02__line {
   margin: 0;
   max-width: min(560px, 84vw);
-  font-size: clamp(var(--type-body), 2.4vw, 1.5625rem);
+  font-size: var(--fs-title);
   line-height: 1.72;
-  color: rgba(232, 230, 240, 0.94);
+  color: rgba(var(--text-primary-rgb), 0.94);
   white-space: pre-line;
 }
 
@@ -18,7 +18,7 @@
 
 .report-stage-02__line--evidence {
   display: block;
-  font-size: clamp(var(--type-body), 2.2vw, 1.4375rem);
+  font-size: var(--fs-heading);
   color: rgba(242, 240, 247, 0.9);
 }
 
