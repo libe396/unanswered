@@ -67,7 +67,7 @@
 
 .report-evidence-visual__sound-name {
   max-width: 100%;
-  font-size: var(--fs-body);
+  font-size: clamp(var(--type-body), 1.6vw, var(--type-body));
   line-height: 1.45;
   color: rgba(242, 240, 247, 0.92);
   overflow-wrap: anywhere;
@@ -104,7 +104,7 @@
   justify-content: center;
   padding: 22px;
   box-sizing: border-box;
-  font-size: var(--fs-body);
+  font-size: clamp(var(--type-body), 1.55vw, var(--type-body));
   line-height: 1.7;
   color: rgba(242, 240, 247, 0.88);
   text-align: center;

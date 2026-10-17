@@ -60,38 +60,19 @@
   /* ── Font ──────────────────────────────────────────────────────────────── */
   --font-kr: 'Pretendard Variable', Pretendard, system-ui, sans-serif;
   --font-display: 'Bebas Neue', var(--font-kr);
-  /* Latin and digits the system produced (ZONE, RPT-ID, 01 / 05, hex,
-     coordinates). Plex has no Hangul, so any Korean that slips into a mono
-     rule falls back glyph-by-glyph to Pretendard instead of an OS mono. */
-  --font-mono: 'IBM Plex Mono', var(--font-kr);
+  /* Latin and digits the system produced (ZONE, RPT-ID, BACK, 01 / 05).
+     Bebas has no Hangul, so Korean in a mono rule falls back glyph-by-glyph
+     to Pretendard. */
+  --font-mono: 'Bebas Neue', var(--font-kr);
 
-  /* ── Type scale — seven roles, nothing in between (2026-10-18) ──────────
-     Scene CSS picks a role; it never invents its own px value or clamp().
-     Only display and title are fluid, and only here.
-       display  climax lines: identity reveal, report finale
-       title    every Scene question, one-line report statements
-       heading  panel titles, secondary report lines
-       body-lg  question helper copy, report interpretation
-       body     prose, buttons
-       small    Korean labels and counters — the Korean floor is 14px
-       mono     Latin/digit system marks only, in --font-mono */
-  --fs-display: clamp(2.25rem, 3.6vw, 3.5rem);
-  --fs-title: clamp(1.75rem, 2.2vw, 2.25rem);
-  --fs-heading: 1.375rem;
-  --fs-body-lg: 1.125rem;
-  --fs-body: 1rem;
-  --fs-small: 0.875rem;
-  --fs-mono: 0.75rem;
-
-  /* Legacy role names — kept so the 360 existing references resolve to the
-     scale above. New CSS uses --fs-*. */
-  --type-meta: var(--fs-mono);
-  --type-body: var(--fs-body);
-  --type-body-lg: var(--fs-body-lg);
-  --type-button: var(--fs-body);
-  --type-title-sm: var(--fs-heading);
-  --type-title: var(--fs-title);
-  /* Bebas numerals only (the elevator floor, .t-number) — not a reading size. */
+  /* Calm reading scale: 12px captions, 16px body at the default root size.
+     Keep html at 100%; use role tokens rather than scaling the whole UI. */
+  --type-meta: 0.75rem;
+  --type-body: 1rem;
+  --type-body-lg: 1.125rem;
+  --type-button: 1rem;
+  --type-title-sm: 1.375rem;
+  --type-title: 1.75rem;
   --type-display: 3rem;
 
   /* ── Spacing — 4px base ────────────────────────────────────────────────── */

@@ -125,3 +125,5 @@
   - npm run build(tsc 포함)와 git diff --check 통과(기존 500kB 번들 경고). 모바일 QR 오류 문구와 현장 안내 문구는 띄어쓰기만 바꿨고 화면으로는 확인하지 않았다. commit/push 없음.
 
 - 2026-10-18 사용자 요청으로 Primary 버튼의 오프화이트 면을 되돌렸다. `global.css`의 Primary 블록(유리면, 보라 점, hover 보라 테두리, active 보라 채움, 비활성 35%)과 기록 레이어 버튼의 개별 hover/focus를 커밋 936a352 상태로 복원했다. 비활성 버튼의 조건 문구는 유지되며 기존처럼 35%로 보인다. 타입 토큰, Plex Mono, 한글 라벨, 색 토큰, 카피 변경은 유지했다. 브라우저(1440×900)에서 빛 장면 버튼이 유리면+보라 점으로, 문장 선택 비활성 버튼이 35% 조건 문구로 보이는 것과, 한글은 Pretendard·Latin 라벨은 IBM Plex Mono로 렌더링되는 것을 확인했다. npm run build·git diff --check 통과.
+
+- 2026-10-18 사용자 요청: 키운 글자 크기를 되돌리고 영문 라벨을 Bebas Neue로 바꿨다. P0에서 `--fs-*`로 바꾼 font-size와 font 축약 선언 120여 곳, StageHeader 행간, 기억 방 높이 계산(288px), 소리 위치 패드(36vh)를 커밋 936a352 값으로 복원했다. `--fs-*` 토큰을 제거하고 `--type-*`는 원래 값으로 되돌렸다. `--font-mono`는 `'Bebas Neue', var(--font-kr)`로 바꿨다. 유지한 것: 한글 라벨의 Pretendard 전환과 자간 0, 색 토큰, 카피·조건 문구, 원래 Primary 버튼. 비교 결과 범위 안 CSS의 크기·행간 선언이 936a352와 같다(다른 에이전트가 추가한 보고서 근거 2줄과 한글 figcaption 서체만 다름). 브라우저(1440×900)에서 질문 22px·라벨 12px·본문 16px, ZONE·BACK·IMG·RPT·HUD가 Bebas Neue로 렌더링되는 것과 새로고침 후 Landing을 확인했다. npm run build·git diff --check 통과. 커밋 없음.

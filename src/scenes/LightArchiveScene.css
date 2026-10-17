@@ -459,7 +459,7 @@
 
 .light-archive-scene__result-stack strong {
   color: var(--text-primary);
-  font-size: var(--fs-heading);
+  font-size: clamp(var(--type-body), 1.75vw, var(--type-title-sm));
   font-weight: 400;
   line-height: 1.05;
   letter-spacing: 0.02em;

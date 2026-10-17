@@ -50,7 +50,7 @@
 .sentence-clues-scene__kicker {
   margin: 0;
   font-family: var(--font-kr);
-  font-size: var(--fs-small);
+  font-size: var(--type-meta);
   line-height: 1.4;
   font-weight: 500;
   letter-spacing: 0;
@@ -826,13 +826,13 @@
 }
 .sentence-clues-scene__clue-summary { padding-right: 24px; border-right: 1px solid var(--line); }
 .sentence-clues-scene__clue-summary h2 { font-size: var(--type-body); font-weight: 500; margin: 0 0 28px; line-height: 1.6; }
-.sentence-clues-scene__clue-summary dt { font-size: var(--fs-small); color: var(--text-secondary); margin: 24px 0 10px; }
+.sentence-clues-scene__clue-summary dt { font-size: var(--type-meta); color: var(--text-secondary); margin: 24px 0 10px; }
 .sentence-clues-scene__clue-summary dd { margin: 0; font-size: var(--type-body); line-height: 1.8; }
 .sentence-clues-scene__clue-summary ul { list-style: none; margin: 0; padding: 0; }
 .sentence-clues-scene__swatches { display: flex; flex-wrap: wrap; gap: 8px; }
 .sentence-clues-scene__swatches span { width: 28px; height: 28px; border: 1px solid var(--line-strong); border-radius: 50%; }
 .sentence-clues-scene__context-reading { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
-.sentence-clues-scene__reading-title { margin: 0; font-size: var(--fs-title); font-weight: 500; line-height: 1.5; text-align: left; }
+.sentence-clues-scene__reading-title { margin: 0; font-size: 1.75rem; font-weight: 500; line-height: 1.5; text-align: left; }
 .sentence-clues-scene__context-paragraphs { gap: 22px; }
 .sentence-clues-scene__context-p { font-size: var(--type-body); line-height: 1.8; opacity: 1; animation: none; }
 .sentence-clues-scene--context .sentence-clues-scene__missing { width: 100%; align-items: flex-start; text-align: left; gap: 16px; }
@@ -846,13 +846,13 @@
 }
 .sentence-clues-scene--reading .sentence-clues-scene__account-line {
   width: 100%; padding: 20px 0; gap: 20px; border-bottom: 1px solid var(--line);
-  font-size: var(--fs-heading); line-height: 1.75; overflow-wrap: anywhere;
+  font-size: 1.3125rem; line-height: 1.75; overflow-wrap: anywhere;
 }
 .sentence-clues-scene--reading .sentence-clues-scene__account-index { font-size: var(--type-meta); color: var(--text-secondary); opacity: 1; font-family: var(--font-mono); }
 .sentence-clues-scene--reading > .sentence-clues-scene__confirm { align-self: flex-start; }
 .sentence-clues-scene--reading .sentence-clues-scene__submit { width: 100%; justify-content: flex-start; }
-.sentence-clues-scene--question .sentence-clues-scene__reading-title { font-size: var(--fs-title); }
-.sentence-clues-scene--question .sentence-clues-scene__question { font-size: var(--fs-title); font-weight: 500; line-height: 1.6; max-width: none; text-align: left; }
+.sentence-clues-scene--question .sentence-clues-scene__reading-title { font-size: 1.75rem; }
+.sentence-clues-scene--question .sentence-clues-scene__question { font-size: 1.625rem; font-weight: 500; line-height: 1.6; max-width: none; text-align: left; }
 .sentence-clues-scene--question .sentence-clues-scene__response-field { width: min(100%, 560px); align-items: flex-end; }
 .sentence-clues-scene--question .sentence-clues-scene__response-input {
   box-sizing: border-box; min-height: 104px; padding: 16px; font-family: inherit;
@@ -913,7 +913,7 @@
 .sentence-clues-scene--context .sentence-clues-scene__prompt {
   margin: 0;
   font-family: var(--font-kr);
-  font-size: var(--fs-title);
+  font-size: 1.75rem;
   line-height: 1.5;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -1174,7 +1174,7 @@
   padding: 0;
   list-style: none;
   font-family: var(--font-kr);
-  font-size: var(--fs-small);
+  font-size: var(--type-meta);
   line-height: 1.4;
   color: var(--text-tertiary);
 }
@@ -1346,7 +1346,7 @@
   }
 
   .sentence-clues-scene__panel-title {
-    font-size: var(--fs-heading);
+    font-size: 1.375rem;
   }
 
   .sentence-clues-scene__panel-actions {
@@ -1400,7 +1400,7 @@
 }
 .sentence-clues-scene__intro { width: min(840px, 100%); text-align: center; }
 .sentence-clues-scene__intro-label { margin: 0 0 14px; font-size: var(--type-body); color: var(--trace); }
-.sentence-clues-scene__intro h1 { margin: 0; font-size: var(--fs-title); line-height: 1.45; font-weight: 500; word-break: keep-all; text-wrap: balance; }
+.sentence-clues-scene__intro h1 { margin: 0; font-size: 1.625rem; line-height: 1.45; font-weight: 500; word-break: keep-all; text-wrap: balance; }
 .sentence-clues-scene__intro-guide { margin: 16px 0 0; font-size: var(--type-body); line-height: 1.7; color: var(--text-secondary); word-break: keep-all; }
 .sentence-clues-scene__clue-strip { display: flex; align-items: center; justify-content: center; gap: 24px; margin: 28px 0; padding: 20px 0; border-block: 1px solid var(--line); text-align: left; }
 .sentence-clues-scene__clue-strip > div { display: flex; align-items: baseline; gap: 12px; min-width: 0; }
@@ -1419,7 +1419,7 @@
 @media (min-width: 1100px) and (min-height: 650px) and (max-height: 780px) {
   .sentence-clues-scene--explore { --sentence-body-size: var(--type-body); --sentence-caption-size: var(--type-meta); gap: 8px; }
   .sentence-clues-scene--explore .stage-head__eyebrow { display: none; }
-  .sentence-clues-scene--explore .stage-head__title { margin: 0; font-size: var(--fs-heading); }
+  .sentence-clues-scene--explore .stage-head__title { margin: 0; font-size: 1.375rem; }
   .sentence-clues-scene--explore .sentence-clues-scene__wall { gap: 6px; }
   .sentence-clues-scene--explore .sentence-clues-scene__foot { gap: 12px; }
   .sentence-clues-scene--explore .sentence-clues-scene__count { font-size: var(--type-meta); }
@@ -1463,7 +1463,7 @@
 /* Recovered opening story, using the existing clue-dependent narrative. */
 .sentence-clues-scene__recovered-story { margin: 0 auto 20px; max-width: 720px; padding: 20px 24px; border: 1px solid var(--line); border-radius: var(--r-8); background: var(--glass-1); text-align: left; font-size: var(--type-body); line-height: 1.7; color: var(--text-secondary); word-break: keep-all; }
 .sentence-clues-scene__recovered-story p { margin: 0; }
-.sentence-clues-scene__recovered-story .sentence-clues-scene__story-gap { margin-top: 12px; color: var(--text-tertiary); font-size: var(--fs-small); }
+.sentence-clues-scene__recovered-story .sentence-clues-scene__story-gap { margin-top: 12px; color: var(--text-tertiary); font-size: var(--type-meta); }
 @media (min-width: 1100px) and (max-height: 700px) {
   .sentence-clues-scene__recovered-story { margin-bottom: 12px; padding: 14px 20px; line-height: 1.55; }
   .sentence-clues-scene--context .sentence-clues-scene__clue-strip { margin: 16px 0; padding: 12px 0; }
@@ -1591,5 +1591,5 @@
 @media (min-width: 1100px) and (min-height: 650px) and (max-height: 780px) {
   .sentence-clues-scene--explore { justify-content: flex-start; overflow-y: auto; }
   .sentence-clues-scene--explore .stage-head { position: static; }
-  .sentence-clues-scene__live-story summary { padding-block: 2px; font-size: var(--fs-small); }
+  .sentence-clues-scene__live-story summary { padding-block: 2px; font-size: var(--type-meta); }
 }

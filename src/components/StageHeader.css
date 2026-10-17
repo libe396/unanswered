@@ -12,11 +12,11 @@
 }
 
 /* The eyebrow is the Zone's Korean name ("빛의 흔적"), so it is a Korean
-   label, not a mono mark: no tracking, no uppercase, 14px floor. */
+   label, not a mono mark: no tracking, no uppercase. */
 .stage-head__eyebrow {
   margin: 0;
   font-family: var(--font-kr);
-  font-size: var(--fs-small);
+  font-size: var(--type-meta);
   line-height: 1.4;
   font-weight: 500;
   letter-spacing: 0;
@@ -26,8 +26,8 @@
 .stage-head__title {
   margin: var(--sp-12) 0 0;
   font-family: var(--font-kr);
-  font-size: var(--fs-title);
-  line-height: 1.3;
+  font-size: var(--type-title-sm);
+  line-height: 1.4;
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--text-primary);
@@ -39,8 +39,8 @@
   margin: var(--sp-12) 0 0;
   max-width: 420px;
   font-family: var(--font-kr);
-  font-size: var(--fs-body-lg);
-  line-height: 1.6;
+  font-size: var(--type-body);
+  line-height: 1.7;
   font-weight: 400;
   letter-spacing: -0.01em;
   color: var(--text-secondary);
@@ -90,7 +90,7 @@
   }
 
   .stage-head__title {
-    font-size: var(--fs-heading);
+    font-size: 1.375rem;
   }
 
   .stage-actions {

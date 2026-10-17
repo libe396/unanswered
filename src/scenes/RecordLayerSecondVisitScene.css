@@ -83,7 +83,7 @@
   display: flex;
   flex-direction: column;
   gap: 17px;
-  font-size: var(--fs-heading);
+  font-size: clamp(var(--type-body), 2.1vw, var(--type-title-sm));
   line-height: 1.78;
   text-align: center;
   color: rgba(242, 240, 247, 0.95);
@@ -595,7 +595,7 @@
 .record-layer-second-visit__eyebrow {
   margin: 0;
   font-family: var(--font-kr);
-  font-size: var(--fs-small);
+  font-size: var(--type-meta);
   line-height: 1.4;
   letter-spacing: 0;
   color: var(--trace);
@@ -604,7 +604,7 @@
 .record-layer-second-visit__title {
   margin: var(--sp-16) 0 0;
   font-family: var(--font-kr);
-  font-size: var(--fs-title);
+  font-size: 1.75rem;
   line-height: 1.4;
   font-weight: 600;
   letter-spacing: -0.02em;

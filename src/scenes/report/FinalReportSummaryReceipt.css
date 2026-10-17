@@ -192,7 +192,7 @@
 
 .summary-receipt__owner-value {
   margin: 6px 0 10px;
-  font-size: var(--fs-heading);
+  font-size: 1.375rem;
   font-weight: 700;
   color: var(--receipt-accent);
 }

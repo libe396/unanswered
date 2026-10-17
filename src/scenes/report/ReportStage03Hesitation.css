@@ -10,7 +10,7 @@
 }
 
 .report-stage-03__opening {
-  font-size: var(--fs-title);
+  font-size: clamp(1.1875rem, 2.5vw, 1.6875rem);
   line-height: 1.7;
   color: rgba(242, 240, 247, 0.92);
 }
@@ -41,7 +41,7 @@
 }
 
 .report-stage-03__variant {
-  font-size: var(--fs-heading);
+  font-size: clamp(var(--type-body), 2.1vw, 1.375rem);
   line-height: 1.7;
   color: var(--color-text);
 }
@@ -49,7 +49,7 @@
 .report-stage-03__closing {
   margin: 0;
   max-width: min(620px, 84vw);
-  font-size: var(--fs-title);
+  font-size: clamp(1.375rem, 3.2vw, 2.125rem);
   line-height: 1.62;
   color: var(--color-accent);
   white-space: pre-line;
@@ -57,7 +57,7 @@
 
 @media (max-width: 640px) {
   .report-stage-03__closing {
-    font-size: var(--fs-heading);
+    font-size: 1.375rem;
   }
 
   .report-stage-03__time-label {

@@ -1,7 +1,7 @@
 .light-transformation { position: relative; width: 100%; height: 100%; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding: 76px 24px 80px; background: var(--bg-base); text-align: center; gap: 16px; }
 .light-transformation > * { flex-shrink: 0; }
 .light-transformation__eyebrow { font-size: var(--type-meta); color: var(--trace); margin: 0; }
-.light-transformation h1 { font-size: var(--fs-heading); line-height: 1.5; margin: 0; font-weight: 500; }
+.light-transformation h1 { font-size: 1.375rem; line-height: 1.5; margin: 0; font-weight: 500; }
 .light-transformation__stage { position: relative; width: min(470px, 78vw, calc(100dvh - 330px)); aspect-ratio: 1; margin: 4px 0; overflow: hidden; isolation: isolate; background: #090a10; }
 .light-transformation__photo { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
 .light-transformation__photo img, .light-transformation__photo svg { position: absolute; inset: 0; width: 100%; height: 100%; }

@@ -58,7 +58,7 @@
 }
 
 .trace-ledger__status {
-  font-size: var(--fs-small);
+  font-size: var(--type-meta);
   letter-spacing: 0;
   color: rgba(var(--text-primary-rgb), 0.25);
   text-align: right;

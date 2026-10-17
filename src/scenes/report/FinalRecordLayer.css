@@ -116,7 +116,7 @@
 
 .final-record-layer__venue-scan {
   margin: 0;
-  font-size: var(--fs-small);
+  font-size: var(--type-meta);
   letter-spacing: 0;
   color: var(--color-accent);
 }

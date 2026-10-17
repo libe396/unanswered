@@ -60,7 +60,7 @@
 /* Korean: its own face, its own tracking. */
 .archive-hud__name {
   font-family: var(--font-kr);
-  font-size: var(--fs-small);
+  font-size: var(--type-meta);
   font-weight: 500;
   letter-spacing: 0;
   text-transform: none;
@@ -133,7 +133,6 @@
   align-self: center;
   margin-right: 20px;
   font-family: var(--font-kr);
-  font-size: var(--fs-small);
   letter-spacing: 0;
   text-transform: none;
   white-space: nowrap;

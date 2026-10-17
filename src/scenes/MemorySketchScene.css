@@ -17,10 +17,7 @@
 
 .memory-sketch-scene__workspace {
   width: 100%;
-  /* 312px is everything stacked above and below the room (HUD clearance,
-     padding, heading, gap). It was 288px until the question moved to
-     --fs-title on 2026-10-18 and the heading grew ~10–16px. */
-  max-width: min(1600px, max(1072px, calc((100dvh - 312px) * 1.776833 + 312px)));
+  max-width: min(1600px, max(1072px, calc((100dvh - 288px) * 1.776833 + 312px)));
   margin-inline: auto;
 }
 
@@ -85,7 +82,7 @@
 .memory-sketch-scene__collected-label {
   margin: 0 0 var(--sp-12);
   font-family: var(--font-kr);
-  font-size: var(--fs-small);
+  font-size: var(--type-meta);
   line-height: 1.4;
   letter-spacing: 0;
   color: var(--text-tertiary);

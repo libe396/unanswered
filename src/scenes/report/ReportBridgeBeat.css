@@ -20,7 +20,7 @@
 .report-bridge__line {
   margin: 0;
   max-width: min(680px, 88vw);
-  font-size: var(--fs-title);
+  font-size: clamp(var(--type-body), 2.4vw, 1.5625rem);
   line-height: 1.72;
   color: var(--text-secondary);
 }
@@ -32,7 +32,7 @@
 .report-bridge__hint {
   position: absolute;
   bottom: 48px;
-  font-size: var(--fs-small);
+  font-size: var(--type-meta);
   color: var(--text-tertiary);
 }
 
