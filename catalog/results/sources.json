@@ -1,0 +1,121 @@
+{
+  "fileKey": "R8fduIQ6rCypnW6KK5qdCA",
+  "webSource": "873:2514",
+  "printSource": "470:213",
+  "pages": [
+    {
+      "file": "web-01.webp",
+      "nodeId": "873:332",
+      "width": 1920,
+      "height": 1136
+    },
+    {
+      "file": "web-02.webp",
+      "nodeId": "873:334",
+      "width": 1920,
+      "height": 1341
+    },
+    {
+      "file": "web-03.webp",
+      "nodeId": "873:393",
+      "width": 1920,
+      "height": 1377
+    },
+    {
+      "file": "web-04.webp",
+      "nodeId": "873:509",
+      "width": 1920,
+      "height": 3705
+    },
+    {
+      "file": "web-05.webp",
+      "nodeId": "873:827",
+      "width": 1920,
+      "height": 2589
+    },
+    {
+      "file": "web-16.webp",
+      "nodeId": "873:1128",
+      "width": 1920,
+      "height": 280
+    },
+    {
+      "file": "web-06.webp",
+      "nodeId": "873:1135",
+      "width": 1920,
+      "height": 2226
+    },
+    {
+      "file": "web-07.webp",
+      "nodeId": "873:1150",
+      "width": 1920,
+      "height": 1566
+    },
+    {
+      "file": "web-08.webp",
+      "nodeId": "873:1162",
+      "width": 1920,
+      "height": 2182
+    },
+    {
+      "file": "web-09.webp",
+      "nodeId": "873:1177",
+      "width": 1920,
+      "height": 2182
+    },
+    {
+      "file": "web-10.webp",
+      "nodeId": "873:1192",
+      "width": 1920,
+      "height": 2182
+    },
+    {
+      "file": "web-11.webp",
+      "nodeId": "873:1207",
+      "width": 1920,
+      "height": 2072
+    },
+    {
+      "file": "web-12.webp",
+      "nodeId": "873:1222",
+      "width": 1920,
+      "height": 390
+    },
+    {
+      "file": "web-13.webp",
+      "nodeId": "873:1245",
+      "width": 1920,
+      "height": 2182
+    },
+    {
+      "file": "web-14.webp",
+      "nodeId": "873:1391",
+      "width": 1920,
+      "height": 3230
+    },
+    {
+      "file": "web-15.webp",
+      "nodeId": "873:2501",
+      "width": 1920,
+      "height": 760
+    },
+    {
+      "file": "print-1.webp",
+      "nodeId": "406:327",
+      "width": 2600,
+      "height": 3480
+    },
+    {
+      "file": "print-2.webp",
+      "nodeId": "413:173",
+      "width": 2600,
+      "height": 3480
+    },
+    {
+      "file": "print-3.webp",
+      "nodeId": "414:552",
+      "width": 2601,
+      "height": 3481
+    }
+  ]
+}
