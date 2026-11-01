@@ -117,5 +117,48 @@
       "width": 2601,
       "height": 3481
     }
-  ]
+  ],
+  "researchAssets": [
+    {
+      "file": "archive/blur-1.webp",
+      "nodeId": "924:308"
+    },
+    {
+      "file": "archive/blur-2.webp",
+      "nodeId": "924:313"
+    },
+    {
+      "file": "archive/blur-3.webp",
+      "nodeId": "924:318"
+    },
+    {
+      "file": "archive/between-1.webp",
+      "nodeId": "951:279"
+    },
+    {
+      "file": "archive/between-2.webp",
+      "nodeId": "951:280"
+    },
+    {
+      "file": "archive/between-3.webp",
+      "nodeId": "951:281"
+    },
+    {
+      "file": "archive/between-4.webp",
+      "nodeId": "951:282"
+    },
+    {
+      "file": "archive/draft-1.webp",
+      "nodeId": "414:233"
+    }
+  ],
+  "originalWebCatalogue": {
+    "file": "web-catalogue-original.jpg",
+    "nodeId": "873:2514",
+    "width": 1920,
+    "height": 31320,
+    "bytes": 32924611,
+    "sha256": "58714794d10702f2bd7c8ca4dfa119ae5b5f83e6db67c68b26d7057bbd00dbb9",
+    "processing": "none; exact file downloaded from Figma whole-node export"
+  }
 }
