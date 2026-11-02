@@ -228,5 +228,7 @@
   "sourceNode": "572:174",
   "width": 1920,
   "height": 32785,
-  "assembly": "Visible original children at unchanged Figma x/y and native pixel dimensions; no editorial rearrangement. Parent background RGB 10,11,17."
+  "assembly": "Visible original children at unchanged Figma x/y and native pixel dimensions; no editorial rearrangement. Parent background RGB 10,11,17.",
+  "sizeBytes": 49978726,
+  "sha256": "b1e9bd4db1fa918ad0d70e5db27f687a807889926eb5f9860b1865366f4bdfa6"
 }
