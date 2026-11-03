@@ -5,9 +5,16 @@
   cannot end up with their headings on different lines.
 */
 
+/* Left-aligned at the frame's edge (2026-11-01, user decision after trying
+   centred): Korean lines read from a fixed start, and the question sits in
+   the same place on every screen. Balance comes from the content below
+   filling the frame, not from centring the heading. */
 .stage-head {
   width: 100%;
   max-width: var(--stage-max);
+  margin-inline: auto;
+  padding-top: var(--stage-head-offset);
+  box-sizing: border-box;
   text-align: left;
 }
 
@@ -16,7 +23,7 @@
 .stage-head__eyebrow {
   margin: 0;
   font-family: var(--font-kr);
-  font-size: var(--type-meta);
+  font-size: var(--type-label);
   line-height: 1.4;
   font-weight: 500;
   letter-spacing: 0;
@@ -24,11 +31,11 @@
 }
 
 .stage-head__title {
-  margin: var(--sp-12) 0 0;
+  margin: var(--sp-8) 0 0;
   font-family: var(--font-kr);
-  font-size: var(--type-title-sm);
-  line-height: 1.4;
-  font-weight: 600;
+  font-size: var(--type-question);
+  line-height: 1.35;
+  font-weight: var(--weight-question);
   letter-spacing: -0.02em;
   color: var(--text-primary);
   text-wrap: balance;
@@ -36,11 +43,11 @@
 }
 
 .stage-head__description {
-  margin: var(--sp-12) 0 0;
+  margin: var(--sp-8) 0 0;
   max-width: 420px;
   font-family: var(--font-kr);
   font-size: var(--type-body);
-  line-height: 1.7;
+  line-height: 1.45;
   font-weight: 400;
   letter-spacing: -0.01em;
   color: var(--text-secondary);

@@ -3,3 +3,7 @@ dist
 .env
 .DS_Store
 .vscode
+# Local deployment settings and server secrets
+.env.*
+!.env.example
+supabase/.temp/

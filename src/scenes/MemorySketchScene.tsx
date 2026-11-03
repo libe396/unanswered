@@ -1,3 +1,4 @@
+import { useChoiceReplay } from '../hooks/useChoiceReplay';
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { MEMORY_MIN_OBJECT_SELECTION, MEMORY_ROOM_OBJECTS, SKETCH_COLORS } from '../data/content';
 import { useExperienceStore } from '../store/experienceStore';
@@ -117,6 +118,7 @@ export function MemorySketchScene() {
   });
 
   const [phase, setPhase] = useState<Phase>('room');
+  const finishReplay = useChoiceReplay('memorySketch', phase, phase === 'room' || phase === 'drawingChoice', '.memory-sketch-scene');
   // Seeded from any answer this visit already saved — finishMemory() below
   // always writes whatever these hold, so without this, Back navigation
   // followed by skipping (or finishing without redrawing) would silently
@@ -219,6 +221,7 @@ export function MemorySketchScene() {
   }
 
   function proceedFromRoom() {
+    finishReplay();
     tracking.commit(OBJECT_GROUP);
     setPhase('drawingChoice');
   }
@@ -336,6 +339,7 @@ export function MemorySketchScene() {
    * nothing. That distinction is `drawingEntered` in memoryTracking.ts.
    */
   function finishMemory() {
+    finishReplay();
     finalizeRef.current();
     setMemorySketch({
       strokes,
@@ -444,7 +448,7 @@ export function MemorySketchScene() {
       <div className="memory-sketch-scene__workspace">
         <StageHeader
           eyebrow="기억의 흔적"
-          title={isDrawing ? '남기고 싶은 흔적을 그려 주세요' : '그 사람은 무엇을 두고 갔을까요?'}
+          title={isDrawing ? '방 위에 덧그려 주세요' : '그 사람은 무엇을 두고 갔을까요?'}
           description={
             isDrawing
               ? '남기고 싶은 곳에 선 하나를 그려 주세요. 그냥 넘어가도 됩니다.'
@@ -518,12 +522,12 @@ export function MemorySketchScene() {
                 {collected}
                 {isChoice ? (
                   <div className="memory-sketch-scene__choice">
-                    <p>더 남기고 싶은 흔적이 있나요?</p>
+                    <p>방 위에 덧그리고 싶은 곳이 있나요?</p>
                     <div className="memory-sketch-scene__choice-actions">
                       <button className="cta cta--secondary" onClick={handleSkipDrawing}>
                         그리지 않고 계속
                       </button>
-                      <button className="cta cta--primary" onClick={() => setPhase('drawing')}>
+                      <button className="cta cta--primary" onClick={() => { finishReplay(); setPhase('drawing'); }}>
                         흔적 덧그리기
                       </button>
                     </div>
@@ -557,7 +561,7 @@ export function MemorySketchScene() {
         <div className="memory-sketch-scene__modal-veil">
           <div className="memory-sketch-scene__modal glass">
             <p className="memory-sketch-scene__modal-text">
-              아무 흔적도 남기지 않고 기록하시겠습니까?
+              그리지 않고 넘어갈까요?
             </p>
             <div className="memory-sketch-scene__modal-actions">
               <button className="cta cta--secondary" onClick={() => setShowEmptyConfirm(false)}>

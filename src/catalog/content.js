@@ -13,7 +13,7 @@ export const cover = {
   title: '미응답 UNANSWERED',
   subtitle: '대답하지 못한 순간을 기록하다',
   meta: ['F-08', 'AI 디자인스튜디오', '이서연', 'litzbeo@gmail.com'],
-  image: { src: 'light-main.jpg', alt: 'RECORD NO. 08 선택한 단어 - 슬픔 · 불안', ratio: '21 / 9' },
+  image: { src: 'latest/final.webp', alt: 'RECORD NO. 08 선택한 단어 - 슬픔 · 불안', ratio: '21 / 9' },
   caption: ['RECORD NO. 08', '선택한 단어 - 슬픔 · 불안'],
 };
 
@@ -100,12 +100,12 @@ export const process = {
       source: {
         title: '원본 사진',
         notes: ['비 오는 날 거리'],
-        image: { src: 'final-source.jpg', alt: '원본 사진 - 비 오는 날 거리', ratio: '1 / 1' },
+        image: { src: 'latest/input.webp', alt: '원본 사진 - 비 오는 날 거리', ratio: '1 / 1' },
       },
       results: [
-        { title: '슬픔', notes: ['남색 계열', '어둡게', '번짐 크게'], image: { src: 'final-sad.jpg', alt: '슬픔', ratio: '1 / 1' } },
-        { title: '불안', notes: ['보라 계열', '어둡게', '윤곽 또렷하게'], image: { src: 'final-anxious.jpg', alt: '불안', ratio: '1 / 1' } },
-        { title: '슬픔+불안', notes: ['두 값의 평균'], image: { src: 'final-mix.jpg', alt: '슬픔+불안', ratio: '1 / 1' } },
+        { title: '슬픔', notes: ['남색 계열', '어둡게', '번짐 크게'], image: { src: 'latest/sad.webp', alt: '슬픔', ratio: '1 / 1' } },
+        { title: '불안', notes: ['보라 계열', '어둡게', '윤곽 또렷하게'], image: { src: 'latest/anxious.webp', alt: '불안', ratio: '1 / 1' } },
+        { title: '슬픔+불안', notes: ['두 값의 평균'], image: { src: 'latest/final.webp', alt: '슬픔+불안', ratio: '1 / 1' } },
       ],
     },
   ],
@@ -116,13 +116,13 @@ export const process = {
 
 /* `wide` spans both columns. */
 export const scenes = [
-  { title: '색의 흔적', line: '마음이 가는 이미지를 고르며 색의 단서를 모은다.', image: { src: 'scene-color.jpg', alt: '색의 흔적', ratio: '4 / 3' } },
-  { title: '소리의 흔적', line: '소리를 듣고 마음이 머무는 단서를 선택한다.', image: { src: 'scene-sound.jpg', alt: '소리의 흔적', ratio: '4 / 3' } },
-  { title: '기억의 흔적', line: '흐릿한 방의 그림에 선을 더하며 기억을 남긴다.', image: { src: 'scene-memory.jpg', alt: '기억의 흔적', ratio: '4 / 3' } },
-  { title: '문장의 흔적', line: '다음에 이어질 이야기를 상상하며 문장을 고른다.', image: { src: 'scene-sentence.jpg', alt: '문장의 흔적', ratio: '4 / 3' } },
-  { title: '최종 보고서', line: '무엇에 끌리고 어디서 망설였는지, 조사 기록을 돌아본다.', image: { src: 'scene-report.jpg', alt: '최종 보고서', ratio: '21 / 9' }, wide: true },
-  { title: '결과 요약본과 조사원증', line: '조사의 흔적을 가져가는 기록', image: { src: 'scene-badge.jpg', alt: '결과 요약본과 조사원증', ratio: '4 / 5' } },
-  { title: '온라인 전시', line: '전시장 밖에서도 이어지는 조사 경험', image: { src: 'scene-online.jpg', alt: '온라인 전시', ratio: '4 / 5' } },
+  { title: '색의 흔적', line: '마음이 가는 이미지를 고르며 색의 단서를 모은다.', image: { src: 'latest/space-light.webp', alt: '색의 흔적', ratio: '4 / 3' } },
+  { title: '소리의 흔적', line: '소리를 듣고 마음이 머무는 단서를 선택한다.', image: { src: 'latest/space-sound.webp', alt: '소리의 흔적', ratio: '4 / 3' } },
+  { title: '기억의 흔적', line: '흐릿한 방의 그림에 선을 더하며 기억을 남긴다.', image: { src: 'latest/space-memory.webp', alt: '기억의 흔적', ratio: '4 / 3' } },
+  { title: '문장의 흔적', line: '다음에 이어질 이야기를 상상하며 문장을 고른다.', image: { src: 'latest/space-sentence.webp', alt: '문장의 흔적', ratio: '4 / 3' } },
+  { title: '최종 보고서', line: '무엇에 끌리고 어디서 망설였는지, 조사 기록을 돌아본다.', image: { src: 'latest/space-report.webp', alt: '최종 보고서', ratio: '21 / 9' }, wide: true },
+  { title: '결과 요약본과 조사원증', line: '조사의 흔적을 가져가는 기록', image: { src: 'latest/record-badge.webp', alt: '결과 요약본과 조사원증', ratio: '4 / 5' } },
+  { title: '온라인 전시', line: '전시장 밖에서도 이어지는 조사 경험', image: { src: 'latest/hero.webp', alt: '온라인 전시', ratio: '4 / 5' } },
 ];
 
 /* Fixed top bar. `id` is the section each tab scrolls to. */

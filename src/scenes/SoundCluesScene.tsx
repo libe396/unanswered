@@ -1,3 +1,4 @@
+import { useChoiceReplay } from '../hooks/useChoiceReplay';
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { SOUND_CLUES } from '../data/content';
 import { StageActions, StageHeader } from '../components/StageHeader';
@@ -156,6 +157,7 @@ export function SoundCluesScene() {
     and a step that could not replay it would make the pattern unobservable.
   */
   const [phase, setPhase] = useState<Phase>('browse');
+  const finishReplay = useChoiceReplay('soundClues', phase, phase === 'browse' || phase === 'positioning', '.sound-clues-scene');
   // Activity retains local state; each return to this scene starts at its sound shelf.
   useEffect(() => { setPhase('browse'); }, []);
   useEffect(() => {
@@ -528,6 +530,7 @@ export function SoundCluesScene() {
     finalizePlayback('sceneExit');
     // The sound question is finished here, the same way LIGHT commits its
     // image question on leaving the grid.
+    finishReplay();
     tracking.commit(SOUND_GROUP);
     setFocusedSoundId(selectedSoundId);
     setPhase('positioning');
@@ -550,6 +553,7 @@ export function SoundCluesScene() {
     // Before the commit, so a sound still playing when NEXT is pressed leaves
     // its last stretch of listening in the record rather than out of it.
     finalizePlayback('sceneExit');
+    finishReplay();
     tracking.commit(POSITION_GROUP);
 
     /*
@@ -736,8 +740,8 @@ export function SoundCluesScene() {
     <div className="sound-clues-scene sound-clues-scene--positioning">
       <StageHeader
         eyebrow="소리의 흔적"
-        title="이 소리는 어떻게 기억될까요?"
-        description="그 사람에게 가깝고 또렷했을지, 점으로 남겨 주세요."
+        title="그 사람에게 이 소리는 어디쯤 있었을까요?"
+        description="가까운지 먼지, 또렷한지 흐릿한지 점으로 찍어 주세요."
       />
 
       <div className="sound-clues-scene__field-block">
@@ -764,7 +768,7 @@ export function SoundCluesScene() {
             */
             role="group"
             tabIndex={0}
-            aria-label="이 소리는 어떻게 기억될까요? 가로는 흐릿함에서 선명함, 세로는 가까이 남아 있음에서 멀리 남아 있음. 방향키로 표시를 옮길 수 있습니다."
+            aria-label="그 사람에게 이 소리는 어디쯤 있었을까요? 가로는 흐릿함에서 선명함, 세로는 가까이 남아 있음에서 멀리 남아 있음. 방향키로 표시를 옮길 수 있습니다."
             onPointerDown={handleFieldPointerDown}
             onPointerMove={handleFieldPointerMove}
             onPointerUp={handleFieldPointerUp}

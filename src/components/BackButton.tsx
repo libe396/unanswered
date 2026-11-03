@@ -2,7 +2,7 @@ import { SCENE_ORDER, useExperienceStore } from '../store/experienceStore';
 import './BackButton.css';
 
 /**
- * Site-wide "이전 기록으로" control — one common component rather than each
+ * Site-wide "이전으로" control — one common component rather than each
  * Scene wiring its own, so Back reads the same everywhere: one step earlier
  * in `SCENE_ORDER` (`goToPreviousScene`, src/store/experienceStore.ts),
  * never a Scene-specific "undo". That action only ever changes
@@ -34,7 +34,7 @@ export function BackButton() {
       </span>
       <span className="back-button__label">
         BACK
-        <span className="back-button__label-ko">이전 기록으로</span>
+        <span className="back-button__label-ko">이전으로</span>
       </span>
     </button>
   );

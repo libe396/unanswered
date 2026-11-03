@@ -45,13 +45,15 @@
   stroke-dasharray: 4 3;
 }
 
-.memory-room__annotations rect {
-  fill: #22202b;
-  stroke: #c6bce7;
+.memory-room__annotations rect,
+.memory-room__annotations circle {
+  fill: rgba(28, 25, 39, 0.48);
+  stroke: rgba(230, 220, 250, 0.55);
   stroke-width: 1;
 }
 .memory-room__annotations text {
   fill: #f2f0ec;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.65);
   font-family: var(--font-mono);
   font-size: var(--type-body);
 }

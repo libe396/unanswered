@@ -59,6 +59,39 @@
 
 ## 실행 기록
 
+- 2026-11-03 전시장 모드 무응답 초기화 2분(사용자 요청): `?venue=1`에서 1분 45초 무입력 시 ‘계속 조사하시겠습니까?’, 15초 뒤 Landing(총 2분). 최종보고서 자체 초기화도 90초 → 2분. 온라인 관람 무변경. 브라우저에서 105초 확인창·120초 초기화·Landing 확인, 빌드 통과. 부스는 `?venue=1` 주소로 열어야 함. commit/push/deploy 없음.
+
+- 2026-11-03 부스 iMac 24" 레이아웃 보정(전시 당일, 사용자 요청): 1800×1000 이상 큰 화면에서만 공간 이름~버튼 묶음을 화면 세로 중앙에(상단 88·하단 72 유지, 넘치면 기존처럼 위에서 시작). 등록·빛·소리·기억·문장 적용, 빛 분석 단계는 가운데 정렬 유지·질문 높이를 앞 단계와 같게·사진 간격 +20~24px. 2240×1260/1140 실측·경로 진행, 1440×900/1280×720 무변경 확인, 빌드 통과. 상세는 UI_IMMERSION_REVIEW.md. commit/push/deploy 없음.
+
+- 2026-11-01 후속: 문장 탐색 질문도 다른 장면과 같은 왼쪽 위치로 맞추고(단서 상자는 오른쪽, 윗선 정렬), 두 크기 넘침 0·빌드 통과. commit/push 없음.
+
+- 2026-11-01 후속: 질문 블록을 높이 900px 이상에서 40px 아래로(800px 이하는 그대로), 안내 행간 1.7 → 1.5. 두 크기 넘침 0, 빌드 통과. commit/push 없음.
+
+- 2026-11-01 정렬 최종안(사용자 결정): 질문 영역은 좌측 정렬로 프레임 왼쪽 위 고정, 컨텐츠는 프레임(1120px) 폭을 채우고 남은 높이의 가운데. 두 열 장면은 1fr/1fr로 바꾸고 빛 사진을 340 → 최대 512px로 키웠다. 소리 선반/패드는 가운데 배치. 1440·1135·390 실측, 빛·소리 경로, 넘침 0, 빌드 통과. 문장 탐색은 Codex의 3열 배치 때문에 질문이 가운데 칸에서 시작(미수정). 상세는 UI_IMMERSION_REVIEW.md. commit/push 없음.
+
+- 2026-11-01 질문 블록 중앙 정렬(사용자 요청, 레이아웃 통일 후속): 공통 질문 블록을 중앙 정렬로 바꾸고 두 열 장면(등록·빛)의 오브젝트/입력 묶음을 960 폭으로 화면 가운데에 두었다. 등록·빛·소리·기억은 1440·1135·390폭에서 화면 중앙 정렬을 실측했고 넘침 0, 빌드 통과. 문장 탐색은 Codex 작업 중이라 미적용(사용자 결정 대기). 상세는 UI_IMMERSION_REVIEW.md. commit/push 없음.
+
+- 2026-11-01 레이아웃 통일(사용자 요청, 같은 날 리뷰 2장 ① 후속): 상호작용 장면(등록·빛·소리·기억·문장 탐색)을 1280px 프레임에 두고 질문을 프레임 왼쪽 위(y=88, 1440폭 x=80)에서 시작하게 했다. StageLayout은 질문을 두 열 위로 올리고 위쪽 정렬로 바꿨다. 오브젝트 형태·선택/저장 로직·장면 순서는 그대로이며, 기록 레이어·문장 도입·보고서 장면은 요약/인트로 구도로 유지했다. 1440×900·1135×774·390×844 브라우저 실측과 빛 전체 경로, 새로고침 Landing 확인, npm run build·git diff --check 통과. 상세는 UI_IMMERSION_REVIEW.md 같은 날짜 기록. commit/push 없음.
+
+- 2026-11-01 카피 다듬기(사용자 요청, 같은 날 리뷰 4장 후속): 발견 11종 해석, 조사 방식·발견 도입·공개 앞 문장·마무리(3→2화면), 문서/QR/인쇄 서두와 장면 안내 문구를 대구·유보·재정의·피동 없이 사실 중심 합니다체로 다시 썼다. 중심 문장 `누구를 떠올렸든, 선택의 순간에는 당신이 있었습니다.`는 조사 방식 첫 화면 한 곳에만 남겼다. 카메라 고지·버튼, 일곱 소리, 존 이름, 선정 조건·근거 수치, 장면 순서는 보존. 브라우저 보고서 전 흐름과 주요 장면 문구, 새로고침 Landing 확인, npm run build·git diff --check 통과. 상세는 UI_IMMERSION_REVIEW.md 같은 날짜 기록. commit/push 없음.
+
+- 2026-11-01 P0 글자 크기 역할 고정(사용자 요청, 같은 날 시니어 디자이너 리뷰 후속): 같은 역할이 화면마다 22–36px·굵기 400–600으로 흩어지던 것을 역할 토큰 `--type-statement`(32/400)·`--type-question`(22/500)·`--type-label`(13px)과 기존 본문 16px·Bebas 코드 12px로 고정했다. 장면 질문, 실제 쓰이는 보고서 4단계의 한 문장 화면(vw clamp 제거), 한글 12px 라벨, 등록 지침, 최종 문서의 자체 px 스케일에 적용했다. Landing·카피·버튼·색·동선은 그대로다. 1440×900·1135×774 브라우저 실측으로 역할 값·넘침 0·잘린 버튼 0과 새로고침 Landing을 확인했고 npm run build·git diff --check 통과(기존 번들 경고). 상세는 UI_IMMERSION_REVIEW.md 같은 날짜 기록. commit/push 없음.
+
+- 2026-11-01 Landing 확정 시안 적용: 사용자가 Claude와 확정한 `lab/landing-scan.html`을 실제 Landing으로 옮겼다. 기존 초상 배치 대신 유리 기록 카드(3D 기울기·두께 층·배경 잔상/보라 빛/겹친 기록 2장), 사진에만 도는 스캔 루프, 화면 공간에 투영되는 분석 라벨 4개(NAME/FACE/CLUES/STATUS), 한 글자씩 타이핑되는 제목과 `CLICK ANYWHERE TO BEGIN` 안내를 적용했다. 입장은 버튼 대신 화면 클릭과 Enter로 바뀌었고 드래그 6px 이상과 `전시 소개` 링크는 제외한다.
+  - 확정한 결정: ① Landing에만 vw/vh/clamp 기반 뷰포트 비례 크기를 쓰고 전역 타입 토큰은 바꾸지 않는다. ② 제목 굵기 450, `clamp(32px, 3.3vw, 76px)`, 행간 1.28, 자간 -0.035em. ③ 타이핑 블록 커서는 `#AA8EEE`. ④ 입장 버튼 대신 화면 클릭 입장. ⑤ 포스터/갤러리 비교 시안은 폐기한다.
+  - 커서 색 확정: 기준 시안과 작업 지시의 화면 구성에는 `#8A6BFF`, 검증 항목에는 `#AA8EEE`로 적혀 있어 사용자에게 확인했고, 사용자가 `#AA8EEE`를 선택했다. 커서에만 적용하며 카드 뒤 보라 빛 `rgba(138,107,255,.055)`와 공용 `--trace`는 그대로 둔다.
+  - 보존: `handleEnter`→`completeScene('landing')`과 입장 시 `activateFilmSound()`, MemoryField의 숨은 GPU 필드와 `startEntryRef` 1.3초 입장 타이밍, 기록 수집(`enteredAt` 첫 방문만·`timeToEnterMs`·`figureDwellMs`·`cursorTravelPx`·`bounced`), venue 모드의 `전시 소개` 숨김, 움직임 줄이기 경로, 새로고침 시 Landing 시작, 초상 자산과 최신 wordmark. `LandingPortrait.tsx`는 Landing에서 쓰지 않지만 파일은 그대로 두었다. 다른 장면·전역 토큰·공용 스타일·store·카메라·보고서·QR 경로는 건드리지 않았다.
+  - 터치 기기(`(hover: none) and (pointer: coarse)`)에서는 시작 안내 자리에 PC 관람 권장 문구와 `링크 복사`, 작은 `그래도 계속 보기`를 보이고 화면 클릭 입장을 끈다. Landing에만 적용하며 QR 모바일 보고서 경로는 바꾸지 않았다.
+  - 검증과 한계는 UI_IMMERSION_REVIEW.md의 같은 날짜 기록을 따른다. npm run build·git diff --check 통과(기존 500kB 번들 경고). 기존 미커밋/미추적 작업 보존, commit·push·deploy 없음.
+
+- 2026-11-01 구도 비교 시안: 사용자의 요청으로 같은 로고/인물을 쓴 ‘포스터’와 ‘갤러리’ 두 구도를 별도 비교 시안으로 제작했다. 작은 한글 제목을 유지하고 포스터는 큰 하단 로고/인물의 겹침, 갤러리는 중앙 인물/하단 제목·입장 배치로 구분한다. 실제 Landing과 전시 동선에는 추가 적용하지 않았다. 미리보기 lab/landing-directions.html과 대화 내 비교 시안을 만들고 디자인 시스템에 상태를 기록했다. 브라우저에서 전환·입장 안내/복귀·320px 작은 화면 배치 확인, npm run build·git diff --check 통과(기존 번들 경고). 기존 미커밋 작업 보존, commit/push/deploy 없음.
+
+- 2026-11-01 후속: 사용자의 ‘덜 트렌디하고 제목이 너무 크다’는 피드백으로 Landing 제목 비중을 축소했다. LandingScene.css만 추가 수정해 제목 데스크톱 최대 64→48px(1280px 폭 실측 56.32→42.24px), 굵기 500→400, 행간 1.4, 시작 35dvh와 안내/버튼 14px·버튼 폭 176px로 조정했다. 모바일/낮은 창 제목도 축소했다. 최신 로고·카피·인물/입자·입장 동선·공용 스타일·기존 미커밋 작업 보존. 1280×720 브라우저에서 제목 수치·넘침 없음·Tab/Enter→엘리베이터·새로고침 Landing 확인. npm run build 및 git diff --check 통과(기존 번들 경고). 작은 화면·실기기는 미실측. commit/push/deploy 없음.
+
+- 2026-11-01: 사용자 요청으로 Landing을 소폭 정돈했다. Figma Logo 501:99의 최신 벡터(오른쪽 보라색 언더바 없음)를 wordmark.svg에 적용하고 투명 여백을 정리했다. LandingScene.css에서 로고/전시 소개 정렬, 제목 행간·본문 시작 위치, 입장 버튼 폭·간격·중립 경계·hover/focus 반응 및 관람 시간 구분선을 조정했다. 제목 크기/카피·인물/입자·입장 타이밍·전체 동선·기록·공용 스타일은 보존했다. 브라우저 1280×720에서 배치/초점/키보드 입장→엘리베이터, 얼굴 탐색 시 랜딩 유지, 인물 클릭 입장, 새로고침 Landing 확인. npm run build·git diff --check 통과(기존 번들 경고). 작은 화면/실제 터치/인트로 이후 전체 동선은 재검증하지 않았다. 기존 미커밋 문서/미추적 자료 보존, commit/push/deploy 없음.
+
+- 2026-10-31: 최종 전시 흐름/UI 피드백 준비를 위해 [docs/DESIGN_SYSTEM.md](./docs/DESIGN_SYSTEM.md)를 작성했다. 사용자가 제공한 AI디자인스튜디오 Figma의 전시디자인 페이지 구조와 BX의 Visual DNA·Color·Typography·Interaction 보드를 확인하고 현재 코드/확정 결정과 대조했다. Figma/웹 색상·타입·버튼 차이, 본문색 표기/바인딩 불일치, 이전 변경 후 복귀된 최종 기준을 구분했다. 기존 기준은 재작성하지 않았다. 문서만 변경했으며 장면·저장·카메라·음원·기존 미추적 자료는 보존했다. npm run build 및 git diff --check 통과(기존 500kB 번들 경고). 이번에는 브라우저 동선/실기기를 새로 검증하지 않았다. commit/push/deploy 없음. 상세 범위는 UI_IMMERSION_REVIEW.md의 같은 날짜 기록을 따른다.
+
 - 2026-10-06 후속 요청: 사용자가 랜딩/UI/쉬운 카피/중간 영상/약 5분 관람을 새로 요청했다. [UI_IMMERSION_REVIEW.md](./UI_IMMERSION_REVIEW.md)에 상세 평가와 구현 기준을 먼저 기록했다. 이후 관련 수정은 두 문서를 확인한다. 이번 요청으로 Landing 개선과 중간 영상 생략이 허용되며, 기존 인트로·카메라·선택 자료는 보존한다.
 - 2026-10-06 후속 구현 완료: Landing의 버튼 반응/짧은 안내/관람 시간, 쉬운 질문, 접힌 앞 이야기와 보고서 설명, 중간 진입 영상 생략, 보고서 버튼 대기 제거를 적용했다. 실행과 검증 근거 및 5분 목표의 실측 한계는 UI_IMMERSION_REVIEW.md에 기록했다.
 
@@ -127,3 +160,171 @@
 - 2026-10-18 사용자 요청으로 Primary 버튼의 오프화이트 면을 되돌렸다. `global.css`의 Primary 블록(유리면, 보라 점, hover 보라 테두리, active 보라 채움, 비활성 35%)과 기록 레이어 버튼의 개별 hover/focus를 커밋 936a352 상태로 복원했다. 비활성 버튼의 조건 문구는 유지되며 기존처럼 35%로 보인다. 타입 토큰, Plex Mono, 한글 라벨, 색 토큰, 카피 변경은 유지했다. 브라우저(1440×900)에서 빛 장면 버튼이 유리면+보라 점으로, 문장 선택 비활성 버튼이 35% 조건 문구로 보이는 것과, 한글은 Pretendard·Latin 라벨은 IBM Plex Mono로 렌더링되는 것을 확인했다. npm run build·git diff --check 통과.
 
 - 2026-10-18 사용자 요청: 키운 글자 크기를 되돌리고 영문 라벨을 Bebas Neue로 바꿨다. P0에서 `--fs-*`로 바꾼 font-size와 font 축약 선언 120여 곳, StageHeader 행간, 기억 방 높이 계산(288px), 소리 위치 패드(36vh)를 커밋 936a352 값으로 복원했다. `--fs-*` 토큰을 제거하고 `--type-*`는 원래 값으로 되돌렸다. `--font-mono`는 `'Bebas Neue', var(--font-kr)`로 바꿨다. 유지한 것: 한글 라벨의 Pretendard 전환과 자간 0, 색 토큰, 카피·조건 문구, 원래 Primary 버튼. 비교 결과 범위 안 CSS의 크기·행간 선언이 936a352와 같다(다른 에이전트가 추가한 보고서 근거 2줄과 한글 figcaption 서체만 다름). 브라우저(1440×900)에서 질문 22px·라벨 12px·본문 16px, ZONE·BACK·IMG·RPT·HUD가 Bebas Neue로 렌더링되는 것과 새로고침 후 Landing을 확인했다. npm run build·git diff --check 통과. 커밋 없음.
+
+- 2026-11-01 선택 과정 재생 / 후속 방향 반영: 사용자가 작업 중 재생 위치와 방식을 구체화했다. 별도 ‘조사 방식’ 재생 단계 대신 각 발견의 ‘내 기록 살펴보기’ 안에서 실제 행동의 짧은 구간과 근거 요약을 함께 보여준다. 일시정지·다시 보기·임의 단계 선택 없이 한 번 자동 진행하며, 타임라인은 빛→소리→기억→문장 중 해당 발견에 필요한 공간만 표시한다. 같은 공간의 여러 근거는 한 단계로 묶고, 다시 열 때는 요약만 표시한다. 전체 원문·수치는 최종 상세 보고서에 보존했다.
+  - 실제 선택 화면의 DOM 표시 상태·포인터 원좌표/상대시각·진입/이탈/클릭/초점·스크롤/화면 크기를 세션 메모리에 기록한다. 선택 확정 즉시 종료하며, 영상의 inert 해제 전·Activity 비활성·숨겨진 탭은 수집하지 않는다. 재방문은 분리하고 재시작/새로고침 시 새 재생 세션을 사용한다. 원시 기록은 저장·전송·QR·인쇄·해석 서비스에 추가하지 않는다.
+  - 후속 방향의 ‘짧게 요약’에 따라 선택 근처의 연속 구간을 최대 6초씩 원래 1배속으로 재생한다. 움직임/정지의 시간을 보정하지 않으며, 짧은 장면은 마지막 실제 화면을 유지해 읽을 시간을 제공한다. 사진/단어·소리/위치·물건/그리기 여부·문장/빈칸 선택을 구분하고, 해당 단계의 기록이 없으면 다른 화면으로 대체하지 않는다. 드로잉 선 자체의 동영상 재생은 이번 범위가 아니다.
+  - 24인치 iMac 기본 배율 2240×1260 기준으로 기존 근거 창을 1960×980 면으로 확장해 왼쪽 실제 화면/오른쪽 짧은 요약/상단 타임라인을 배치했다. 실제 브라우저와 검증 범위·한계는 UI_IMMERSION_REVIEW.md의 같은 날짜 항목에 남긴다. Landing의 기존 미커밋 작업·원래 조사 방식 단계·분석 엔진·카메라 동의/종료·일곱 소리·QR/인쇄는 보존한다. commit/push/deploy 없음.
+
+- 2026-11-01 재생 창 크기 후속: 사용자의 ‘팝업은 크고 내부 화면은 작다’는 피드백에 따라 ChoiceReplayPlayer.tsx/.css만 조정했다. iMac 2240×1260 기준 창 1960×980→1540×780, 재생/요약 열 비율 1.9:1→2.4:1로 변경했다. 기록 화면 전체의 빈 여백 대신 실제 제목·선택지·이미지·버튼의 표시 영역에 맞춰 확대하며, 원본 배치와 커서에 동일한 변환을 적용한다. 같은 기록 크기에서는 확대 영역을 고정해 클릭마다 줌이 바뀌지 않도록 했다. 1회 자동 진행·타임라인·기록/해석·기존 다른 작업은 보존했다. 2240×1260 및 1280×720, 기본 창에서 배치/닫기·재열기와 새 탭 Landing 확인. npm run build·변경 파일 oxlint·git diff --check 통과(기존 번들 경고). commit/push 없음.
+
+- 2026-11-01 재생 내용 잘림 방지: ‘잘리지는 않게’라는 후속 요청으로 ChoiceReplayPlayer.tsx의 확대 경계를 수정했다. 제목/버튼뿐 아니라 입력란·패널 테두리와 텍스트까지 포함하고, 이후 프레임에서 내용이나 커서가 경계 밖으로 나오면 표시 범위를 넓힌다. 글꼴 로딩 후에도 재측정하며 화면 안쪽 안전 여유를 둔다. 팝업 크기·타임라인·1회 재생·원본 기록은 유지한다. iMac 크기에서 기록 패널 제목/질문/입력란/두 버튼의 변환 후 경계가 모두 재생 영역 안에 있음을 확인했다. 1280×720 넘침 0과 Escape 초점 복귀 확인. 검증 세부는 UI_IMMERSION_REVIEW.md에 추가. commit/push 없음.
+
+
+## 2026-11-01 이야기·문장 단서·재생 중앙 정렬·휴대폰 기록 보강
+
+- 사용자 이미지 1–5 반영: 문장 진입의 앞 이야기를 접기 없이 표시하고, 문장 선택 화면 오른쪽에 이전 빛·소리·물건 단서를 유지했다. 조사 기록 재생의 빈 공간 포인터 때문에 표시 범위가 치우치던 계산을 조정하고, 지연 로딩 CSS의 우선순위로 팝업이 좁아지는 문제를 수정했다. 최종 문서에서 사진과 색 기록을 왼쪽, 빛 그래픽을 오른쪽으로 교환했다. 기존 한 번 자동 재생·수동 재생 조작 없음·타임라인·닫기 및 기존 전시 흐름은 유지했다.
+- QR/휴대폰: QR 모듈과 여백을 보존하며 정수 픽셀 배율로 줄였다(검증 자료 194×194, 이전 260×260). 링크 형식 v2는 선택 ID를 압축하되 선택 단서를 버리지 않으며 이전 v1도 읽는다. 휴대폰에는 원본 사진·색·소리 위치·기억의 방·전체 선택 문장·작성 응답·근거 요약을 보강하고 보고서 전체 PDF 저장용 인쇄 표시와 공유하기/복사 대체 동작을 추가했다. 이전 링크에 없는 응답은 미기록 사실을 안내한다.
+- 저장소 미연결: 짧은 QR과 실제 화면 기록/그림/PC의 상세 근거 전달용 선택적 API 연결 코드를 준비했다. 환경 변수가 없으면 업로드하지 않는다. 계정 생성·외부 업로드·서버 배포·공개 사이트 배포는 하지 않았다. 실제 휴대폰 재생과 짧은 주소는 저장소 연결 후 검증해야 한다. 이번 사용자의 휴대폰 기록 요청에 따른 전송 확장 범위는 웹 선택 화면/입력이며, 카메라·마이크는 포함하지 않는다. 계약과 남은 설정은 [docs/REPORT_TRANSFER.md](./docs/REPORT_TRANSFER.md)에 기록했다.
+- 브라우저: 2240×1260(iMac 24인치 논리 해상도 기준)에서 앞 이야기 자동 표시, 문장 선택/해제/확정과 우측 단서 요약, 카메라 없는 공개→조사 방식→발견→내 기록 재생→최종 문서, 사진/빛 교환과 QR 축소를 확인했다. 새 실제 문장 기록의 재생 창 1540×780/재생 면 약1023×538과 내용 중앙 배치를 확인했다. 휴대폰 390×844에서 상세 보고서·작성 응답·저장/공유 버튼을 확인했다. 캡처: /tmp/unanswered-feedback/sentence-clues.jpg, replay-centered.jpg, report-light.jpg, mobile-report.jpg.
+- 자동 확인: v2/이전 v1 왕복·응답 보존·단서 누락 방지·잘못된 링크, 네이티브 공유/복사 대체/취소 통과. 전송 생성/조회·짧은 참조·없는 기록·잘못된 재생 자료는 가상 fetch로만 검증했다(실제 업로드 없음). 생성된 QR PNG의 디코딩은 통과했으나 축소된 브라우저 JPEG 캡처의 디코딩은 실패했으며 실제 휴대폰 카메라 스캔은 미검증이다.
+- 한계: 실제 iMac 하드웨어·실제 휴대폰·저장소 왕복·공개 배포 링크는 미검증이다. PDF 버튼의 인쇄 호출 후 네이티브 창을 취소했으며 저장된 PDF 파일의 지면 결과는 검증하지 못했다. DEV의 수제 빛 규칙과 캐시 기반 휴대폰 빛의 완전 일치는 확인하지 않았다(저장소 자료는 원본 규칙 전달). 기존 재생 시간/재방문/새로고침 Landing 검증 범위는 이전 항목을 유지하며, 이번 작업에서 전체 인트로 연속 관람·카메라 사용은 반복하지 않았다.
+- npm run build(tsc 포함) 통과, 기존 큰 번들 경고 유지. 대상 TS/TSX oxlint와 git diff --check 통과. 기존 미커밋·동시 작업 및 미추적 원본 보존. git diff --stat/status 확인, commit/push/deploy 없음.
+
+
+## 2026-11-01 무료 저장소 연결 시작 — 로그인 대기
+
+- 사용자의 연결 요청으로 Supabase 대시보드를 Chrome에서 열었으나 로그인된 계정이 없어 로그인 화면에서 사용자 진행을 요청했다. 약관 동의를 대신 진행하지 않았다.
+- 준비: supabase/ 아래 비공개 저장 버킷/메타데이터/용량 예약 SQL과 보고서 생성·개별 조회 Edge Function 초안. 임의 주소·서버 전용 키·허용 origin·크기/분당/일일/총량 제한·동일 본문 중복 방지를 포함한다. UT 동의/설문은 아직 연결하지 않았고, 환경 변수가 없어 기존 외부 전송은 계속 비활성이다.
+- 검증: 서버 가상 요청 테스트(CORS/본문 검증/저장·조회/중복/한도/설정 없음), 서버 handler TypeScript 검사, 대상 oxlint, npm run build 통과(기존 번들 경고). 실제 SQL 실행·배포·저장소 왕복은 로그인 전이라 미검증. 소스 화면 변경 없음, 기존 미커밋/미추적 작업·관람 흐름·카메라·일곱 소리 보존. git diff --check 및 diff --stat/status 확인. commit/push/deploy 없음. 설정은 docs/REPORT_TRANSFER.md에 기록했다.
+
+
+## 2026-11-01 저장소 로그인 후 프로젝트 준비 / 보관 선택 추가
+
+- Supabase 무료 UNANSWERED 조직 생성. 서울 리전·UNANSWERED 프로젝트 이름·테이블 자동 공개 해제·자동 RLS 설정 후, 새 데이터베이스 비밀번호는 사용자 직접 설정/프로젝트 생성을 요청했다. 버킷·서버·실제 연결은 아직 완료되지 않았다.
+- FinalReportScene, FinalRecordLayer, FinalReportDetail와 ReportStorageOptIn을 연결해 보고서 진입 시 자동 전송을 관객의 명시적인 보관 버튼 이후 전송으로 변경했다. 안내에는 선택 화면/포인터/문장/그림 저장과 QR 주소 보유자 접근을 설명하고, 카메라/소리 제외·연구 활용과 별개임을 표시한다. 기존 QR/PDF/공유와 카메라 동의 위치/장면 흐름 보존. .env.example과 로컬 비밀 설정 제외 규칙 추가.
+- 5174 임시 미리보기로 Landing, DEV 최종 문서의 보관 안내와 버튼, 선택 후 로컬 실패 안내·기존 QR/재시도 유지 확인. 기존 5173 유지. npm run build, 대상 oxlint, 서버 handler TypeScript 검사/가상 요청 테스트, git diff --check 통과. 실제 저장소 왕복·성공 후 QR 갱신·UT 설문은 미검증/미연결이다. 기존 미커밋/미추적 작업 보존. git diff --stat/status 확인. commit/push/사이트 배포 없음.
+
+
+## 2026-11-01 Supabase 실제 연결 완료 — 로컬 앱
+
+- Supabase 무료 UNANSWERED 프로젝트(서울, xmthtkgpwmvqhwuntfaj)에 비공개 버킷/메타데이터/요청 제한 SQL 적용 및 reports Edge Function을 배포했다. 서버 REPORT_HASH_SALT 설정, 기본 JWT 검증 ON 유지. 공개 anon JWT와 API 주소만 git 제외 .env.local에 연결했다. 서버 비밀 키 복사/노출 없음.
+- 첫 가상 관람 전송에서 파생 객체에 의존한 effect가 저장을 반복하는 문제를 발견해 테스트 중단 후 버튼 이벤트로 수정했다. 진행 중/완료 후 중복 요청 방지와 이동 시 취소를 추가했다. 수정 뒤 서버 로그에서 한 번의 POST 200 및 GET 200을 확인했다. ReportQr는 qrcode 라이브러리가 덮어쓰는 CSS 크기를 생성 후 복원해 고해상도 캔버스와 표시 크기를 분리했다. 저장 완료 후 안내도 전체 기록으로 바뀐다.
+- 브라우저: 새로고침 Landing, DEV 문장 진입→실제 선택/해제/재선택/응답→기록 레이어→카메라 없는 공개→조사 방식→발견→마무리→최종 문서→명시적 보관→짧은 @ QR 갱신 확인. 원격 기록을 새 로컬 보고서에서 GET하고 PC의 상세 근거/팔레트/문장/응답 복원을 확인했다. 조회 자료의 실제 화면/입력 기록 검증도 통과했다. 휴대폰 크기 390×844 표시 확인, 임시 배율 복원. 원래 IAB 관람 탭의 저장값은 조작하지 않았고 Chrome 시험 탭에서 가상 자료를 사용했다.
+- 서버 권한/용량 SQL 검증: 시험 기록 2개, 총2,692,674바이트, 최대2,689,039바이트, 버킷 공개 false 및 anon 테이블 SELECT false. 새 문서 QR에서 표시 약186px/고해상도 canvas372px 확인.
+- 미완료/한계: 공개 GitHub Pages 프런트 배포, 실물 QR 스캔, 실기기, 모든 Scene의 원격 재생/PDF 파일 출력은 미검증이다. 새로 수집한 문장 자료와 검증한 빛·소리 발견의 근거 장면이 달라 해당 발견의 실제 재생 화면은 검증하지 않았다. UT 동의/후기 설문 수집은 아직 켜지 않았다. 운영 전 보관 기간/삭제 절차 확정 필요.
+- npm run build(tsc 포함), 대상 oxlint, 서버 handler TypeScript 검사, 서버 가상 요청 테스트 및 기존 공유/전송 왕복 테스트, git diff --check 통과. 기존 번들 경고 유지. git diff --stat/status 확인, 기존 미커밋·미추적 작업/카메라/일곱 소리/장면 흐름 보존. commit/push/공개 사이트 배포 없음(저장 API만 배포). 자세한 연결 상태는 docs/REPORT_TRANSFER.md.
+
+
+## 2026-11-01 지금까지의 앱 수정 전체 공개 배포
+
+- 사용자의 명시적인 전체 배포 요청으로 현재 작업 트리의 앱 소스를 npm run deploy로 빌드해 GitHub Pages에 게시했다. 소스 브랜치 커밋/푸시는 하지 않았으며, 기존 배포 방식의 gh-pages 게시 커밋 6460c71fea27b98b31f3a8de5a6d7227bda34781만 생성/반영됐다. 기존 미커밋·미추적 원본은 보존했다. 소스와 연결되지 않은 문서/실험 시안/ZIP/비밀 설정 파일을 공개 자료로 추가하지 않았다.
+- npm run build(tsc 포함) 및 deploy Published 통과(기존 번들 크기 경고). GitHub pages build and deployment 실행 41281571960 success/completed 확인. 공개 HTML의 main-B9GVnDqv.js가 이번 dist/index.html과 일치한다.
+- 실제 공개 브라우저에서 새 Landing→Elevator Entry 진입과 새로고침 Landing, DEV 미표시 확인. 공개 @ 보고서 주소로 Supabase 자료 GET에 성공하고 상세 근거/원본 사진/팔레트/고른 전체 문장/시험 작성 응답/PDF·공유 버튼 복원을 확인했다. 휴대폰 390×844 표시 확인 후 배율 복원. 캡처 /tmp/unanswered-public-landing.jpg, /tmp/unanswered-public-report.jpg.
+- 보존/한계: 카메라 동의/종료와 일곱 소리/기존 전시 흐름을 변경하지 않았다. 이번 배포 검증에서 전체 영상 연속 관람·실기기/물리 QR 스캔·저장된 PDF 출력·공개 환경의 신규 업로드 전 과정을 반복하지 않았다(로컬 실제 업로드는 이전 항목에서 확인). UT 활용 동의/후기 설문은 아직 미구현/미수집이다. git diff --check 및 diff --stat/status 확인. 공개 주소 https://libe396.github.io/unanswered/.
+
+
+## 2026-11-01 엘리베이터 안내 읽기 시간 확대
+
+- 사용자 피드백에 따라 IntroScene.tsx에서 ‘기록은 여러 방에 흩어져 있습니다.’의 상태 전환 간격을 일반 모드 1초→3.2초로 늘렸다. 추가 읽기 시간 2.2초는 reduced motion에서도 축소하지 않는다. 도착 문구/기록 열기 버튼도 같은 만큼 뒤로 이동해 기존 순서를 유지한다. 문 열림·사운드·출발·층 표시·다음 영상 흐름과 기존 미커밋 변경은 보존했다.
+- 로컬 브라우저에서 해당 문구 표시→도착/기록 열기 버튼→인트로 영상 실제 재생(readyState4, paused=false)을 확인했다. 새로고침 Landing 확인. 3.2초는 타이머 설정값이며 브라우저 프레임 단위 실측은 하지 않았다. 실제 reduced motion 환경/실기기는 미검증이다.
+- npm run build 및 대상 oxlint/git diff --check 통과(기존 번들 크기 경고). 기존 배포 요청의 후속 수정으로 npm run deploy Published. 작업 브랜치 소스 커밋/푸시 없이 gh-pages 배포만 진행했다. 공개 반영 결과는 아래 후속 검증에 기록한다.
+
+- 공개 후속 검증: GitHub 배포 실행 41281855165 success/completed, gh-pages b08f692320c5dffa986e505ead158b4f305f9f28. 공개 HTML의 main-BrbSQwkz.js가 이번 빌드와 일치하고 실제 공개 엘리베이터에서 해당 문구 표시를 확인했다. 캡처 /tmp/unanswered-elevator-reading-public.jpg.
+
+
+## 2026-11-01 이미지 피드백 1–4 디자인 조정
+
+- 1: MemoryRoom.tsx/.css에서 선택 번호의 사각형을 지름38px 반투명 원형으로 바꾸고, 물건 이름을 높이36px/반경8px의 반투명 박스로 조정했다. 얇은 밝은 테두리와 글자 그림자로 가독성을 유지한다. 물건 도형·포인터/키보드 대상·선택/해제 로직은 변경하지 않았다.
+- 2: StageHeader.css의 공통 부제목→제목→설명 간격을 12px→8px, 제목/설명 행간을 1.35/1.45로 줄였다. SentenceCluesScene.css에서 헤더 묶음 아래 여백을 추가해 iMac 기준 카드와의 간격32px를 확인했다. 우측 이전 단서·20개 카드·선택 수/확정 조건 유지.
+- 3: RecordLayerSecondVisitScene.css의 데스크톱 상단 정렬을 center/safe center로 변경했다. 2240×1260에서 왼쪽 stage/오른쪽 content/전체 layout의 세로 중심이 모두630px로 일치한다. 좁은 화면의 기존 세로 스크롤/상단 시작 규칙과 레이어 선택·회전은 유지한다.
+- 4: ReportStage06SubjectReveal.css의 ‘모은 단서를 하나로 맞춰 보았습니다.’와 마지막 ‘그 사람을 바라보는 동안…’을 공통 타입 한 단계인32px→28px로 줄였다. 공개 애니메이션/카메라 동의 문구와 위치/카메라 종료 처리·조사 방식 연결은 보존했다.
+- 브라우저: 2240×1260에서 기억 선택·해제·재선택→그리기 생략→문장3개 선택→확정/빈칸 유지→기록 레이어 열기→카메라 없는 공개→조사 방식까지 확인했다. 원형38×38/이름 박스112×36/배경 alpha0.48, 헤더 간격8px·카드 간격32px, 공개 문구28px를 측정했다. 1280×720에서 문장 버튼 아래593px, 기록 확인 버튼 아래571px로 화면/HUD 안전 여유 안에 있고 가로 넘침0이다. 마지막 공개 문구 아래604px 확인. 새로고침 Landing 및 미리보기 크기 복원. 실제 iMac 기기/터치/카메라 사용/공통 헤더를 쓰는 모든 Scene은 이번에 재검증하지 않았다.
+- 캡처: /tmp/unanswered-feedback-memory.jpg, /tmp/unanswered-feedback-sentence.jpg, /tmp/unanswered-feedback-record-center.jpg, /tmp/unanswered-feedback-reveal-setup.jpg, /tmp/unanswered-feedback-reveal-final.jpg. npm run build, 대상 oxlint/git diff --check 통과(기존 번들 경고). 기존 미커밋·미추적 원본 보존, git diff --stat/status 확인. 기존 배포 요청의 후속으로 npm run deploy Published; 소스 브랜치 커밋/푸시 없이 gh-pages 게시만 진행했다. 공개 반영 결과는 후속에 기록한다.
+
+- 공개 후속 확인: 배포 실행41282578152 success/completed, gh-pages3c8dd32cbe471f00e4d143febf71147555248e94. 공개 HTML의 main-Dwfymw65.js가 이번 빌드와 일치하고 새 Landing 표시를 확인했다. 공개 환경에서 네 Scene 전체 관람은 반복하지 않았다.
+
+
+## 2026-11-02 단서 선택 카드 전면 이동
+
+- 사용자 요청으로 RecordLayerSecondVisitScene.tsx/.css만 기능 수정. 카드의 정체/내용/DOM은 유지하면서 클릭한 단서를 전면 slot4에 배치하고, 나머지 세 카드는 원래 순서로 뒤쪽 slot에 놓는다. 기존0.9초 transform 전환으로 선택 카드는12px 위/앞쪽80px로 올라오며 테두리와 유리면을 조금 더 또렷하게 한다. 기존 hover 미리보기·같은 단서 재클릭 해제·키보드 버튼 조작·카드 내용·확인 흐름은 유지한다. reduced motion의 기존 transition:none도 유지한다.
+- 브라우저(로컬, DEV 가상 자료): 2240×1260에서 빛/소리/기억/문장 선택과 각 pinned 카드의 slot4, 빛 카드의 실제 matrix z80 및 다른 카드 z-360/-240/-120을 확인했다. 빠른 연속 변경·동일 단서 해제·Enter 선택·기록 확인 후 기존 카메라 동의 화면 진입 확인.1280×720와800×900에서 최종 카드 배치가 화면 안에 들어옴을 확인했다(800폭 settled left60/right761). 화면 크기 변경 직후의 전환 도중 모든 프레임과 실제 reduced motion/실기기는 실측하지 않았다. 캡처 /tmp/unanswered-card-front-light.jpg, /tmp/unanswered-card-front-memory.jpg, /tmp/unanswered-card-front-narrow.jpg.
+- 선택/관람 저장·카메라/소리·장면 순서·기존 중앙 정렬/미커밋 작업은 보존했다. npm run build(tsc 포함), 대상 oxlint/git diff --check 통과(기존 번들 경고). 기존 공개 배포 요청의 후속으로 npm run deploy 진행. 소스 브랜치 커밋/푸시 없이 gh-pages 게시만 수행하며 공개 결과는 후속에 기록한다.
+
+- 후속 검증/공개: 새로고침 Landing 확인 및 배율 복원. npm run deploy Published, 배포 실행41322606721 success/completed, gh-pages fd7a23c6b2a6a86fa4ab6649c15066e1c1f217c1. 공개 HTML의 main-DCdsMUQ5.js가 이번 빌드와 일치함을 확인했다. 공개 환경에서 해당 장면까지 전체 관람은 반복하지 않았다. git diff --stat/status 확인.
+
+
+## 2026-11-02 카메라 안내 문장별 줄바꿈
+
+- 사용자 브라우저 코멘트에 따라 CameraOptIn.tsx의 확정 안내 두 문장 사이에 br만 추가했다. 문구·두 버튼·동의 위치·카메라 동작은 보존했다. 기존 미커밋 변경 보존.
+- 2240×1260 로컬 브라우저에서 문장별2줄(본문 약57.6px/행간28.8px), 두 버튼 표시 확인. 카메라는 실행하지 않았다. 캡처 /tmp/unanswered-camera-sentence-break.jpg. npm run build(tsc 포함), 대상 oxlint/git diff --check 통과(기존 번들 경고). git diff --stat/status 확인. 기존 배포 요청의 후속으로 배포 진행, 소스 브랜치 커밋/푸시 없음.
+
+- 공개 후속: deploy Published, 배포 실행41323303513 success/completed. 공개 main-sudnm25d.js가 이번 빌드와 일치한다. gh-pages be4c6c94513eba3b5df2ce4a6ef39e84602c265f, 소스 브랜치 커밋/푸시 없음.
+
+
+## 2026-11-02 QR 근거 안의 선택 화면 재생과 선택형 후기
+
+- 사용자 정정 반영: PC 최종 문서의 ‘화면 기록도 함께 가져가기’ 별도 섹션을 제거했다. archive 진입 시 전체 보고서를 한 번 준비하고 QR 안의 각 ‘이 해석의 근거’에 해당 장면·단계의 실제 기록을 읽기 전용으로 삽입한다. 별도 모달/다운로드/재생 버튼 없이 영역이 보일 때 원래 속도 1×로 한 번 재생한다. 기존 선택 순간 요약 구간을 사용하며 멈춤/반복 조작은 추가하지 않았다. 맞는 기록이 없으면 짧게 안내한다. 새 해석·가짜 커서·카메라/마이크 수집 없음.
+- PC 및 QR 보고서 끝에 ‘약 1분 · 후기 남기기’를 추가했다. 전시 의미/재생 도움 정도/불편한 순간을 선택 응답한다. 후기 연구 활용 동의와 관람 기록 연구 연결 동의는 분리했고 모두 기본 미체크다. 후기는 선택 참여이며 보고서 열람·저장·공유와 독립적이다.
+- 사용자 확정 6개월 보관: 비공개 exhibition_feedback 테이블, service-only 함수 및 POST /reports/feedback 배포. 후기 응답/선택적 report_id 연결은 생성 시각+6 calendar months 만료, 매일 pg_cron 정리(17 3 * * *, UTC)를 설정했다. 기존 QR 열람용 파일은 별도 보관이며 이 작업으로 삭제하지 않는다. 익명/인증 사용자 직접 읽기 권한 없음, RLS 켜짐. 링크를 아는 사람이 볼 수 있는 QR 보고서와 연구용 후기 접근은 분리했다.
+- 실제 검증: 390×844 QR 보고서에서 직접 조작해 남긴 기존 문장 선택 기록을 근거 안에 표시했다. 중립적 ‘연결 확인용 시험 기록’ 보고서를 별도 생성했으며 새 움직임이나 해석을 꾸미지 않았다. PC DEV 가상 관람 최종 보고서 자동 QR 준비, 설문 입력 중 QR 주소 유지, 후기만 제출/관람 기록 동의 후 제출 모두 실제 API 성공. 소유자 SQL 조회에서 각각 record_consent/linked=false/false와 true/true, 두 행 모두 six_months=true, anon_can_read=false, RLS=true 확인. 일일 정리 작업 active=true 확인. 새로고침 Landing 확인.
+- 검증: npm run build(tsc 포함), 대상 oxlint, git diff --check, 서버 API/클라이언트 전송·동의 분리·기존 v1/v2 링크·공유 테스트 통과. 기존 큰 번들 경고 유지. 실제 6개월 경과 후 정리/물리 QR 스캔/모바일 실기기/모든 장면의 전체 신규 관람은 미검증이다. QR 안 재생 검증은 실제 문장 기록 중심이며 기존 PC 타임라인·개인 해석 계산·전시 순서·일곱 소리·카메라 동의/종료·PDF/공유를 보존했다.
+- 수정 범위: ExhibitionFeedback 컴포넌트/CSS·클라이언트, 보고서 전송/PC 최종 문서/QR 모바일 보고서/ChoiceReplayPlayer, Supabase 후기 migration/handler/tests. 기존 미커밋·미추적 작업 보존. 소스 커밋/푸시 없음. 캡처 /tmp/unanswered-qr-inline-evidence.jpg, /tmp/unanswered-feedback-phone-form.jpg. 공개 배포 결과는 후속에 기록한다.
+
+- 공개 후속 검증: npm run deploy Published, GitHub Pages 실행41327431055 success/completed, gh-pages7e067314b9c1cbb576e308062d49b44629a4ef4f. 공개 main-CbFRUR7D.js가 빌드와 일치하며 실제 공개 @ 보고서에서 근거 안의 iframe 재생과 후기 폼/6개월 안내를 확인했다(390×844). 캡처 /tmp/unanswered-qr-evidence-public.jpg, /tmp/unanswered-feedback-public.jpg. 테스트 자료만 사용했으며 별도 연구 데이터 공개 경로는 만들지 않았다. 미리보기 크기 복원/시험용 로컬 탭 정리. 기존 미커밋 상태 보존, 소스 커밋/푸시 없음.
+
+
+## 2026-11-02 전시 소개 — Overview / Research / Result
+
+- 사용자 제공 계획을 실제 /catalog/에 반영했다. 고정 3탭, 5개 스냅 챕터(표지·마무리 포함), 6주제의 Research 목록과 독립 상세, 원본 자료 펼침, Result 도록 뷰어를 구현했다. 기존 아카이브 11개 원문과 블록 렌더러는 보존했다. 탭별 스크롤·연구 상세·도록 위치를 유지하며 이전 #archive-NN 주소와 브라우저 뒤로 가기를 지원한다.
+- Figma 원본에서 웹도록의 보이는 16개 챕터와 인쇄도록 내지 3면을 등록했다. 비율을 유지한 WebP/썸네일(도록 약7.34MB), 초기 연구 이미지 7점과 실제 빛 그래픽 초안 1점을 추가했다. 원본 노드 대응은 public/catalog/results/sources.json에 기록했다. 인쇄도록 한 면/펼침면, 각 면 확대·원본 크기 읽기·Escape 닫기를 제공한다. 최종 인쇄 PDF는 제공되지 않아 다운로드를 연결하지 않았다.
+- 수정 범위: src/catalog/CatalogPage.tsx·ArchivePart.tsx, 신규 Overview.tsx·Research.tsx·Result.tsx·editorialContent.ts·editorial.css, catalog/index.html, public/catalog/의 신규 자산과 두 기준 문서. 기존 Landing·입장/장면 흐름·store·카메라·일곱 소리·개인 보고서/QR과 기존 미커밋·미추적 자료는 변경하지 않았다.
+- 검증: npm run build(tsc 포함), 대상 oxlint, git diff --check 통과(기존 500kB 번들 경고 유지). 브라우저 1920×936·1440×900·1135×774·390×844에서 배치/가로 넘침0 확인. 1440에서 각 챕터 본문 높이824px, 실제 스크롤 스냅·직접 챕터 이동·탭 복귀·Research 필터/상세/원문·도록 페이지/종류/펼침면/확대·기존 주소/뒤로 가기·Landing→소개→Landing→엘리베이터·새로고침 Landing 확인. 상세 한계는 UI_IMMERSION_REVIEW.md에 기록한다. git diff --stat/status 확인. commit/push/공개 배포 없음.
+
+
+## 2026-11-02 전시 소개 보완 — 인터랙션·여백·웹도록 원본
+
+- 사용자 후속 피드백: 인터랙션을 너무 생략했고 화면이 빽빽하며 텍스트가 많다. Result의 웹도록은 재구성하지 말고 웹도록 자체를 업로드한다. 이 요청에 따라 앞선16챕터 분할 뷰어 계획/구현을 원본 전체 보기로 대체했다. 기존 기준의 다른 항목은 유지한다.
+- Overview의 문단/동시 도판/중복 메타를 줄이고 최대960px 작업 폭과 챕터 안쪽 여백을 늘렸다. 글자 등장, 빛 이미지의 흐림→선명·기울기 반응, 초기 실험 이미지 강조, 감각 공간 크로스페이드, 제작 단계 전환을 보강했다. 기존 shared.tsx의 FinalViewer(감정3종 선택/결과 크로스페이드/확대)를 재사용했다. 기록 카드 선택과 이전 소개의 체류 시간 응답도 다시 제공한다(페이지 메모리만 사용, 외부 전송 없음). Research 목록의 중복 요약/분류 표시는 줄이되 원문11개는 보존했다.
+- 웹도록은 Figma873:2514 전체 export 파일(1920×31320 JPEG, 32,924,611bytes)을 가공/재압축/분할/재배열하지 않고 public/catalog/results/web-catalogue-original.jpg에 등록했다. 원본 파일의 바이트 수와 SHA-256을 확인·기록했다. Result는 이 파일1개를 연속 스크롤로 표시하며 원본 크기 보기/원본 내려받기를 제공한다. 각색한 웹 목차·제목·페이지 이동을 제거했다. Result 첫 진입 때 요청하며 읽던 위치와 인쇄도록3면/확대를 유지한다.
+- 수정: Overview.tsx, Result.tsx, CatalogPage.tsx, editorial.css, editorialContent.ts, 원본 JPG·sources.json 및 두 기준 문서. shared/Cine/원문 데이터·Landing·본 전시 장면/카메라/소리/보고서/QR과 기존 미커밋 작업은 보존했다.
+- npm run build(tsc 포함), 대상 oxlint·git diff --check 통과(기존 큰 번들 경고 유지). 브라우저1440×900·1135×774에서5챕터 한 화면/버튼 잘림 없음, 390×844에서 가로 넘침0과 그래픽 선택/확대·원본 도록 보기 확인. 인터랙션·원본 파일·인쇄 면 전환·탭 위치·Landing→소개→Landing→엘리베이터·새로고침 Landing 검증. 상세와 한계는 UI_IMMERSION_REVIEW.md에 기록. git diff --stat/status 확인, commit/push/공개 배포 없음.
+
+
+## 2026-11-02 전시 후기 공용 QR
+
+- 사용자 요청으로 공개 #/feedback 전용 주소를 추가했다. 기존 ExhibitionFeedback 양식이 처음부터 열린 상태이며 개인 보고서 없이 후기만 남긴다. 공용 QR에는 관람자/보고서 ID가 없고 연구용 관람 기록 연결 동의도 표시하지 않는다. 후기 활용 동의와6개월 보관은 기존 정책을 유지한다.
+- 변경: src/App.tsx, ExhibitionFeedback.tsx의 standalone 옵션, 새 FeedbackPage.css 및 outputs/unanswered-feedback-qr.png(1200px)/svg/preview.png(360px). QR 여백4모듈·흑백·오류복원M, OpenCV로 실제 PNG를 해독해 공개 전용 주소와 일치 확인.
+- 로컬390×844에서 양식 기본 펼침/가로 넘침0, 시험 응답을 실제 서버에 전송하고 감사 메시지 확인. 공용 후기에는 reportRef를 보내지 않는다. UNANSWERED 링크로 기존 Landing 복귀를 확인하며 미리보기 크기를 복원한다. npm run build 및 대상 oxlint/git diff --check 통과(기존 큰 번들 경고). 물리 휴대폰 스캔은 미검증이다.
+- 기존 미커밋/미추적 작업·개인 보고서와 QR·카메라·전시 장면 순서 유지. 소스 commit/push 없음. 공개 배포 결과는 후속에 기록한다.
+
+## 2026-11-02 전시 소개 — 최신 Figma 이미지와 유리 패널
+
+- 사용자 확정: 최신 이미지는 실제 구현 화면이 아닌 Figma 최신 원본 시안 기준. Overview의 대표 장면·감각 공간·초안/변환 그래픽·보고서/조사원증/편지를 최신 원본으로 교체했다. shared FinalViewer 데이터도 같은 자산을 사용한다. 초기 리서치의 역사 자료는 보존한다.
+- 제목을 Semibold600으로 바꾸고, 설명을 제목 오른쪽에 왼쪽 정렬했다. 설명과 도판/조작 영역에 반투명 유리 표면·얇은 테두리·절제된 빛을 적용했다. 하단 안내와 버튼을 패널에 묶고 내용 폭을 맞췄다. 좁은 화면에서는 설명을 아래로 배치해 잘림을 방지한다. 기존 등장/초점/공간/감정/기록 카드 인터랙션과5챕터 스냅을 유지한다.
+- 웹도록은 제출 복사본873:2514 대신 최신 원본572:174(1920×32785)을 등록했다. 전체 노드 export가240×4096으로 축소되어, 보이는 직계 자식16개를 각각 원본1920px 폭으로 받아 Figma의 원래 x/y·크기·간격·바탕 그대로 무손실 PNG 한 장으로 합쳤다. 각색/재배열 없음. 출처·치수·해시는 latest-original-sources.json에 기록했다. 이전 원본 JPG와 인쇄도록은 보존했다.
+- 변경: src/catalog/Overview.tsx·CatalogPage.tsx·Result.tsx·editorialContent.ts·content.js, 신규 glass.css, public/catalog/latest/ 및 최신 웹도록·출처, 두 기준 문서. 본 전시 장면과 다른 기존 변경은 유지했다.
+- 검증: npm run build(tsc 포함) 통과, 대상 oxlint·git diff --check 통과. Chrome1440×900·1135×774에서 제목600/오른쪽 설명/공간 전환/감정 선택/기록 선택·확대 확인.1135에서5챕터 각각698px·가로 넘침0,390×844에서 가로 넘침0·선택/확대 확인. Result 최신 원본 natural1920×32785 로드와 인쇄 마지막 면 이동 확인. git diff --stat/status 확인. commit/push/공개 배포 없음.
+- 추가 확인: 전시 입장→Landing→Elevator Entry, 새로고침 Landing, 전시 소개 복귀 정상.
+
+- 공개 후속: deploy Published, Pages 실행41330591559 success, gh-pages c3a11a473504f511e06b35bb3d3ecae3ab8ad99e. 공개 #/feedback에서 양식 기본 펼침과 main-D_Eo1XST.js 일치를 확인했다. 공개390×844 캡처 /tmp/unanswered-feedback-qr-public.jpg. git diff --stat/status 확인, 소스 commit/push 없음.
+
+
+## 2026-11-02 후기 QR 흰색/투명 버전
+
+- 사용자 요청으로 outputs/unanswered-feedback-qr-white.png(1200px), white-preview.png(360px), white.svg를 새로 생성했다. 원래 흑백 버전·후기 주소·페이지·저장 동작은 유지한다. 배경 alpha0/QR 흰색 alpha255 및 반전 검증 영상에서 OpenCV 해독 주소 일치를 확인했다. 실제 기기의 흰색 QR 스캔은 미검증이며 어두운 배경에 배치하는 버전이다. 소스 commit/push·공개 배포 없음. 빌드와 git 확인 결과는 후속 기록한다.
+
+- 후속 검증: npm run build(tsc 포함) 통과(기존 큰 번들 경고), git diff --check/stat/status 확인. 실제 투명 PNG 미리보기 확인. 기존 미커밋 작업 보존, 소스 commit/push 없음.
+
+## 2026-11-02 전시 소개 — 반복 카드 제거
+
+- 사용자 피드백 ‘카드만 있어 별로’에 따라 glass.css만 조정했다. 도판 영역의 둥근 외곽선·면·그림자와 하단 박스, 감정 선택의 둥근 테두리를 제거했다. 설명 오른쪽 정렬과 Semibold600은 유지하고, 설명 뒤에는 왼쪽 얇은 선과 옅게 사라지는 반투명 면만 남겼다. 공간/표지 이미지를 확대하고 도판을 열린 여백에 배치했다.
+- 최신 Figma 자산·원본 Result·Research 자료·모든 기존 선택/애니메이션·5개 스냅과 Landing/본 전시 흐름은 유지했다. 기록물 자체를 나타내는 기존 겹친 오브젝트 선택은 보존했다.
+- npm run build(tsc 포함) 및 git diff --check 통과(기존 번들 경고 유지). Chrome1440×900 실제 렌더와 공간/감정 전환 확인.1135×774에서5개 섹션698px·가로 넘침0·제목600·도판 외곽선0 확인.390×844 반응형 확인. git diff --stat/status 점검. 기존 다른 미커밋 작업 보존, commit/push/배포 없음.
+
+
+## 2026-11-02 후기 페이지 로고·스크롤·질문 정정
+
+- 사용자 피드백: 후기 전용 페이지의 일반 텍스트 UNANSWERED를 기존 src/assets/wordmark.svg 실제 로고로 교체했다. 전시 전역 overflow:hidden/clip은 유지하면서 후기 main만 fixed inset0/100dvh/overflow-y:auto로 만들어 독립 스크롤을 보장했다. 안쪽 최대636px/모바일24px 여백, 하단 안전 여백을 유지한다.
+- 공유 후기 컴포넌트의 제목은 ‘이 전시가 당신에게 어떻게 다가왔나요?’, 설명은 ‘짧은 후기를 남겨주세요. 다음 전시를 위한 소중한 자료가 됩니다.’로 변경했다. Q1–Q3 번호를 붙이고 ‘해당 장면을 보지 못했습니다.’ 선택지를 제거했다. 기존 저장 자료의0값 호환/서버 스키마·6개월 보관·선택적 연구 연결과 개인 보고서 흐름은 변경하지 않았다.
+- 수정: src/App.tsx, src/components/FeedbackPage.css, ExhibitionFeedback.tsx 및 두 기준 문서. 390×844 브라우저에서 실제 SVG 로드/가로 넘침0, content1219px 대 viewport844px, 실제 스크롤 scrollTop375.5와 마지막 버튼 y730–780px로 화면 안에 들어옴 확인. 번호/새 문구/삭제 선택지 확인. 127.0.0.1 로컬 제출은 CORS 연결 실패로 완료되지 않았고 입력/재시도 상태는 유지됨을 확인했다. 실제 공개 저장 검증은 후속에 기록한다.
+- npm run build(tsc 포함), 대상 oxlint, git diff --check 통과(기존 큰 번들 경고). 기존 미커밋/미추적 작업 보존. QR 주소/이미지는 동일하게 사용하며 소스 commit/push 없음. 실제 Safari/터치 기기 스크롤은 미검증이다.
+
+- 공개 후속: deploy Published, Pages 실행41385287841 성공/gh-pages a62dccdcfd6cbaa7b17a739f190e626292261d45. 공개 main-Cv-_quRY.js 일치. 공개 시험 응답 실제 제출 후 감사 메시지 확인. 공개390×844에서도 실제 스크롤375.5px/보내기 버튼 하단779.95px/가로 넘침0, SVG 로드 확인. 캡처 /tmp/unanswered-feedback-fixed-mobile.jpg. 임시 배율 복원. git diff --stat/status 확인, 소스 commit/push 없음.
+
+## 2026-11-03 전시 소개 표지 로고 교체
+
+- 사용자가 Overview 첫 챕터의 일반 텍스트 UNANSWERED를 선택해 기존 로고로 교체를 요청했다. 후기 페이지·Landing·소개 헤더와 같은 src/assets/wordmark.svg를 사용한다.
+- src/catalog/Overview.tsx의 motion.h1 안쪽 글자만 img(alt="UNANSWERED")로 바꾸고, glass.css에 .hero-wordmark 크기 규칙 한 줄(clamp(200px,24vw,320px))을 더했다. h1의 id·aria-labelledby·흐림→선명 등장 애니메이션과 '미응답' 윗줄, 설명 유리 패널, 전시 입장 링크는 그대로 두었다.
+- 검증: npm run build(tsc 포함) 통과, 대상 oxlint·git diff --check 통과. 브라우저 실제 렌더에서 SVG 로드(natural 322×64), 903px 217×43 / 1440×900 320×63 / 390×844 200×40, 오른쪽 끝 224px로 가로 넘침0, 챕터 높이 824px 유지, 콘솔 오류0 확인.
+- 다른 장면·본 전시 흐름·기존 미커밋 작업은 변경하지 않았다. commit/push/공개 배포 없음.

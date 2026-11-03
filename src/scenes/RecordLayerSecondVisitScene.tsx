@@ -141,8 +141,16 @@ export function RecordLayerSecondVisitScene() {
       }`
     : null;
 
-  /** Bring a pane forward without moving it out of the stack. */
   const liftedLayer = hoveredLayer ?? pinnedLayer;
+  // Keep the panes mounted with their own content; move the chosen one into
+  // the front slot while the other three use their original order.
+  const layerOrder = [...LAYERS.filter(layer => layer.n !== pinnedLayer).map(layer => layer.n),
+    ...(pinnedLayer === null ? [] : [pinnedLayer])];
+
+  function handlePinLayer(n: number) {
+    setPinnedLayer(current => current === n ? null : n);
+    if (!prefersReducedMotion) markMoving();
+  }
 
   function markMoving() {
     setIsMoving(true);
@@ -156,9 +164,9 @@ export function RecordLayerSecondVisitScene() {
   }
 
   function paneClass(n: number) {
-    return `record-layer-second-visit__pane record-layer-second-visit__pane--${n}${
+    return `record-layer-second-visit__pane record-layer-second-visit__pane--${n} record-layer-second-visit__pane--slot-${layerOrder.indexOf(n) + 1}${
       liftedLayer === n ? ' record-layer-second-visit__pane--lifted' : ''
-    }`;
+    }${pinnedLayer === n ? ' record-layer-second-visit__pane--pinned' : ''}`;
   }
 
   return (
@@ -284,9 +292,9 @@ export function RecordLayerSecondVisitScene() {
         {/* ── The column that reads it back ─────────────────────────────── */}
         <div className="record-layer-second-visit__content">
           <p className="record-layer-second-visit__eyebrow">모은 기록</p>
-          <h1 className="record-layer-second-visit__title">당신이 고른 단서들입니다</h1>
+          <h1 className="record-layer-second-visit__title">지금까지 고른 단서</h1>
           <p className="record-layer-second-visit__desc">
-            각 흔적을 눌러 다시 살펴볼 수 있습니다.
+            눌러서 다시 볼 수 있습니다.
           </p>
 
           <ul className="record-layer-second-visit__legend">
@@ -302,7 +310,7 @@ export function RecordLayerSecondVisitScene() {
                   onPointerLeave={() => setHoveredLayer(null)}
                   onFocus={() => setHoveredLayer(layer.n)}
                   onBlur={() => setHoveredLayer(null)}
-                  onClick={() => setPinnedLayer((current) => (current === layer.n ? null : layer.n))}
+                  onClick={() => handlePinLayer(layer.n)}
                 >
                   <span className="record-layer-second-visit__legend-no">
                     {String(layer.n).padStart(2, '0')}

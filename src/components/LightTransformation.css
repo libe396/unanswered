@@ -1,7 +1,7 @@
 .light-transformation { position: relative; width: 100%; height: 100%; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding: 76px 24px 80px; background: var(--bg-base); text-align: center; gap: 16px; }
 .light-transformation > * { flex-shrink: 0; }
 .light-transformation__eyebrow { font-size: var(--type-meta); color: var(--trace); margin: 0; }
-.light-transformation h1 { font-size: 1.375rem; line-height: 1.5; margin: 0; font-weight: 500; }
+.light-transformation h1 { font-size: var(--type-question); line-height: 1.5; margin: 0; font-weight: var(--weight-question); }
 .light-transformation__stage { position: relative; width: min(470px, 78vw, calc(100dvh - 330px)); aspect-ratio: 1; margin: 4px 0; overflow: hidden; isolation: isolate; background: #090a10; }
 .light-transformation__photo { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
 .light-transformation__photo img, .light-transformation__photo svg { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -19,3 +19,26 @@
 .light-transformation--static * { animation: none !important; transition: none !important; }
 @media(max-width: 600px) { .light-transformation h1 { font-size: var(--type-body); } }
 @media(prefers-reduced-motion: reduce) { .light-transformation * { animation: none !important; transition: none !important; } }
+
+/* Booth iMac 24" (2026-11-03): the analysis step keeps its centred layout but
+   its question sits at the same height as the photo and word steps before it.
+   Those steps (shared Stage) are one 688px block centred in the band between
+   --stage-top and --stage-bottom, so this top padding lands the eyebrow on the
+   same line; the step can change without the heading moving. The photo gets
+   20px more air below the question (16px gap + --sp-24). */
+@media (min-width: 1800px) and (min-height: 1000px) {
+  .light-transformation {
+    padding-top: calc(var(--stage-top) + (100dvh - var(--stage-top) - var(--stage-bottom) - 688px) / 2);
+  }
+
+  .light-transformation__stage {
+    margin-top: var(--sp-24);
+  }
+
+  /* Same eyebrow → title spacing and title line height as StageHeader, so the
+     heading block is the same height on every light step (16px flex gap - 8). */
+  .light-transformation h1 {
+    margin-top: calc(var(--sp-8) - 16px);
+    line-height: 1.35;
+  }
+}

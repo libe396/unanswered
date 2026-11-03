@@ -1,3 +1,4 @@
+import { useChoiceReplay } from '../hooks/useChoiceReplay';
 import { buildSentenceNarrativeContext } from '../lib/sentenceNarrative';
 import { useInteractionClock } from '../hooks/useInteractionClock';
 import { useEffect, useRef, useState } from 'react';
@@ -144,7 +145,7 @@ const RESPONSE_MAX_HEIGHT = 224;
 
 const RESPONSE_MAX_LENGTH = 100;
 const DISCOVERING_MIN_MS = 300;
-const DEFAULT_DISCOVERING_TEXT = '아직 확인되지 않은 부분이 있습니다.';
+const DEFAULT_DISCOVERING_TEXT = '한 군데가 비어 있습니다.';
 
 /**
  * How the Zone reads its own record back, in development.
@@ -220,6 +221,7 @@ export function SentenceCluesScene() {
   });
 
   const [phase, setPhase] = useState<Phase>('context');
+  const finishReplay = useChoiceReplay('sentenceClues', phase, phase === 'explore' || phase === 'question', '.sentence-clues-scene');
   const [previewOpen, setPreviewOpen] = useState(false);
   const interactionNow = useInteractionClock();
   const enteredAtRef = useRef(interactionNow());
@@ -343,6 +345,7 @@ export function SentenceCluesScene() {
     // moment is one closed question, and everything POST_SENTENCE_HESITATION
     // and msFromLastEditToCommit read is measured against this commit. No
     // step after this one changes which fragments were drawn.
+    finishReplay();
     tracking.commit(SENTENCE_GROUP);
     startFinalReportBgmLayer();
     setPhase('reconstruction');
@@ -422,6 +425,7 @@ export function SentenceCluesScene() {
    * as typed. See dropTrailingLoneJamo.
    */
   function proceedFromQuestion(skip: boolean) {
+    finishReplay();
     isComposingRef.current = false;
     const live = responseInputRef.current?.value ?? responseText;
     const trimmed = dropTrailingLoneJamo(live.trim());
@@ -469,25 +473,28 @@ export function SentenceCluesScene() {
   /* ── zoneIntro / context ─────────────────────────────────────────────────── */
 
 
+  const collectedClues = (
+    <dl className="sentence-clues-scene__clue-strip" aria-label="수집한 단서 요약">
+            <div><dt>색</dt><dd>{lightArchive?.rules.palette.length ? <div className="sentence-clues-scene__swatches">{lightArchive.rules.palette.map((color, index) => <span key={index} style={{ backgroundColor: color }} role="img" aria-label={color} />)}</div> : '기록 없음'}</dd></div>
+            <div><dt>소리</dt><dd>{SOUND_CLUES.find(sound => sound.id === soundClues.selectedSoundId)?.label ?? '기록 없음'}</dd></div>
+            <div><dt>물건</dt><dd>{memorySketch.selectedObjects.length ? memorySketch.selectedObjects.map(id => MEMORY_ROOM_OBJECTS.find(object => object.id === id)?.label ?? id).join(' · ') : '기록 없음'}</dd></div>
+          </dl>
+  );
+
   if (phase === 'context') {
     const narrative = buildSentenceNarrativeContext(lightArchive, soundClues, memorySketch);
-    const selectedSound = SOUND_CLUES.find(sound => sound.id === soundClues.selectedSoundId);
     const selectedObjects = memorySketch.selectedObjects.map(id => MEMORY_ROOM_OBJECTS.find(object => object.id === id)?.label ?? id);
     return (
       <div className="sentence-clues-scene sentence-clues-scene--context">
         <div className="sentence-clues-scene__intro">
-          <details className="sentence-clues-scene__recovered-story">
-            <summary>고른 단서로 앞 이야기 읽기</summary>
+          <section className="sentence-clues-scene__recovered-story" aria-labelledby="recovered-story-title">
+            <h2 id="recovered-story-title">고른 단서로 이어진 앞 이야기</h2>
             {narrative.paragraphs.filter((_, index) => index < 3 || selectedObjects.length > 0).map((paragraph, index) => <p key={index}>{paragraph}</p>)}
             <p className="sentence-clues-scene__story-gap">{narrative.missingSegmentText}</p>
-          </details>
+          </section>
           <h1>그 뒤의 이야기는 어떻게 이어질까요?</h1>
           <p className="sentence-clues-scene__intro-guide">이어질 것 같은 문장을 {SENTENCE_MIN_FRAGMENTS}~{SENTENCE_MAX_FRAGMENTS}개 골라 주세요.</p>
-          <dl className="sentence-clues-scene__clue-strip" aria-label="수집한 단서 요약">
-            <div><dt>색</dt><dd>{lightArchive?.rules.palette.length ? <div className="sentence-clues-scene__swatches">{lightArchive.rules.palette.map((color, index) => <span key={index} style={{ backgroundColor: color }} role="img" aria-label={color} />)}</div> : '기록 없음'}</dd></div>
-            <div><dt>소리</dt><dd>{selectedSound?.label ?? '기록 없음'}</dd></div>
-            <div><dt>물건</dt><dd>{selectedObjects.length ? selectedObjects.join(' · ') : '기록 없음'}</dd></div>
-          </dl>
+          {collectedClues}
           <button className="cta cta--primary" onClick={() => setPhase('explore')}>문장 고르기</button>
         </div>
       </div>
@@ -504,7 +511,10 @@ export function SentenceCluesScene() {
 
         {/* Keep the full archive and offer a reading guide plus an optional
             preview of the visitor's current account. */}
-        <StageHeader eyebrow="문장의 흔적" title="그 뒤의 이야기는 어떻게 이어질까요?" description="이어질 이야기 3–5개를 골라 주세요." />
+        <div className="sentence-clues-scene__explore-head">
+          <StageHeader eyebrow="문장의 흔적" title="그 뒤의 이야기는 어떻게 이어질까요?" description="이어질 이야기 3–5개를 골라 주세요." />
+          <aside className="sentence-clues-scene__collected" aria-label="앞서 고른 단서">{collectedClues}</aside>
+        </div>
 
         <div className="sentence-clues-scene__wall scroll-quiet" aria-label="전체 문장 기록">
           {SENTENCE_RECONSTRUCTION_FRAGMENTS.map((fragment) => {
@@ -557,7 +567,7 @@ export function SentenceCluesScene() {
                       ? '다른 문장을 고르려면 선택한 기록을 해제하세요.'
                       : isValid
                         ? '선택한 문장을 다시 누르면 해제됩니다.'
-                        : `이어질 것 같은 문장을 ${SENTENCE_MIN_FRAGMENTS}–${SENTENCE_MAX_FRAGMENTS}개 골라 주세요.`}
+                        : '고른 문장'}
                 </span>
               </p>
             }
@@ -714,7 +724,7 @@ export function SentenceCluesScene() {
                 <p className="sentence-clues-scene__panel-eyebrow">선택한 기록</p>
                 <h1 className="sentence-clues-scene__panel-title">고른 문장이 모였습니다.</h1>
                 <p className="sentence-clues-scene__panel-desc">
-                  기록 사이에 아직 채워지지 않은 빈칸이 있습니다.
+                  문장 사이에 빈칸이 하나 있습니다.
                 </p>
                 <div className="sentence-clues-scene__panel-actions">
                   <button className="cta cta--primary" onClick={() => setPhase('discovering')}>
@@ -812,7 +822,7 @@ export function SentenceCluesScene() {
                     ? '왼쪽 표시된 문장은 당신이 덧붙인 기록입니다.'
                     : noQuestionAvailable
                       ? '더 채울 빈칸이 남아 있지 않았습니다.'
-                      : '대답하지 않은 것도 하나의 기록으로 남습니다.'}
+                      : '비워 둔 칸도 그대로 남습니다.'}
                 </p>
                 <div className="sentence-clues-scene__panel-actions">
                   <button className="cta cta--primary" onClick={handleComplete}>

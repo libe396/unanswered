@@ -13,7 +13,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 0 var(--sp-32);
+  padding: 0 var(--stage-gutter);
   box-sizing: border-box;
   overflow-x: hidden;
   overflow-y: auto;
@@ -891,7 +891,7 @@
 }
 
 /* Names have their own reading measure; the glass and icons keep their size. */
-.sound-clues-scene { --stage-max: 1280px; }
+.sound-clues-scene { --stage-max: var(--stage-frame); }
 .sound-clues-scene__shelf-row { gap: 18px; }
 .sound-clues-scene .sound-clues-scene__cloche-caption-label {
   font-size: var(--type-body); line-height: 1.4; max-width: none;
@@ -1003,8 +1003,8 @@
 /* Shared order: interaction first, listening beneath it. */
 .sound-clues-scene:not(.sound-clues-scene--positioning) .sound-clues-scene__shelf-scroll { max-width: 1000px; }
 .sound-clues-scene:not(.sound-clues-scene--positioning) .sound-clues-scene__shelf-row { gap: 8px; }
-.sound-clues-scene .sound-clues-scene__cloche-caption-label { font-size: 12px; white-space: nowrap; max-width: none; min-height: 18px; width: auto; line-height: 1.5; }
-.sound-clues-scene .sound-clues-scene__selection-check { font-size: 12px; margin-left: 3px; }
+.sound-clues-scene .sound-clues-scene__cloche-caption-label { font-size: var(--type-label); white-space: nowrap; max-width: none; min-height: 18px; width: auto; line-height: 1.5; }
+.sound-clues-scene .sound-clues-scene__selection-check { font-size: var(--type-label); margin-left: 3px; }
 .sound-clues-scene .sound-clues-scene__cloche-caption { min-height: 50px; }
 .sound-clues-scene--positioning .sound-clues-scene__field-block { flex: 0 0 auto; margin-top: 22px; min-height: 0; padding: 0; }
 .sound-clues-scene--positioning .sound-clues-scene__field-frame { width: min(300px, 36vh); }
@@ -1015,4 +1015,23 @@
  .sound-clues-scene--positioning .sound-clues-scene__field-frame { width: min(280px,32vh); }
  .sound-clues-scene--positioning .sound-clues-scene__player { margin-top: 20px; padding: 12px 0; min-height: 60px; }
  .sound-clues-scene--positioning > .stage-actions { padding-top: 12px; }
+}
+
+/* Shared frame (2026-11-01): the question stays at the frame's top-left; the
+   shelf (or the position pad) centres in the height between it and the action
+   row, which already sits at the bottom. The header margin is the minimum gap
+   on short screens, where the auto margins collapse to 0. The position pad
+   has no spare height at 1135×774 (its top axis label is the gap there). */
+.sound-clues-scene:not(.sound-clues-scene--positioning) > .stage-head { margin-bottom: var(--sp-24); }
+.sound-clues-scene:not(.sound-clues-scene--positioning) > .sound-clues-scene__shelf-scroll { margin-top: auto; }
+.sound-clues-scene.sound-clues-scene--positioning > .sound-clues-scene__field-block { margin-top: auto; }
+
+/* Booth iMac 24" (2026-11-03): one centred block — question, shelf (or pad)
+   and action row — instead of question at the top and actions at the bottom. */
+@media (min-width: 1800px) and (min-height: 1000px) {
+  .sound-clues-scene { justify-content: safe center; }
+  .sound-clues-scene:not(.sound-clues-scene--positioning) > .sound-clues-scene__shelf-scroll { margin-top: var(--sp-16); }
+  .sound-clues-scene.sound-clues-scene--positioning > .sound-clues-scene__field-block { margin-top: var(--sp-24); }
+  .sound-clues-scene:not(.sound-clues-scene--positioning) > .stage-actions,
+  .sound-clues-scene.sound-clues-scene--positioning > .stage-actions { margin-top: var(--sp-40); }
 }

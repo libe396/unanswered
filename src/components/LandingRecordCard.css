@@ -1,0 +1,371 @@
+/* The Landing record card. Sizes are viewport-proportional on purpose: the
+   venue screen is a 24" iMac at 2240×1260 and the same composition has to hold
+   at 1440×900 and 1280×720. This is local to Landing — the global type scale
+   and the shared glass are untouched.
+
+   Colours that only exist in this object (the paper the print is on, the
+   ink of the dim archive plates) are declared here rather than promoted to
+   tokens; nothing else in the exhibition uses them. */
+.landing-record {
+  --rx: 0deg;
+  --ry: 0deg;
+  --px: 0;
+  --py: 0;
+  --record-left: 65%;
+  --record-top: 51%;
+  --record-glass: rgba(226, 220, 246, 0.22);
+  --record-note: #8e8a99;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* ── behind the glass ──────────────────────────────────────────────────── */
+
+.landing-record__glow {
+  position: absolute;
+  z-index: 1;
+  left: var(--record-left);
+  top: var(--record-top);
+  width: 64vh;
+  aspect-ratio: 1;
+  --d: 8px;
+  transform: translate(-50%, -50%) translate(calc(var(--px) * var(--d)), calc(var(--py) * var(--d)));
+  background: radial-gradient(
+    circle,
+    rgba(138, 107, 255, 0.055) 0%,
+    rgba(138, 107, 255, 0.015) 45%,
+    transparent 70%
+  );
+}
+
+.landing-record__ghost {
+  position: absolute;
+  z-index: 1;
+  left: var(--record-left);
+  top: var(--record-top);
+  height: 62vh;
+  width: auto;
+  --d: 10px;
+  transform: translate(-50%, -50%) translate(calc(var(--px) * var(--d)), calc(var(--py) * var(--d)));
+  filter: blur(42px);
+  opacity: 0.42;
+  user-select: none;
+}
+
+/* Records that are not ours to read, stacked away behind this one. */
+.landing-record__plate {
+  position: absolute;
+  z-index: 1;
+  height: 58vh;
+  aspect-ratio: 4 / 5.05;
+  border-radius: 12px;
+  border: 1px solid rgba(226, 220, 246, 0.26);
+  background: linear-gradient(
+    155deg,
+    rgba(232, 228, 248, 0.13),
+    rgba(190, 178, 240, 0.035) 45%,
+    rgba(220, 212, 248, 0.07)
+  );
+  box-shadow: inset 0 1px 0 rgba(236, 232, 250, 0.3), 0 30px 70px rgba(0, 0, 0, 0.5);
+  transform: translate(-50%, -50%) translate(calc(var(--px) * var(--d)), calc(var(--py) * var(--d)))
+    perspective(1800px) rotateX(5deg) rotateY(-13deg) rotateZ(var(--az));
+}
+
+.landing-record__plate::after {
+  content: '';
+  position: absolute;
+  inset: 7% 7% 16%;
+  border-radius: 4px;
+  background:
+    radial-gradient(ellipse 38% 32% at 50% 40%, rgba(214, 210, 228, 0.28), transparent 70%),
+    radial-gradient(ellipse 60% 26% at 50% 86%, rgba(200, 196, 216, 0.16), transparent 70%),
+    rgba(6, 6, 8, 0.6);
+}
+
+.landing-record__plate--far {
+  left: calc(var(--record-left) + 7.2vh);
+  top: calc(var(--record-top) - 7.4vh);
+  --d: 26px;
+  --az: 5deg;
+  filter: blur(3px);
+  opacity: 0.45;
+}
+
+.landing-record__plate--near {
+  left: calc(var(--record-left) + 3.8vh);
+  top: calc(var(--record-top) - 3.9vh);
+  --d: 16px;
+  --az: 2.6deg;
+  filter: blur(1.4px);
+  opacity: 0.7;
+}
+
+/* ── the glass card ────────────────────────────────────────────────────── */
+
+.landing-record__print {
+  position: absolute;
+  z-index: 2;
+  left: var(--record-left);
+  top: var(--record-top);
+  padding: 16px 16px 0;
+  border-radius: 12px;
+  transform-style: preserve-3d;
+  transform: translate(-50%, -50%) perspective(2200px) rotateX(calc(5deg + var(--rx)))
+    rotateY(calc(-13deg + var(--ry))) rotateZ(0.6deg);
+}
+
+/* Thickness: thin stacked edges behind the front face. */
+.landing-record__slab {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(214, 206, 244, 0.1);
+  background: rgba(200, 190, 240, 0.012);
+  transform: translateZ(var(--z));
+}
+
+.landing-record__slab:first-of-type {
+  border-color: rgba(214, 206, 244, 0.14);
+  box-shadow: 0 50px 110px rgba(0, 0, 0, 0.6);
+}
+
+.landing-record__face {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid var(--record-glass);
+  background: linear-gradient(
+    155deg,
+    rgba(232, 228, 248, 0.1) 0%,
+    rgba(190, 178, 240, 0.035) 38%,
+    rgba(160, 140, 240, 0.02) 70%,
+    rgba(220, 212, 248, 0.05) 100%
+  );
+  -webkit-backdrop-filter: blur(24px) saturate(1.15);
+  backdrop-filter: blur(24px) saturate(1.15);
+  box-shadow:
+    inset 0 1px 0 rgba(236, 232, 250, 0.32),
+    inset 1px 0 0 rgba(226, 220, 246, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    inset 0 -14px 28px rgba(0, 0, 0, 0.18);
+}
+
+.landing-record__face::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(ellipse 60% 40% at 8% 0%, rgba(255, 255, 255, 0.16), transparent 60%);
+}
+
+.landing-record__face::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    118deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.07) 41%,
+    rgba(255, 255, 255, 0.02) 46%,
+    transparent 54%
+  );
+}
+
+.landing-record__record,
+.landing-record__caption {
+  transform: translateZ(1px);
+}
+
+.landing-record__record {
+  position: relative;
+  height: calc(58vh - 60px);
+  aspect-ratio: 4 / 5;
+}
+
+.landing-record__shot {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  -webkit-mask-image:
+    linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent),
+    linear-gradient(180deg, transparent, #000 20%, #000 82%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent),
+    linear-gradient(180deg, transparent, #000 20%, #000 82%, transparent);
+  mask-composite: intersect;
+}
+
+.landing-record__shot canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0.9;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.landing-record__anchor {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.landing-record__caption {
+  height: 44px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2px;
+  font: 400 clamp(14px, 1vw, 22px) / 1 var(--font-display);
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.landing-record__caption span:last-child {
+  color: var(--record-note);
+}
+
+/* ── analysis notes ────────────────────────────────────────────────────── */
+
+.landing-record__leaders {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.landing-record__leader polyline {
+  fill: none;
+  stroke: rgba(170, 167, 184, 0.7);
+  stroke-width: 1;
+  transition: stroke 1s ease;
+}
+
+.landing-record__tick {
+  stroke: rgba(170, 167, 184, 0.7);
+  stroke-width: 1;
+  transition: stroke 1s ease;
+}
+
+.landing-record__pin rect {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.55);
+  stroke-width: 1;
+  transition: stroke 1s ease;
+}
+
+.landing-record__pin circle {
+  fill: rgba(255, 255, 255, 0.75);
+  transition: fill 1s ease;
+}
+
+.landing-record__leader.is-on polyline,
+.landing-record__leader.is-on .landing-record__tick {
+  stroke: rgba(var(--color-signal-rgb), 0.85);
+  transition-duration: 0.25s;
+}
+
+.landing-record__leader.is-on .landing-record__pin rect {
+  stroke: var(--color-signal);
+  transition-duration: 0.25s;
+}
+
+.landing-record__leader.is-on .landing-record__pin circle {
+  fill: var(--color-signal);
+  transition-duration: 0.25s;
+}
+
+.landing-record__note {
+  position: absolute;
+  z-index: 4;
+  display: grid;
+  gap: 6px;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  opacity: 0.62;
+  filter: blur(0.2px);
+  transition: opacity 1s ease, filter 1s ease;
+}
+
+.landing-record__note--left {
+  text-align: right;
+}
+
+.landing-record__value {
+  font: 400 clamp(15px, 1.12vw, 25px) / 1 var(--font-display);
+  letter-spacing: 0.08em;
+  font-style: normal;
+  color: var(--text-secondary);
+  transition: color 1s ease;
+}
+
+.landing-record__meta {
+  font: 400 clamp(11px, 0.84vw, 18px) / 1 var(--font-display);
+  letter-spacing: 0.1em;
+  color: var(--record-note);
+  font-variant-numeric: tabular-nums;
+}
+
+.landing-record__note.is-on {
+  opacity: 1;
+  filter: none;
+  transition-duration: 0.25s;
+}
+
+.landing-record__note.is-on .landing-record__value {
+  color: var(--text-primary);
+  transition-duration: 0.25s;
+}
+
+/* ── entry: the record comes apart, inside the existing 1.3s collapse ──── */
+
+.landing-record--entering .landing-record__note,
+.landing-record--entering .landing-record__leaders {
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.landing-record--entering .landing-record__face,
+.landing-record--entering .landing-record__slab,
+.landing-record--entering .landing-record__caption,
+.landing-record--entering .landing-record__plate {
+  opacity: 0;
+  filter: blur(14px);
+  transition: opacity 0.9s ease-out, filter 0.9s ease-out;
+}
+
+.landing-record--entering .landing-record__ghost,
+.landing-record--entering .landing-record__glow {
+  opacity: 0;
+  transition: opacity 1s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-record__note,
+  .landing-record__value,
+  .landing-record__leader polyline,
+  .landing-record__tick,
+  .landing-record__pin rect,
+  .landing-record__pin circle {
+    transition: none;
+  }
+  .landing-record--entering .landing-record__print,
+  .landing-record--entering .landing-record__ghost,
+  .landing-record--entering .landing-record__glow,
+  .landing-record--entering .landing-record__plate {
+    opacity: 0;
+    filter: none;
+    transition: opacity 0.18s linear;
+  }
+}

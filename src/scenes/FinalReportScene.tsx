@@ -5,7 +5,9 @@ import { useShallow } from 'zustand/react/shallow';
 import { selectRecordLayerDerived, useExperienceStore } from '../store/experienceStore';
 import { buildReport } from '../utils/report';
 import { buildFinalReportPresentation } from '../lib/finalReportPresentation';
-import { buildReportUrl, encodeReport } from '../lib/reportShare';
+import { buildReportUrl, buildSharedReport, encodeReport } from '../lib/reportShare';
+import { hasReportStorage, storeReport } from '../lib/reportTransfer';
+import { getChoiceReplays } from '../lib/replay/choiceReplay';
 import { isVenueMode } from '../lib/venueMode';
 import { analyzePersonalFindings } from '../lib/personalFindings';
 import {
@@ -91,8 +93,8 @@ export function FinalReportScene() {
   );
 
   const reportUrl = useMemo(
-    () => buildReportUrl(encodeReport(record, behavior, presentation, templateFindings)),
-    [record, behavior, presentation, templateFindings],
+    () => buildReportUrl(encodeReport(record, behavior, presentation, personalFindings)),
+    [record, behavior, presentation, personalFindings],
   );
   const [venue] = useState(isVenueMode);
 
@@ -117,10 +119,10 @@ export function FinalReportScene() {
     findingCount === 0
       ? null
       : analysis.crossScene
-        ? '서로 다른 공간에서\n같은 움직임이 반복되었습니다.'
+        ? '다른 공간에서도\n같은 방식으로 골랐습니다.'
         : personalFindings[0]?.id === 'no-convergence'
-          ? '당신이 남긴 답 사이의 움직임을\n서로 맞대어 보았습니다.'
-          : `당신이 남긴 답 사이에서\n${findingCount > 1 ? '몇 가지' : '하나의'} 흔적이 발견되었습니다.`;
+          ? '고른 답들을 공간별로\n나란히 놓아 보았습니다.'
+          : `고른 답들을 나란히 놓자\n${findingCount > 1 ? '몇 가지가' : '한 가지가'} 눈에 띄었습니다.`;
 
   // Dev-only shortcut (see experienceStore.ts's `devFinalReportEntryStage`
   // doc): 'summary' starts the sequence already on its last stage — the
@@ -195,8 +197,9 @@ export function FinalReportScene() {
             total={total}
             onIssueFullReport={() => window.print()}
             onRestart={handleRestart}
-            reportUrl={reportUrl}
+            reportUrl={storedUrl ?? reportUrl}
             venue={venue}
+            storage={hasReportStorage ? { onPrepare: handlePrepareStoredReport, pending: uploadPending, ready: Boolean(storedUrl), notice: transferNotice } : undefined}
           />
         );
     }
@@ -209,6 +212,38 @@ export function FinalReportScene() {
     : { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const };
 
   const activeKey = stageKeys[stageIndex];
+  const [storedUrl, setStoredUrl] = useState<string | null>(null);
+  const [transferNotice, setTransferNotice] = useState('');
+  const [uploadPending, setUploadPending] = useState(false);
+  const uploadController = useRef<AbortController | null>(null);
+  const prepareReportRef = useRef(handlePrepareStoredReport);
+  prepareReportRef.current = handlePrepareStoredReport;
+  useEffect(() => {
+    if (activeKey !== 'archive' || !hasReportStorage) return;
+    // Defer the request so StrictMode's trial setup can cancel it. Only the
+    // scene key triggers preparation, never unstable derived report objects.
+    const timer = window.setTimeout(() => prepareReportRef.current(), 0);
+    return () => { window.clearTimeout(timer); uploadController.current?.abort(); };
+  }, [activeKey]);
+
+  // Prepare one report on archive entry; the same action retries a failed request.
+  function handlePrepareStoredReport() {
+    if (activeKey !== 'archive' || !hasReportStorage || storedUrl || (uploadController.current && !uploadController.current.signal.aborted)) return;
+    const controller = new AbortController();
+    uploadController.current = controller;
+    setStoredUrl(null);
+    setUploadPending(true);
+    setTransferNotice('휴대폰에서 볼 전체 기록을 준비하고 있습니다.');
+    const timer = window.setTimeout(() => { setTransferNotice('전체 기록 연결이 지연되고 있습니다. 현재 QR에서는 선택한 단서와 해석을 볼 수 있습니다.'); setUploadPending(false); controller.abort(); }, 25000);
+    void storeReport({ v: 1, report: buildSharedReport(record, behavior, presentation, personalFindings), findings: [...personalFindings], replays: getChoiceReplays().filter((item, index, all) => !all.slice(index + 1).some(next => next.scene === item.scene && next.phase === item.phase)), strokes: record.memorySketch.strokes, light: record.light ? { imageId: record.light.imageId, rules: record.light.rules, variation: record.light.variation } : null }, controller.signal)
+      .then(url => { if (!controller.signal.aborted) { setStoredUrl(url); setTransferNotice(''); } })
+      .catch(() => { if (!controller.signal.aborted) setTransferNotice('전체 기록을 연결하지 못했습니다. 현재 QR에서는 선택한 단서와 해석을 볼 수 있습니다.'); })
+      .finally(() => {
+        window.clearTimeout(timer);
+        if (uploadController.current === controller) { uploadController.current = null; setUploadPending(false); }
+      });
+  }
+
 
   return (
     <div

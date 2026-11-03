@@ -15,7 +15,7 @@ interface Props {
 }
 
 const REFRAME = '누구를 떠올렸든,\n선택의 순간에는 당신이 있었습니다.';
-const METHOD = '당신이 고른 단서와\n고르는 순간을 함께 기록했습니다.';
+const METHOD = '무엇을 골랐는지와 함께\n어떻게 골랐는지도 적었습니다.';
 /** What was recorded — the method, not a claim about this visit. */
 const RECORDED = ['바꾼 선택', '머문 시간', '비워 둔 자리'];
 

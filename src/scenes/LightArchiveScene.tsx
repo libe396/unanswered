@@ -1,3 +1,4 @@
+import { useChoiceReplay } from '../hooks/useChoiceReplay';
 import { useInteractionClock } from '../hooks/useInteractionClock';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { analyzeImage } from '../lib/imageAnalysis.js';
@@ -52,6 +53,7 @@ export function LightArchiveScene() {
   const tracking = useSceneTracking('lightArchive', TRACKING_GROUPS);
 
   const [phase, setPhase] = useState<Phase>('browse');
+  const finishReplay = useChoiceReplay('lightArchive', phase, phase === 'browse' || phase === 'feeling', '.light-archive-scene');
   // Seeded from any answer this visit already saved — e.g. via Back
   // navigation and back forward again — so re-confirming without changing
   // anything re-saves the same choice instead of a blank one. A first-ever
@@ -115,6 +117,7 @@ export function LightArchiveScene() {
   async function startAnalysis() {
     if (!selectedImage) return;
     setAnalysisStartedAt(performance.now());
+    finishReplay();
     tracking.commit('emotion');
     setPhase('reading');
     setRules(null);
@@ -217,6 +220,7 @@ export function LightArchiveScene() {
           <button
             className="cta cta--primary light-archive-scene__proceed"
             onClick={() => {
+              finishReplay();
               tracking.commit('image');
               tracking.openGroup('emotion');
               setPhase('feeling');

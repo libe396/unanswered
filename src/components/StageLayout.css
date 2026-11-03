@@ -1,30 +1,48 @@
 /*
   The two-column stage. See StageLayout.tsx for why it exists.
 
-  The vertical band is the interesting part: the stage centres itself inside
-  the space left between the header (BackButton / ZoneLabel) and the
-  ArchiveHUD, rather than inside the viewport. Centring on the viewport put
-  content under both of them on short screens.
+  The stage sits in the shared --stage-frame, between the header (BackButton
+  / ZoneLabel) and the ArchiveHUD. The question is left-aligned at the top of
+  the frame like every other interaction Scene. The two columns below it
+  split the frame's full width and centre in the height that is left, so the
+  screen is balanced without moving the question. (It used to centre
+  everything with the question inside the right column, which put the
+  question somewhere different on every screen.)
 */
 
 .stage {
   position: relative;
   width: 100%;
   height: 100%;
-  padding: var(--stage-top) var(--sp-32) var(--stage-bottom);
+  padding: var(--stage-top) var(--stage-gutter) var(--stage-bottom);
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   box-sizing: border-box;
 }
 
-.stage__inner {
+.stage__frame {
   width: 100%;
-  max-width: var(--stage-max);
+  max-width: var(--stage-frame);
+  display: flex;
+  flex-direction: column;
+}
+
+.stage__frame > .stage-head {
+  max-width: none;
+  flex: none;
+}
+
+.stage__inner {
+  flex: 1 0 auto;
+  width: 100%;
+  padding: var(--sp-40) 0 var(--sp-24);
+  box-sizing: border-box;
   display: grid;
-  grid-template-columns: var(--stage-object) 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--stage-gap);
   align-items: center;
+  align-content: center;
 }
 
 /* ── Object column ───────────────────────────────────────────────────────── */
@@ -63,9 +81,9 @@
   text-align: left;
 }
 
-/* Heading type lives in StageHeader.css — this column only sets its width. */
-.stage__content > .stage-head {
-  max-width: none;
+/* The steps no longer follow a heading in this column. */
+.stage__content > :first-child {
+  margin-top: 0;
 }
 
 /* ── Steps ───────────────────────────────────────────────────────────────── */
@@ -100,7 +118,7 @@
 /* Korean step names do not take the Latin tracking. */
 .stage__step-label {
   font-family: var(--font-kr);
-  font-size: var(--type-meta);
+  font-size: var(--type-label);
   letter-spacing: 0;
   text-transform: none;
 }
@@ -191,4 +209,20 @@
 /* A scrollable narrow stage must never travel behind the fixed navigation. */
 @media (max-width: 900px) {
   .stage { top: var(--stage-top); height: calc(100% - var(--stage-top) - var(--stage-hud-clear)); padding: 0 var(--sp-24); scroll-padding-block: 16px; }
+}
+
+/* ── Booth iMac 24" (2026-11-03) ─────────────────────────────────────────
+   At ~2240×1260 the question pinned to the top left the lower half empty.
+   On large screens only, the question, the two columns and the CTA move
+   together as one block, centred in the band between the top navigation
+   (--stage-top) and the HUD (--stage-bottom). `safe` falls back to the top
+   when the block is taller than the band, so it scrolls as before. */
+@media (min-width: 1800px) and (min-height: 1000px) {
+  .stage__frame {
+    justify-content: safe center;
+  }
+
+  .stage__inner {
+    flex: none;
+  }
 }

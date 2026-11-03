@@ -64,6 +64,13 @@ const chapters = rawChapters as unknown as Chapter[];
 
 const chapterId = (no: string) => `archive-${no}`;
 
+/** The same original blocks, opened independently in the Research reader. */
+export function ArchiveDocument({ no, onOpen }: { no: string; onOpen: OpenImage }) {
+  const chapter = chapters.find((item) => item.no === no);
+  if (!chapter) return null;
+  return <div className="archive-chapter__body">{chapter.blocks.map((block, i) => renderBlock(block, i, onOpen))}</div>;
+}
+
 /* ── Images: optional — a slot whose file is missing disappears ────────── */
 
 /** A row of optional images. Each one that fails to load is dropped; when

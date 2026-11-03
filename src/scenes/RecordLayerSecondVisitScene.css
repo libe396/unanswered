@@ -467,17 +467,17 @@
   Scene reads as four sheets. Y and Z are exactly as specified, and the
   opened state below is untouched, so it stays the wider of the two.
 */
-.record-layer-second-visit__pane--1 { --px: -300px; --py: -66px; --pz: -330px; }
-.record-layer-second-visit__pane--2 { --px: -200px; --py: -44px; --pz: -220px; }
-.record-layer-second-visit__pane--3 { --px: -100px; --py: -22px; --pz: -110px; }
-.record-layer-second-visit__pane--4 { --px: 0px;    --py: 0px;   --pz: 0px; }
+.record-layer-second-visit__pane--slot-1 { --px: -300px; --py: -66px; --pz: -330px; }
+.record-layer-second-visit__pane--slot-2 { --px: -200px; --py: -44px; --pz: -220px; }
+.record-layer-second-visit__pane--slot-3 { --px: -100px; --py: -22px; --pz: -110px; }
+.record-layer-second-visit__pane--slot-4 { --px: 0px;    --py: 0px;   --pz: 0px; }
 
 /* Opened — the corridor between the layers. */
-.record-layer-second-visit__stack--open .record-layer-second-visit__pane--1 { --px: -330px; --py: -40px; --pz: -360px; }
-.record-layer-second-visit__stack--open .record-layer-second-visit__pane--2 { --px: -220px; --py: -26px; --pz: -240px; }
-.record-layer-second-visit__stack--open .record-layer-second-visit__pane--3 { --px: -110px; --py: -13px; --pz: -120px; }
+.record-layer-second-visit__stack--open .record-layer-second-visit__pane--slot-1 { --px: -330px; --py: -40px; --pz: -360px; }
+.record-layer-second-visit__stack--open .record-layer-second-visit__pane--slot-2 { --px: -220px; --py: -26px; --pz: -240px; }
+.record-layer-second-visit__stack--open .record-layer-second-visit__pane--slot-3 { --px: -110px; --py: -13px; --pz: -120px; }
 
-/* A legend row points at one layer: it comes forward, nothing else moves. */
+/* Hover previews a sheet; an explicit selection moves it into the front slot. */
 .record-layer-second-visit__pane--lifted {
   transform: translate3d(var(--px), var(--py), calc(var(--pz) + 40px));
   border-color: rgba(255, 255, 255, 0.24);
@@ -595,7 +595,7 @@
 .record-layer-second-visit__eyebrow {
   margin: 0;
   font-family: var(--font-kr);
-  font-size: var(--type-meta);
+  font-size: var(--type-label);
   line-height: 1.4;
   letter-spacing: 0;
   color: var(--trace);
@@ -604,9 +604,9 @@
 .record-layer-second-visit__title {
   margin: var(--sp-16) 0 0;
   font-family: var(--font-kr);
-  font-size: 1.75rem;
+  font-size: var(--type-question);
   line-height: 1.4;
-  font-weight: 600;
+  font-weight: var(--weight-question);
   letter-spacing: -0.02em;
   color: var(--text-primary);
   text-wrap: balance;
@@ -763,17 +763,25 @@
 /* LAYER 04 is the front pane (z 0) and holds full sentences, so it needs no
    depth compensation. */
 .record-layer-second-visit__lines p { font-size: var(--type-body); line-height: 1.6; }
-.record-layer-second-visit__layout { top: var(--stage-top); height: calc(100% - var(--stage-top) - var(--stage-hud-clear)); padding-block: 0; overflow-y: auto; align-items: start; }
+.record-layer-second-visit__layout { top: var(--stage-top); height: calc(100% - var(--stage-top) - var(--stage-hud-clear)); padding-block: 0; overflow-y: auto; align-items: center; align-content: safe center; }
 @media (max-width: 900px) {
   .record-layer-second-visit__layout { padding: 0 24px 24px; align-content: start; }
   .record-layer-second-visit__stage3d { height: 390px; margin: 0; transform: none; perspective: none; }
   .record-layer-second-visit__stack, .record-layer-second-visit__stack--open { transform: none; }
   .record-layer-second-visit__pane { left: 36px; top: 20px; width: calc(100% - 36px); min-height: 330px; padding: 16px; }
-  .record-layer-second-visit__pane--1 { --px: -30px; --py: 0px; --pz: 0px; }
-  .record-layer-second-visit__pane--2 { --px: -20px; --py: 6px; --pz: 0px; }
-  .record-layer-second-visit__pane--3 { --px: -10px; --py: 12px; --pz: 0px; }
-  .record-layer-second-visit__pane--4 { --px: 0px; --py: 18px; --pz: 0px; }
+  .record-layer-second-visit__pane--slot-1 { --px: -30px; --py: 0px; --pz: 0px; }
+  .record-layer-second-visit__pane--slot-2 { --px: -20px; --py: 6px; --pz: 0px; }
+  .record-layer-second-visit__pane--slot-3 { --px: -10px; --py: 12px; --pz: 0px; }
+  .record-layer-second-visit__pane--slot-4 { --px: 0px; --py: 18px; --pz: 0px; }
   .record-layer-second-visit__stack--open .record-layer-second-visit__pane { --px: 0px; --py: 0px; --pz: 0px; }
   .record-layer-second-visit__pane-head, .record-layer-second-visit__pane-foot { font-size: var(--type-meta); }
   .record-layer-second-visit__pane-empty, .record-layer-second-visit__objects, .record-layer-second-visit__lines p { font-size: var(--type-body); }
+}
+
+/* The selected glass sheet rises above the deck after the slots are reordered. */
+.record-layer-second-visit__pane--pinned {
+  transform: translate3d(var(--px), calc(var(--py) - 12px), 80px);
+  background-color: rgba(14, 14, 18, 0.64);
+  border-color: rgba(218, 204, 255, 0.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 32px 64px rgba(0, 0, 0, 0.42);
 }

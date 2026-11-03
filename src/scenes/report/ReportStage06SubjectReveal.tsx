@@ -152,7 +152,7 @@ export function ReportStage06SubjectReveal({ index, total, locked, onAdvance }: 
     {choice !== null && !ready && <div className="camera-consent" role="status"><p>마지막 장면에 내 얼굴을 비추기 위해 카메라를 준비하고 있습니다.</p><button className="cta cta--secondary" onClick={continueWithoutCamera}>카메라 없이 계속하기</button></div>}
     <div className="identity-reveal" aria-live="polite" hidden={!ready}>
       <p className="identity-reveal__setup" style={{ visibility: phase <= 3 ? 'visible' : 'hidden' }}>
-        {ready ? '수집한 단서에서 당신의 흔적을 찾았습니다.' : '\u00a0'}
+        {ready ? '모은 단서를 하나로 맞춰 보았습니다.' : '\u00a0'}
       </p>
       <motion.div className={`identity-figure${figureUrl ? ' identity-figure--hero' : ''}`} style={figureStyle} initial={{ opacity: 0 }} animate={{ opacity: ready ? 1 : 0 }} transition={t(1.4)}>
         {(['side', 'front'] as const).map((pose) => (

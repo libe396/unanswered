@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- 2026-11-01 Landing 확정 시안 (Claude 미리보기). 실제 LandingScene 적용의 기준 자료. 제품 코드가 아님. -->
+<title>UNANSWERED Landing Scan</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500&display=swap">
+<style>
+/* Layout: one object in the middle — a dim photographic print of the unknown person.
+   Analysis notes are pinned onto the print and zigzag out to both sides.
+   The scan only touches the photo; notes stay quiet until their region is hovered.
+   Title bottom-left as caption, entry prompt bottom-right, the whole screen is the entry. */
+:root {
+  --bg-void: #040406;
+  --line: rgba(255, 255, 255, 0.11);
+  --line-strong: rgba(255, 255, 255, 0.22);
+  --text-primary: #EDECF2;
+  --text-secondary: #B8B5C2;
+  --text-tertiary: #8E8A99;
+  --signal: #9FB2F2;
+  --signal-rgb: 159, 178, 242;
+  --trace: #AB93FF;
+  --paper: #7C7A86;
+  --paper-shade: #64626D;
+  --ink: #17151D;
+  --ink-soft: #2E2B36;
+  --font-kr: "Pretendard", "Pretendard Variable", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  --font-mark: "Bebas Neue", "Pretendard", "Apple SD Gothic Neo", sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--bg-void); color: var(--text-primary); font-family: var(--font-kr); overflow: hidden; }
+.scene {
+  position: relative; height: 100%; min-height: 560px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: radial-gradient(ellipse 44% 58% at 50% 50%, #121214 0%, #08080a 55%, #030304 100%);
+  overflow: hidden; isolation: isolate; cursor: pointer;
+}
+.grain {
+  position: absolute; inset: 0; pointer-events: none; z-index: 6; opacity: 0.07; mix-blend-mode: screen;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.top {
+  position: absolute; z-index: 5; left: 0; right: 0; top: 0;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: clamp(28px, 2.6vw, 56px) max(clamp(40px, 3.4vw, 80px), env(safe-area-inset-right, 0px)) 0 max(clamp(40px, 3.4vw, 80px), env(safe-area-inset-left, 0px));
+  pointer-events: none;
+}
+.top img { width: clamp(110px, 8.4vw, 190px); height: auto; display: block; opacity: 0.9; }
+.about {
+  pointer-events: auto;
+  display: inline-flex; align-items: center; gap: 10px;
+  height: clamp(34px, 2.5vw, 54px); padding: 0 clamp(14px, 1vw, 22px);
+  border: 1px solid var(--line-strong); background: rgba(255,255,255,.035);
+  color: var(--text-secondary); font-size: clamp(13px, .9vw, 19px); text-decoration: none;
+  transition: color .2s, border-color .2s, background .2s;
+}
+.about span { color: var(--trace); transition: transform .2s; }
+.about:hover, .about:focus-visible { color: var(--text-primary); border-color: rgba(var(--signal-rgb), .6); background: rgba(255,255,255,.06); }
+.about:hover span { transform: translate(2px, -2px); }
+
+/* other records in the archive, out of focus at different depths */
+.plate {
+  position: absolute; z-index: 1; pointer-events: none;
+  aspect-ratio: 4 / 5.05; border-radius: 12px;
+  border: 1px solid rgba(226,220,246,.26);
+  background: linear-gradient(155deg, rgba(232,228,248,.13), rgba(190,178,240,.035) 45%, rgba(220,212,248,.07));
+  box-shadow: inset 0 1px 0 rgba(236,232,250,.3), 0 30px 70px rgba(0,0,0,.5);
+  transform: translate(-50%, -50%) translate(calc(var(--px, 0) * var(--d)), calc(var(--py, 0) * var(--d)))
+    perspective(1800px) rotateX(var(--ax)) rotateY(var(--ay)) rotateZ(var(--az));
+}
+.plate::after { /* a photo that is not ours to see */
+  content: ""; position: absolute; inset: 7% 7% 16%; border-radius: 4px;
+  background: radial-gradient(ellipse 38% 32% at 50% 40%, rgba(214,210,228,.28), transparent 70%), radial-gradient(ellipse 60% 26% at 50% 86%, rgba(200,196,216,.16), transparent 70%), rgba(6,6,8,.6);
+}
+/* the glass card: the photo is held inside a frosted glass plate.
+   A blurred ghost of the figure sits behind it so the glass has light to diffuse. */
+.ghost {
+  position: absolute; z-index: 1; left: 65%; top: 51%;
+  height: 62vh; width: auto; transform: translate(-50%, -50%);
+  filter: blur(42px); opacity: .42; pointer-events: none;
+}
+.glow { /* faint violet light the glass sits in */
+  position: absolute; z-index: 1; left: 65%; top: 51%; width: 64vh; aspect-ratio: 1;
+  transform: translate(-50%, -50%); pointer-events: none;
+  background: radial-gradient(circle, rgba(138,107,255,.055) 0%, rgba(138,107,255,.015) 45%, transparent 70%);
+}
+.print {
+  --rx: 0deg; --ry: 0deg;
+  position: absolute; z-index: 2; left: 65%; top: 51%;
+  padding: 16px 16px 0;
+  border-radius: 12px;
+  transform-style: preserve-3d;
+  transform: translate(-50%, -50%) perspective(2200px)
+    rotateX(calc(5deg + var(--rx))) rotateY(calc(-13deg + var(--ry))) rotateZ(0.6deg);
+}
+/* thickness: thin stacked edges behind the front face */
+.slab {
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  border: 1px solid rgba(214,206,244,.1);
+  background: rgba(200,190,240,.012);
+  transform: translateZ(var(--z));
+}
+.slab:first-of-type { border-color: rgba(214,206,244,.14); box-shadow: 0 50px 110px rgba(0,0,0,.6); }
+/* front face of the glass */
+.face {
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  border: 1px solid rgba(226,220,246,.22);
+  background: linear-gradient(155deg, rgba(232,228,248,.10) 0%, rgba(190,178,240,.035) 38%, rgba(160,140,240,.02) 70%, rgba(220,212,248,.05) 100%);
+  -webkit-backdrop-filter: blur(24px) saturate(1.15);
+  backdrop-filter: blur(24px) saturate(1.15);
+  box-shadow: inset 0 1px 0 rgba(236,232,250,.32), inset 1px 0 0 rgba(226,220,246,.12), inset 0 0 0 1px rgba(255,255,255,.04), inset 0 -14px 28px rgba(0,0,0,.18);
+}
+.face::before { /* specular corner */
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  background: radial-gradient(ellipse 60% 40% at 8% 0%, rgba(255,255,255,.16), transparent 60%);
+}
+.face::after { /* one diagonal reflection */
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(118deg, transparent 30%, rgba(255,255,255,.07) 41%, rgba(255,255,255,.02) 46%, transparent 54%);
+}
+.print .record, .print .caption { transform: translateZ(1px); }
+.record {
+  position: relative;
+  height: calc(58vh - 60px); aspect-ratio: 4 / 5;
+}
+.shot {
+  position: absolute; inset: 0; overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent), linear-gradient(180deg, transparent, #000 20%, #000 82%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent), linear-gradient(180deg, transparent, #000 20%, #000 82%, transparent);
+  mask-composite: intersect;
+}
+.shot canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: .9; cursor: pointer; }
+.anchor { position: absolute; width: 0; height: 0; pointer-events: none; }
+.annot { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.caption {
+  height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 2px;
+  font: 400 clamp(14px, 1vw, 22px)/1 var(--font-mark); letter-spacing: 0.08em; color: var(--text-secondary);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.caption span:last-child { color: var(--text-tertiary); }
+
+/* leaders */
+.leaders { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 3; }
+.leaders polyline { fill: none; stroke: rgba(170,167,184,.7); stroke-width: 1; transition: stroke 1s ease; }
+.leaders .tick { stroke: rgba(170,167,184,.7); stroke-width: 1; transition: stroke 1s ease; }
+.leaders .pin rect { fill: none; stroke: rgba(255,255,255,.55); stroke-width: 1; transition: stroke 1s ease; }
+.leaders .pin circle { fill: rgba(255,255,255,.75); transition: fill 1s ease; }
+.leaders g.on polyline, .leaders g.on .tick { stroke: rgba(var(--signal-rgb), .85); transition-duration: .25s; }
+.leaders g.on .pin rect { stroke: var(--signal); transition-duration: .25s; }
+.leaders g.on .pin circle { fill: var(--signal); transition-duration: .25s; }
+
+.note {
+  position: absolute; z-index: 4;
+  display: grid; gap: 6px;
+  transform: translateY(-50%);
+  white-space: nowrap; pointer-events: none;
+  opacity: 0.62; filter: blur(0.2px);
+  transition: opacity 1s ease, filter 1s ease;
+}
+.note.left { text-align: right; }
+.note em { font: 400 clamp(15px, 1.12vw, 25px)/1 var(--font-mark); letter-spacing: 0.08em; font-style: normal; color: var(--text-secondary); transition: color 1s ease; }
+.note small { font: 400 clamp(11px, .84vw, 18px)/1 var(--font-mark); letter-spacing: 0.1em; color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+.note.on { opacity: 1; filter: none; transition-duration: .25s; }
+.note.on em { color: var(--text-primary); transition-duration: .25s; }
+
+/* title: bottom-left caption */
+.say {
+  position: absolute; z-index: 5;
+  left: max(48px, 7vw, env(safe-area-inset-left, 0px)); top: 51%; transform: translateY(-46%);
+  width: 30vw;
+  display: grid; gap: 14px; pointer-events: none;
+}
+.say h1 {
+  margin: 0; font-weight: 450;
+  font-size: clamp(32px, 3.3vw, 76px); line-height: 1.28; letter-spacing: -0.035em;
+  white-space: pre-line; min-height: 2.56em;
+}
+.cursor {
+  display: inline-block; width: 0.42em; height: 0.92em; margin-left: 6px; vertical-align: -0.08em;
+  background: #8A6BFF; animation: blink 1.05s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+.say p { margin: 0; font-size: clamp(14px, 1.05vw, 23px); line-height: 1.6; color: var(--text-secondary); opacity: 0; transition: opacity .8s ease; }
+.say p.show { opacity: 1; }
+.say .time { font-size: 12px; color: var(--text-tertiary); }
+
+/* entry prompt: bottom-right */
+.prompt {
+  justify-self: start; margin-top: 18px; pointer-events: auto;
+  display: grid; gap: 10px; justify-items: start; text-align: left;
+  background: none; border: 0; padding: 0; color: var(--text-primary); cursor: pointer;
+}
+.prompt strong {
+  display: flex; align-items: center; gap: 12px;
+  font: 400 clamp(19px, 1.4vw, 31px)/1 var(--font-mark); letter-spacing: 0.12em;
+  animation: breathe 2.8s ease-in-out infinite;
+}
+.prompt strong::before { content: ""; width: 28px; height: 1px; background: var(--trace); }
+.prompt span { font-size: clamp(12px, .88vw, 19px); color: var(--text-tertiary); }
+@keyframes breathe { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+.prompt:focus-visible, .about:focus-visible, .ctrl button:focus-visible { outline: 2px solid var(--signal); outline-offset: 6px; }
+
+.ctrl {
+  position: absolute; z-index: 7; left: 50%; top: 8px; transform: translateX(-50%);
+  display: flex; gap: 6px; align-items: center; font-size: 11px; color: var(--text-tertiary); white-space: nowrap;
+  cursor: default;
+}
+.ctrl button {
+  background: rgba(255,255,255,.04); border: 1px solid var(--line); color: var(--text-secondary);
+  font: 11px var(--font-kr); padding: 4px 8px; cursor: pointer;
+}
+.ctrl button[aria-pressed="true"] { border-color: rgba(var(--signal-rgb), .6); color: var(--text-primary); }
+.toast {
+  position: absolute; z-index: 8; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  background: rgba(10,10,13,.92); border: 1px solid var(--line); padding: 14px 18px;
+  font-size: clamp(13px, .9vw, 19px); color: var(--text-secondary); opacity: 0; pointer-events: none; transition: opacity .3s;
+}
+.toast.show { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) { .cursor, .prompt strong { animation: none; } }
+</style>
+</head>
+<body style="margin:0">
+
+
+<main class="scene" id="scene">
+  <div class="top">
+    <img src="../src/assets/wordmark.svg" alt="UNANSWERED">
+    <a href="#" class="about" id="about">전시 소개 <span aria-hidden="true">↗</span></a>
+  </div>
+
+  <div class="glow"></div>
+  <i class="plate" style="left:calc(65% + 7.2vh); top:calc(51% - 7.4vh); height:58vh; --d:26px; --ax:5deg; --ay:-13deg; --az:5deg; filter:blur(3px); opacity:.45"></i>
+  <i class="plate" style="left:calc(65% + 3.8vh); top:calc(51% - 3.9vh); height:58vh; --d:16px; --ax:5deg; --ay:-13deg; --az:2.6deg; filter:blur(1.4px); opacity:.7"></i>
+  <img class="ghost" src="../src/assets/landing/unknown-presence-v3.jpg" alt="">
+  <figure class="print" id="print" style="margin:0">
+    <i class="slab" style="--z:-18px"></i><i class="slab" style="--z:-15px"></i><i class="slab" style="--z:-12px"></i><i class="slab" style="--z:-9px"></i><i class="slab" style="--z:-6px"></i><i class="slab" style="--z:-3px"></i>
+    <div class="face"></div>
+    <div class="record" id="record">
+      <div class="shot"><canvas id="cv" aria-hidden="true"></canvas></div>
+    </div>
+    <figcaption class="caption"><span>UNKNOWN RECORD</span><span>SCAN <b id="pct" style="font-weight:400">000</b></span></figcaption>
+  </figure>
+  <div class="annot">
+    <svg class="leaders" id="leaders" aria-hidden="true"></svg>
+      <div class="note left"  data-x="0.42" data-y="0.23" data-path="" data-key="NAME" data-text="UNKNOWN"><em class="t">UNKNOWN</em><small></small></div>
+      <div class="note right" data-x="0.60" data-y="0.38" data-path="h:0.16 v:-0.11" data-key="FACE" data-text="NOT IDENTIFIED"><em class="t">NOT IDENTIFIED</em><small></small></div>
+      <div class="note left"  data-x="0.20" data-y="0.61" data-path="v:-0.24" data-key="CLUES" data-text="0 / 4"><em class="t">0 / 4</em><small></small></div>
+      <div class="note right" data-x="0.68" data-y="0.73" data-path="h:0.10 v:0.08" data-key="STATUS" data-text="UNANSWERED"><em class="t">UNANSWERED</em><small></small></div>
+  </div>
+
+  <div class="say">
+    <h1><span id="type"></span><i class="cursor" aria-hidden="true"></i></h1>
+    <p id="sub">남겨진 단서로 그 사람을 떠올려 보세요.</p>
+    <button class="prompt" id="prompt" type="button">
+      <strong>CLICK ANYWHERE TO BEGIN</strong>
+      <span>클릭하면 조사가 시작됩니다 · 약 5분</span>
+    </button>
+  </div>
+
+  <div class="toast" id="toast">미리보기 시안입니다. 실제로는 여기서 엘리베이터로 이어집니다.</div>
+  <div class="grain"></div>
+</main>
+
+<script>
+(() => {
+  const SRC = "../src/assets/landing/unknown-presence-v3.jpg";
+  const NS = 'http://www.w3.org/2000/svg';
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const scene = document.getElementById('scene');
+  const cv = document.getElementById('cv');
+  const ctx = cv.getContext('2d');
+  const record = document.getElementById('record');
+  const svg = document.getElementById('leaders');
+  const notes = [...document.querySelectorAll('.note')];
+  const pct = document.getElementById('pct');
+  const typeEl = document.getElementById('type');
+  const sub = document.getElementById('sub');
+  const SENTENCE = '한 사람의 기록이\n발견되었습니다.';
+  const CROP_TOP = -0.07; // negative = headroom above the source image, so the figure sits lower
+
+  let W = 0, H = 0, dpr = 1, img = new Image(), ready = false;
+  let cover = { dx: 0, dy: 0, dw: 0, dh: 0, s: 1 };
+  let parts = [];
+  let SWEEP = 3600, REST = 5600, FIRST = 1800;
+  let t0 = performance.now();
+  let pointer = null, hot = null;
+  const groups = new Map();
+  const pins = new Map();
+
+  const print = document.getElementById('print');
+  const anchors = new Map();
+  let cols = { left: 0, right: 0 }, sceneBox = null;
+
+  function buildNotes() {
+    svg.innerHTML = '';
+    for (const n of notes) {
+      let a = anchors.get(n);
+      if (!a) { a = document.createElement('i'); a.className = 'anchor'; record.append(a); anchors.set(n, a); }
+      a.style.left = (parseFloat(n.dataset.x) * 100) + '%';
+      a.style.top = (parseFloat(n.dataset.y) * 100) + '%';
+      pins.set(n, { x: parseFloat(n.dataset.x) * W, y: parseFloat(n.dataset.y) * H });
+      const g = document.createElementNS(NS, 'g');
+      const pl = document.createElementNS(NS, 'polyline');
+      const tick = document.createElementNS(NS, 'line'); tick.setAttribute('class', 'tick');
+      const pin = document.createElementNS(NS, 'g'); pin.setAttribute('class', 'pin');
+      const rect = document.createElementNS(NS, 'rect'); rect.setAttribute('width', 10); rect.setAttribute('height', 10);
+      const dot = document.createElementNS(NS, 'circle'); dot.setAttribute('r', 1.6);
+      pin.append(rect, dot); g.append(pl, tick, pin); svg.append(g);
+      groups.set(n, g);
+      n.querySelector('small').textContent = `${n.dataset.key}  ·  X ${parseFloat(n.dataset.x).toFixed(2)}  ·  Y ${parseFloat(n.dataset.y).toFixed(2)}`;
+    }
+  }
+  function measureColumns() {
+    sceneBox = scene.getBoundingClientRect();
+    const pr = print.getBoundingClientRect();
+    const vw = sceneBox.width, edge = 48, out = 36;
+    const rightTextW = Math.max(...notes.filter(n => n.classList.contains('right')).map(n => n.offsetWidth));
+    cols.left = pr.left - sceneBox.left - out;
+    cols.right = Math.min(pr.right - sceneBox.left + out, vw - edge - rightTextW - 12);
+    svg.setAttribute('viewBox', `0 0 ${sceneBox.width} ${sceneBox.height}`);
+  }
+  function updateNotes() {
+    if (!sceneBox) return;
+    for (const n of notes) {
+      const ar = anchors.get(n).getBoundingClientRect();
+      const x = ar.left - sceneBox.left, y = ar.top - sceneBox.top;
+      const left = n.classList.contains('left');
+      const endX = left ? cols.left : cols.right;
+      const pts = [[x, y]];
+      let cx = x, cy = y;
+      for (const step of (n.dataset.path || '').split(' ').filter(Boolean)) {
+        const [k, v] = step.split(':'); const d = parseFloat(v);
+        if (k === 'h') cx += d * W; else cy += d * H;
+        pts.push([cx, cy]);
+      }
+      pts.push([endX, cy]);
+      const [nx, ny] = pts[1];
+      pts[0] = [x + Math.sign(nx - x) * 5, y + Math.sign(ny - y) * 5];
+      const g = groups.get(n);
+      g.children[0].setAttribute('points', pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' '));
+      const t = g.children[1];
+      t.setAttribute('x1', endX); t.setAttribute('x2', endX); t.setAttribute('y1', cy - 4); t.setAttribute('y2', cy + 4);
+      const [rect, dot] = g.children[2].children;
+      rect.setAttribute('x', x - 5); rect.setAttribute('y', y - 5);
+      dot.setAttribute('cx', x); dot.setAttribute('cy', y);
+      n.style.top = cy + 'px';
+      if (left) { n.style.right = (sceneBox.width - endX + 10) + 'px'; n.style.left = 'auto'; }
+      else { n.style.left = (endX + 10) + 'px'; n.style.right = 'auto'; }
+    }
+  }
+
+  function layout() {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    W = record.offsetWidth; H = record.offsetHeight; // local size, unaffected by the tilt
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    buildNotes(); measureColumns();
+    if (ready) { fitCrop(); sample(); }
+  }
+  function fitCrop() {
+    const s = W / img.naturalWidth;
+    cover = { s, dx: 0, dy: -CROP_TOP * img.naturalHeight * s, dw: W, dh: img.naturalHeight * s };
+  }
+  function sample() {
+    const gw = 96, gh = 144;
+    const oc = document.createElement('canvas'); oc.width = gw; oc.height = gh;
+    const o = oc.getContext('2d'); o.drawImage(img, 0, 0, gw, gh);
+    const d = o.getImageData(0, 0, gw, gh).data;
+    parts = [];
+    for (let i = 0; i < 1500; i++) {
+      const x = Math.random() * gw | 0, y = Math.random() * gh | 0, k = (y * gw + x) * 4;
+      const lum = (d[k] + d[k + 1] + d[k + 2]) / 765;
+      if (lum < 0.22) continue;
+      const py = cover.dy + (y + Math.random()) / gh * cover.dh;
+      if (py < 0 || py > H) continue;
+      parts.push({ x: (x + Math.random()) / gw * W, y: py, r: 0.35 + Math.random() * 0.7, a: lum, ph: Math.random() * 6.28 });
+    }
+  }
+  const ease = (x) => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+  function scanState(now) {
+    const t = now - t0 - FIRST;
+    if (t < 0 || reduce) return { on: false, y: -999, p: 0 };
+    const m = t % (SWEEP + REST);
+    if (m > SWEEP) return { on: false, y: -999, p: 1 };
+    const p = ease(m / SWEEP);
+    return { on: true, y: -0.04 * H + p * 1.08 * H, p };
+  }
+
+  function scramble(el, text) {
+    const glyphs = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/';
+    const start = performance.now(), dur = 480;
+    const tick = () => {
+      const k = Math.min(1, (performance.now() - start) / dur), n = Math.floor(k * text.length);
+      el.textContent = text.slice(0, n) + [...text.slice(n)].map(c => (c === ' ' || c === '—') ? c : glyphs[Math.random() * glyphs.length | 0]).join('');
+      if (k < 1) requestAnimationFrame(tick); else el.textContent = text;
+    };
+    tick();
+  }
+
+  function frame(now) {
+    requestAnimationFrame(frame);
+    if (!ready) return;
+    const sc = scanState(now), tt = now / 1000;
+    ctx.clearRect(0, 0, W, H);
+    // headroom above the source image: stretch its top rows so there is no visible seam
+    if (cover.dy > 0) ctx.drawImage(img, 0, 0, img.naturalWidth, 6, 0, 0, W, cover.dy + 2);
+    ctx.drawImage(img, cover.dx, cover.dy, cover.dw, cover.dh);
+
+    const bands = [];
+    if (sc.on) bands.push({ y: sc.y, w: 40, amp: 12 });
+    if (pointer && !reduce) bands.push({ y: pointer.y, w: 36, amp: 13 * pointer.e });
+    for (const b of bands) {
+      const y0 = Math.max(0, b.y - b.w * 2.4), y1 = Math.min(H, b.y + b.w * 2.4);
+      if (y1 <= y0) continue;
+      ctx.clearRect(0, y0, W, y1 - y0);
+      for (let y = y0; y < y1; y += 3) {
+        const g = Math.exp(-Math.pow((y - b.y) / b.w, 2));
+        const off = g * b.amp * Math.sin(tt * 7 + y * 0.09) + g * b.amp * 0.5 * Math.sin(y * 0.31 + tt * 3);
+        ctx.drawImage(img, -cover.dx / cover.s, (y - cover.dy) / cover.s, W / cover.s, 3 / cover.s, off, y, W, 3);
+      }
+    }
+    if (sc.on) {
+      const y = sc.y;
+      const trail = ctx.createLinearGradient(0, y - 120, 0, y);
+      trail.addColorStop(0, 'rgba(159,178,242,0)'); trail.addColorStop(1, 'rgba(159,178,242,0.10)');
+      ctx.fillStyle = trail; ctx.fillRect(0, y - 120, W, 120);
+      const line = ctx.createLinearGradient(0, 0, W, 0);
+      line.addColorStop(0, 'rgba(159,178,242,0.1)'); line.addColorStop(0.5, 'rgba(214,222,250,0.75)'); line.addColorStop(1, 'rgba(159,178,242,0.1)');
+      ctx.fillStyle = line; ctx.fillRect(0, y - 0.5, W, 1);
+    }
+    for (const p of parts) {
+      let x = p.x + Math.sin(tt * 0.4 + p.ph) * 2.2, y = p.y + Math.cos(tt * 0.33 + p.ph) * 1.6, a = p.a * 0.16;
+      if (sc.on) { const g = Math.exp(-Math.pow((y - sc.y) / 30, 2)); a += g * 0.85; x += g * 6 * Math.sin(p.ph * 3); }
+      if (pointer) {
+        const dx = x - pointer.x, dy = y - pointer.y, d2 = dx * dx + dy * dy;
+        if (d2 < 12000) { const f = (1 - d2 / 12000) * 16 * pointer.e, dd = Math.sqrt(d2 + 1); x += dx / dd * f; y += dy / dd * f; a += 0.4 * pointer.e; }
+      }
+      ctx.fillStyle = `rgba(226,228,240,${Math.min(a, 1).toFixed(3)})`;
+      ctx.fillRect(x, y, p.r, p.r);
+    }
+    if (pointer && !pointer.inside) { pointer.e *= 0.94; if (pointer.e < 0.02) pointer = null; }
+    pct.textContent = String(Math.round(sc.p * 100)).padStart(3, '0');
+    if (!reduce) {
+      tilt.x += (tilt.tx - tilt.x) * 0.06; tilt.y += (tilt.ty - tilt.y) * 0.06;
+      print.style.setProperty('--rx', tilt.x.toFixed(2) + 'deg');
+      print.style.setProperty('--ry', tilt.y.toFixed(2) + 'deg');
+      scene.style.setProperty('--px', (-tilt.y / 6).toFixed(3));
+      scene.style.setProperty('--py', (tilt.x / 4).toFixed(3));
+    }
+    updateNotes();
+  }
+  const tilt = { x: 0, y: 0, tx: 0, ty: 0 };
+  scene.addEventListener('pointermove', (e) => {
+    const r = scene.getBoundingClientRect();
+    tilt.ty = ((e.clientX - r.left) / r.width - 0.5) * 6;
+    tilt.tx = -((e.clientY - r.top) / r.height - 0.5) * 4;
+  });
+
+  // hover only: the region nearest the pointer distorts and its note comes into focus
+  function setHot(next) {
+    if (next === hot) return;
+    if (hot) { hot.classList.remove('on'); groups.get(hot)?.classList.remove('on'); }
+    hot = next;
+    if (hot) { hot.classList.add('on'); groups.get(hot)?.classList.add('on'); scramble(hot.querySelector('.t'), hot.dataset.text); }
+  }
+  cv.addEventListener('pointermove', (e) => {
+    const x = e.offsetX, y = e.offsetY; // local to the canvas, tilt already undone by the browser
+    if (x < 0 || y < 0 || x > W || y > H) return;
+    pointer = { x, y, e: 1, inside: true };
+    let best = null, bd = Infinity;
+    for (const n of notes) { const p = pins.get(n), d = Math.hypot(p.x - x, p.y - y); if (d < bd) { bd = d; best = n; } }
+    setHot(bd < W * 0.26 ? best : null);
+  });
+  cv.addEventListener('pointerleave', () => { if (pointer) pointer.inside = false; setHot(null); });
+
+  let typeTimer = null;
+  function typeIn() {
+    clearTimeout(typeTimer);
+    typeEl.textContent = ''; sub.classList.remove('show');
+    if (reduce) { typeEl.textContent = SENTENCE; sub.classList.add('show'); return; }
+    let i = 0;
+    const next = () => {
+      typeEl.textContent = SENTENCE.slice(0, ++i);
+      if (i < SENTENCE.length) {
+        const c = SENTENCE[i - 1];
+        typeTimer = setTimeout(next, c === '\n' ? 420 : c === ' ' ? 140 : 85 + Math.random() * 70);
+      } else typeTimer = setTimeout(() => sub.classList.add('show'), 500);
+    };
+    typeTimer = setTimeout(next, 600);
+  }
+
+  // whole screen is the entry (ignore drags, preview controls and the catalogue link)
+  const toast = document.getElementById('toast');
+  const showToast = (msg) => { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2200); };
+  let down = null;
+  scene.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY }; });
+  scene.addEventListener('click', (e) => {
+    if (e.target.closest('.ctrl, .about')) return;
+    if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6) return;
+    showToast('미리보기 시안입니다. 실제로는 여기서 엘리베이터로 이어집니다.');
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !(e.target.closest && e.target.closest('.ctrl, .about, .prompt'))) showToast('미리보기 시안입니다. 실제로는 여기서 엘리베이터로 이어집니다.');
+  });
+  document.getElementById('about').onclick = (e) => { e.preventDefault(); showToast('실제로는 전시 소개(웹도록) 페이지가 열립니다.'); };
+
+  img.onload = () => { ready = true; layout(); };
+  img.src = SRC;
+  addEventListener('resize', layout);
+  if (document.fonts) document.fonts.ready.then(layout);
+  layout(); typeIn();
+  requestAnimationFrame(frame);
+})();
+</script>
+
+</body>
+</html>

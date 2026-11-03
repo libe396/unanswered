@@ -1,300 +1,327 @@
+/* Landing — the approved scan direction (lab/landing-scan.html).
+
+   One record in the middle of a dark room, read from the left. Every size here
+   is viewport-proportional with no fixed pixel ceiling: the venue screen is a
+   24" iMac at 2240×1260 and the same composition has to hold at 1440×900 and
+   1280×720. This proportional scale is local to Landing and deliberately does
+   not touch the global type tokens or any other Scene. */
 .landing-scene {
   position: relative;
   width: 100%;
   height: 100dvh;
-  overflow-x: hidden;
-  overflow-y: auto;
+  min-height: 560px;
+  overflow: hidden;
   background: #040406;
   isolation: isolate;
+  cursor: pointer;
 }
 
-/* Barely-there floor light. Without it the figure floats in a void that reads
-   as "no background yet" rather than as a dark room. */
+.landing-scene--touch { cursor: default; }
+
 /* Neutral, near-black room. Deliberately almost colourless — any violet here
-   turns the whole screen into a lit set and the figure into something that
+   turns the whole screen into a lit set and the record into something that
    glows, which is the opposite of what this graphic is. */
 .landing-scene__room {
   position: absolute;
   inset: 0;
+  z-index: 0;
   background: radial-gradient(
-    ellipse 62% 54% at 50% 48%,
-    rgb(15, 15, 17) 0%,
-    rgb(8, 8, 10) 46%,
+    ellipse 44% 58% at 50% 50%,
+    rgb(18, 18, 20) 0%,
+    rgb(8, 8, 10) 55%,
     rgb(3, 3, 4) 100%
   );
-  transition: background 1.8s var(--ease-scene), filter 1.8s var(--ease-scene);
+  transition: background 1.8s var(--ease-scene);
   pointer-events: none;
-}
-
-.landing-scene__room::before,
-.landing-scene__room::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.landing-scene__room::before {
-  background:
-    radial-gradient(
-      ellipse 32% 38% at 50% 51%,
-      rgba(232, 230, 240, 0.04) 0%,
-      rgba(var(--color-signal-rgb), 0.018) 44%,
-      transparent 76%
-    ),
-    radial-gradient(
-      ellipse 46% 50% at 50% 52%,
-      rgba(255, 255, 255, 0.018) 0%,
-      transparent 68%
-    );
-  opacity: 0.64;
-  transition: opacity 1.9s var(--ease-scene), transform 2.1s var(--ease-scene);
-}
-
-.landing-scene__room::after {
-  background:
-    radial-gradient(ellipse 54% 56% at 50% 52%, transparent 0%, transparent 48%, rgba(0, 0, 0, 0.18) 78%, rgba(0, 0, 0, 0.54) 100%),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.4), transparent 20%, transparent 80%, rgba(0, 0, 0, 0.42));
-  opacity: 0.88;
-  transition: opacity 1.8s var(--ease-scene);
 }
 
 .landing-scene--field-active .landing-scene__room {
   background: radial-gradient(
-    ellipse 58% 52% at 50% 48%,
-    rgb(13, 13, 15) 0%,
-    rgb(6, 6, 8) 48%,
+    ellipse 44% 58% at 50% 50%,
+    rgb(15, 15, 17) 0%,
+    rgb(6, 6, 8) 55%,
     rgb(2, 2, 3) 100%
   );
 }
 
-.landing-scene--field-active .landing-scene__room::before {
-  opacity: 0.82;
-  transform: scale(0.92);
-}
+/* ── top line ──────────────────────────────────────────────────────────── */
 
-.landing-scene--field-active .landing-scene__room::after {
-  opacity: 0.95;
-}
-
-/* The portrait dissolves locally; the hidden GPU field keeps entry timing. */
-.landing-scene__visual { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; isolation: isolate; }
-.landing-scene__portrait {
+.landing-scene__top {
   position: absolute;
-  right: 3.6vw;
-  top: 4dvh;
-  width: 52.8vw;
-  --entry-center-shift: -20vw;
-  aspect-ratio: 2 / 3;
-  z-index: 1;
+  z-index: 5;
+  left: 0;
+  right: 0;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: clamp(28px, 2.6vw, 56px) max(clamp(40px, 3.4vw, 80px), env(safe-area-inset-right, 0px)) 0
+    max(clamp(40px, 3.4vw, 80px), env(safe-area-inset-left, 0px));
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.landing-scene__wordmark {
+  width: clamp(110px, 8.4vw, 190px);
+  height: auto;
+  display: block;
+  opacity: 0.9;
+}
+
+.landing-scene__catalog {
   pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: clamp(34px, 2.5vw, 54px);
+  padding: 0 clamp(14px, 1vw, 22px);
+  border: 1px solid var(--line-strong);
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--text-secondary);
+  font-size: clamp(13px, 0.9vw, 19px);
+  text-decoration: none;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.landing-scene__catalog span {
+  color: var(--trace);
+  transition: transform 0.2s;
+}
+
+.landing-scene__catalog:is(:hover, :focus-visible) {
+  color: var(--text-primary);
+  border-color: rgba(var(--color-signal-rgb), 0.6);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.landing-scene__catalog:hover span { transform: translate(2px, -2px); }
+
+/* ── what the record says ──────────────────────────────────────────────── */
+
+.landing-scene__say {
+  position: absolute;
+  z-index: 5;
+  left: max(48px, 7vw, env(safe-area-inset-left, 0px));
+  top: 51%;
+  transform: translateY(-46%);
+  width: 30vw;
+  display: grid;
+  gap: 14px;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+
+.landing-scene__headline {
+  margin: 0;
+  font-family: var(--font-kr);
+  font-weight: 450;
+  font-size: clamp(32px, 3.3vw, 76px);
+  line-height: 1.28;
+  letter-spacing: -0.035em;
+  color: var(--color-text);
+  /* Two lines are held from the start, so the record does not shift while the
+     sentence is still being typed. */
+  white-space: pre-line;
+  min-height: 2.56em;
+  word-break: keep-all;
+}
+
+.landing-scene__cursor {
+  display: inline-block;
+  width: 0.42em;
+  height: 0.92em;
+  margin-left: 6px;
+  vertical-align: -0.08em;
+  background: #aa8eee;
+  animation: landing-cursor-blink 1.05s steps(1) infinite;
+}
+
+@keyframes landing-cursor-blink {
+  50% { opacity: 0; }
+}
+
+.landing-scene__description {
+  margin: 0;
+  font-size: clamp(14px, 1.05vw, 23px);
+  line-height: 1.6;
+  color: var(--text-secondary);
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  word-break: keep-all;
+}
+
+.landing-scene__description.is-visible { opacity: 1; }
+
+/* ── the way in ────────────────────────────────────────────────────────── */
+
+.landing-scene__prompt {
+  justify-self: start;
+  margin-top: 18px;
+  pointer-events: auto;
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  text-align: left;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text);
   cursor: pointer;
-  mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 38%, rgba(0,0,0,.88) 65%, transparent 100%);
-  transition: filter 0.5s;
 }
-.landing-scene__portrait img,
-.landing-scene__portrait canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.landing-scene__portrait img { object-fit: cover; user-select: none; }
-.landing-scene__face-drift {
-  clip-path: inset(12% 2% 54% 2%);
-  opacity: 0.18;
-  filter: blur(2px);
-  animation: landing-face-drift 9s ease-in-out infinite alternate;
+
+.landing-scene__prompt strong {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font: 400 clamp(19px, 1.4vw, 31px) / 1 var(--font-display);
+  letter-spacing: 0.12em;
+  animation: landing-prompt-breathe 2.8s ease-in-out infinite;
 }
-.landing-scene__visual::after {
+
+.landing-scene__prompt strong::before {
   content: '';
+  width: 28px;
+  height: 1px;
+  background: var(--trace);
+}
+
+.landing-scene__prompt span {
+  font-size: clamp(12px, 0.88vw, 19px);
+  color: var(--text-tertiary);
+}
+
+@keyframes landing-prompt-breathe {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+.landing-scene__prompt:focus-visible,
+.landing-scene__catalog:focus-visible,
+.landing-scene__copy:focus-visible,
+.landing-scene__continue:focus-visible {
+  outline: 2px solid var(--color-signal);
+  outline-offset: 6px;
+}
+
+.landing-scene__prompt:disabled { cursor: default; }
+
+/* ── touch devices: this exhibition is made for a desktop ──────────────── */
+
+.landing-scene__touch-note {
+  margin-top: 18px;
+  display: grid;
+  gap: 16px;
+  justify-items: start;
+  pointer-events: auto;
+}
+
+.landing-scene__touch-note p {
+  margin: 0;
+  max-width: 34ch;
+  font-size: clamp(13px, 0.95vw, 19px);
+  line-height: 1.7;
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.landing-scene__copy {
+  min-height: 48px;
+  padding: 0 24px;
+  border: 1px solid var(--line-strong);
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--color-text);
+  font: 400 clamp(13px, 0.95vw, 18px) var(--font-kr);
+  cursor: pointer;
+}
+
+.landing-scene__link-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-tertiary);
+  word-break: break-all;
+  user-select: all;
+}
+
+.landing-scene__continue {
+  padding: 4px 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  color: var(--text-tertiary);
+  font: 400 13px var(--font-kr);
+  cursor: pointer;
+}
+
+.landing-scene__continue:hover { color: var(--color-text); }
+
+/* ── the hidden field that still owns the entry timing ─────────────────── */
+
+.landing-scene__visual {
   position: absolute;
   inset: 0;
-  z-index: 3;
-  background: linear-gradient(90deg, #040406 0%, rgba(4,4,6,.82) 30%, transparent 65%);
+  z-index: 0;
+  overflow: hidden;
   pointer-events: none;
-  transition: opacity 0.45s;
+  isolation: isolate;
 }
-.landing-scene--field-active .landing-scene__portrait { filter: brightness(1.12); }
-.landing-scene--entering .landing-scene__portrait {
-  pointer-events: none;
-  animation: landing-portrait-center 0.45s cubic-bezier(.22,1,.36,1) forwards;
-}
-.landing-scene--entering .landing-scene__portrait img {
-  animation: landing-portrait-dissolve 0.8s ease-out 0.45s forwards;
-}
-.landing-scene--entering .landing-scene__visual::after { opacity: 0; }
-.landing-scene--entering .landing-scene__portrait .landing-scene__face-drift { display: none; }
-@keyframes landing-face-drift {
-  from { transform: translateX(-2px); opacity: 0.12; }
-  to { transform: translateX(3px); opacity: 0.2; }
-}
-@keyframes landing-portrait-dissolve {
-  from { opacity: 1; filter: blur(0); }
-  to { opacity: 0; filter: blur(16px); }
-}
-@keyframes landing-portrait-center {
-  from { transform: translateX(0); }
-  to { transform: translateX(var(--entry-center-shift)); }
-}
-@keyframes landing-portrait-fade {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
+
 .landing-scene__figure {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
-  transition: filter 0.4s;
-  z-index: 2;
 }
+
 .landing-scene__figure .memory-field { opacity: 0; }
 .landing-scene__figure .memory-field__canvas { pointer-events: none; }
 
-.landing-scene--field-active .landing-scene__figure {
-  filter: brightness(1.16) contrast(1.04);
+/* ── entry ─────────────────────────────────────────────────────────────── */
+
+.landing-scene--entering .landing-scene__say,
+.landing-scene--entering .landing-scene__top {
+  opacity: 0;
+  pointer-events: none;
 }
 
-.landing-scene--entering .landing-scene__figure {
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  mask-image: none;
-  filter: brightness(1.08) contrast(1.055);
-}
+/* ── narrow screens ────────────────────────────────────────────────────── */
 
-.landing-scene__content {
-  position: relative;
-  z-index: 2;
-  width: fit-content;
-  max-width: 78%;
-  margin-left: clamp(28px, 7vw, 120px);
-  padding-top: max(150px, 33dvh);
-  padding-bottom: 100px;
-  transition: opacity 0.25s;
-}
-
-.landing-scene--entering .landing-scene__content { opacity: 0; pointer-events: none; }
-
-.landing-scene__title {
-  position: absolute;
-  z-index: 3;
-  top: 32px;
-  left: clamp(28px, 7vw, 120px);
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin: 0 0 28px;
-  color: rgb(var(--color-lavender-rgb));
-  font-size: var(--type-body);
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: 0.035em;
-}
-
-.landing-scene__wordmark { width: 160px; height: auto; display: block; }
-
-.landing-scene__headline {
-  margin: 0;
-  font-family: var(--font-kr);
-  font-size: clamp(2.25rem, 4.4vw, 4rem);
-  font-weight: 500;
-  line-height: 1.2;
-  letter-spacing: -0.035em;
-  color: var(--color-text);
-  word-break: keep-all;
-}
-
-.landing-scene__headline span,
-.landing-scene__description span { display: block; }
-
-.landing-scene__description {
-  margin: 24px 0 0;
-  color: #b7b4c3;
-  font-size: clamp(var(--type-body), 1.25vw, var(--type-body));
-  line-height: 1.85;
-  word-break: keep-all;
-}
-
-.landing-scene__start {
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 48px;
-  min-height: 52px;
-  margin-top: 40px;
-  padding: 12px 0;
-  border: 0;
-  border-bottom: 1px solid rgba(var(--color-lavender-rgb), 0.65);
-  border-radius: 0;
-  background: transparent;
-  color: var(--color-text);
-  font: 500 var(--type-body) var(--font-kr);
-  cursor: pointer;
-  transition: color 0.2s, border-color 0.2s;
-}
-
-.landing-scene__visit-time { position: absolute; z-index: 3; left: clamp(28px, 7vw, 120px); bottom: 32px; margin: 0; color: #aaa7b5; font-size: var(--type-meta); line-height: 1.5; }
-
-.landing-scene__start span { color: rgb(var(--color-lavender-rgb)); font-size: 1.375rem; }
-.landing-scene__start:is(:hover, :focus-visible) { color: rgb(var(--color-lavender-rgb)); border-color: var(--color-signal); }
-.landing-scene__start:focus-visible { outline: 2px solid var(--color-signal); outline-offset: 8px; }
-.landing-scene__start:disabled { cursor: default; }
-
-/* Quiet link to the web catalogue (/catalog/), top-right — on the same line
-   as the corner label the other Scenes carry (ZoneLabel, top: 28px). */
-.landing-scene__catalog {
-  position: absolute;
-  z-index: 3;
-  top: 28px;
-  right: clamp(24px, 4vw, 48px);
-  padding: 4px 0;
-  color: var(--text-tertiary);
-  font-size: var(--type-meta);
-  line-height: 1.4;
-  letter-spacing: 0.02em;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-.landing-scene__catalog:hover { color: var(--color-text); }
-.landing-scene__catalog:focus-visible { outline: 2px solid var(--color-signal); outline-offset: 6px; }
-.landing-scene--entering .landing-scene__catalog { opacity: 0 !important; pointer-events: none; }
-
-@media (max-width: 700px) {
-  .landing-scene__content {
-    margin-left: 24px;
-    max-width: calc(100% - 48px);
-    padding-top: max(180px, 36dvh);
-    padding-bottom: 100px;
+@media (max-width: 860px) {
+  .landing-scene__say {
+    left: 24px;
+    right: 24px;
+    width: auto;
+    top: auto;
+    bottom: 7dvh;
+    transform: none;
+    align-content: end;
   }
-  .landing-scene__title { top: 24px; left: 24px; margin: 0; }
-  .landing-scene__wordmark { width: 140px; }
-  .landing-scene__headline { font-size: clamp(1.875rem, 7.6vw, 2.75rem); }
-  .landing-scene__description { margin-top: 20px; font-size: var(--type-body); max-width: 270px; }
-  .landing-scene__start { margin-top: 28px; }
-  .landing-scene__portrait { width: 132vw; right: -15vw; top: 7dvh; --entry-center-shift: 1vw; }
-  .landing-scene__visual::after { background: linear-gradient(180deg, rgba(4,4,6,.1) 15%, rgba(4,4,6,.72) 39%, rgba(4,4,6,.52) 60%, rgba(4,4,6,.12) 80%); }
-  .landing-scene__catalog { top: 26px; right: 24px; }
-  .landing-scene__visit-time { left: 24px; bottom: 28px; }
+  .landing-scene__headline { font-size: clamp(26px, 6.6vw, 40px); }
+  .landing-scene__top { padding: 24px; }
+  .landing-scene__wordmark { width: 128px; }
+  /* The pinned analysis notes are measured against the print; on a narrow
+     screen there is no margin left for them to lead out into. */
+  .landing-record__note,
+  .landing-record__leaders { display: none; }
+  .landing-record {
+    --record-left: 50%;
+    --record-top: 34%;
+  }
+  .landing-record__record { height: calc(38vh - 60px); }
+  .landing-record__plate,
+  .landing-record__ghost { height: 40vh; }
+  .landing-record__glow { width: 42vh; }
 }
 
-.landing-scene--entering .landing-scene__title,
-.landing-scene--entering .landing-scene__visit-time { opacity: 0; pointer-events: none; }
-
-@media (max-height: 650px) {
-  .landing-scene__content { padding-top: max(120px, 24dvh); padding-bottom: 0; }
-  .landing-scene__visit-time { position: relative; left: auto; bottom: auto; margin: 28px clamp(28px, 7vw, 120px); }
-}
-@media (min-width: 701px) and (max-height: 650px) {
-  .landing-scene__headline { font-size: clamp(2.125rem, 3.75vw, 3rem); }
-}
-@media (max-width: 700px) and (max-height: 650px) {
-  .landing-scene__visit-time { margin-left: 24px; }
+@media (max-height: 650px) and (min-width: 861px) {
+  .landing-record__record { height: calc(62vh - 60px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .landing-scene__figure, .landing-scene__content,
-  .landing-scene__room, .landing-scene__room::before, .landing-scene__room::after {
-    transition: none;
-  }
-  .landing-scene__face-drift { animation: none; }
-  .landing-scene--entering .landing-scene__portrait { animation: none; }
-  .landing-scene--entering .landing-scene__portrait img { animation: landing-portrait-fade 0.18s linear forwards; }
+  .landing-scene__room { transition: none; }
+  .landing-scene__cursor,
+  .landing-scene__prompt strong { animation: none; }
+  .landing-scene__catalog span,
+  .landing-scene__catalog:hover span { transition: none; transform: none; }
+  .landing-scene__description { transition: none; }
 }

@@ -19,9 +19,9 @@ export interface ActionEvidence {
   tenths?: number;
 }
 export type BehaviorRecords = Partial<Record<SceneId, SceneBehaviorRecord>>;
-export const PROCESS_GUIDE = '고른 단서뿐 아니라, 선택에 이르는 과정도 기록에 남았습니다.';
-export const RECORD_MEANING = '누구를 떠올렸든, 선택의 순간에는 당신이 있었습니다.\n이 보고서는 그 순간에 남은 당신의 흔적을 모았습니다.';
-export const RECORD_CLOSING = '상상한 사람을 알아맞히는 것보다,\n고르는 동안 남은 당신의 흔적을 기록했습니다.';
+export const PROCESS_GUIDE = '바꾸고, 머물고, 비워 둔 순간까지 함께 적었습니다.';
+export const RECORD_MEANING = '이 보고서에는 당신이 고른 단서와\n고르는 동안 남은 움직임이 함께 적혀 있습니다.';
+export const RECORD_CLOSING = '누구를 떠올렸는지는 적지 않았습니다.\n당신이 무엇을, 어떻게 골랐는지만 남겼습니다.';
 
 /** A look this long or longer counts toward the hesitation conclusion. */
 export const HESITATION_VIEW_MS = 1000;

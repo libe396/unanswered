@@ -7,8 +7,8 @@
  * request). Clue ids, numbers and interpretation template context go in; the phone looks the words back up in
  * src/data/content.ts and redraws the light from src/data/lightRulesCache.json.
  *
- * Deliberately left out: SENTENCE's free-typed `responseText` (personal
- * writing), anything from the camera, and the raw behaviour log.
+ * The visitor's authored sentence is included at their request (2026-11-01).
+ * Camera data and raw behaviour/replay logs remain outside the URL.
  */
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
 import { readFindingCopy, type PersonalFinding } from './personalFindingInterpretation';
@@ -20,8 +20,12 @@ import type { RecordLayerDerived } from '../types';
 export const PUBLIC_REPORT_URL: string =
   import.meta.env.VITE_PUBLIC_REPORT_URL || 'https://libe396.github.io/unanswered/';
 export const REPORT_HASH_PREFIX = '#/r/';
-export const MAX_REPORT_URL_LENGTH = 600;
 const NAME_MAX = 12;
+
+// Wire v2 dictionaries are append-only; UI/content ordering may change independently.
+const OBJECT_IDS = ['window', 'lamp', 'book', 'photo', 'cup', 'chair', 'pillow', 'duvet', 'bedsidePlant', 'bag', 'bedside'];
+const SENTENCE_IDS = ['RECON_A_LEFT_CALM', 'RECON_A_HESITATED', 'RECON_A_RETURNED_FOR', 'RECON_A_WAITED', 'RECON_B_LEFT_BEHIND', 'RECON_B_PUT_DOWN_AGAIN', 'RECON_B_LEFT_ON_PURPOSE', 'RECON_B_DISPLACED', 'RECON_C_UNSPOKEN', 'RECON_C_UNDONE_ACTION', 'RECON_C_UNWRITTEN_RECORD', 'RECON_C_UNDECIDED', 'RECON_D_REVISITED', 'RECON_D_UNCHANGED', 'RECON_D_VANISHED_LATER', 'RECON_D_DOOR_LEFT_OPEN', 'RECON_E_NEVER_RETURNED', 'RECON_E_RECORD_ENDS', 'RECON_E_CONTINUES_ELSEWHERE', 'RECON_E_LAST_RECORD_HERE'];
+const SOUND_IDS = ['SOUND_01', 'SOUND_02', 'SOUND_03', 'SOUND_04', 'SOUND_05', 'SOUND_06', 'SOUND_07'];
 
 export interface SharedEvidence {
   kind: ActionEvidenceKind;
@@ -47,12 +51,15 @@ export interface SharedReport {
   sen: string[];
   ev: SharedEvidence[];
   findings: Array<{ id: string; context: Record<string, string> }>;
+  response: string;
+  responseAvailable: boolean;
+  skipped: boolean;
 }
 
 /* Wire form: short codes, empty fields omitted. */
 const KINDS: ActionEvidenceKind[] = ['dwell', 'removed', 'replay', 'selection'];
 const SCENES: ActionEvidenceScene[] = ['soundClues', 'memorySketch', 'sentenceClues'];
-type WireEvidence = [number, number, string] | [number, number, string, number];
+type WireEvidence = [number, number, number] | [number, number, number, number];
 
 const round2 = (value: number) => Math.round(value * 100) / 100;
 
@@ -66,6 +73,9 @@ export function buildSharedReport(
   const keywords = record.light?.rules.emotionKeywords ?? [];
   return {
     v: 1,
+    response: record.sentenceClues.responseText ?? '',
+    responseAvailable: true,
+    skipped: record.sentenceClues.responseSkipped,
     findings: findings.slice(0, 3).map(({ id, context }) => ({ id, context: Object.fromEntries(Object.entries(context).filter(([key]) => ['fragmentAct', 'how', 'single', 'spread', 'topLabel', 'zone', 'zones'].includes(key))) })),
     id: presentation.reportId,
     t: presentation.issuedAt === null ? null : Math.floor(presentation.issuedAt / 60_000),
@@ -84,19 +94,21 @@ export function buildSharedReport(
 }
 
 function compress(report: SharedReport): string {
-  const wire: Record<string, unknown> = { v: report.v, id: report.id };
+  const wire: Record<string, unknown> = { v: 2, id: report.id };
+  if (report.response) wire.r = report.response;
+  if (report.skipped) wire.b = 1;
   if (report.t !== null) wire.t = report.t;
   if (report.n) wire.n = report.n;
   if (report.img) wire.img = report.img;
   if (report.var !== 1) wire.var = report.var;
   if (report.kw.length) wire.kw = report.kw;
-  if (report.snd) wire.snd = report.snd;
+  if (report.snd) wire.snd = SOUND_IDS.indexOf(report.snd);
   if (report.pos) wire.pos = report.pos;
-  if (report.obj.length) wire.obj = report.obj;
-  if (report.sen.length) wire.sen = report.sen;
+  if (report.obj.length) wire.obj = report.obj.map(id => OBJECT_IDS.indexOf(id));
+  if (report.sen.length) wire.sen = report.sen.map(id => SENTENCE_IDS.indexOf(id));
   if (report.ev.length) {
     wire.ev = report.ev.map((item): WireEvidence => {
-      const head: [number, number, string] = [KINDS.indexOf(item.kind), SCENES.indexOf(item.sceneId), item.targetId];
+      const head: [number, number, number] = [KINDS.indexOf(item.kind), SCENES.indexOf(item.sceneId), item.sceneId === 'soundClues' ? SOUND_IDS.indexOf(item.targetId) : item.sceneId === 'memorySketch' ? OBJECT_IDS.indexOf(item.targetId) : SENTENCE_IDS.indexOf(item.targetId)];
       return item.tenths === undefined ? head : [...head, item.tenths];
     });
   }
@@ -109,9 +121,7 @@ export function buildReportUrl(payload: string): string {
 }
 
 /**
- * Compressed payload for this visit. If the full link would pass
- * MAX_REPORT_URL_LENGTH, `ev` goes first, then `obj` — the receipt still
- * reads without either.
+ * Compact indexed payload. Old v1 links still decode; no selected clues are dropped.
  */
 export function encodeReport(
   record: RecordLayerDerived,
@@ -119,17 +129,8 @@ export function encodeReport(
   presentation: FinalReportPresentation,
   findings: readonly PersonalFinding[] = [],
 ): string {
-  let report = buildSharedReport(record, behavior, presentation, findings);
-  let payload = compress(report);
-  if (buildReportUrl(payload).length > MAX_REPORT_URL_LENGTH) {
-    report = { ...report, ev: [] };
-    payload = compress(report);
-  }
-  if (buildReportUrl(payload).length > MAX_REPORT_URL_LENGTH) {
-    report = { ...report, obj: [] };
-    payload = compress(report);
-  }
-  return payload;
+  // Preserve every chosen object and evidence item. Do not silently shorten the visitor's record.
+  return compress(buildSharedReport(record, behavior, presentation, findings));
 }
 
 /* ── Decoding: anything malformed is null, never a half-read record ─────── */
@@ -150,7 +151,30 @@ export function decodeReport(payload: string): SharedReport | null {
     const wire: unknown = JSON.parse(json);
     if (!wire || typeof wire !== 'object' || Array.isArray(wire)) return null;
     const w = wire as Record<string, unknown>;
-    if (w.v !== 1 || !isString(w.id)) return null;
+    if ((w.v !== 1 && w.v !== 2) || !isString(w.id)) return null;
+    if (w.v === 2) {
+      if (w.snd !== undefined) { if (!isInt(w.snd) || !SOUND_IDS[w.snd]) return null; w.snd = SOUND_IDS[w.snd]; }
+      for (const [field, options] of [['obj', OBJECT_IDS], ['sen', SENTENCE_IDS]] as const) {
+        const values = w[field];
+        if (values !== undefined) {
+          if (!Array.isArray(values) || !values.every(value => isInt(value) && options[value])) return null;
+          w[field] = values.map(value => options[value]);
+        }
+      }
+      if (w.ev !== undefined) {
+        if (!Array.isArray(w.ev)) return null;
+        const expanded = [];
+        for (const item of w.ev) {
+          if (!Array.isArray(item) || !isInt(item[1]) || !isInt(item[2])) return null;
+          const options = item[1] === 0 ? SOUND_IDS : item[1] === 1 ? OBJECT_IDS : item[1] === 2 ? SENTENCE_IDS : null;
+          if (!options?.[item[2]]) return null;
+          expanded.push([item[0], item[1], options[item[2]], ...item.slice(3)]);
+        }
+        w.ev = expanded;
+      }
+    }
+    if (w.r !== undefined && (!isString(w.r) || w.r.length > 1000)) return null;
+    if (w.b !== undefined && w.b !== 1) return null;
 
     const kw = w.kw === undefined ? [] : w.kw;
     if (!Array.isArray(kw) || !kw.every((i) => isInt(i) && i >= 0 && i < EMOTION_KEYWORDS.length)) return null;
@@ -192,6 +216,9 @@ export function decodeReport(payload: string): SharedReport | null {
     }
     return {
       findings,
+      response: (w.r as string | undefined) ?? '',
+      responseAvailable: w.v === 2,
+      skipped: w.b === 1,
       v: 1,
       id: w.id,
       t: (w.t as number | undefined) ?? null,

@@ -14,7 +14,7 @@ const IDLE_INPUTS = ['pointerdown', 'pointermove', 'keydown', 'wheel', 'touchsta
  *
  * Display-only: lives outside SceneController and every Zone tracker, so
  * neither the prompt nor its button reaches the behaviour log. Landing is
- * already where a reset leads; the Final Report keeps its own 90s reset
+ * already where a reset leads; the Final Report keeps its own 2-minute reset
  * (FinalRecordLayer.tsx).
  */
 export function VenueIdleGuard() {

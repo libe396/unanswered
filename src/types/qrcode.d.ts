@@ -6,8 +6,9 @@ declare module 'qrcode' {
     width?: number;
     color?: { dark?: string; light?: string };
   }
+  export function create(text: string, options?: QRCodeRenderOptions): { modules: { size: number } };
   export function toCanvas(canvas: HTMLCanvasElement, text: string, options?: QRCodeRenderOptions): Promise<void>;
   export function toDataURL(text: string, options?: QRCodeRenderOptions): Promise<string>;
-  const QRCode: { toCanvas: typeof toCanvas; toDataURL: typeof toDataURL };
+  const QRCode: { create: typeof create; toCanvas: typeof toCanvas; toDataURL: typeof toDataURL };
   export default QRCode;
 }

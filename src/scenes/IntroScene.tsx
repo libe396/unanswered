@@ -11,9 +11,9 @@ import './IntroScene.css';
  * same moment. Terminology is "도착" throughout; "목적지" is not used.
  */
 const STATUS_LINES = [
-  '조사 대상의 기록이 확인되었습니다.',
-  '흔적은 여러 방에 흩어져 있습니다.',
-  '도착지 확인이 완료되었습니다.',
+  '조사할 기록을 찾았습니다.',
+  '기록은 여러 방에 흩어져 있습니다.',
+  '도착했습니다.',
 ];
 
 const DUST_PARTICLES = [
@@ -34,6 +34,7 @@ const DUST_PARTICLES = [
  */
 const SEAM_EXTEND_MS = 450;
 const DOOR_OPEN_MS = 1150;
+const STATUS_READING_HOLD_MS = 2200;
 
 export function IntroScene() {
   const completeScene = useExperienceStore((s) => s.completeScene);
@@ -109,15 +110,12 @@ export function IntroScene() {
       scheduleNextFrame(() => playElevatorSound(0.09));
     }, seamAt);
     schedule(() => setElevatorVolume(0.055), openAt + 600 * timeScale);
-    // Trimmed ~1.5s off this readout-to-departure stretch (was +3300/+4600/
-    // +6200) — real playtesting read the original hold as dead air rather
-    // than atmosphere. The status-line cross-fade itself (below) was also
-    // shortened to match, so each line still gets a real, un-rushed dwell.
+    // Give the longer middle line extra reading time, including reduced motion.
     schedule(() => setStatusIndex(1), interior + 2700 * timeScale);
-    schedule(() => setStatusIndex(2), interior + 3700 * timeScale);
+    schedule(() => setStatusIndex(2), interior + 3700 * timeScale + STATUS_READING_HOLD_MS);
     // The departure interaction only appears once the destination readout
     // above has settled — never on entry, and never mid-animation.
-    schedule(() => setDepartureReady(true), interior + 4700 * timeScale);
+    schedule(() => setDepartureReady(true), interior + 4700 * timeScale + STATUS_READING_HOLD_MS);
 
     return () => {
       timeoutsRef.current.forEach((id) => window.clearTimeout(id));
@@ -291,7 +289,7 @@ export function IntroScene() {
                   exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.9 * timeScale, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <span>발견된 기록 열기</span>
+                  <span>기록 열기</span>
                   <span className="cta__arrow" aria-hidden="true">
                     →
                   </span>

@@ -43,13 +43,13 @@ interface StageLayoutProps {
  *
  * This replaces the one template every Zone had been using — a column of
  * centred text in the middle of an empty screen — which is most of why the
- * exhibition read as a wireframe no matter how the type was set. Content is
- * left-aligned here; centred text is now ZoneIntroCard's alone, which is what
- * makes the intro beat feel like a different kind of screen from the work.
+ * exhibition read as a wireframe no matter how the type was set. The question
+ * is centred at the top; the inputs in the content column stay left-aligned.
  *
  * Measures live in tokens.css (--stage-*) so the Zones cannot drift apart:
- * 960 container, a 392px object column, 96px gutter, and a vertical band that
- * starts below the header and ends above the ArchiveHUD.
+ * the shared 1280 frame with the question centred at its top, then a 960
+ * group of a 392px object column and 96px gutter, in a band that starts below
+ * the header and ends above the ArchiveHUD.
  */
 export function StageLayout({
   object,
@@ -65,32 +65,35 @@ export function StageLayout({
 }: StageLayoutProps) {
   return (
     <div className={`stage${wide ? ' stage--wide' : ''}${className ? ` ${className}` : ''}`}>
-      <div className="stage__inner">
-        <div className="stage__object">
-          {residue ? <span className="residue stage__residue" aria-hidden="true" /> : null}
-          <div className="stage__object-body">{object}</div>
-        </div>
+      <div className="stage__frame">
+        {/* The header spans the frame above both columns, so it sits where
+            every other Scene's header sits. */}
+        <StageHeader eyebrow={eyebrow} title={title} description={description} />
+        <div className="stage__inner">
+          <div className="stage__object">
+            {residue ? <span className="residue stage__residue" aria-hidden="true" /> : null}
+            <div className="stage__object-body">{object}</div>
+          </div>
 
-        <div className="stage__content">
-          <StageHeader eyebrow={eyebrow} title={title} description={description} />
+          <div className="stage__content">
+            {steps && steps.length > 0 ? (
+              <ol className="stage__steps">
+                {steps.map((step) => (
+                  <li
+                    key={step.index}
+                    className={`stage__step${
+                      step.index === activeStep ? ' stage__step--active' : ''
+                    }`}
+                  >
+                    <span className="stage__step-index">{step.index}</span>
+                    <span className="stage__step-label">{step.label}</span>
+                  </li>
+                ))}
+              </ol>
+            ) : null}
 
-          {steps && steps.length > 0 ? (
-            <ol className="stage__steps">
-              {steps.map((step) => (
-                <li
-                  key={step.index}
-                  className={`stage__step${
-                    step.index === activeStep ? ' stage__step--active' : ''
-                  }`}
-                >
-                  <span className="stage__step-index">{step.index}</span>
-                  <span className="stage__step-label">{step.label}</span>
-                </li>
-              ))}
-            </ol>
-          ) : null}
-
-          {children ? <div className="stage__action">{children}</div> : null}
+            {children ? <div className="stage__action">{children}</div> : null}
+          </div>
         </div>
       </div>
     </div>

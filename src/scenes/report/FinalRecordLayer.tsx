@@ -7,6 +7,7 @@ import { useStageReveal } from './useStageReveal';
 import { FinalReportDetail } from './FinalReportDetail';
 import type { PersonalFinding } from '../../lib/personalFindingInterpretation';
 import { ReportQr } from './ReportQr';
+import type { ReportStorageAction } from './ReportStorageOptIn';
 import './FinalRecordLayer.css';
 
 interface Props {
@@ -19,6 +20,7 @@ interface Props {
   onRestart: () => void;
   reportUrl: string;
   venue: boolean;
+  storage?: ReportStorageAction;
 }
 
 const VENUE_GUIDE = `QR을 찍어 보고서를 받아 가세요.
@@ -59,7 +61,7 @@ function useVenueIdleReset(enabled: boolean, onRestart: () => void) {
  * `window.print()`), which renders `PrintableFullReport` — hidden on screen,
  * shown only under `@media print`.
  */
-export function FinalRecordLayer({ record, presentation, findings, index, total, onIssueFullReport, onRestart, reportUrl, venue }: Props) {
+export function FinalRecordLayer({ record, presentation, findings, index, total, onIssueFullReport, onRestart, reportUrl, venue, storage }: Props) {
   const prefersReducedMotion = useReducedMotion();
   const revealed = useStageReveal(prefersReducedMotion ? 300 : 2400);
   useVenueIdleReset(venue, onRestart);
@@ -82,6 +84,7 @@ export function FinalRecordLayer({ record, presentation, findings, index, total,
             onIssueFullReport={onIssueFullReport}
             reportUrl={reportUrl}
             venue={venue}
+            storage={storage}
           />
         </motion.div>
 
@@ -126,8 +129,10 @@ export function FinalRecordLayer({ record, presentation, findings, index, total,
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: prefersReducedMotion ? 0.15 : 1, delay: prefersReducedMotion ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }}
           >
-            <ReportQr url={reportUrl} size={220} className="final-record-layer__venue-qr" />
-            <p className="final-record-layer__venue-scan">폰으로 요약본 받기 / SCAN TO KEEP</p>
+            {storage && !storage.ready && (!storage.notice || storage.pending) ? <p role="status">보고서를 연결하고 있습니다.</p> : <ReportQr url={reportUrl} size={220} className="final-record-layer__venue-qr" />}
+            {storage?.notice && <p role="status">{storage.notice}</p>}
+            {storage && !storage.pending && !storage.ready && storage.notice && <button className="cta cta--text" onClick={storage.onPrepare}>QR 연결 다시 시도</button>}
+            <p className="final-record-layer__venue-scan">{storage?.ready ? '폰으로 전체 기록 받기' : '폰으로 요약본 받기'} / SCAN TO KEEP</p>
             <p className="final-record-layer__venue-guide">{VENUE_GUIDE}</p>
           </motion.div>
         </aside>

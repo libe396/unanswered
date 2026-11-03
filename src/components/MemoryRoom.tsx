@@ -109,7 +109,7 @@ export function MemoryRoom({
             const object = ROOM_OBJECT_GEOMETRY.find((item) => item.id === id);
             if (!object) return null;
             return <g key={id} transform={`translate(${object.marker.join(' ')}) scale(${labelScale})`}>
-              <rect x="-23" y="-23" width="46" height="38" rx="4" />
+              <circle cx="0" cy="-4" r="19" />
               <text y="5" textAnchor="middle">{String(index + 1).padStart(2, '0')}</text>
             </g>;
           })}
@@ -117,7 +117,7 @@ export function MemoryRoom({
         {activeObject ? <g className="memory-room__annotations memory-room__label" aria-hidden="true"
           transform={`translate(${activeObject.marker[0]} ${activeObject.marker[1] + 45 * labelScale}) scale(${labelScale})`}>
           <rect x={-Math.max(112, labelFor(activeObject.id).length * 18 + 24) / 2}
-            y="-21" width={Math.max(112, labelFor(activeObject.id).length * 18 + 24)} height="40" rx="4" />
+            y="-19" width={Math.max(112, labelFor(activeObject.id).length * 18 + 24)} height="36" rx="8" />
           <text y="7" textAnchor="middle">{labelFor(activeObject.id)}</text>
         </g> : null}
       </svg>

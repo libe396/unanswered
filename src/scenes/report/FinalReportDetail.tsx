@@ -9,12 +9,14 @@ import { MEMORY_ROOM_OBJECTS } from '../../data/content';
 import { MemoryRoom } from '../../components/MemoryRoom';
 import { drawStrokes } from '../../lib/memorySketch';
 import { ROOM_WIDTH, ROOM_HEIGHT } from '../../data/memoryRoomGeometry';
-import { copyText } from '../../lib/reportShare';
+import { shareReport } from '../../lib/shareReport';
 import { SpecimenGlyph } from '../../components/SoundSpecimenGlyph';
 import { soundPositionMeaning } from '../../lib/soundPositionMeaning';
 import { SOUND_CLUES } from '../../data/content';
 import { FindingRecordGraphic } from './FindingRecordGraphic';
 import { ReportQr } from './ReportQr';
+import type { ReportStorageAction } from './ReportStorageOptIn';
+import { ExhibitionFeedback } from '../../components/ExhibitionFeedback';
 import './FinalReportDetail.css';
 
 interface Props {
@@ -24,9 +26,10 @@ interface Props {
   reportUrl: string;
   venue: boolean;
   onIssueFullReport: () => void;
+  storage?: ReportStorageAction;
 }
 
-export function FinalReportDetail({ record, presentation, findings, reportUrl, venue, onIssueFullReport }: Props) {
+export function FinalReportDetail({ record, presentation, findings, reportUrl, venue, onIssueFullReport, storage }: Props) {
   const light = useRef<HTMLCanvasElement>(null);
   const sketch = useRef<HTMLCanvasElement>(null);
   const behavior = useExperienceStore(s => s.behavior);
@@ -44,7 +47,7 @@ export function FinalReportDetail({ record, presentation, findings, reportUrl, v
     }
   }, [record.light, record.memorySketch]);
   async function copyLink() {
-    if (await copyText(reportUrl)) { setCopied(true); window.setTimeout(() => setCopied(false), 1800); }
+    if (await shareReport(reportUrl) === 'copied') { setCopied(true); window.setTimeout(() => setCopied(false), 1800); }
   }
   return <article className="report-detail" aria-label="상세 최종보고서">
     <header className="report-detail__header">
@@ -55,7 +58,7 @@ export function FinalReportDetail({ record, presentation, findings, reportUrl, v
     </header>
     <section className="report-detail__analysis" aria-labelledby="report-analysis-title">
       <p className="report-detail__code">01 · 이번 기록의 해석</p>
-      <h2 id="report-analysis-title">선택의 순간에 남은 흔적</h2>
+      <h2 id="report-analysis-title">고르는 동안 남은 것</h2>
       <p className="report-detail__analysis-guide">{PROCESS_GUIDE}</p>
       {findings.length ? findings.map((finding, index) => <article key={finding.id} className="report-detail__insight">
         <div className="report-detail__insight-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</div>
@@ -72,14 +75,10 @@ export function FinalReportDetail({ record, presentation, findings, reportUrl, v
           </section>
         </div>
         <div className="report-detail__insight-art"><FindingRecordGraphic finding={finding} /></div>
-      </article>) : <p className="report-detail__interpretation">남겨진 선택은 기록했지만, 선택들 사이의 관계를 해석할 근거는 충분하지 않았습니다.</p>}
+      </article>) : <p className="report-detail__interpretation">고른 답은 적었지만, 답 사이의 관계를 말할 만큼 근거가 충분하지 않았습니다.</p>}
       <section className="report-detail__record-panel" aria-label="실제 행동 기록"><h3>실제 행동 기록</h3>{evidence.length ? evidence.map(item=><p key={item.text}>{item.text}</p>) : <p>확인할 수 있는 선택 기록이 없습니다.</p>}</section>
     </section>
     <section className="report-detail__light">
-      <figure className="report-detail__light-art">
-        {record.light ? <canvas ref={light} width={1000} height={1000} aria-label="고른 사진에서 이어진 빛 그래픽" role="img" /> : <p>기록된 빛의 흔적이 없습니다.</p>}
-        <figcaption>FIG. 01 · 고른 사진에서 이어진 빛</figcaption>
-      </figure>
       <div>
         <p className="report-detail__code">02 · 빛의 흔적</p>
         <h2>단서가 남긴 빛</h2>
@@ -93,6 +92,10 @@ export function FinalReportDetail({ record, presentation, findings, reportUrl, v
           </div>
         </section>
       </div>
+      <figure className="report-detail__light-art">
+        {record.light ? <canvas ref={light} width={1000} height={1000} aria-label="고른 사진에서 이어진 빛 그래픽" role="img" /> : <p>기록된 빛의 흔적이 없습니다.</p>}
+        <figcaption>FIG. 01 · 고른 사진에서 이어진 빛</figcaption>
+      </figure>
     </section>
     <div className="report-detail__clues">
       <section>
@@ -121,10 +124,14 @@ export function FinalReportDetail({ record, presentation, findings, reportUrl, v
       <div className="report-detail__response"><p className="report-detail__code">덧붙인 기록</p><p>{sentence.authoredResponse || (record.sentenceClues.responseSkipped ? '빈칸으로 남겼습니다.' : '덧붙인 문장이 없습니다.')}</p></div>
     </section>
     {!venue && <footer className="report-detail__take">
-      <div><h2>이 기록을 가져가세요</h2><p>QR을 찍으면 휴대폰에서 요약본을 확인할 수 있습니다.</p>
-        <button className="cta cta--text" onClick={copyLink}>{copied ? '복사했습니다' : '요약본 링크 복사'}</button>
+      <div><h2>이 기록을 가져가세요</h2><p>{storage ? 'QR 보고서의 근거에서 당시 선택 화면과 움직임을 함께 볼 수 있습니다.' : 'QR을 찍으면 휴대폰에서 보고서를 확인할 수 있습니다.'}</p>
+        {storage && <p className="report-detail__date">이 주소를 가진 사람은 해당 기록을 볼 수 있습니다. 카메라 영상과 마이크는 포함되지 않습니다.</p>}
+        {storage?.notice && <p role="status">{storage.notice}</p>}
+        {storage && !storage.pending && !storage.ready && storage.notice && <button className="cta cta--text" onClick={storage.onPrepare}>QR 연결 다시 시도</button>}
+        <button className="cta cta--text" onClick={copyLink}>{copied ? '복사했습니다' : '공유하기'}</button>
         <button className="cta cta--text" onClick={onIssueFullReport}>전체 조사 기록 발급하기</button>
-      </div><ReportQr url={reportUrl} size={260} />
+      </div>{storage && !storage.ready && (!storage.notice || storage.pending) ? <div className="report-detail__qr-wait" role="status">보고서를 연결하고 있습니다.</div> : <a className="report-detail__qr-link" href={reportUrl} target="_blank" rel="noopener noreferrer" aria-label="휴대폰 보고서 열기"><ReportQr url={reportUrl} size={180} /></a>}
     </footer>}
+    <ExhibitionFeedback key={presentation.reportId} reportLink={storage?.ready ? reportUrl : undefined} />
   </article>;
 }

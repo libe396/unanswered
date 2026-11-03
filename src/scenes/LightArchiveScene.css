@@ -654,3 +654,22 @@
     width: 100%;
   }
 }
+
+/* Shared frame (2026-11-01): the two columns split the frame's width, so the
+   photo grows to fill its column — capped by the height left under the
+   question — and the thumbnails, words and CTA use the full right column. */
+.light-archive-scene .light-archive-scene__preview {
+  max-width: min(100%, max(280px, calc(100dvh - 344px)));
+}
+
+.light-archive-scene .stage__action {
+  max-width: none;
+}
+
+/* Booth iMac 24" (2026-11-03): a little more air between the question and the
+   photo (40 → 64px) on the large screen only. */
+@media (min-width: 1800px) and (min-height: 1000px) {
+  .light-archive-scene .stage__inner {
+    padding-top: var(--sp-64);
+  }
+}

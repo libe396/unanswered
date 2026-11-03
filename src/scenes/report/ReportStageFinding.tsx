@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import type { PersonalFinding } from '../../lib/personalFindingInterpretation';
+import { ChoiceReplayPlayer } from './ChoiceReplayPlayer';
 import { FindingRecordGraphic } from './FindingRecordGraphic';
 import { ReportStageNav } from './ReportStageNav';
 import './ReportStageFindings.css';
@@ -113,7 +114,7 @@ export function ReportStageFinding({ finding, order, count, index, total, locked
           <motion.section
             ref={evidenceRef}
             key="evidence"
-            className="report-evidence-layer"
+            className="report-evidence-layer report-evidence-layer--replay"
             role="dialog"
             aria-modal="true"
             aria-labelledby="report-evidence-title"
@@ -128,26 +129,8 @@ export function ReportStageFinding({ finding, order, count, index, total, locked
                 닫기
               </button>
             </header>
-            <h3 className="report-evidence-layer__headline">{finding.headline}</h3>
-            <p className="report-evidence-layer__pattern">{finding.interpretation}</p>
-            <p className="report-evidence-layer__reflection">{finding.reflection}</p>
-            <p className="report-evidence-layer__pattern">{finding.pattern}</p>
-            <ol className="report-evidence-layer__list">
-              {finding.evidence.map((item, i) => (
-                <li key={`${item.zone}-${i}`} className="report-evidence-layer__item">
-                  <span className="report-evidence-layer__scene">{item.scene}</span>
-                  <span className="report-evidence-layer__description">{item.description}</span>
-                  {item.metrics.length > 0 ? (
-                    <span className="report-evidence-layer__metrics">
-                      {item.metrics.map((metric) => (
-                        <span key={metric}>{metric}</span>
-                      ))}
-                    </span>
-                  ) : null}
-                </li>
-              ))}
-            </ol>
-            <p className="report-evidence-layer__note">이번 방문에서 실제로 기록된 값입니다. 머문 시간에는 읽기와 조작 시간이 포함되며, 그 이유까지 알 수는 없습니다.</p>
+            <ChoiceReplayPlayer finding={finding} />
+            <p className="report-evidence-layer__note">이번 방문의 실제 선택 기록입니다. 머문 시간에는 읽기와 조작 시간이 포함되며, 그 이유까지 알 수는 없습니다. 전체 기록은 마지막 보고서에 남아 있습니다.</p>
           </motion.section>
         ) : null}
       </AnimatePresence>

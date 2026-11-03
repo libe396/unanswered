@@ -1,0 +1,234 @@
+{
+  "children": [
+    {
+      "id": "574:174",
+      "name": "01 / 입구 사인 · AI 목업",
+      "x": "0",
+      "y": "0",
+      "width": "1920",
+      "height": "1400",
+      "nodeId": "574:174",
+      "url": "https://www.figma.com/api/mcp/asset/4039a7c5-e64a-484c-8399-bf826f4fd021.png",
+      "format": "png",
+      "sizeBytes": 2888250
+    },
+    {
+      "id": "786:349",
+      "name": "Frame 1707485083",
+      "x": "0",
+      "y": "1528",
+      "width": "1920",
+      "height": "1341",
+      "nodeId": "786:349",
+      "url": "https://www.figma.com/api/mcp/asset/a0ecdef8-7669-4dcd-8851-3d36ad543f4e.png",
+      "format": "png",
+      "sizeBytes": 1492528
+    },
+    {
+      "id": "574:189",
+      "name": "KEY VISUAL / 메인 포스터",
+      "x": "0",
+      "y": "2997",
+      "width": "1920",
+      "height": "1280",
+      "nodeId": "574:189",
+      "url": "https://www.figma.com/api/mcp/asset/cda2ef90-5a2d-4719-84ca-815c2303c44b.png",
+      "format": "png",
+      "sizeBytes": 2111477
+    },
+    {
+      "id": "641:10486",
+      "name": "AI PROCESS / 빛 그래픽 변환 기술 개발",
+      "x": "0",
+      "y": "4405",
+      "width": "1920",
+      "height": "3667",
+      "nodeId": "641:10486",
+      "url": "https://www.figma.com/api/mcp/asset/05bd15b2-3134-4b2a-8464-868bd47c38fa.png",
+      "format": "png",
+      "sizeBytes": 6002036
+    },
+    {
+      "id": "641:10482",
+      "name": "Frame 1707485073",
+      "x": "0",
+      "y": "8200",
+      "width": "1920",
+      "height": "2589",
+      "nodeId": "641:10482",
+      "url": "https://www.figma.com/api/mcp/asset/48dda188-849d-49ec-8bbe-5a0a15019fbd.png",
+      "format": "png",
+      "sizeBytes": 2087558
+    },
+    {
+      "id": "648:223",
+      "name": "SENSORY ARCHIVES / 영어·설명 캡션",
+      "x": "0",
+      "y": "10917",
+      "width": "1920",
+      "height": "280",
+      "nodeId": "648:223",
+      "url": "https://www.figma.com/api/mcp/asset/6c7a356b-30e8-4aec-91dd-0c6cf25f51b4.png",
+      "format": "png",
+      "sizeBytes": 311718
+    },
+    {
+      "id": "641:10473",
+      "name": "Frame 1707485066",
+      "x": "0",
+      "y": "11325",
+      "width": "1920",
+      "height": "2226",
+      "nodeId": "641:10473",
+      "url": "https://www.figma.com/api/mcp/asset/c68045a7-ecd5-497b-95b9-8699d34f3d2f.png",
+      "format": "png",
+      "sizeBytes": 4738560
+    },
+    {
+      "id": "641:10474",
+      "name": "Frame 1707485067",
+      "x": "0",
+      "y": "13679",
+      "width": "1920",
+      "height": "1566",
+      "nodeId": "641:10474",
+      "url": "https://www.figma.com/api/mcp/asset/7842f3f0-06bf-4bbf-ae8a-cc9b203c9e56.png",
+      "format": "png",
+      "sizeBytes": 3748484
+    },
+    {
+      "id": "641:10477",
+      "name": "Frame 1707485068",
+      "x": "0",
+      "y": "15373",
+      "width": "1920",
+      "height": "2182",
+      "nodeId": "641:10477",
+      "url": "https://www.figma.com/api/mcp/asset/db8d13f1-6bed-42b1-b14f-bc4d6fd97335.png",
+      "format": "png",
+      "sizeBytes": 4860924
+    },
+    {
+      "id": "641:10478",
+      "name": "Frame 1707485069",
+      "x": "0",
+      "y": "17683",
+      "width": "1920",
+      "height": "2182",
+      "nodeId": "641:10478",
+      "url": "https://www.figma.com/api/mcp/asset/a21700ad-41db-4ab4-9062-f2c7dcaa7ebb.png",
+      "format": "png",
+      "sizeBytes": 4816555
+    },
+    {
+      "id": "641:10479",
+      "name": "Frame 1707485070",
+      "x": "0",
+      "y": "19993",
+      "width": "1920",
+      "height": "2182",
+      "nodeId": "641:10479",
+      "url": "https://www.figma.com/api/mcp/asset/b58bf920-efab-4187-929a-07bb9c8756aa.png",
+      "format": "png",
+      "sizeBytes": 5156895
+    },
+    {
+      "id": "641:10480",
+      "name": "Frame 1707485071",
+      "x": "0",
+      "y": "22303",
+      "width": "1920",
+      "height": "2072",
+      "nodeId": "641:10480",
+      "url": "https://www.figma.com/api/mcp/asset/b9af7109-5b64-4f01-bee1-1f06cb0bd1d0.png",
+      "format": "png",
+      "sizeBytes": 4853642
+    },
+    {
+      "id": "581:340",
+      "name": "27 / RECORD TO REPORT / 선택에서 보고서까지",
+      "x": "0",
+      "y": "24503",
+      "width": "1920",
+      "height": "390",
+      "nodeId": "581:340",
+      "url": "https://www.figma.com/api/mcp/asset/dfbeb3b0-ed50-4756-a189-51742a080c65.png",
+      "format": "png",
+      "sizeBytes": 441674
+    },
+    {
+      "id": "641:10481",
+      "name": "Frame 1707485072",
+      "x": "0",
+      "y": "25021",
+      "width": "1920",
+      "height": "3318",
+      "nodeId": "641:10481",
+      "url": "https://www.figma.com/api/mcp/asset/8b1f2abf-e81e-4fc7-852b-22275c26c1c8.png",
+      "format": "png",
+      "sizeBytes": 6772156
+    },
+    {
+      "id": "641:10484",
+      "name": "Frame 1707485075",
+      "x": "0",
+      "y": "28467",
+      "width": "1920",
+      "height": "3230",
+      "nodeId": "641:10484",
+      "url": "https://www.figma.com/api/mcp/asset/0f55d6e3-e7a6-422c-baa5-0f6291f05df5.png",
+      "format": "png",
+      "sizeBytes": 5298675
+    },
+    {
+      "id": "577:874",
+      "name": "42 / 마지막 기록",
+      "x": "0",
+      "y": "31825",
+      "width": "1920",
+      "height": "960",
+      "nodeId": "577:874",
+      "url": "https://www.figma.com/api/mcp/asset/a6f9c851-cee0-4c4a-82b6-cde5474efb45.png",
+      "format": "png",
+      "sizeBytes": 910895
+    }
+  ],
+  "raw": [
+    {
+      "url": "https://www.figma.com/api/mcp/asset/cb6b34ac-4d30-4e11-800f-c8300b83a668",
+      "format": "png",
+      "name": "input-raw-1"
+    },
+    {
+      "url": "https://www.figma.com/api/mcp/asset/c5f11eae-cb59-428a-975f-9e8a656f9c03",
+      "format": "png",
+      "name": "input-raw-2"
+    },
+    {
+      "url": "https://www.figma.com/api/mcp/asset/9471aa67-a1f0-4d96-88ef-9c14d4a7a981",
+      "format": "png",
+      "name": "sad-raw-1"
+    },
+    {
+      "url": "https://www.figma.com/api/mcp/asset/29fa837a-5cf8-4f48-be32-3505a591fb7c",
+      "format": "png",
+      "name": "sad-raw-2"
+    },
+    {
+      "url": "https://www.figma.com/api/mcp/asset/c77d9b9d-4091-41ac-8cd9-9a1b6fca180a",
+      "format": "png",
+      "name": "anxious-raw-1"
+    },
+    {
+      "url": "https://www.figma.com/api/mcp/asset/05d5793f-10c9-4699-aa9a-13a36e3a1fbd",
+      "format": "png",
+      "name": "anxious-raw-2"
+    }
+  ],
+  "sourceNode": "572:174",
+  "width": 1920,
+  "height": 32785,
+  "assembly": "Visible original children at unchanged Figma x/y and native pixel dimensions; no editorial rearrangement. Parent background RGB 10,11,17.",
+  "sizeBytes": 49978726,
+  "sha256": "b1e9bd4db1fa918ad0d70e5db27f687a807889926eb5f9860b1865366f4bdfa6"
+}

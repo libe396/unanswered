@@ -16,10 +16,9 @@ interface Props {
  * than to a conclusion about the visitor. The last line stays.
  */
 const LINES = [
-  '당신이 남긴 것은\n선택한 답만이 아니었습니다.',
-  '멈춘 순간, 바꾼 선택,\n끝내 고르지 않은 것까지\n모두 기록으로 남았습니다.',
+  '고른 답만 남은 것이 아닙니다.\n멈춘 시간과 바꾼 선택,\n끝내 고르지 않은 것도 적혀 있습니다.',
 ];
-const FINAL_LINE = '답하지 못한 순간도\n당신의 기록이었습니다.';
+const FINAL_LINE = '답하지 못한 것도\n당신의 기록입니다.';
 
 export function ReportStageClosing({ index, total, locked, onAdvance }: Props) {
   const reduced = useReducedMotion();

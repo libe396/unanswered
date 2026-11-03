@@ -37,7 +37,7 @@ type Phase = 'form' | 'issuing' | 'issued';
 const RULE_LINES = [
   { index: '01', text: '단서를 골라 그 사람을 떠올려 보세요.' },
   { index: '02', text: '정답은 없습니다.', accent: true },
-  { index: '03', text: '그림과 마지막 빈칸은 남기지 않아도 됩니다.' },
+  { index: '03', text: '그림과 마지막 빈칸은 비워 둬도 됩니다.' },
 ];
 
 /**

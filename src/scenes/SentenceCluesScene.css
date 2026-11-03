@@ -832,7 +832,7 @@
 .sentence-clues-scene__swatches { display: flex; flex-wrap: wrap; gap: 8px; }
 .sentence-clues-scene__swatches span { width: 28px; height: 28px; border: 1px solid var(--line-strong); border-radius: 50%; }
 .sentence-clues-scene__context-reading { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
-.sentence-clues-scene__reading-title { margin: 0; font-size: 1.75rem; font-weight: 500; line-height: 1.5; text-align: left; }
+.sentence-clues-scene__reading-title { margin: 0; font-size: var(--type-question); font-weight: var(--weight-question); line-height: 1.5; text-align: left; }
 .sentence-clues-scene__context-paragraphs { gap: 22px; }
 .sentence-clues-scene__context-p { font-size: var(--type-body); line-height: 1.8; opacity: 1; animation: none; }
 .sentence-clues-scene--context .sentence-clues-scene__missing { width: 100%; align-items: flex-start; text-align: left; gap: 16px; }
@@ -851,8 +851,8 @@
 .sentence-clues-scene--reading .sentence-clues-scene__account-index { font-size: var(--type-meta); color: var(--text-secondary); opacity: 1; font-family: var(--font-mono); }
 .sentence-clues-scene--reading > .sentence-clues-scene__confirm { align-self: flex-start; }
 .sentence-clues-scene--reading .sentence-clues-scene__submit { width: 100%; justify-content: flex-start; }
-.sentence-clues-scene--question .sentence-clues-scene__reading-title { font-size: 1.75rem; }
-.sentence-clues-scene--question .sentence-clues-scene__question { font-size: 1.625rem; font-weight: 500; line-height: 1.6; max-width: none; text-align: left; }
+.sentence-clues-scene--question .sentence-clues-scene__reading-title { font-size: var(--type-question); }
+.sentence-clues-scene--question .sentence-clues-scene__question { font-size: var(--type-question); font-weight: var(--weight-question); line-height: 1.6; max-width: none; text-align: left; }
 .sentence-clues-scene--question .sentence-clues-scene__response-field { width: min(100%, 560px); align-items: flex-end; }
 .sentence-clues-scene--question .sentence-clues-scene__response-input {
   box-sizing: border-box; min-height: 104px; padding: 16px; font-family: inherit;
@@ -913,9 +913,9 @@
 .sentence-clues-scene--context .sentence-clues-scene__prompt {
   margin: 0;
   font-family: var(--font-kr);
-  font-size: 1.75rem;
+  font-size: var(--type-question);
   line-height: 1.5;
-  font-weight: 600;
+  font-weight: var(--weight-question);
   letter-spacing: -0.01em;
   color: var(--text-primary);
   text-align: left;
@@ -1400,7 +1400,7 @@
 }
 .sentence-clues-scene__intro { width: min(840px, 100%); text-align: center; }
 .sentence-clues-scene__intro-label { margin: 0 0 14px; font-size: var(--type-body); color: var(--trace); }
-.sentence-clues-scene__intro h1 { margin: 0; font-size: 1.625rem; line-height: 1.45; font-weight: 500; word-break: keep-all; text-wrap: balance; }
+.sentence-clues-scene__intro h1 { margin: 0; font-size: var(--type-question); line-height: 1.45; font-weight: var(--weight-question); word-break: keep-all; text-wrap: balance; }
 .sentence-clues-scene__intro-guide { margin: 16px 0 0; font-size: var(--type-body); line-height: 1.7; color: var(--text-secondary); word-break: keep-all; }
 .sentence-clues-scene__clue-strip { display: flex; align-items: center; justify-content: center; gap: 24px; margin: 28px 0; padding: 20px 0; border-block: 1px solid var(--line); text-align: left; }
 .sentence-clues-scene__clue-strip > div { display: flex; align-items: baseline; gap: 12px; min-width: 0; }
@@ -1592,4 +1592,38 @@
   .sentence-clues-scene--explore { justify-content: flex-start; overflow-y: auto; }
   .sentence-clues-scene--explore .stage-head { position: static; }
   .sentence-clues-scene__live-story summary { padding-block: 2px; font-size: var(--type-meta); }
+}
+
+/* Shared frame (2026-11-01): on desktop the question starts at the same
+   top-left as every other interaction Scene instead of floating with the
+   centred grid. Short (<=700px) and narrow layouts keep their own rules. */
+@media (min-width: 1100px) and (min-height: 701px) {
+  .sentence-clues-scene--explore {
+    --stage-max: var(--stage-frame);
+    justify-content: flex-start;
+    padding: var(--stage-top) var(--stage-gutter) 72px;
+  }
+}
+
+/* The recovered story is visible on entry; collected clues remain beside the question. */
+.sentence-clues-scene__recovered-story h2 { margin: 0 0 14px; font-size: var(--type-body); font-weight: 500; color: var(--text-primary); }
+.sentence-clues-scene__explore-head { margin-bottom: clamp(12px, 2.4vh, 24px); width: min(var(--stage-max), 100%); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; gap: 20px; }
+.sentence-clues-scene__explore-head > .stage-head { position: static; grid-column: 1 / span 2; width: 100%; min-width: 0; max-width: none; }
+.sentence-clues-scene__collected { grid-column: 3; justify-self: end; margin-top: var(--stage-head-offset); width: min(320px, 100%); box-sizing: border-box; min-width: 0; padding: 12px 16px; border: 1px solid var(--line); background: var(--glass-1); }
+.sentence-clues-scene__collected .sentence-clues-scene__clue-strip { border: 0; margin: 0; padding: 0; gap: 8px; flex-wrap: wrap; justify-content: flex-start; align-items: flex-start; }
+.sentence-clues-scene__collected .sentence-clues-scene__clue-strip > div { gap: 8px; max-width: none; }
+.sentence-clues-scene__collected .sentence-clues-scene__clue-strip dt,
+.sentence-clues-scene__collected .sentence-clues-scene__clue-strip dd { font-size: 13px; line-height: 1.5; }
+.sentence-clues-scene__collected .sentence-clues-scene__swatches span { width: 14px; height: 14px; }
+@media (max-width: 1000px), (max-height: 700px) {
+ .sentence-clues-scene__explore-head { display: flex; flex-direction: column; gap: 12px; align-items: stretch; }
+ .sentence-clues-scene__collected { flex: none; width: 100%; box-sizing: border-box; }
+}
+
+/* Booth iMac 24" (2026-11-03): the question, the twenty records and the action
+   row centre as one block instead of starting at the top. */
+@media (min-width: 1800px) and (min-height: 1000px) {
+  .sentence-clues-scene--explore {
+    justify-content: safe center;
+  }
 }

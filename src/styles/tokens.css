@@ -75,6 +75,18 @@
   --type-title: 1.75rem;
   --type-display: 3rem;
 
+  /* Role scale (2026-11-01). One role, one size, on every screen — the
+     values above stay as the raw steps. Landing keeps its own viewport
+     sizes and does not read these.
+     statement: a report screen that is one sentence
+     question:  the question a Scene asks (StageHeader and its peers)
+     label:     a short Korean label (zone name, step, caption)
+     Codes in Bebas (ZONE 03, RPT-…, 01 / 05) stay on --type-meta. */
+  --type-statement: 2rem;
+  --type-question: var(--type-title-sm);
+  --weight-question: 500;
+  --type-label: 0.8125rem;
+
   /* ── Spacing — 4px base ────────────────────────────────────────────────── */
   --sp-4: 4px;
   --sp-8: 8px;
@@ -95,6 +107,16 @@
 
   /* ── Stage — the two-column layout's fixed measures (see StageLayout) ──── */
   --stage-max: 960px;
+  /* The one frame every interaction Scene sits in (2026-11-01): the header
+     is left-aligned at the frame's top-left (y = --stage-top), so the eye
+     finds the question in the same place on every screen, and the content
+     below fills the frame's width and centres in the height that is left. */
+  --stage-frame: 1120px;
+  --stage-gutter: var(--sp-48);
+  /* Extra drop for the question block below --stage-top: 40px on a 900px+
+     screen, easing to 0 by 800px tall, where the sound pad and the memory
+     room have no spare height. */
+  --stage-head-offset: clamp(0px, calc((100dvh - 800px) * 0.4), 40px);
   --stage-object: 392px;
   --stage-gap: var(--sp-96);
   --stage-top: 88px;    /* clear of the header */
@@ -138,4 +160,13 @@
   --space-sm: var(--sp-16);
   --space-md: var(--sp-32);
   --space-lg: var(--sp-64);
+}
+
+/* Booth iMac 24" (2026-11-03): on a screen this large the whole Scene block
+   is centred vertically (see StageLayout.css), so the question needs no
+   extra drop of its own. Below 1800×1000 nothing here applies. */
+@media (min-width: 1800px) and (min-height: 1000px) {
+  :root {
+    --stage-head-offset: 0px;
+  }
 }

@@ -30,7 +30,7 @@
 .zone-label__name {
   display: block;
   font-family: var(--font-kr);
-  font-size: var(--type-meta);
+  font-size: var(--type-label);
   line-height: 1.4;
   font-weight: 500;
   letter-spacing: 0;
@@ -54,6 +54,6 @@
   }
 
   .zone-label__name {
-    font-size: var(--type-meta);
+    font-size: var(--type-label);
   }
 }
