@@ -17,11 +17,28 @@ const ARCHIVE_IMAGE_MODULES = import.meta.glob('../assets/archive/light-trace-*.
   query: '?url',
   import: 'default',
 }) as Record<string, string>;
+/* Display-only WebP copies (2026-11-03): the PNGs are 1.6–2.7MB each and slowed
+   the booth. The grid and the large preview show these; the analysis, the
+   transformation and the stored imagePath still read the original PNG, so
+   the light rules — and the phone report's lightRulesCache — are unchanged. */
+const ARCHIVE_PREVIEW_MODULES = import.meta.glob('../assets/archive/preview/light-trace-*.webp', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+const ARCHIVE_THUMB_MODULES = import.meta.glob('../assets/archive/thumb/light-trace-*.webp', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
 
 interface ArchiveImage {
   id: string;
   label: string;
+  /** The original PNG — the only source the analysis reads. */
   src: string;
+  previewSrc: string;
+  thumbSrc: string;
 }
 
 function buildArchiveImages(): ArchiveImage[] {
@@ -30,7 +47,9 @@ function buildArchiveImages(): ArchiveImage[] {
   return meta.map(({ slot, label }) => {
     const src = ARCHIVE_IMAGE_MODULES[`../assets/archive/light-trace-${slot}.png`];
     if (!src) throw new Error(`Missing light trace image: ${slot}`);
-    return { id: `IMAGE_${slot}`, label, src };
+    const previewSrc = ARCHIVE_PREVIEW_MODULES[`../assets/archive/preview/light-trace-${slot}.webp`] ?? src;
+    const thumbSrc = ARCHIVE_THUMB_MODULES[`../assets/archive/thumb/light-trace-${slot}.webp`] ?? previewSrc;
+    return { id: `IMAGE_${slot}`, label, src, previewSrc, thumbSrc };
   });
 }
 
@@ -163,7 +182,7 @@ export function LightArchiveScene() {
               }`}
             >
               <img
-                src={(focusedImage ?? archiveImages[0])?.src}
+                src={(focusedImage ?? archiveImages[0])?.previewSrc}
                 alt=""
                 className="light-archive-scene__preview-img"
               />
@@ -208,7 +227,7 @@ export function LightArchiveScene() {
                   tracking.select('image', img.id);
                 }}
               >
-                <img src={img.src} alt={img.label} className="light-archive-scene__cell-img" />
+                <img src={img.thumbSrc} alt={img.label} className="light-archive-scene__cell-img" />
                 {selectedIdx === idx ? (
                   <span className="light-archive-scene__cell-badge">
                     {img.id.replace('IMAGE_', '')}
@@ -239,7 +258,7 @@ export function LightArchiveScene() {
           description={`이 사진에 어울리는 단어를 ${MAX_EMOTION_KEYWORDS}개까지 골라 주세요.`}
           object={
             <div className="light-archive-scene__preview light-archive-scene__preview--focused">
-              <img src={selectedImage.src} alt="" className="light-archive-scene__preview-img" />
+              <img src={selectedImage.previewSrc} alt="" className="light-archive-scene__preview-img" />
               <span className="light-archive-scene__preview-slot">
                 {selectedImage.id.replace('IMAGE_', 'IMG ')}
               </span>

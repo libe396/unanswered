@@ -51,6 +51,7 @@ export function ExhibitionFeedback({ reportLink, standalone = false }: { reportL
         {!standalone && <label className="exhibition-feedback__check"><input type="checkbox" disabled={!reportRef} checked={Boolean(reportRef && recordConsent)} onChange={event => setRecordConsent(event.target.checked)} />이번 관람의 선택 화면·움직임과 작성 기록도 후기와 연결해 연구에 활용하는 데 동의합니다. (선택)</label>}
         {!standalone && !reportRef && <p className="exhibition-feedback__hint">보고서 연결이 완료되면 선택 과정의 연구 활용도 선택할 수 있습니다. 후기만 보내도 괜찮습니다.</p>}
         <p className="exhibition-feedback__hint">참여하지 않아도 보고서 열람·저장·공유에 영향이 없습니다. 카메라 영상과 마이크는 수집하지 않습니다.</p>
+        {!hasReportStorage && <p className="exhibition-feedback__hint" role="status">지금은 후기 보관소에 연결되어 있지 않아 보낼 수 없습니다. 잠시 후 다시 열어 주세요.</p>}
         {error && <p role="alert">{error}</p>}
         <button className="exhibition-feedback__send" type="submit" disabled={!hasReportStorage || !hasAnswer || !consent || sending}>{sending ? '보내는 중…' : '후기 보내기'}</button>
       </form>}

@@ -1,7 +1,8 @@
 import { useId, useState, useRef, useLayoutEffect } from 'react';
 import { MEMORY_ROOM_OBJECTS } from '../data/content';
 import { ROOM_HEIGHT, ROOM_OBJECT_GEOMETRY, ROOM_WIDTH } from '../data/memoryRoomGeometry';
-import roomIllustrationUrl from '../assets/memory/room-final.png';
+// WebP of room-final.png at full size (1.6MB → 147KB, 2026-11-03); display only.
+import roomIllustrationUrl from '../assets/memory/room-final.webp';
 import './MemoryRoom.css';
 
 interface MemoryRoomProps {

@@ -22,7 +22,8 @@ interface Props {
 
 const EvidenceReplay = lazy(() => import('../report/ChoiceReplayPlayer').then(module => ({ default: module.EvidenceReplay })));
 
-const REPORT_PHOTOS = import.meta.glob('../../assets/archive/light-trace-*.png', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
+// Display-only 1024px WebP (≈100KB instead of ≈2MB on mobile data); the light itself is redrawn from lightRulesCache.
+const REPORT_PHOTOS = import.meta.glob('../../assets/archive/preview/light-trace-*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 
 type CachedRules = Omit<LightAnalysisRules, 'emotionKeywords'>;
 
@@ -125,7 +126,7 @@ export function MobileReportView({ payload }: Props) {
     const result = await shareReport(window.location.href);
     if (result === 'copied') { setCopied(true); setTimeout(() => setCopied(false), 1800); }
   }
-  const sourceImage = report.img ? REPORT_PHOTOS[`../../assets/archive/light-trace-${report.img.replace('IMAGE_', '')}.png`] : null;
+  const sourceImage = report.img ? REPORT_PHOTOS[`../../assets/archive/preview/light-trace-${report.img.replace('IMAGE_', '')}.webp`] : null;
 
   return (
     <main className="mobile-report">

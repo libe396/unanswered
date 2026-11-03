@@ -102,7 +102,7 @@ export function CatalogPage() {
     </header>
     <div className="editorial-pane" hidden={route.tab !== 'overview'}><Overview panelRef={overview} active={active} visible={route.tab === 'overview'} onChapter={(index) => navigate({ tab: 'overview', index })} onResearch={(chapter) => navigate({ tab: 'research', chapter })} onResult={() => navigate({ tab: 'result' })} onOpen={open} /></div>
     <div className="editorial-pane" hidden={route.tab !== 'research'}><Research selected={route.tab === 'research' ? route.chapter ?? null : rememberedResearch.current} onSelect={(chapter) => navigate({ tab: 'research', chapter: chapter ?? undefined })} onOpen={open} /></div>
-    <div className="editorial-pane" hidden={route.tab !== 'result'}><Result onOpen={open} visible={route.tab === 'result'} /></div>
+    <div className="editorial-pane" hidden={route.tab !== 'result'}><Result visible={route.tab === 'result'} /></div>
     <Lightbox image={zoomed} onClose={() => setZoomed(null)} />
   </main>;
 }

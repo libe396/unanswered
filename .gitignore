@@ -7,3 +7,10 @@ dist
 .env.*
 !.env.example
 supabase/.temp/
+# Large local work folders: video/segment scratch and exported previews.
+# Keep them on disk, out of the repository.
+_loop_work/
+Claude outputs/
+outputs/
+lab/
+src/assets/archive.zip

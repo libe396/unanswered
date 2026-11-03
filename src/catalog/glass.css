@@ -5,20 +5,35 @@
 .catalog-glass .chapter-experience { padding: 24px 0; }
 .catalog-glass .quiet-heading { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 48px; width: 100%; }
 .catalog-glass .motion-title { font-weight: 600; font-size: 32px; line-height: 1.4; }
-.catalog-glass .chapter-intro { padding: 16px 0 16px 28px; text-align: left; background: linear-gradient(90deg,rgba(185,172,226,.055),transparent 88%); border-left: 1px solid rgba(225,224,255,.16); backdrop-filter: blur(14px); }
+.catalog-glass .chapter-intro { padding: 0; text-align: left; background: none; border: 0; backdrop-filter: none; }
 .catalog-glass .chapter-intro p { font-size: 15px; line-height: 1.8; color: #c1bdcd; margin: 0 0 12px; max-width: none; text-align: left; word-break: keep-all; }
 .catalog-glass .chapter-intro .editorial-text-button,.catalog-glass .chapter-intro .editorial-link { font-size: 13px; padding: 0; margin: 0; }
 .catalog-glass .origin-experience,.catalog-glass .space-experience,.catalog-glass .process-experience,.catalog-glass .record-experience { gap: 24px; }
-.catalog-glass .overview-immersive .overview-hero { display: flex; flex-direction: column; gap: 24px; width: 100%; }
-.catalog-glass .overview-immersive .hero-copy h1 { font-family: var(--font-kr); font-weight: 600; font-size: clamp(28px,3.6vw,48px); letter-spacing: -.045em; margin: 12px 0 0; }
-.catalog-glass .overview-immersive .hero-copy h1 .hero-wordmark { display: block; width: clamp(200px,24vw,320px); height: auto; }
+/* Chapter 01 cover: the key visual fills the screen behind a dim, no panels. */
+.catalog-glass .overview-chapter--01 { position: relative; overflow: hidden; }
+.catalog-glass .cover-backdrop { position: absolute; inset: 0; z-index: 0; }
+.catalog-glass .cover-backdrop img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.03); }
+.catalog-glass .cover-backdrop::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg,rgba(9,8,15,.9),rgba(9,8,15,.74) 46%,rgba(9,8,15,.42)), linear-gradient(0deg,rgba(9,8,15,.8),rgba(9,8,15,0) 46%); }
+.catalog-glass .overview-cover { display: flex; align-items: center; min-height: min(58dvh,520px); }
+.catalog-glass .cover-lead { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 0; max-width: min(100%,42em); }
+.catalog-glass .cover-lead h1 { margin: 0 0 clamp(34px,3.4vw,72px); }
+.catalog-glass .cover-lead h1 .hero-wordmark { display: block; width: clamp(200px,14vw + 120px,440px); height: auto; }
+.catalog-glass .cover-lead .editorial-eyebrow { margin: 0 0 clamp(14px,1vw,22px); }
+.catalog-glass .cover-statement { margin: 0 0 clamp(18px,1.3vw,30px); font-family: var(--font-kr); font-weight: 600; font-size: clamp(19px,.85vw + 12px,30px); line-height: 1.4; letter-spacing: -.02em; color: #f2f0f8; word-break: keep-all; }
+.catalog-glass .cover-body { margin: 0 0 clamp(30px,2.4vw,52px); font-size: clamp(14px,.4vw + 9px,18px); line-height: 1.4; color: #b6b2c6; max-width: 44em; word-break: keep-all; }
+.catalog-glass .cover-body span { display: block; }
+.catalog-glass .cover-body span + span { margin-top: .4em; }
+.catalog-glass .overview-chapter--01 .chapter-header { display: none; }
+.catalog-glass .chapter-body { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+.catalog-glass .overview-immersive .chapter-experience { flex: 0 1 auto; padding-top: 20px; }
+.catalog-glass .chapter-header { font-size: 13px; letter-spacing: .1em; }
 .catalog-glass .hero-image { width: 100%; padding: 0; }
 .catalog-glass .overview-immersive .hero-image .catalog-image { width: min(100%,560px); height: min(39dvh,370px); aspect-ratio: 40 / 31 !important; max-height: none; margin: auto; }
 .catalog-glass .hero-image figcaption { margin-top: 12px; font-size: 11px; color: #9690a7; }
 .catalog-glass .origin-workbench,.catalog-glass .space-workbench,.catalog-glass .process-workbench,.catalog-glass .record-workbench { padding: 0; width: 100%; }
 .catalog-glass .origin-comparison { padding: 0; gap: 20px; }
 .catalog-glass .origin-comparison button { border-radius: 0; overflow: hidden; }
-.catalog-glass .origin-caption { margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.09); display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.catalog-glass .origin-caption { margin-top: 24px; padding-top: 0; border-top: 0; display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; }
 .catalog-glass .origin-caption .editorial-eyebrow { font-size: 10px; margin: 0; }
 .catalog-glass .origin-caption button { font-size: 12px; }
 .catalog-glass .space-stage { margin: auto; height: min(37dvh,360px); min-height: 200px; width: min(100%,840px); border-radius: 0; }
@@ -31,18 +46,17 @@
 .catalog-glass .overview-immersive .final-viewer__chip { border-radius: 0; border: 0; border-bottom: 1px solid rgba(255,255,255,.16); padding: 8px 4px; background: none; }
 .catalog-glass .overview-immersive .final-viewer__chip.is-active { border-bottom-color: #b5a0f8; }
 .catalog-glass .record-finish { gap: 56px; padding: 16px 8px 12px; }
-.catalog-glass .reading-record { padding: 24px; border-left: 1px solid rgba(255,255,255,.12); }
+.catalog-glass .reading-record { padding: 24px 0; border-left: 0; }
 .catalog-glass .reading-record > p { font-size: 20px; }
-.catalog-glass .overview-closing { margin-top: 20px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.10); font-size: 13px; }
-.catalog-glass .chapter-footer { background: none; border: 0; border-top: 1px solid rgba(255,255,255,.10); border-radius: 0; padding: 12px 0 0; }
+.catalog-glass .overview-closing { margin-top: 24px; padding-top: 0; border-top: 0; font-size: 13px; }
+.catalog-glass .chapter-footer { background: none; border: 0; border-radius: 0; padding: 12px 0 0; }
 .catalog-glass .editorial-page-heading { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 48px; align-items: start; }
 .catalog-glass .editorial-page-heading > .editorial-eyebrow { grid-column: 1/-1; }
 .catalog-glass .editorial-page-heading h1 { font-weight: 600; grid-column: 1; margin: 0; }
-.catalog-glass .editorial-page-heading > p:last-child:not(.editorial-eyebrow) { grid-column: 2; margin: 0; padding: 16px 0 16px 28px; text-align: left; background: linear-gradient(90deg,rgba(185,172,226,.055),transparent 88%); border: 0; border-left: 1px solid rgba(225,224,255,.16); border-radius: 0; }
+.catalog-glass .editorial-page-heading > p:last-child:not(.editorial-eyebrow) { grid-column: 2; margin: 0; padding: 0; text-align: left; background: none; border: 0; border-radius: 0; }
 @media (max-height: 800px) and (min-width: 761px) {
  .catalog-glass .overview-immersive .chapter-inner { padding-top: 20px; }
  .catalog-glass .chapter-experience { padding: 18px 0; }
- .catalog-glass .chapter-intro { padding: 12px 0 12px 24px; }
  .catalog-glass .quiet-heading { gap: 32px; }
  .catalog-glass .motion-title { font-size: 28px; }
  .catalog-glass .process-demo { height: 280px; }
@@ -55,7 +69,6 @@
  .catalog-glass .quiet-heading,.catalog-glass .editorial-page-heading { grid-template-columns: 1fr; gap: 20px; }
  .catalog-glass .editorial-page-heading > p:last-child:not(.editorial-eyebrow) { grid-column: 1; }
  .catalog-glass .motion-title { font-size: 27px; }
- .catalog-glass .chapter-intro { padding: 12px 0 12px 20px; }
  .catalog-glass .chapter-intro p { font-size: 14px; }
  .catalog-glass .origin-workbench,.catalog-glass .space-workbench,.catalog-glass .process-workbench,.catalog-glass .record-workbench { padding: 0; }
  .catalog-glass .origin-comparison { gap: 10px; }
@@ -64,15 +77,19 @@
  .catalog-glass .process-demo { height: 340px; }
  .catalog-glass .overview-immersive .final-viewer { grid-template-columns: 75px 16px minmax(0,150px); gap: 12px; }
  .catalog-glass .record-finish { grid-template-columns: 1fr; gap: 24px; padding: 12px 0; }
- .catalog-glass .reading-record { border-left: 0; border-top: 1px solid rgba(255,255,255,.1); padding: 20px 0 0; }
+ .catalog-glass .reading-record { border-left: 0; border-top: 0; padding: 12px 0 0; }
  .catalog-glass .overview-closing { gap: 16px; align-items: start; flex-direction: column; }
  .catalog-glass .hero-image { padding: 0; }
  .catalog-glass .overview-immersive .hero-image .catalog-image { height: 240px; width: 100%; }
+ .catalog-glass .overview-cover { min-height: 62dvh; }
+ .catalog-glass .cover-lead { gap: 18px; }
+ .catalog-glass .cover-lead p { font-size: 15px; }
+ .catalog-glass .cover-backdrop::after { background: linear-gradient(0deg,rgba(9,8,15,.9),rgba(9,8,15,.5) 62%), linear-gradient(90deg,rgba(9,8,15,.72),rgba(9,8,15,.42)); }
  .catalog-glass .hero-image figcaption { gap: 8px; flex-wrap: wrap; }
 }
 .catalog-glass .space-controls { margin-left: auto; margin-right: auto; }
 .catalog-glass .overview-immersive .chapter-footer { padding-top: 12px; }
-.catalog-glass .overview-immersive .overview-closing { padding-top: 18px; border-top: 1px solid rgba(255,255,255,.10); }
+.catalog-glass .overview-immersive .overview-closing { padding-top: 0; border-top: 0; }
 .catalog-glass .focus-record-glow { left: 0; right: 0; }
 @media (max-height: 800px) and (min-width: 761px) {
  .catalog-glass .origin-comparison img { height: 200px; }
@@ -83,4 +100,50 @@
  .catalog-glass .record-stack img { height: 135px; }
  .catalog-glass .record-finish { gap: 32px; padding-top: 8px; }
  .catalog-glass .reading-record { padding: 0; }
+}
+/* 24" iMac (CSS 2240px): a wider column and more air between every part. */
+@media (min-width: 1600px) {
+ .catalog-glass .overview-immersive .chapter-inner { max-width: 1280px; padding: 48px 0 32px; }
+ .catalog-glass .overview-chapter--01 .chapter-inner { max-width: 1400px; }
+ .catalog-glass .overview-cover { min-height: min(58dvh,720px); }
+ .catalog-glass .cover-lead .editorial-link { font-size: 16px; min-width: 220px; padding: 16px 0; }
+ .catalog-glass .overview-immersive .chapter-experience { padding: 28px 0 40px; }
+ .catalog-glass .chapter-header { font-size: 16px; }
+ .catalog-glass .quiet-heading { gap: 88px; }
+ .catalog-glass .motion-title { font-size: 42px; }
+ .catalog-glass .chapter-intro p { font-size: 18px; line-height: 1.9; }
+ .catalog-glass .origin-comparison { gap: 36px; }
+ .catalog-glass .origin-caption { margin-top: 36px; }
+ .catalog-glass .space-stage { height: min(40dvh,460px); width: min(100%,1040px); }
+ .catalog-glass .space-controls { margin-top: 32px; }
+ .catalog-glass .process-step-controls { margin-bottom: 32px; }
+ .catalog-glass .process-demo { height: 380px; }
+ .catalog-glass .record-finish { gap: 88px; }
+ .catalog-glass .overview-closing { margin-top: 36px; }
+ .catalog-glass .chapter-footer { padding-top: 20px; }
+ .catalog-glass .origin-comparison img { height: min(36dvh,400px); }
+ .catalog-glass .process-study .catalog-image { width: 360px; height: 360px; max-height: none; }
+ .catalog-glass .record-stack { height: 360px; max-width: 540px; }
+ .catalog-glass .record-stack > button { height: 310px; }
+ .catalog-glass .record-stack img { height: 230px; }
+ .catalog-glass .reading-record > p { font-size: 26px; }
+}
+.catalog-glass .origin-prompt { display: flex; flex-direction: column; gap: 10px; flex: 1; min-width: 0; max-width: 78ch; }
+.catalog-glass .origin-prompt-body { display: flex; flex-direction: column; gap: 8px; }
+.catalog-glass .origin-prompt-note { margin: 0; font-size: 13px; line-height: 1.5; color: #cfcbdb; word-break: keep-all; }
+.catalog-glass .origin-prompt-text { margin: 0; font-family: var(--font-mono, var(--font-display)); font-size: 12px; line-height: 1.6; color: #a09ab4; }
+.catalog-glass .origin-prompt-text span { display: inline-block; white-space: pre; }
+/* Right-hand description runs to the same right edge as the content below it. */
+.catalog-glass .research-list .editorial-page-heading > p:last-child { max-width: none; }
+.catalog-glass .editorial-page-heading > p:last-child:not(.editorial-eyebrow),
+.catalog-glass .chapter-intro p { width: 100%; max-width: none; }
+
+/* Record stack: translucent glass instead of a flat filled card. */
+.catalog-glass .record-stack > button { background: rgba(140,128,190,.10); border: 1.5px solid rgba(225,224,255,.20); border-radius: 8px; backdrop-filter: blur(8px) saturate(1.1); box-shadow: 0 26px 60px rgba(0,0,0,.42); }
+.catalog-glass .record-stack > button.is-front { background: rgba(150,138,205,.16); border-color: rgba(185,168,255,.42); box-shadow: 0 32px 72px rgba(0,0,0,.5); }
+.catalog-glass .record-stack button > span { color: #e6e2f2; }
+.catalog-glass .record-stack img { border-radius: 4px; }
+@media (min-width: 1600px) {
+ .catalog-glass .origin-prompt-note { font-size: 17px; }
+ .catalog-glass .origin-prompt-text { font-size: 14.5px; line-height: 1.75; }
 }
