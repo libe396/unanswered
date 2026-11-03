@@ -1,0 +1,274 @@
+/*
+  The Collected Trace readout. Two columns on a roomy screen — the generated
+  light on the left, the record on the right — and one column below 900px.
+
+  `.scene-frame` clips, so this screen scrolls inside its own box rather than
+  pushing the page (same rule as the Sentence Zone's wall; see
+  EXHIBITION_FEEDBACK 개선 항목 1 — no screen may need a minimum size to be
+  finished).
+*/
+.collected-trace {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-32);
+  padding: var(--stage-top) var(--sp-32) var(--stage-hud-clear);
+  background: var(--bg-base);
+}
+
+/* The one violet area allowed per screen — behind the light, not behind the text. */
+.collected-trace__residue {
+  position: absolute;
+  top: 46%;
+  left: 28%;
+  width: min(62vw, 560px);
+  height: min(62vw, 560px);
+  transform: translate(-50%, -50%);
+  background: var(--residue);
+  pointer-events: none;
+}
+
+.collected-trace__eyebrow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  margin: 0;
+  font-size: var(--type-meta);
+  letter-spacing: 0.12em;
+  color: rgba(var(--text-primary-rgb), 0.5);
+}
+
+.collected-trace__code {
+  font-family: var(--font-mono);
+  letter-spacing: 0.22em;
+}
+
+.collected-trace__sep {
+  color: rgba(var(--text-primary-rgb), 0.28);
+}
+
+.collected-trace__body {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 360px) minmax(0, 380px);
+  align-items: center;
+  gap: var(--sp-64);
+  width: 100%;
+  max-width: var(--stage-max);
+  justify-content: center;
+}
+
+.collected-trace__light {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-16);
+}
+
+.collected-trace__canvas {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  /* The generated field is square; the circle reads as a specimen under glass. */
+  box-shadow: 0 0 72px rgba(var(--trace-rgb), 0.12);
+}
+
+.collected-trace__canvas--empty {
+  border: 1px solid var(--line-subtle);
+  background: var(--glass-1);
+}
+
+.collected-trace__light-caption {
+  font-size: var(--type-meta);
+  letter-spacing: 0.04em;
+  color: rgba(var(--text-primary-rgb), 0.38);
+  text-align: center;
+}
+
+.collected-trace__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-24);
+  min-width: 0;
+}
+
+.collected-trace__filed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding-bottom: var(--sp-16);
+  border-bottom: 1px solid var(--line);
+}
+
+.collected-trace__filed-label {
+  font-size: var(--type-label);
+  letter-spacing: 0.08em;
+  color: rgba(var(--text-primary-rgb), 0.5);
+}
+
+.collected-trace__filed-value {
+  font-size: var(--type-body-lg);
+  color: var(--text-primary);
+  word-break: keep-all;
+}
+
+.collected-trace__marks-title {
+  margin: 0 0 var(--sp-12);
+  font-size: var(--type-label);
+  letter-spacing: 0.08em;
+  color: rgba(var(--text-primary-rgb), 0.5);
+}
+
+.collected-trace__marks ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.collected-trace__marks li {
+  position: relative;
+  padding-left: var(--sp-16);
+  font-size: var(--type-body);
+  color: rgba(var(--text-primary-rgb), 0.82);
+  word-break: keep-all;
+}
+
+.collected-trace__marks li::before {
+  content: '';
+  position: absolute;
+  top: 0.62em;
+  left: 0;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--trace);
+}
+
+.collected-trace__marks-empty {
+  margin: 0;
+  font-size: var(--type-body);
+  color: rgba(var(--text-primary-rgb), 0.55);
+}
+
+.collected-trace__foot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-16);
+  text-align: center;
+}
+
+.collected-trace__note {
+  margin: 0;
+  font-size: var(--type-body);
+  color: rgba(var(--text-primary-rgb), 0.58);
+  word-break: keep-all;
+}
+
+.collected-trace__next {
+  min-width: 200px;
+  padding: var(--sp-12) var(--sp-32);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-4);
+  background: var(--glass-2);
+  color: var(--text-primary);
+  font-family: var(--font-kr);
+  font-size: var(--type-button);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) ease, background var(--duration-fast) ease;
+}
+
+.collected-trace__next:hover,
+.collected-trace__next:focus-visible {
+  border-color: var(--trace);
+  background: var(--glass-1);
+}
+
+@media (max-width: 900px) {
+  .collected-trace {
+    justify-content: flex-start;
+    gap: var(--sp-24);
+    padding-inline: var(--sp-24);
+  }
+
+  .collected-trace__body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-32);
+    max-width: 420px;
+  }
+
+  .collected-trace__canvas {
+    max-width: 220px;
+  }
+
+  .collected-trace__residue {
+    left: 50%;
+    top: 34%;
+  }
+}
+
+/* Short screens: the light is the first thing to give up its height. */
+@media (max-height: 760px) {
+  .collected-trace {
+    justify-content: flex-start;
+  }
+
+  .collected-trace__canvas {
+    max-width: 240px;
+  }
+}
+
+/* Booth iMac 24" (2240×1260), the size this exhibition is reviewed at. The
+   960px body and 320px light leave the readout floating in the middle third
+   of the screen; everything steps up one size so the screen carries its own
+   width, matching the catalogue's own treatment of this breakpoint
+   (tokens.css's 1800×1000 branch). */
+@media (min-width: 1800px) and (min-height: 1000px) {
+  .collected-trace {
+    gap: var(--sp-48);
+  }
+
+  .collected-trace__body {
+    grid-template-columns: minmax(0, 460px) minmax(0, 520px);
+    gap: var(--sp-96);
+    max-width: 1240px;
+  }
+
+  .collected-trace__canvas {
+    max-width: 420px;
+  }
+
+  .collected-trace__residue {
+    width: min(42vw, 760px);
+    height: min(42vw, 760px);
+  }
+
+  .collected-trace__filed-value {
+    font-size: var(--type-title-sm);
+  }
+
+  .collected-trace__marks li,
+  .collected-trace__note {
+    font-size: var(--type-body-lg);
+  }
+
+  .collected-trace__light-caption,
+  .collected-trace__filed-label,
+  .collected-trace__marks-title {
+    font-size: var(--type-label);
+  }
+}

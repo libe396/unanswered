@@ -8,6 +8,11 @@ import { IntroFilmScene } from '../scenes/IntroFilmScene';
 import { InvestigationStartScene } from '../scenes/InvestigationStartScene';
 import { RegistrationScene } from '../scenes/RegistrationScene';
 import { LightArchiveScene } from '../scenes/LightArchiveScene';
+import {
+  CollectedTrace01Scene,
+  CollectedTrace02Scene,
+  CollectedTrace03Scene,
+} from '../scenes/CollectedTraceScene';
 import { RecordLayerFirstVisitScene } from '../scenes/RecordLayerFirstVisitScene';
 import { Zone03IntroScene } from '../scenes/Zone03IntroScene';
 import { SoundCluesScene } from '../scenes/SoundCluesScene';
@@ -34,9 +39,12 @@ const SCENE_COMPONENTS: Record<SceneId, ComponentType> = {
   registration: RegistrationScene,
   lightArchive: LightArchiveScene,
   recordLayerFirstVisit: RecordLayerFirstVisitScene,
+  collectedTrace01: CollectedTrace01Scene,
   zone03Intro: Zone03IntroScene,
   soundClues: SoundCluesScene,
+  collectedTrace02: CollectedTrace02Scene,
   memorySketch: MemorySketchScene,
+  collectedTrace03: CollectedTrace03Scene,
   sentenceClues: SentenceCluesScene,
   recordLayerSecondVisit: RecordLayerSecondVisitScene,
   finalReport: FinalReportScene,

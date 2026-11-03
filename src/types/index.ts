@@ -6,9 +6,12 @@ export type SceneId =
   | 'registration'
   | 'lightArchive'
   | 'recordLayerFirstVisit'
+  | 'collectedTrace01'
   | 'zone03Intro'
   | 'soundClues'
+  | 'collectedTrace02'
   | 'memorySketch'
+  | 'collectedTrace03'
   | 'sentenceClues'
   | 'recordLayerSecondVisit'
   | 'finalReport';

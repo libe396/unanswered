@@ -10,7 +10,9 @@
 
 .trace-ledger__row {
   display: grid;
-  grid-template-columns: 88px 1fr auto;
+  /* Wide enough for SENTENCE on one line at this tracking — it wrapped to
+     "SENTEN / CE" in the 88px column. */
+  grid-template-columns: 100px 1fr auto;
   align-items: center;
   gap: 16px;
   padding: 11px 0;
@@ -18,8 +20,9 @@
 }
 
 .trace-ledger__label {
-  font-size: var(--type-body);
+  font-size: var(--type-label);
   letter-spacing: 0.28em;
+  white-space: nowrap;
   text-transform: uppercase;
   color: rgba(var(--text-primary-rgb), 0.35);
   transition: color var(--duration-fast) ease;
@@ -99,7 +102,7 @@
   }
 
   .trace-ledger__row {
-    grid-template-columns: 72px 1fr auto;
+    grid-template-columns: 92px 1fr auto;
     gap: 10px;
   }
 

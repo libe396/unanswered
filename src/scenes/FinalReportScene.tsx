@@ -20,6 +20,7 @@ import { ReportStage06SubjectReveal } from './report/ReportStage06SubjectReveal'
 import { ReportStageMethod } from './report/ReportStageMethod';
 import { ReportStageFinding } from './report/ReportStageFinding';
 import { ReportStageClosing } from './report/ReportStageClosing';
+import { ReportStageIntent } from './report/ReportStageIntent';
 import { FinalRecordLayer } from './report/FinalRecordLayer';
 import { PrintableFullReport } from './report/PrintableFullReport';
 import './report/ReportStage.css';
@@ -28,7 +29,9 @@ import './FinalReportScene.css';
 /**
  * The viewed Final Report — a no-scroll, one-viewport-per-idea Narrative
  * Flow: SUBJECT REVEAL → REFRAME / METHOD → PERSONAL FINDINGS (one per
- * screen, each with its Evidence Layer) → CLOSING, ending on
+ * screen, each with its Evidence Layer) → CLOSING → ARTIST NOTE
+ * (`ReportStageIntent`, the exhibition's premise in the catalogue's own
+ * words), ending on
  * the 'archive' stage's screen receipt (`FinalReportSummaryReceipt`) and the
  * A4 document behind its "전체 조사 기록 발급하기" button
  * (`PrintableFullReport`, print-only) — both built from the same
@@ -46,7 +49,7 @@ import './FinalReportScene.css';
  * The earlier one-behaviour-per-screen stages (ReportStage01–05,
  * ReportBridgeBeat) are no longer in the sequence; their files are kept.
  */
-type StageKey = 'reveal' | 'method' | `finding-${number}` | 'closing' | 'archive';
+type StageKey = 'reveal' | 'method' | `finding-${number}` | 'closing' | 'intent' | 'archive';
 
 const stageVariants: Variants = {
   initial: { opacity: 0, scale: 0.985, filter: 'blur(6px)' },
@@ -111,7 +114,7 @@ export function FinalReportScene() {
   const stageKeys = useMemo(() => {
     const keys: StageKey[] = ['reveal', 'method'];
     for (let i = 0; i < findingCount; i += 1) keys.push(`finding-${i}`);
-    keys.push('closing', 'archive');
+    keys.push('closing', 'intent', 'archive');
     return keys;
   }, [findingCount]);
 
@@ -187,6 +190,8 @@ export function FinalReportScene() {
         );
       case 'closing':
         return <ReportStageClosing index={stageNumber} total={total} locked={locked} onAdvance={handleAdvance} />;
+      case 'intent':
+        return <ReportStageIntent index={stageNumber} total={total} locked={locked} onAdvance={handleAdvance} />;
       case 'archive':
         return (
           <FinalRecordLayer

@@ -20,6 +20,9 @@ import type { SceneId } from '../types';
  * The visitor-facing sequence this Record produces:
  *   01 Elevator Entry · 02 Registration · 03 Light Archive · 04 Sound Clues
  *   · 05 Memory Sketch · 06 Sentence Clues · 07 Record Layer · 08 Final Report
+ *
+ * The three Collected Trace readouts sit inside this run rather than
+ * extending it — each shares the number of the Zone it reports on.
  */
 export const ZONE_INFO: Record<SceneId, { zone: string; label: string }> = {
   landing: { zone: 'UNANSWERED', label: 'Archive' },
@@ -51,6 +54,13 @@ export const ZONE_INFO: Record<SceneId, { zone: string; label: string }> = {
   zone03Intro: { zone: 'ZONE 04', label: '소리의 흔적' },
   soundClues: { zone: 'ZONE 04', label: '소리의 흔적' },
   memorySketch: { zone: 'ZONE 05', label: '기억의 흔적' },
+  /* The three Collected Trace readouts (see CollectedTraceScene) each belong
+     to the Zone whose record they report, so they carry that Zone's number —
+     the 01→08 run stays a clean count of spaces, and the HUD's violet tick
+     does not advance for a screen that collects nothing of its own. */
+  collectedTrace01: { zone: 'ZONE 03', label: '수집된 기록' },
+  collectedTrace02: { zone: 'ZONE 04', label: '수집된 기록' },
+  collectedTrace03: { zone: 'ZONE 05', label: '수집된 기록' },
   sentenceClues: { zone: 'ZONE 06', label: 'Sentence Clues' },
   recordLayerSecondVisit: { zone: 'ZONE 07', label: '기록의 레이어' },
   finalReport: { zone: 'ZONE 08', label: '최종보고서' },

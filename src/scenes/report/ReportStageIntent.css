@@ -1,0 +1,75 @@
+/* ARTIST NOTE. The one stage in the sequence that is a paragraph rather than
+   a line, so it sits a step below the statement scale the other text stages
+   use (--type-statement) and keeps the same measure. The shared
+   .report-stage shell clips, so the body scrolls inside itself on a short
+   screen rather than losing its last line. */
+
+.report-intent__body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  width: 100%;
+}
+
+.report-intent__line {
+  margin: 0;
+  max-width: min(660px, 88vw);
+  font-size: var(--type-body-lg);
+  line-height: 1.85;
+  font-weight: 400;
+  color: var(--text-secondary);
+  white-space: pre-line;
+  word-break: keep-all;
+}
+
+.report-intent__closing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(16px, 3vh, 28px);
+}
+
+.report-intent__closing-title {
+  margin: 0;
+  max-width: min(660px, 88vw);
+  font-size: var(--type-title-sm);
+  line-height: 1.6;
+  color: var(--text-primary);
+  white-space: pre-line;
+  word-break: keep-all;
+}
+
+.report-intent__signature {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  letter-spacing: 0.16em;
+  color: var(--text-tertiary);
+}
+
+@media (max-height: 760px) {
+  .report-intent__line {
+    font-size: var(--type-body);
+    line-height: 1.7;
+  }
+}
+
+/* Booth iMac 24" (2240×1260), the size this exhibition is reviewed at. At
+   18px the note read as a footnote on a 2240px screen — wall text has to
+   hold the wall. Still a step below the statement scale the one-line stages
+   use, so the note does not compete with the reveal. */
+@media (min-width: 1800px) and (min-height: 1000px) {
+  .report-intent__line {
+    font-size: 1.625rem;
+    line-height: 1.9;
+    max-width: min(900px, 80vw);
+  }
+
+  .report-intent__closing-title {
+    font-size: 2.25rem;
+    max-width: min(900px, 80vw);
+  }
+
+  .report-intent__signature {
+    font-size: var(--type-label);
+  }
+}

@@ -29,13 +29,30 @@ export const SCENE_ORDER: SceneId[] = [
   'investigationStart',
   'registration',
   'lightArchive',
+  'collectedTrace01',
   'zone03Intro',
   'soundClues',
+  'collectedTrace02',
   'memorySketch',
+  'collectedTrace03',
   'sentenceClues',
   'recordLayerSecondVisit',
   'finalReport',
 ];
+
+/**
+ * Scenes Back steps over: transit and readouts, not work screens to revisit.
+ * The stairs were already skipped; the three Collected Trace beats join them
+ * because each one only reports what the Zone before it recorded — stepping
+ * back into one would show the same readout again instead of returning the
+ * visitor to the choice they wanted to change.
+ */
+const BACK_TRANSIT_SCENES: ReadonlySet<SceneId> = new Set<SceneId>([
+  'zone03Intro',
+  'collectedTrace01',
+  'collectedTrace02',
+  'collectedTrace03',
+]);
 
 function getFurthestAllowedScene(completedScenes: SceneId[]): SceneId {
   for (const id of SCENE_ORDER) {
@@ -215,8 +232,8 @@ export const useExperienceStore = create<ExperienceState>()(
         set((state) => {
           const index = SCENE_ORDER.indexOf(state.currentScene);
           if (index <= 0) return {};
-          // Stairs is transit, not a work screen to revisit.
-          const previous = SCENE_ORDER[index - 1] === 'zone03Intro' ? index - 2 : index - 1;
+          let previous = index - 1;
+          while (previous > 0 && BACK_TRANSIT_SCENES.has(SCENE_ORDER[previous])) previous -= 1;
           return { currentScene: SCENE_ORDER[previous] };
         }),
 

@@ -50,7 +50,9 @@ export function ReportStageClosing({ index, total, locked, onAdvance }: Props) {
           )}
         </AnimatePresence>
       </div>
-      <ReportStageNav label={phase < LINES.length ? '계속 읽기' : '최종 기록으로'} index={index} total={total} visible={navReady} onAdvance={advanceReading} disabled={locked} />
+      {/* The Artist Note (ReportStageIntent) now follows this stage, so the
+          last label points there and not at the record. */}
+      <ReportStageNav label={phase < LINES.length ? '계속 읽기' : '조사를 만든 이유'} index={index} total={total} visible={navReady} onAdvance={advanceReading} disabled={locked} />
     </div>
   );
 }

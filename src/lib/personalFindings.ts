@@ -594,7 +594,7 @@ function repeatCandidates(traces: ZoneTrace[]): PersonalFindingDraft[] {
       evidence: moved.map((trace) => evidenceFor(trace, trace.firstAnswerDetail ?? '첫 선택을 바꿈')),
       strength: 200 + moved.length * 25,
       zones: moved.map((trace) => trace.zone),
-      context: { zones: joinZoneNames(moved.map((trace) => trace.zone)) },
+      context: { zones: joinZoneNames(moved.map((trace) => trace.zone)), count: String(moved.length) },
     });
   }
 
@@ -608,7 +608,7 @@ function repeatCandidates(traces: ZoneTrace[]): PersonalFindingDraft[] {
       evidence: back.map((trace) => evidenceFor(trace, trace.cameBackDetail ?? '지나친 것으로 다시 돌아감')),
       strength: 190 + back.length * 25,
       zones: back.map((trace) => trace.zone),
-      context: { zones: joinZoneNames(back.map((trace) => trace.zone)) },
+      context: { zones: joinZoneNames(back.map((trace) => trace.zone)), count: String(back.length) },
     });
   }
 
@@ -633,7 +633,7 @@ function sequenceCandidates(traces: ZoneTrace[]): PersonalFindingDraft[] {
       evidence: before.map((trace) => evidenceFor(trace, '고르기 전에 오래 머물고, 고른 뒤에는 곧 넘어감')),
       strength: 195 + before.length * 22,
       zones: before.map((trace) => trace.zone),
-      context: { zones: joinZoneNames(before.map((trace) => trace.zone)) },
+      context: { zones: joinZoneNames(before.map((trace) => trace.zone)), count: String(before.length) },
     });
   } else if (after.length >= 2) {
     candidates.push({
@@ -648,7 +648,7 @@ function sequenceCandidates(traces: ZoneTrace[]): PersonalFindingDraft[] {
       ),
       strength: 195 + after.length * 22,
       zones: after.map((trace) => trace.zone),
-      context: { zones: joinZoneNames(after.map((trace) => trace.zone)) },
+      context: { zones: joinZoneNames(after.map((trace) => trace.zone)), count: String(after.length) },
     });
   }
   return candidates;
@@ -719,7 +719,7 @@ function absenceCandidates(traces: ZoneTrace[]): PersonalFindingDraft[] {
       evidence: kept.map((trace) => evidenceFor(trace, '처음 고른 답을 마지막까지 유지, 다시 돌아가지 않음')),
       strength: 120 + kept.length * 5,
       zones: kept.map((trace) => trace.zone),
-      context: { zones: joinZoneNames(kept.map((trace) => trace.zone)) },
+      context: { zones: joinZoneNames(kept.map((trace) => trace.zone)), count: String(kept.length) },
     });
   }
 
@@ -752,7 +752,17 @@ function noConvergence(traces: ZoneTrace[]): PersonalFindingDraft | null {
     ),
     strength: 10,
     zones: timed.map((trace) => trace.zone),
-    context: { spread: spread >= PERSONAL_FINDING_THRESHOLDS.spreadRatio ? 'yes' : '' },
+    /* The two ends of the pace, by name and by figure. A visitor knows they
+       answered; they do not know which Zone they were quickest in, which
+       they were slowest in, or by how much — which is the only thing this
+       Finding can tell them that they could not have told themselves. */
+    context: {
+      spread: spread >= PERSONAL_FINDING_THRESHOLDS.spreadRatio ? 'yes' : '',
+      fastestZone: ZONE_SHORT_NAME[fastest.zone],
+      fastestTime: seconds(fastest.preMs!),
+      slowestZone: ZONE_SHORT_NAME[slowest.zone],
+      slowestTime: seconds(slowest.preMs!),
+    },
   };
 }
 
