@@ -109,25 +109,6 @@
   font-size: var(--type-button);
 }
 
-/* Marked: the sound this visit is filed under. Border and a dot, like every
-   other committed state in the project — never a fill. */
-.sound-clues-scene__mini-btn--marked:disabled {
-  opacity: 1;
-  border-color: var(--trace);
-  color: var(--text-primary);
-  cursor: default;
-}
-
-.sound-clues-scene__mini-btn--marked:disabled::before {
-  content: '';
-  flex: 0 0 auto;
-  width: 5px;
-  height: 5px;
-  border-radius: 999px;
-  background: var(--trace);
-  box-shadow: 0 0 8px var(--trace);
-}
-
 /* ── Glass domes ────────────────────────────────────────────────────────────
    The "browse" step: the sound clues shown as preserved specimens under glass,
    set out along one black shelf with a faint violet light beneath. Every class

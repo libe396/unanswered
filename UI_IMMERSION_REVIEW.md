@@ -635,3 +635,16 @@ Use case: photorealistic-natural. Asset type: finished photographic portrait art
 - 11종 × 2변주를 실제 context 값으로 전부 렌더해 확인했다. 빈 치환(undefined·[object Object]) 없음, 모든 reflection이 물음표로 끝남.
 - 아이맥 24인치에서 최종 보고서 발견 단계(REPORT 03)와 "내 기록 살펴보기" 패널을 열어 확인했다. 줄바꿈 깨짐·넘침 없음, 콘솔 오류 없음(남아 있는 supabase/reports CORS는 개발 서버 포트 5199 때문인 기존 사항).
 - 검증: npm run build(tsc 포함) 통과, oxlint 신규 경고 없음. commit/push/배포 없음.
+
+## 2026-11-03 소리 장면 버튼 위계 점검 (2240×1260)
+
+- 저장된 기록을 비우고 소리의 흔적에 들어가 두 상태를 모두 확인했다. 고르기 전: '이 소리 선택' = cta--primary, '소리를 하나 고르면 이어집니다' = cta--secondary(비활성). 고른 뒤: '선택한 소리 ✓' = cta--secondary + --marked(비활성), '다음으로' = cta--primary.
+- '다음으로'를 눌러 위치 표시 단계가 정상으로 열리고 고른 소리(지하철)가 그대로 유지되는 것을 확인했다.
+- 검증: npm run build(tsc 포함) 통과, 해당 파일 oxlint 경고 없음. 남아 있는 supabase/reports CORS 오류는 앞선 보고서 방문에서 난 기존 사항이다. commit/push/배포 없음.
+
+## 2026-11-03 유리 돔 선택 점검 (2240×1260)
+
+- 기록을 비우고 확인했다. 지하철 돔을 한 번 누르자 재생되면서 바로 '최종 선택됨'이 되고 '다음으로'가 활성화됐다. 플레이어에는 '일시정지' 하나만 남는다.
+- 빗소리 돔을 누르자 선택이 옮겨 가고, 같은 돔을 다시 눌러 소리를 멈춰도 선택은 유지되며 돔 아래에 '선택한 소리'가 표시된다.
+- '다음으로' 뒤 위치 표시 단계가 정상으로 열리고 고른 소리(빗소리)가 유지된다. 기록은 playStart ×2 · select ×1 · commit ×1로, 들어 본 것이 선택 변경으로 남지 않는다.
+- 검증: npm run build(tsc 포함) 통과, 해당 파일 oxlint 경고 없음. commit/push/배포 없음.

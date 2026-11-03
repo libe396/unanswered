@@ -386,23 +386,34 @@ export function SoundCluesScene() {
     finalizePlayback('paused');
   }
 
+  /*
+    Opening a dome is now the same act as choosing it, so the shelf cannot log
+    a `select` per click: a visitor who listens to all seven would be recorded
+    as having changed their mind six times, and the Final Report would read
+    that back as wavering. The choice is logged once, in `goToPositioning`,
+    with whatever dome was open when the visitor moved on — which is the only
+    claim the record can honestly make here, since listening and choosing are
+    no longer distinguishable.
+  */
   function selectSound(soundId: string) {
-    // Pressing the same choice again is not a change of mind, and recording it
-    // as one would turn a visitor who confirmed their pick into one who
-    // wavered.
     if (selectedSoundId === soundId) return;
     setSelectedSoundId(soundId);
-    tracking.select(SOUND_GROUP, soundId);
   }
 
   /**
-   * Opening a glass dome: bring it into the player strip and play what is
-   * kept inside. Clicking the dome that is already sounding closes it. Playback
-   * is toggle-only here — choosing the sound as the answer is a separate act,
-   * made from the player, so listening back through the shelf never disturbs it.
+   * Opening a glass dome: bring it into the player strip, play what is kept
+   * inside, and file it as this visit's sound. Clicking the dome that is
+   * already sounding stops it without letting the choice go — the dome stays
+   * the chosen one until another is opened.
+   *
+   * The separate "이 소리 선택" control the player used to carry is gone: user
+   * testing read the action row's "다음으로" as the thing to press and never
+   * found it, and one object that both sounds and answers is the same move the
+   * LIGHT Zone already makes with its images.
    */
   function handleClocheClick(soundId: string) {
     setFocusedSoundId(soundId);
+    selectSound(soundId);
     if (getRuntime(soundId).isPlaying) {
       stop(soundId);
     } else {
@@ -531,6 +542,8 @@ export function SoundCluesScene() {
     // The sound question is finished here, the same way LIGHT commits its
     // image question on leaving the grid.
     finishReplay();
+    // The one `select` this Zone records — see selectSound.
+    tracking.select(SOUND_GROUP, selectedSoundId);
     tracking.commit(SOUND_GROUP);
     setFocusedSoundId(selectedSoundId);
     setPhase('positioning');
@@ -639,7 +652,11 @@ export function SoundCluesScene() {
               <span className="sound-clues-scene__cloche-heard" aria-hidden="true" />
             ) : null}
           </span>
-          <span className="sound-clues-scene__cloche-status">{r.isPlaying ? '재생 중' : '\u00a0'}</span>
+          {/* The dome is the only place the choice is shown now that the
+              player has no select control. */}
+          <span className="sound-clues-scene__cloche-status">
+            {r.isPlaying ? '재생 중' : selectedSoundId === clue.id ? '선택한 소리' : '\u00a0'}
+          </span>
         </span>
       </button>
     );
@@ -669,16 +686,6 @@ export function SoundCluesScene() {
             >
               {runtimeForClue.isPlaying ? '일시정지' : runtimeForClue.heardToEnd ? '다시 듣기' : '재생'}
             </button>
-            <button
-              type="button"
-              className={`cta cta--secondary sound-clues-scene__mini-btn${
-                selectedSoundId === clue.id ? ' sound-clues-scene__mini-btn--marked' : ''
-              }`}
-              onClick={() => selectSound(clue.id)}
-              disabled={selectedSoundId === clue.id}
-            >
-              {selectedSoundId === clue.id ? '선택한 소리 ✓' : '이 소리 선택'}
-            </button>
           </div>
         </div>
       </div>
@@ -701,7 +708,7 @@ export function SoundCluesScene() {
         <StageHeader
           eyebrow="소리의 흔적"
           title="그 사람 곁에는 어떤 소리가 있었을까요?"
-          description="유리 돔을 눌러 들어 보고, 하나를 골라 주세요."
+          description="유리 돔을 누르면 소리가 재생되고, 그 소리가 선택됩니다."
         />
 
         <div className="sound-clues-scene__shelf-scroll">
@@ -724,8 +731,10 @@ export function SoundCluesScene() {
             </p>
           }
         >
+          {/* Primary only once it can actually be used — see the select
+              button above. */}
           <button
-            className="cta cta--primary"
+            className={`cta ${selectedSoundId ? 'cta--primary' : 'cta--secondary'}`}
             onClick={goToPositioning}
             disabled={!selectedSoundId}
           >
@@ -802,7 +811,8 @@ export function SoundCluesScene() {
           </p>
         }
       >
-        <button className="cta cta--primary" onClick={handleConfirm} disabled={!position}>
+        {/* Same rule as the browse step's footer: primary only once it can be used. */}
+        <button className={`cta ${position ? 'cta--primary' : 'cta--secondary'}`} onClick={handleConfirm} disabled={!position}>
           {position ? '다음으로' : '위치를 표시하면 이어집니다'}
         </button>
       </StageActions>
