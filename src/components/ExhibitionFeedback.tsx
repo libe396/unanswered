@@ -39,13 +39,33 @@ export function ExhibitionFeedback({ reportLink, standalone = false }: { reportL
     {sent ? <p role="status">후기를 남겨 주셔서 감사합니다.</p> : <>
       <button type="button" className="exhibition-feedback__open" aria-expanded={open} onClick={() => setOpen(value => !value)}>약 1분 · {open ? '후기 접기' : '후기 남기기'}</button>
       {open && <form onSubmit={send}>
-        <label>Q1. 이 전시는 무엇에 관한 경험이라고 느꼈나요?<textarea value={meaning} onChange={event => setMeaning(event.target.value)} maxLength={600} rows={3} /></label>
-        <fieldset><legend>Q2. 자신의 선택 과정을 다시 보는 장면이 전시를 이해하는 데 도움이 되었나요?</legend>
-          <div className="exhibition-feedback__ratings">{[1, 2, 3, 4, 5].map(value => <label key={value}><input type="radio" name="replay-help" value={value} checked={help === value} onChange={() => setHelp(value)} />{value}</label>)}</div>
-          <p className="exhibition-feedback__hint">1 전혀 그렇지 않다 · 5 매우 그렇다</p>
+        {/* The hint sits above the questions, not below them: under them it was
+            only read after the visitor had already felt obliged to answer all
+            three. */}
+        <p className="exhibition-feedback__hint">떠오르는 질문에만 답해 주세요. 하나만 답해도 보낼 수 있습니다.</p>
+        {/*
+          Q1 asks what stayed, not what the exhibition was about. The earlier
+          wording ("이 전시는 무엇에 관한 경험이라고 느꼈나요?") asked for a
+          thesis on the work as the first thing after leaving it, and visitors
+          stalled there — the exhibition itself says that explaining why is the
+          hard part. A remembered scene answers the same question sideways and
+          can be written in one line.
+        */}
+        <label>Q1. 조사를 마치고 나왔을 때, 가장 오래 남은 장면이나 문장은 무엇이었나요?<textarea value={meaning} onChange={event => setMeaning(event.target.value)} maxLength={600} rows={3} /></label>
+        {/* Named the way the visitor met it, and with a way out: the replay
+            lives behind "내 기록 살펴보기" in the Report and many never open
+            it. Without "보지 않았다" they had to invent a number, which is
+            both a stall and unusable data. 0 is that answer; the stored range
+            is 0–5. */}
+        <fieldset><legend>Q2. 보고서에서 ‘내 기록 살펴보기’로 선택 과정을 다시 본 장면은, 전시를 이해하는 데 도움이 되었나요?</legend>
+          <div className="exhibition-feedback__ratings">
+            <label><input type="radio" name="replay-help" value={0} checked={help === 0} onChange={() => setHelp(0)} />보지 않았다</label>
+            {[1, 2, 3, 4, 5].map(value => <label key={value}><input type="radio" name="replay-help" value={value} checked={help === value} onChange={() => setHelp(value)} />{value}</label>)}
+          </div>
+          <p className="exhibition-feedback__hint">1 전혀 도움이 되지 않았다 · 5 많이 도움이 되었다</p>
         </fieldset>
         <label>Q3. 이해하기 어렵거나 조작하기 불편했던 순간이 있었나요?<textarea value={friction} onChange={event => setFriction(event.target.value)} maxLength={600} rows={3} /></label>
-        <p className="exhibition-feedback__hint">떠오르는 질문에만 답해 주세요. 이름·연락처는 묻지 않습니다. 답변에도 개인 정보를 적지 말아 주세요.</p>
+        <p className="exhibition-feedback__hint">이름·연락처는 묻지 않습니다. 답변에도 개인 정보를 적지 말아 주세요.</p>
         <p className="exhibition-feedback__hint">후기 응답과 연구 활용 연결 정보는 전시 운영자의 비공개 보관소에 {FEEDBACK_RETENTION_MONTHS}개월간 보관한 뒤 삭제합니다. QR 보고서 열람용 기록은 별도로 보관됩니다.</p>
         <label className="exhibition-feedback__check"><input type="checkbox" checked={consent} onChange={event => setConsent(event.target.checked)} />후기 응답을 전시 개선 연구(UT)에 활용하는 데 동의합니다. (후기를 보낼 때 필요)</label>
         {!standalone && <label className="exhibition-feedback__check"><input type="checkbox" disabled={!reportRef} checked={Boolean(reportRef && recordConsent)} onChange={event => setRecordConsent(event.target.checked)} />이번 관람의 선택 화면·움직임과 작성 기록도 후기와 연결해 연구에 활용하는 데 동의합니다. (선택)</label>}

@@ -55,6 +55,10 @@ assert.equal(feedbackSaved.p_report, id);
 assert.equal((await feedbackHandler(req('POST', '/feedback', { ...feedback, meaning: '', replayHelp: null }))).status, 400);
 assert.equal((await feedbackHandler(req('POST', '/feedback', { ...feedback, recordConsent: true, reportRef: '../bad' }))).status, 400);
 assert.equal((await feedbackHandler(req('POST', '/feedback', { ...feedback, replayHelp: 9 }))).status, 400);
+// Both shipped wordings are accepted, each stored under its own version; 0 is
+// v2's "보지 않았다" and an unknown version is refused.
+assert.equal((await feedbackHandler(req('POST', '/feedback', { ...feedback, consentVersion: 'ut-2026-11-03-v2', replayHelp: 0 }))).status, 200);
+assert.equal((await feedbackHandler(req('POST', '/feedback', { ...feedback, consentVersion: 'ut-2099-01-01-v9' }))).status, 400);
 assert.equal((await feedbackHandler(req('GET', '/feedback'))).status, 404);
 feedbackResult = 'RATE_LIMIT';
 assert.equal((await feedbackHandler(req('POST', '/feedback', feedback))).status, 429);

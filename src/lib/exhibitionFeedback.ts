@@ -1,7 +1,14 @@
 import { reportStorageHeaders, REPORT_STORAGE_ENDPOINT } from './reportTransfer';
 
 export const FEEDBACK_RETENTION_MONTHS = 6;
-export const FEEDBACK_CONSENT_VERSION = 'ut-2026-11-02-v1';
+/*
+  Bumped when the questions change, so answers to one wording are never mixed
+  with answers to another: v1 asked "이 전시는 무엇에 관한 경험이라고
+  느꼈나요?" and rated the replay 1–5 with no way to say it was never opened;
+  v2 asks what stayed and accepts 0 for "보지 않았다". The storage function
+  accepts both, and every row carries the version it was answered under.
+*/
+export const FEEDBACK_CONSENT_VERSION = 'ut-2026-11-03-v2';
 export interface ExhibitionFeedbackInput {
   id: string;
   meaning: string;

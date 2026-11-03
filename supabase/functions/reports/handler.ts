@@ -2,6 +2,11 @@
 export interface StorageConfig { url: string; key: string; origins: string[]; salt: string }
 const MAX_BYTES = 25 * 1024 * 1024;
 const ID = /^[a-f0-9]{48}$/;
+/* Every wording the feedback form has ever shipped. A row stores the version
+   it was answered under, so answers to different questions never merge; the
+   set only grows, since a visitor on a cached page may still send an older
+   one. v1: "무엇에 관한 경험" + replay 1-5. v2: what stayed + 0 for 보지 않았다. */
+const FEEDBACK_VERSIONS = new Set(['ut-2026-11-02-v1', 'ut-2026-11-03-v2']);
 const digest = async (text: string) => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))), value => value.toString(16).padStart(2, '0')).join('');
 
 async function readBody(request: Request): Promise<string> {
@@ -45,7 +50,7 @@ export function createReportHandler(config: StorageConfig, transport: typeof fet
         const text = await readBody(request);
         if (text.length > 16000) return respond(413, { error: 'TOO_LARGE' });
         const input = JSON.parse(text);
-        if (input?.feedbackConsent !== true || input.consentVersion !== 'ut-2026-11-02-v1' || typeof input.id !== 'string' || !/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(input.id)
+        if (input?.feedbackConsent !== true || !FEEDBACK_VERSIONS.has(input.consentVersion) || typeof input.id !== 'string' || !/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(input.id)
           || typeof input.meaning !== 'string' || input.meaning.length > 600 || typeof input.friction !== 'string' || input.friction.length > 600
           || (input.replayHelp !== null && (!Number.isInteger(input.replayHelp) || input.replayHelp < 0 || input.replayHelp > 5))
           || typeof input.recordConsent !== 'boolean' || (!input.meaning.trim() && input.replayHelp === null && !input.friction.trim())
