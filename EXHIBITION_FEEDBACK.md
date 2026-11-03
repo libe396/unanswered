@@ -367,3 +367,11 @@
 - 타이포 인터랙션은 유지하되 글자 수가 늘어 지연을 0.014s → 0.004s(최대 1.4s)로 줄였다. reduced-motion에서는 애니메이션 없이 표시한다.
 - 기록 카드는 모서리 8px, 테두리 1.5px, 배경 블러 18px → 8px로 낮췄다. 이미지에도 4px 모서리를 줬다.
 - 검증은 사용자 요청대로 아이맥 24인치(2240×1260) 기준으로 했다. G2·G3 두 프롬프트 모두에서 02 챕터가 1184px 안에 들어가고 5개 챕터 전부 수납, 가로 넘침0, 콘솔 오류0. 설명 17px·프롬프트 14.5px. npm run build(tsc 포함)·oxlint·git diff --check 통과. commit/push 없음.
+
+## 2026-11-03 커밋·푸시·공개 배포
+
+- 사용자 요청으로 이번 작업 전체를 커밋·푸시·배포했다. 커밋 3618253 "Rebuild the catalogue overview and trim the deployed payload" (34개 파일, +236/−53), 푸시 450e9f0..3618253 phase1-foundation.
+- 커밋에는 다른 작업자가 트리에 남겨 둔 MemoryRoom.tsx·LightArchiveScene.tsx·MobileReportView.tsx 변경과 신규 archive/preview·thumb·room-final.webp 자산도 함께 들어갔다. 커밋 메시지에 그 사실을 적었다. _loop_work·outputs·archive.zip은 .gitignore로 제외되어 포함되지 않았다.
+- npm run deploy Published, gh-pages 4c76e85ec9ffa43670c015df00e1f69b5c5ca115, Pages 실행 41580788751 성공(배포 ID 125735156705).
+- 공개 확인(2240×1260): 공개 번들 catalog-DUD2MmmI.js가 로컬 빌드와 일치. 표지 새 카피, 카드 테두리0, 5개 챕터 모두 한 화면 수납, 02 챕터 G3 영문 원문 표시, Result에 인쇄도록 없음(원본 크기로 보기·원본 내려받기만), 루트는 그대로 Landing에서 시작. 가로 넘침0, 콘솔 오류0.
+- 미해결: 커밋 450e9f0에 이미 들어간 Claude outputs/·lab/은 여전히 추적 상태다. git rm --cached 여부는 사용자 답변 대기 중.

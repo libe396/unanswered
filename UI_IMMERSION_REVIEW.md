@@ -603,3 +603,11 @@ Use case: photorealistic-natural. Asset type: finished photographic portrait art
 - 세 상태(ORIGINAL·G2·G3) 어디서도 챕터가 1184px를 넘지 않는다. 가장 긴 G3에서도 수납을 확인했다.
 - 기록 카드: radius 8px / border 1.5px rgba(185,168,255,.42) / backdrop blur 8px. 겹침·회전·선택은 그대로다.
 - 이후 화면 확인은 사용자 요청에 따라 2240×1260을 기본 기준으로 한다.
+
+## 2026-11-03 커밋·푸시·공개 배포
+
+- 사용자 요청으로 이번 작업 전체를 커밋·푸시·배포했다. 커밋 3618253 "Rebuild the catalogue overview and trim the deployed payload" (34개 파일, +236/−53), 푸시 450e9f0..3618253 phase1-foundation.
+- 커밋에는 다른 작업자가 트리에 남겨 둔 MemoryRoom.tsx·LightArchiveScene.tsx·MobileReportView.tsx 변경과 신규 archive/preview·thumb·room-final.webp 자산도 함께 들어갔다. 커밋 메시지에 그 사실을 적었다. _loop_work·outputs·archive.zip은 .gitignore로 제외되어 포함되지 않았다.
+- npm run deploy Published, gh-pages 4c76e85ec9ffa43670c015df00e1f69b5c5ca115, Pages 실행 41580788751 성공(배포 ID 125735156705).
+- 공개 확인(2240×1260): 공개 번들 catalog-DUD2MmmI.js가 로컬 빌드와 일치. 표지 새 카피, 카드 테두리0, 5개 챕터 모두 한 화면 수납, 02 챕터 G3 영문 원문 표시, Result에 인쇄도록 없음(원본 크기로 보기·원본 내려받기만), 루트는 그대로 Landing에서 시작. 가로 넘침0, 콘솔 오류0.
+- 미해결: 커밋 450e9f0에 이미 들어간 Claude outputs/·lab/은 여전히 추적 상태다. git rm --cached 여부는 사용자 답변 대기 중.
