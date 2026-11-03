@@ -103,25 +103,25 @@ export function Overview({ panelRef, active, visible, onChapter, onResearch, onR
               <a className="editorial-link" href={import.meta.env.BASE_URL}>전시 입장 <span aria-hidden="true">↗</span></a></div>
             </div> : null}
             {index === 1 ? <div className="origin-experience">
-              {heading(1, ['흐릿함에서,', '사람의 응답으로.'], ['같은 이미지에서 연구를 시작했습니다. 사람과 AI가 남긴 서로 다른 해석을 비교합니다.', '흐릿함을 남겨 달라고 요청했습니다. AI가 모호함을 유지하는 방식을 살펴봅니다.', '선명한 장면으로 바꿔 달라고 요청했습니다. 원본과 재구성 이미지의 차이를 비교합니다.'][origin], '연구 과정', () => onResearch('01'))}
+              {heading(1, ['흐릿함에서,', '사람의 응답으로'], ['같은 이미지에서 연구를 시작했습니다. 사람과 AI가 남긴 서로 다른 해석을 비교합니다.', '흐릿함을 남겨 달라고 요청했습니다. AI가 모호함을 유지하는 방식을 살펴봅니다.', '선명한 장면으로 바꿔 달라고 요청했습니다. 원본과 재구성 이미지의 차이를 비교합니다.'][origin], '연구 과정', () => onResearch('01'))}
               <div className="origin-workbench glass-panel"><div className="origin-comparison" role="group" aria-label="원본과 AI 해석 비교">{originTitles.map((label, i) => <button key={label} aria-pressed={origin === i} onClick={() => setOrigin(i)} onPointerEnter={() => setOrigin(i)} onFocus={() => setOrigin(i)}><img src={imageUrl(`archive/blur-${i + 1}.webp`)} alt={label} loading="lazy" /><span><small>{['ORIGINAL', 'G2', 'G3'][i]}</small>{label}</span></button>)}</div>
               <div className="origin-caption"><div className="origin-prompt"><span className="editorial-eyebrow">PROMPT</span><PromptText note={originPrompts[origin].note} prompt={originPrompts[origin].prompt} reduced={reduced} /></div><button className="editorial-text-button" onClick={() => onOpen(imageUrl(`archive/blur-${origin + 1}.webp`), originTitles[origin])}>선택한 이미지 확대 ↗</button></div></div>
             </div> : null}
             {index === 2 ? <div className="space-experience">
-              {heading(2, ['감각을 따라,', '단서를 모읍니다.'], `${spaces[space].line} 다른 공간을 눌러 다음 단서를 살펴보세요.`, '공간과 동선', () => onResearch('04'))}
+              {heading(2, ['감각을 따라,', '단서를 모읍니다'], `${spaces[space].line} 다른 공간을 눌러 다음 단서를 살펴보세요.`, '공간과 동선', () => onResearch('04'))}
               <div className="space-workbench glass-panel"><div className="space-stage"><AnimatePresence initial={false}><motion.div key={space} className="space-layer" initial={{ opacity: 0, scale: reduced ? 1 : 1.035 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduced ? 0 : .7 }}>{picture(spaces[space].src, spaces[space].title, '16 / 9')}</motion.div></AnimatePresence></div>
               <div className="space-controls" role="group" aria-label="감각 공간 선택">{spaces.map((item, i) => <button key={item.code} aria-pressed={space === i} onClick={() => setSpace(i)}>{item.title}</button>)}</div>
               </div>
             </div> : null}
             {index === 3 ? <div className="process-experience">
-              {heading(3, step === 3 ? ['단어가 바뀌면,', '빛도 달라집니다.'] : [['직접 그린 빛에서', '규칙을 찾았습니다.'], ['원과 선, 교차점을', '규칙으로 정했습니다.'], ['과한 빛을 덜고', '다시 만들었습니다.']][step], ['직접 그린 원과 선, 광점에서 빛 그래픽의 기준을 찾았습니다.', '원형 레이어와 흐린 선, 교차점과 질감을 실행 가능한 규칙으로 정리했습니다.', '입자와 광원이 과한 1차 결과를 검토하고 표현을 다듬었습니다.', '감정 단어를 고르면 같은 사진에서 빛의 색과 번짐이 달라집니다.'][step], '제작 과정', () => onResearch('05'))}
+              {heading(3, step === 3 ? ['단어가 바뀌면,', '빛도 달라집니다'] : [['직접 그린 빛에서', '규칙을 찾았습니다'], ['원과 선, 교차점을', '규칙으로 정했습니다'], ['과한 빛을 덜고', '다시 만들었습니다']][step], ['직접 그린 원과 선, 광점에서 빛 그래픽의 기준을 찾았습니다.', '원형 레이어와 흐린 선, 교차점과 질감을 실행 가능한 규칙으로 정리했습니다.', '입자와 광원이 과한 1차 결과를 검토하고 표현을 다듬었습니다.', '감정 단어를 고르면 같은 사진에서 빛의 색과 번짐이 달라집니다.'][step], '제작 과정', () => onResearch('05'))}
               <div className="process-workbench glass-panel"><div className="process-step-controls" role="group" aria-label="제작 단계">{stepNames.map((name, i) => <button key={name} aria-pressed={step === i} onClick={() => setStep(i)}>{name}</button>)}</div>
               <div className="process-demo"><AnimatePresence mode="wait" initial={false}><motion.div key={step} className="process-demo-panel" initial={{ opacity: 0, x: reduced ? 0 : 32 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: reduced ? 0 : -24 }} transition={{ duration: reduced ? 0 : .35 }}>
                 {step === 3 ? <FinalViewer onOpen={onOpen} /> : <div className="process-study">{picture(['latest/draft.webp', 'latest/sad.webp', 'latest/experiment-1.webp'][step], stepNames[step], '1 / 1')}<p>{['원과 선, 광점으로 그린 초안.', '원형 레이어 · 흐린 선 · 교차점 · 질감', '입자와 광원이 과했던 1차 결과.'][step]}</p></div>}
               </motion.div></AnimatePresence></div></div>
             </div> : null}
             {index === 4 ? <div className="record-experience">
-              {heading(4, ['고르는 동안,', '기록은 쌓입니다.'], '선택과 재확인, 머문 시간을 모아 이번 조사의 기록으로 돌려드립니다.', 'Result · 웹도록', onResult)}
+              {heading(4, ['고르는 동안,', '기록은 쌓입니다'], '선택과 재확인, 머문 시간을 모아 이번 조사의 기록으로 돌려드립니다.', 'Result · 웹도록', onResult)}
               <div className="record-workbench glass-panel"><div className="record-finish"><div className="record-object"><div className="record-stack" role="group" aria-label="남겨지는 기록">{records.map((item, i) => <button key={item.title} className={record === i ? 'is-front' : ''} style={{ '--record-order': i, '--record-slot': (i - record + records.length) % records.length } as CSSProperties} aria-pressed={record === i} onClick={() => setRecord(i)}><img src={imageUrl(item.src)} alt={item.title} loading="lazy" /><span>{item.title}</span></button>)}</div><div className="record-choices" role="group" aria-label="기록 선택">{records.map((item, i) => <button key={item.title} aria-label={`${item.title} 선택`} aria-pressed={record === i} onClick={() => setRecord(i)}>{item.title}</button>)}</div></div><ReadingRecord active={active} visible={visible} reduced={reduced} /></div>
               <div className="overview-closing"><span>대답하지 못한 것도 기록됩니다.</span><button className="editorial-text-button" onClick={() => onOpen(imageUrl(records[record].src), records[record].title)}>선택한 기록 확대 ↗</button></div></div>
             </div> : null}
