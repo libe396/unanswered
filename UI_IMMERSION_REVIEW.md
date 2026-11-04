@@ -663,3 +663,4 @@ Use case: photorealistic-natural. Asset type: finished photographic portrait art
 - venue 카탈로그를 열어 두고 입력 없이 2분을 기다리자 `/unanswered/?venue=1` Landing으로 돌아갔다(`window.location.replace`, 뒤로 가기에 남지 않음).
 - 보존: 최종 보고서의 QR(관람객 보고서)·카드 안내, VenueIdleGuard의 105초 프롬프트+15초 확인, Landing 진입 타이밍과 기록 수집, 웹 카탈로그 레이아웃과 문구.
 - 검증: npm run build 통과. 콘솔 오류는 localhost에서 보고서 업로드가 막히는 기존 CORS 두 건뿐이고 이번 변경과 무관하다. commit/push/배포 없음.
+- 공개 확인(2026-11-04): 공개 main-Bfy2Tn8o.js가 로컬 빌드와 일치하고, 카탈로그가 함께 받는 wordmark-BpmvdBLj.js는 로컬 파일과 바이트 단위로 동일하며 `venue=1`·105e3·15e3·12e4를 모두 담고 있다. 공개 `?venue=1` Landing의 `전시 소개`는 `/unanswered/catalog/?venue=1`, venue 카탈로그의 복귀 링크 세 개는 모두 `/unanswered/?venue=1`이다. 공개 venue 카탈로그에서 입력 없이 2분을 기다리자 `/unanswered/?venue=1`로 돌아갔다. `?venue=1` 없는 공개 주소는 `/unanswered/catalog/` 그대로이고 콘솔 오류 0.
