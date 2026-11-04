@@ -246,6 +246,14 @@ export function LandingScene() {
           남겨진 단서로 그 사람을 떠올려 보세요.
         </p>
 
+        {/* Half of this exhibition is sound, and visitors kept starting without
+            the headphones in front of them (2026-11-04, booth observation). */}
+        {!touchOnly && (
+          <p className={`landing-scene__sound-note${subVisible ? ' is-visible' : ''}`}>
+            소리가 있는 전시입니다. 헤드폰을 착용해 주세요.
+          </p>
+        )}
+
         {touchOnly ? (
           <div className="landing-scene__touch-note">
             <p>이 전시는 PC에서 관람하도록 만들어졌습니다. 마우스와 헤드폰이 있는 환경을 권장합니다.</p>
@@ -276,6 +284,7 @@ export function LandingScene() {
             <span>클릭하면 조사가 시작됩니다 · 약 5분</span>
           </button>
         )}
+
       </div>
     </div>
   );

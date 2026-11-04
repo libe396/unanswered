@@ -205,6 +205,19 @@
 
 .landing-scene__prompt:disabled { cursor: default; }
 
+.landing-scene__sound-note {
+  justify-self: start;
+  margin: 14px 0 0;
+  font-size: clamp(12px, 0.88vw, 19px);
+  line-height: 1.6;
+  color: var(--text-secondary);
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  word-break: keep-all;
+}
+
+.landing-scene__sound-note.is-visible { opacity: 1; }
+
 /* ── touch devices: this exhibition is made for a desktop ──────────────── */
 
 .landing-scene__touch-note {
@@ -324,4 +337,5 @@
   .landing-scene__catalog span,
   .landing-scene__catalog:hover span { transition: none; transform: none; }
   .landing-scene__description { transition: none; }
+  .landing-scene__sound-note { transition: none; }
 }
