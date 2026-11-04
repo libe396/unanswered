@@ -471,3 +471,5 @@
 - `IntroFilmScene`의 `?v=` 캐시 키를 파일 sha256 앞 12자리(d53cf6c2d5b4)로 갱신했다. 기존 규칙과 같다.
 - 원본 파일은 커밋 eab64f8에 그대로 있다. 되돌리려면 `git checkout eab64f8 -- public/video/intro-film.mp4`.
 - 아직 남은 것: 영상을 미리 받아 두기(랜딩·엘리베이터 동안), 버퍼링 중 검은 화면에 안내 한 줄. 이번에는 손대지 않았다.
+- 사용자 요청으로 커밋 126e10c를 origin/phase1-foundation에 푸시하고 npm run deploy로 공개 배포했다. Pages 실행 41790901453 성공. 공개 영상 다운로드 61초 → 4.4초.
+- 다음 후보(미착수): 존 영상 8개가 아직 원본 비트레이트다. `06_Memory_Layers_Entry_3p2s.mp4`는 3.2초에 12.5MB(32.8Mbps), `04_Sentence_Clues_Final.mp4`와 `06_Memory_Layers_Final.mp4`는 각각 10.8/10.9Mbps다. 전시 중간에 끊기면 장면 전환이 깨진다. `06_Memory_Layers_Final.mp4`(12.7MB)는 `src/data/zoneFilms.ts`에서 참조되지 않는다 — 삭제는 사용자 확인 후에.

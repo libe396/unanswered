@@ -679,3 +679,4 @@ Use case: photorealistic-natural. Asset type: finished photographic portrait art
 - 끝까지 둔 뒤 영상의 `ended`로 다음 장면(조사원 등록 안내)이 정상적으로 열렸다. 건너뛰기나 음소거 컨트롤은 여전히 없다.
 - 보존: 장면 전환 방식, 커튼 페이드, 진행 표시줄, 소리 켜고 재생 폴백, 색 공간(BT.709).
 - 검증: npm run build 통과.
+- 공개 확인(2026-11-04, 커밋 126e10c): Pages 실행 41790901453 성공. 공개 `intro-film.mp4?v=d53cf6c2d5b4`가 20,331,483바이트로 로컬 파일과 같고, 받는 데 4.4초 걸렸다(교체 전 61초). 공개 SceneController 청크가 새 캐시 키를 가리킨다.
