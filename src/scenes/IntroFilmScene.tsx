@@ -11,7 +11,7 @@ import './IntroFilmScene.css';
 const FADE_TO_BLACK_MS = 800;
 const POST_BLACK_HOLD_MS = 500;
 
-const VIDEO_SRC = `${import.meta.env.BASE_URL}video/intro-film.mp4?v=d1f817509c4c`;
+const VIDEO_SRC = `${import.meta.env.BASE_URL}video/intro-film.mp4?v=d53cf6c2d5b4`;
 
 /**
  * The bridge between the elevator and the first investigation Scene. It is

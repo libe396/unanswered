@@ -672,3 +672,10 @@ Use case: photorealistic-natural. Asset type: finished photographic portrait art
 - 보존: 입장 타이밍(`startEntryRef` 1.3초)과 기록 수집, `전시 소개` 링크, venue 2분 복귀, 움직임 줄이기 경로(안내도 전환 없음).
 - 검증: npm run build 통과.
 - 공개 확인(2026-11-04, 커밋 90df06c): Pages 실행 41782012093 성공. 공개 main-CE4RSrWU.js가 로컬 빌드와 같고, 문구를 담은 SceneController-4Hwb1sIU.js는 로컬 파일과 바이트 단위로 동일하다. 공개 `?venue=1` Landing에서 설명문 다음·시작 문구 앞에 `소리가 있는 전시입니다. 헤드폰을 착용해 주세요.`가 보이고 콘솔 오류 0.
+
+## 2026-11-04 인트로 영상 교체 점검
+
+- DEV 패널로 Intro Film에 들어가 새 파일(`intro-film.mp4?v=d53cf6c2d5b4`)이 재생되는 것을 확인했다. 재생 4초 시점에 이미 18.7초가 버퍼됐고, 1920×1080로 디코드되며 소리는 켜진 상태(muted=false), 길이는 36.25초로 원본과 같다.
+- 끝까지 둔 뒤 영상의 `ended`로 다음 장면(조사원 등록 안내)이 정상적으로 열렸다. 건너뛰기나 음소거 컨트롤은 여전히 없다.
+- 보존: 장면 전환 방식, 커튼 페이드, 진행 표시줄, 소리 켜고 재생 폴백, 색 공간(BT.709).
+- 검증: npm run build 통과.
