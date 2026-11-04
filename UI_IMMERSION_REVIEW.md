@@ -671,3 +671,4 @@ Use case: photorealistic-natural. Asset type: finished photographic portrait art
 - 390에서는 안내가 나오지 않고(`.landing-scene__sound-note` 없음) 기존 터치 문구가 그대로다. 가로 넘침 0.
 - 보존: 입장 타이밍(`startEntryRef` 1.3초)과 기록 수집, `전시 소개` 링크, venue 2분 복귀, 움직임 줄이기 경로(안내도 전환 없음).
 - 검증: npm run build 통과.
+- 공개 확인(2026-11-04, 커밋 90df06c): Pages 실행 41782012093 성공. 공개 main-CE4RSrWU.js가 로컬 빌드와 같고, 문구를 담은 SceneController-4Hwb1sIU.js는 로컬 파일과 바이트 단위로 동일하다. 공개 `?venue=1` Landing에서 설명문 다음·시작 문구 앞에 `소리가 있는 전시입니다. 헤드폰을 착용해 주세요.`가 보이고 콘솔 오류 0.
