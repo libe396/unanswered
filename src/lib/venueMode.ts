@@ -14,3 +14,14 @@ export function isVenueMode(): boolean {
  *  two minutes in all (2026-11-03, booth request). */
 export const VENUE_IDLE_PROMPT_MS = 105_000;
 export const VENUE_IDLE_CONFIRM_MS = 15_000;
+
+/** The booth reaches the web catalogue and comes back through `?venue=1`, so a
+ *  visit to 전시 소개 never drops the venue PC out of venue mode
+ *  (2026-11-04, booth request). */
+export function catalogHref(venue: boolean): string {
+  return `${import.meta.env.BASE_URL}catalog/${venue ? '?venue=1' : ''}`;
+}
+
+export function exhibitionHref(venue: boolean): string {
+  return `${import.meta.env.BASE_URL}${venue ? '?venue=1' : ''}`;
+}

@@ -4,6 +4,7 @@ import { CatalogImage, imageUrl, type OpenImage } from './CatalogImage';
 import { FinalViewer } from './shared';
 import { overviewChapters } from './editorialContent';
 import wordmark from '../assets/wordmark.svg';
+import { exhibitionHref, isVenueMode } from '../lib/venueMode';
 
 const spaces = [
   { title: '빛의 흔적', code: 'LIGHT', src: 'latest/space-light.webp', line: '마음이 가는 이미지에서 빛을 모읍니다.' },
@@ -100,7 +101,7 @@ export function Overview({ panelRef, active, visible, onChapter, onResearch, onR
               <div className="cover-lead"><p className="editorial-eyebrow">OVERVIEW</p><motion.h1 id={`${chapter.id}-title`} initial={false} animate={{ opacity: active === 0 && visible ? 1 : .2 }} transition={{ duration: reduced ? 0 : 1.2 }}><img className="hero-wordmark" src={wordmark} alt="UNANSWERED" /></motion.h1>
               <p className="cover-statement">‘모르겠어요’는 빈칸이 아니라,<br />아직 정리되지 않은 단서일 수 있다.</p>
               <p className="cover-body"><span>자신을 선뜻 설명하지 못하는 순간에도 취향과 감정의 흔적은 남는다.</span><span>〈미응답 UNANSWERED〉는 그 망설임을 자신을 이해하는 단서로 바라보는 데서 출발한다.</span></p>
-              <a className="editorial-link" href={import.meta.env.BASE_URL}>전시 입장 <span aria-hidden="true">↗</span></a></div>
+              <a className="editorial-link" href={exhibitionHref(isVenueMode())}>전시 입장 <span aria-hidden="true">↗</span></a></div>
             </div> : null}
             {index === 1 ? <div className="origin-experience">
               {heading(1, ['흐릿함에서,', '사람의 응답으로'], ['같은 이미지에서 연구를 시작했습니다. 사람과 AI가 남긴 서로 다른 해석을 비교합니다.', '흐릿함을 남겨 달라고 요청했습니다. AI가 모호함을 유지하는 방식을 살펴봅니다.', '선명한 장면으로 바꿔 달라고 요청했습니다. 원본과 재구성 이미지의 차이를 비교합니다.'][origin], '연구 과정', () => onResearch('01'))}

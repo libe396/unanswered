@@ -5,7 +5,7 @@ import { MemoryField } from '../components/MemoryField';
 import { LandingRecordCard } from '../components/LandingRecordCard';
 import wordmarkUrl from '../assets/wordmark.svg';
 import { activateFilmSound } from '../hooks/useFilmSound';
-import { isVenueMode } from '../lib/venueMode';
+import { catalogHref, isVenueMode } from '../lib/venueMode';
 import './LandingScene.css';
 
 // Keep the entry available as soon as the short reveal finishes.
@@ -32,7 +32,8 @@ export function LandingScene() {
   const [typed, setTyped] = useState('');
   const [subVisible, setSubVisible] = useState(false);
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'manual'>('idle');
-  // The venue PC stays inside the exhibition; the catalogue link is for the web.
+  // The booth shows 전시 소개 too; its link keeps `?venue=1` so the way back
+  // returns to venue mode (2026-11-04, booth request).
   const [venue] = useState(isVenueMode);
   // A phone or tablet, by input capability rather than by screen width.
   const [touchOnly] = useState(
@@ -216,12 +217,9 @@ export function LandingScene() {
 
       <div className="landing-scene__top" inert={entering}>
         <img className="landing-scene__wordmark" src={wordmarkUrl} alt="UNANSWERED" />
-        {/* The venue PC stays inside the exhibition; the catalogue link is for the web. */}
-        {!venue && (
-          <a className="landing-scene__catalog" href={`${import.meta.env.BASE_URL}catalog/`}>
-            전시 소개 <span aria-hidden="true">↗</span>
-          </a>
-        )}
+        <a className="landing-scene__catalog" href={catalogHref(venue)}>
+          전시 소개 <span aria-hidden="true">↗</span>
+        </a>
       </div>
 
       <LandingRecordCard entering={entering} cardRef={figureWrapRef} />

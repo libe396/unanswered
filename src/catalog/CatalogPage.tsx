@@ -4,6 +4,7 @@ import { Overview } from './Overview';
 import { Research } from './Research';
 import { Result } from './Result';
 import { overviewChapters } from './editorialContent';
+import { exhibitionHref, isVenueMode, VENUE_IDLE_RESET_MS } from '../lib/venueMode';
 import './catalog.css';
 import './cinematic.css';
 import './editorial.css';
@@ -40,12 +41,37 @@ function Lightbox({ image, onClose }: { image: { url: string; alt: string } | nu
   </dialog>;
 }
 
+const IDLE_INPUTS = ['pointerdown', 'pointermove', 'keydown', 'wheel', 'touchstart', 'scroll'] as const;
+
+/** Venue only: 전시 소개 is now reachable from the booth, so this page keeps the
+ *  same promise as every exhibition screen — no input for VENUE_IDLE_RESET_MS
+ *  and the next visitor finds Landing, still in venue mode. */
+function useVenueIdleReturn(venue: boolean) {
+  useEffect(() => {
+    if (!venue) return;
+    const leave = () => window.location.replace(exhibitionHref(true));
+    let timer = window.setTimeout(leave, VENUE_IDLE_RESET_MS);
+    const restartTimer = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(leave, VENUE_IDLE_RESET_MS);
+    };
+    // Capture: the panes scroll inside their own containers, and scroll does not bubble.
+    IDLE_INPUTS.forEach((type) => window.addEventListener(type, restartTimer, { capture: true, passive: true }));
+    return () => {
+      window.clearTimeout(timer);
+      IDLE_INPUTS.forEach((type) => window.removeEventListener(type, restartTimer, { capture: true }));
+    };
+  }, [venue]);
+}
+
 export function CatalogPage() {
   const [route, setRoute] = useState<Route>(readRoute);
+  const [venue] = useState(isVenueMode);
   const rememberedResearch = useRef<string | null>(route.chapter ?? null);
   const [active, setActive] = useState(0);
   const [zoomed, setZoomed] = useState<{ url: string; alt: string } | null>(null);
   const overview = useRef<HTMLDivElement>(null);
+  useVenueIdleReturn(venue);
   const open = (url: string, alt: string) => setZoomed({ url, alt });
   const navigate = (next: Route) => {
     if (next.tab === 'research') rememberedResearch.current = next.chapter ?? null;
@@ -96,9 +122,9 @@ export function CatalogPage() {
   };
   return <main className="catalog catalog-editorial catalog-glass">
     <header className="editorial-nav">
-      <a className="editorial-brand" href={import.meta.env.BASE_URL} aria-label="UNANSWERED Landing"><img src={wordmark} alt="UNANSWERED" /><span>전시 소개</span></a>
+      <a className="editorial-brand" href={exhibitionHref(venue)} aria-label="UNANSWERED Landing"><img src={wordmark} alt="UNANSWERED" /><span>전시 소개</span></a>
       <div className="editorial-tabs" role="tablist" aria-label="전시 소개 메뉴">{tabs.map((tab, i) => <button key={tab.id} id={`tab-${tab.id}`} type="button" role="tab" aria-selected={route.tab === tab.id} aria-controls={`panel-${tab.id}`} tabIndex={route.tab === tab.id ? 0 : -1} onClick={() => navigate({ tab: tab.id, chapter: tab.id === 'research' ? rememberedResearch.current ?? undefined : undefined })} onKeyDown={(event) => onTabKey(event, i)}>{tab.label}</button>)}</div>
-      <a className="editorial-enter" href={import.meta.env.BASE_URL}>전시 입장 <span aria-hidden="true">↗</span></a>
+      <a className="editorial-enter" href={exhibitionHref(venue)}>전시 입장 <span aria-hidden="true">↗</span></a>
     </header>
     <div className="editorial-pane" hidden={route.tab !== 'overview'}><Overview panelRef={overview} active={active} visible={route.tab === 'overview'} onChapter={(index) => navigate({ tab: 'overview', index })} onResearch={(chapter) => navigate({ tab: 'research', chapter })} onResult={() => navigate({ tab: 'result' })} onOpen={open} /></div>
     <div className="editorial-pane" hidden={route.tab !== 'research'}><Research selected={route.tab === 'research' ? route.chapter ?? null : rememberedResearch.current} onSelect={(chapter) => navigate({ tab: 'research', chapter: chapter ?? undefined })} onOpen={open} /></div>

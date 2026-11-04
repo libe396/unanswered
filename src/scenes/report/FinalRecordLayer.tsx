@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { VENUE_IDLE_RESET_MS } from '../../lib/venueMode';
+import { catalogHref, VENUE_IDLE_RESET_MS } from '../../lib/venueMode';
 import type { FinalReportPresentation } from '../../lib/finalReportPresentation';
 import type { RecordLayerDerived } from '../../types';
 import { useStageReveal } from './useStageReveal';
@@ -107,15 +107,14 @@ export function FinalRecordLayer({ record, presentation, findings, index, total,
               >
                 처음으로 돌아가기
               </button>
-              {/* The venue PC stays inside the exhibition; the catalogue link is for the web. */}
-              {!venue ? (
-                <a
-                  className="cta cta--text final-record-layer__catalog"
-                  href={`${import.meta.env.BASE_URL}catalog/`}
-                >
-                  전시 소개
-                </a>
-              ) : null}
+              {/* The booth shows 전시 소개 too; `?venue=1` rides along so the
+                  way back returns to venue mode (2026-11-04, booth request). */}
+              <a
+                className="cta cta--text final-record-layer__catalog"
+                href={catalogHref(venue)}
+              >
+                전시 소개
+              </a>
             </motion.div>
           ) : null}
         </AnimatePresence>
